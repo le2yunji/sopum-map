@@ -1,8 +1,8 @@
 ---
-name: BE
-about: 백엔드 프로젝트 이슈
+name: Backend Feature
+about: 백엔드 기능/API 작업 이슈
 title: "[BE] "
-labels: ["BE"]
+labels: backend
 ---
 
 ## 작업 목적

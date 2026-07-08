@@ -1,8 +1,8 @@
 ---
-name: FE
-about: 프론트엔드 프로젝트 이슈
+name: Frontend Feature
+about: 프론트엔드 화면/UI 작업 이슈
 title: "[FE] "
-labels: ["FE"]
+labels: frontend
 ---
 
 ## 작업 목적
