@@ -3,6 +3,7 @@ name: Backend Feature
 about: 백엔드 기능/API 작업 이슈
 title: "[BE] "
 labels: backend
+assignees: ""
 ---
 
 ## 작업 목적

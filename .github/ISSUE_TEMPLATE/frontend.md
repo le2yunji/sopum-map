@@ -3,6 +3,7 @@ name: Frontend Feature
 about: 프론트엔드 화면/UI 작업 이슈
 title: "[FE] "
 labels: frontend
+assignees: ""
 ---
 
 ## 작업 목적
