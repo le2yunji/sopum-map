@@ -1,26 +1,222 @@
 @import "tailwindcss";
 
+/* ========================================
+   Design tokens
+======================================== */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Brand */
+  --brand-primary: #738547;
+  --brand-deep: #006e1c;
+  --brand-bright: #6eb746;
+  --brand-soft: #dde5a9;
+
+  /* Text */
+  --foreground: #1c1c1c;
+  --foreground-soft: #2f3530;
+  --text-secondary: #484848;
+  --text-muted: #888888;
+  --text-placeholder: #999999;
+
+  /* Border */
+  --border: #f0f0f0;
+  --border-strong: #cccccc;
+
+  /* Background */
+  --background: #f3f4f6;
+  --surface: #ffffff;
+
+  /* State */
+  --danger: #f87171;
+
+  /* Accent */
+  --accent-pink: #f9a8be;
+  --accent-cream: #fcf2d3;
 }
+
+/* ========================================
+   Typography tokens
+======================================== */
+
+@theme {
+  /* Font size */
+  --text-10: 0.625rem;
+  --text-10--line-height: 0.875rem;
+
+  --text-12: 0.75rem;
+  --text-12--line-height: 1rem;
+
+  --text-14: 0.875rem;
+  --text-14--line-height: 1.25rem;
+
+  --text-16: 1rem;
+  --text-16--line-height: 1.5rem;
+
+  --text-18: 1.125rem;
+  --text-18--line-height: 1.625rem;
+
+  --text-20: 1.25rem;
+  --text-20--line-height: 1.75rem;
+
+  --text-22: 1.375rem;
+  --text-22--line-height: 1.875rem;
+
+  --text-24: 1.5rem;
+  --text-24--line-height: 2rem;
+
+  /* Font weight */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+}
+
+/* ========================================
+   Tailwind theme
+======================================== */
 
 @theme inline {
-  --color-background: var(--background);
+  /* Font family */
+  --font-sans:
+    var(--font-pretendard), -apple-system, BlinkMacSystemFont, system-ui,
+    "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", "Malgun Gothic",
+    sans-serif;
+
+  /* Brand */
+  --color-brand: var(--brand-primary);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-bright: var(--brand-bright);
+  --color-brand-soft: var(--brand-soft);
+
+  /* Text */
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-foreground-soft: var(--foreground-soft);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+  --color-placeholder: var(--text-placeholder);
+
+  /* Border */
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  /* Background */
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+
+  /* State */
+  --color-danger: var(--danger);
+
+  /* Accent */
+  --color-accent-pink: var(--accent-pink);
+  --color-accent-cream: var(--accent-cream);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ========================================
+   Document
+======================================== */
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  min-height: 100dvh;
+  margin: 0;
+
+  background-color: #f3f4f6;
+  color: #171717;
+
   font-family: Arial, Helvetica, sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  overflow-x: hidden;
+}
+
+/* ========================================
+   Mobile application frame
+======================================== */
+
+#mobile-app {
+  position: relative;
+
+  width: 100%;
+  max-width: 480px;
+  min-height: 100dvh;
+
+  margin: 0 auto;
+  background-color: var(--color-background);
+
+  overflow-x: hidden;
+}
+
+/* ========================================
+   Interactive elements
+======================================== */
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* ========================================
+   Links
+======================================== */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ========================================
+   Media
+======================================== */
+
+img,
+picture,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* ========================================
+   Accessibility
+======================================== */
+
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+[hidden] {
+  display: none !important;
 }
