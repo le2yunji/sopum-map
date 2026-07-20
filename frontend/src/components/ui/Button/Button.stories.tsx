@@ -15,7 +15,7 @@ const meta = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["primary", "secondary", "outline", "ghost", "danger"],
+      options: ["primary", "secondary", "outline", "ghost"],
       description: "버튼의 시각적 형태",
     },
 
@@ -35,9 +35,24 @@ const meta = {
       description: "로딩 상태",
     },
 
+    iconOnly: {
+      control: "boolean",
+      description: "텍스트 없이 아이콘만 표시하는 원형 버튼 여부",
+    },
+
     disabled: {
       control: "boolean",
       description: "비활성 상태",
+    },
+
+    leftIcon: {
+      control: false,
+      description: "버튼 텍스트 왼쪽에 표시할 아이콘",
+    },
+
+    rightIcon: {
+      control: false,
+      description: "버튼 텍스트 오른쪽에 표시할 아이콘",
     },
 
     onClick: {
@@ -51,6 +66,7 @@ const meta = {
     size: "medium",
     fullWidth: false,
     isLoading: false,
+    iconOnly: false,
     disabled: false,
   },
 } satisfies Meta<typeof Button>;
@@ -153,4 +169,73 @@ export const WithIcons: Story = {
       </Button>
     </div>
   ),
+};
+
+export const IconOnly: Story = {
+  args: {
+    iconOnly: true,
+    variant: "ghost",
+    size: "medium",
+    children: <span className="text-20">×</span>,
+    "aria-label": "검색어 삭제",
+  },
+};
+
+export const IconOnlySizes: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <Button
+        iconOnly
+        size="small"
+        variant="outline"
+        aria-label="작은 검색 버튼"
+      >
+        <span className="text-14">⌕</span>
+      </Button>
+
+      <Button
+        iconOnly
+        size="medium"
+        variant="secondary"
+        aria-label="현재 위치로 이동"
+      >
+        <span className="text-16">◎</span>
+      </Button>
+
+      <Button iconOnly size="large" variant="primary" aria-label="좋아요">
+        <span className="text-18">♥</span>
+      </Button>
+    </div>
+  ),
+};
+
+export const IconOnlyVariants: Story = {
+  render: () => (
+    <div className="flex items-center gap-4">
+      <Button iconOnly variant="primary" aria-label="Primary 아이콘 버튼">
+        <span>♥</span>
+      </Button>
+
+      <Button iconOnly variant="secondary" aria-label="Secondary 아이콘 버튼">
+        <span>♥</span>
+      </Button>
+
+      <Button iconOnly variant="outline" aria-label="Outline 아이콘 버튼">
+        <span>♥</span>
+      </Button>
+
+      <Button iconOnly variant="ghost" aria-label="Ghost 아이콘 버튼">
+        <span>♥</span>
+      </Button>
+    </div>
+  ),
+};
+
+export const IconOnlyLoading: Story = {
+  args: {
+    iconOnly: true,
+    isLoading: true,
+    variant: "primary",
+    "aria-label": "처리 중",
+  },
 };
