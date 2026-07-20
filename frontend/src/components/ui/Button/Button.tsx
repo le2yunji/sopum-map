@@ -19,7 +19,7 @@ const variantClasses: Record<ButtonVariant, string> = {
   secondary: "bg-brand-soft text-foreground hover:opacity-90 active:opacity-80",
 
   outline:
-    "border border-accent-pink/30 bg-surface text-secondary hover:bg-accent-pink/10 active:bg-brand-soft",
+    "border border-accent-pink/30 bg-background text-secondary hover:bg-accent-pink/10 active:bg-brand-soft",
 
   ghost: "bg-transparent text-foreground hover:bg-background active:bg-border",
 };

@@ -115,7 +115,7 @@ export const FullWidth: Story = {
 
   decorators: [
     (Story) => (
-      <div className="w-full max-w-97.5 bg-surface p-5">
+      <div className="w-full max-w-97.5 bg-background p-5">
         <Story />
       </div>
     ),
