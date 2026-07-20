@@ -69,10 +69,6 @@ const preview: Preview = {
       options: {
         app: {
           name: "앱 배경",
-          value: "#f3f4f6",
-        },
-        surface: {
-          name: "흰색",
           value: "#ffffff",
         },
       },
@@ -82,8 +78,8 @@ const preview: Preview = {
       // 'todo' - show a11y violations in the test UI only
       // 'error' - fail CI on a11y violations
       // 'off' - skip a11y checks entirely
-      test: "todo"
-    }
+      test: "todo",
+    },
   },
 
   initialGlobals: {
