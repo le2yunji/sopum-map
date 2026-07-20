@@ -8,9 +8,8 @@
   color-scheme: light;
 
   /* Brand */
-  --brand-primary: #738547;
-  --brand-deep: #006e1c;
-  --brand-bright: #6eb746;
+  --brand-primary: #6eb746;
+  --brand-deep: #738547;
   --brand-soft: #dde5a9;
 
   /* Text */
@@ -25,8 +24,7 @@
   --border-strong: #cccccc;
 
   /* Background */
-  --background: #f3f4f6;
-  --surface: #ffffff;
+  --background: #ffffff;
 
   /* State */
   --danger: #f87171;
@@ -87,7 +85,6 @@
   /* Brand */
   --color-brand: var(--brand-primary);
   --color-brand-deep: var(--brand-deep);
-  --color-brand-bright: var(--brand-bright);
   --color-brand-soft: var(--brand-soft);
 
   /* Text */
@@ -103,7 +100,6 @@
 
   /* Background */
   --color-background: var(--background);
-  --color-surface: var(--surface);
 
   /* State */
   --color-danger: var(--danger);
@@ -128,10 +124,9 @@ body {
   min-height: 100dvh;
   margin: 0;
 
-  background-color: #f3f4f6;
-  color: #171717;
-
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
 
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

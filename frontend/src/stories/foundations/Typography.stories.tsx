@@ -31,7 +31,7 @@ type Story = StoryObj<typeof meta>;
 
 export const FontSizes: Story = {
   render: () => (
-    <section className="min-h-dvh bg-surface p-5">
+    <section className="min-h-dvh bg-background p-5">
       <h1 className="mb-6 text-24 font-bold text-foreground">Typography</h1>
 
       <div className="space-y-4">
@@ -54,7 +54,7 @@ export const FontSizes: Story = {
 
 export const FontWeights: Story = {
   render: () => (
-    <section className="min-h-dvh bg-surface p-5">
+    <section className="min-h-dvh bg-background p-5">
       <h1 className="mb-6 text-24 font-bold text-foreground">Font Weight</h1>
 
       <div className="space-y-4">
