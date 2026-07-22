@@ -41,7 +41,7 @@ const iconSizeClassNames: Record<SearchInputSize, string> = {
 
 /**
  *
- * @example
+ * @example 제어 방식
  * ```tsx
  * const [keyword, setKeyword] = useState("");
  *
@@ -50,6 +50,11 @@ const iconSizeClassNames: Record<SearchInputSize, string> = {
  *   onValueChange={setKeyword}
  *   onSearch={(value) => console.log(value)}
  * />
+ * ```
+ *
+ * @example 비제어 방식
+ * ```tsx
+ * <SearchInput placeholder="상점 이름 검색" />
  * ```
  */
 
