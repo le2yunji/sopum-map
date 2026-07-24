@@ -30,6 +30,7 @@
   --danger: #f87171;
 
   /* Accent */
+  --accent-rose: #ec3f42;
   --accent-pink: #f9a8be;
   --accent-cream: #fcf2d3;
 }
@@ -105,6 +106,7 @@
   --color-danger: var(--danger);
 
   /* Accent */
+  --color-accent-rose: var(--accent-rose);
   --color-accent-pink: var(--accent-pink);
   --color-accent-cream: var(--accent-cream);
 }
