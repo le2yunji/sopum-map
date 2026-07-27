@@ -56,7 +56,7 @@ visitLogSchema.index({
   visitedAt: -1,
 });
 
-export type VisitLog = InferSchemaType<typeof visitLogSchema>;
+export type VisitLogSchemaType = InferSchemaType<typeof visitLogSchema>;
 
 const VisitLogModel = model("VisitLog", visitLogSchema);
 

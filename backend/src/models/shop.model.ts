@@ -1,6 +1,6 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
 
-import { SHOP_CATEGORIES } from "../constants/shop.constants.js";
+import { SHOP_CATEGORIES } from "@sopum-map/shared";
 
 // 매장 이미지 정보
 const shopImageSchema = new Schema(
@@ -257,7 +257,7 @@ shopSchema.index({
   likeCount: -1,
 });
 
-export type Shop = InferSchemaType<typeof shopSchema>;
+export type ShopSchemaType = InferSchemaType<typeof shopSchema>;
 
 const ShopModel = model("Shop", shopSchema);
 

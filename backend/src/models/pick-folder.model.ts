@@ -53,7 +53,7 @@ pickFolderSchema.index(
   },
 );
 
-export type PickFolder = InferSchemaType<typeof pickFolderSchema>;
+export type PickFolderSchemaType = InferSchemaType<typeof pickFolderSchema>;
 
 const PickFolderModel = model("PickFolder", pickFolderSchema);
 

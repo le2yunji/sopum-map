@@ -38,7 +38,7 @@ likeSchema.index({
   createdAt: -1,
 });
 
-export type Like = InferSchemaType<typeof likeSchema>;
+export type LikeSchemaType = InferSchemaType<typeof likeSchema>;
 
 const LikeModel = model("Like", likeSchema);
 

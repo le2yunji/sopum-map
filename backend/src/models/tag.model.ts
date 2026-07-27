@@ -1,13 +1,5 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
-
-const TAG_GROUPS = [
-  "mood",
-  "product",
-  "character",
-  "feature",
-  "experience",
-  "etc",
-] as const;
+import { TAG_GROUPS } from "@sopum-map/shared";
 
 const tagSchema = new Schema(
   {
@@ -53,7 +45,7 @@ tagSchema.index({
   displayOrder: 1,
 });
 
-export type Tag = InferSchemaType<typeof tagSchema>;
+export type TagSchemaType = InferSchemaType<typeof tagSchema>;
 
 const TagModel = model("Tag", tagSchema);
 
