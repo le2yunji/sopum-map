@@ -4,19 +4,13 @@ const colors = [
   {
     name: "Brand",
     value: "#738547",
-    backgroundClass: "bg-brand",
-    textClass: "text-white",
-  },
-  {
-    name: "Brand Deep",
-    value: "#006E1C",
     backgroundClass: "bg-brand-deep",
     textClass: "text-white",
   },
   {
     name: "Brand Bright",
     value: "#6EB746",
-    backgroundClass: "bg-brand-bright",
+    backgroundClass: "bg-brand",
     textClass: "text-white",
   },
   {
@@ -73,7 +67,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Palette: Story = {
   render: () => (
-    <section className="min-h-dvh bg-surface p-5">
+    <section className="min-h-dvh bg-background p-5">
       <h1 className="mb-6 text-24 font-bold text-foreground">Colors</h1>
 
       <div className="grid grid-cols-2 gap-3">
