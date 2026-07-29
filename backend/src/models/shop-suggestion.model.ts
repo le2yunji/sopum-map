@@ -66,7 +66,9 @@ shopSuggestionSchema.index({
   createdAt: -1,
 });
 
-export type ShopSuggestion = InferSchemaType<typeof shopSuggestionSchema>;
+export type ShopSuggestionSchemaType = InferSchemaType<
+  typeof shopSuggestionSchema
+>;
 
 const ShopSuggestionModel = model("ShopSuggestion", shopSuggestionSchema);
 

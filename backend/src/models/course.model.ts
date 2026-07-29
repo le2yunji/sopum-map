@@ -1,6 +1,5 @@
+import { COURSE_TYPES } from "@sopum-map/shared";
 import { Schema, model, type InferSchemaType } from "mongoose";
-
-const COURSE_TYPES = ["user", "recommended"] as const;
 
 const courseShopSchema = new Schema(
   {
@@ -132,7 +131,7 @@ courseSchema.index({
   createdAt: -1,
 });
 
-export type Course = InferSchemaType<typeof courseSchema>;
+export type CourseSchemaType = InferSchemaType<typeof courseSchema>;
 
 const CourseModel = model("Course", courseSchema);
 

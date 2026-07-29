@@ -25,7 +25,6 @@ const userSchema = new Schema(
     provider: {
       type: String,
       enum: ["kakao", "google", "naver", "apple"],
-      default: "local",
       required: true,
     },
     providerId: {
@@ -64,7 +63,7 @@ userSchema.index(
   },
 );
 
-export type User = InferSchemaType<typeof userSchema>;
+export type UserSchemaType = InferSchemaType<typeof userSchema>;
 
 const UserModel = model("User", userSchema);
 

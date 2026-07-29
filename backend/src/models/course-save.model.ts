@@ -43,7 +43,7 @@ courseSaveSchema.index({
   courseId: 1,
 });
 
-export type CourseSave = InferSchemaType<typeof courseSaveSchema>;
+export type CourseSaveSchemaType = InferSchemaType<typeof courseSaveSchema>;
 
 const CourseSaveModel = model("CourseSave", courseSaveSchema);
 
