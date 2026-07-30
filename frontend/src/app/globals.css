@@ -1,38 +1,46 @@
 @import "tailwindcss";
 
 /* ========================================
-   Design tokens
+   Color palette
 ======================================== */
 
 :root {
   color-scheme: light;
 
-  /* Brand */
-  --brand-primary: #6eb746;
-  --brand-deep: #738547;
-  --brand-soft: #dde5a9;
+  /* Green */
+  --green-50: #f5f8e9;
+  --green-100: #dde5a9;
+  --green-200: #cad982;
+  --green-300: #afcb62;
+  --green-400: #8dbd4f;
+  --green-500: #6eb746;
+  --green-600: #5d9c3e;
+  --green-700: #738547;
+  --green-800: #526438;
+  --green-900: #39482a;
+  --green-950: #222d1a;
 
-  /* Text */
-  --foreground: #1c1c1c;
-  --foreground-soft: #2f3530;
-  --text-secondary: #484848;
-  --text-muted: #888888;
-  --text-placeholder: #999999;
+  /* Black */
+  --black-100: #f0f0f0;
+  --black-300: #cccccc;
+  --black-400: #999999;
+  --black-500: #888888;
+  --black-800: #484848;
+  --black-900: #2f3530;
+  --black-950: #1c1c1c;
 
-  /* Border */
-  --border: #f0f0f0;
-  --border-strong: #cccccc;
+  /* White */
+  --white: #ffffff;
 
-  /* Background */
-  --background: #ffffff;
+  /* Red */
+  --red-400: #f87171;
+  --red-600: #ec3f42;
 
-  /* State */
-  --danger: #f87171;
+  /* Pink */
+  --pink-300: #f9a8be;
 
-  /* Accent */
-  --accent-rose: #ec3f42;
-  --accent-pink: #f9a8be;
-  --accent-cream: #fcf2d3;
+  /* Cream */
+  --cream-100: #fcf2d3;
 }
 
 /* ========================================
@@ -83,32 +91,41 @@
     "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", "Malgun Gothic",
     sans-serif;
 
-  /* Brand */
-  --color-brand: var(--brand-primary);
-  --color-brand-deep: var(--brand-deep);
-  --color-brand-soft: var(--brand-soft);
+  /* Green */
+  /* Green */
+  --color-green-50: var(--green-50);
+  --color-green-100: var(--green-100);
+  --color-green-200: var(--green-200);
+  --color-green-300: var(--green-300);
+  --color-green-400: var(--green-400);
+  --color-green-500: var(--green-500);
+  --color-green-600: var(--green-600);
+  --color-green-700: var(--green-700);
+  --color-green-800: var(--green-800);
+  --color-green-900: var(--green-900);
+  --color-green-950: var(--green-950);
 
-  /* Text */
-  --color-foreground: var(--foreground);
-  --color-foreground-soft: var(--foreground-soft);
-  --color-secondary: var(--text-secondary);
-  --color-muted: var(--text-muted);
-  --color-placeholder: var(--text-placeholder);
+  /* Black */
+  --color-black-100: var(--black-100);
+  --color-black-300: var(--black-300);
+  --color-black-400: var(--black-400);
+  --color-black-500: var(--black-500);
+  --color-black-800: var(--black-800);
+  --color-black-900: var(--black-900);
+  --color-black-950: var(--black-950);
 
-  /* Border */
-  --color-border: var(--border);
-  --color-border-strong: var(--border-strong);
+  /* White */
+  --color-white: var(--white);
 
-  /* Background */
-  --color-background: var(--background);
+  /* Red */
+  --color-red-400: var(--red-400);
+  --color-red-600: var(--red-600);
 
-  /* State */
-  --color-danger: var(--danger);
+  /* Pink */
+  --color-pink-300: var(--pink-300);
 
-  /* Accent */
-  --color-accent-rose: var(--accent-rose);
-  --color-accent-pink: var(--accent-pink);
-  --color-accent-cream: var(--accent-cream);
+  /* Cream */
+  --color-cream-100: var(--cream-100);
 }
 
 /* ========================================
@@ -126,8 +143,8 @@ body {
   min-height: 100dvh;
   margin: 0;
 
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: var(--white);
+  color: var(--black-950);
   font-family: var(--font-sans);
 
   -webkit-font-smoothing: antialiased;
@@ -148,7 +165,7 @@ body {
   min-height: 100dvh;
 
   margin: 0 auto;
-  background-color: var(--color-background);
+  background-color: var(--white);
 
   overflow-x: hidden;
 }
@@ -196,6 +213,10 @@ canvas {
   display: block;
   max-width: 100%;
 }
+
+/* ========================================
+   Safe area
+======================================== */
 
 .safe-area-bottom {
   padding-bottom: env(safe-area-inset-bottom);
