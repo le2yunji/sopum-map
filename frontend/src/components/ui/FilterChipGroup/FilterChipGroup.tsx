@@ -1,14 +1,14 @@
 "use client";
 
-import type { CategoryChipsProps } from "./CategoryChips.types";
+import type { FilterChipGroupProps } from "./FilterChipGroup.types";
 
-export const CategoryChips = ({
+export const FilterChipGroup = ({
   items,
   selectedValue,
   ariaLabel,
   onValueChange,
   className = "",
-}: CategoryChipsProps) => {
+}: FilterChipGroupProps) => {
   return (
     <div
       role="group"

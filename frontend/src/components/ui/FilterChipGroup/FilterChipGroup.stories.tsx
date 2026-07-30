@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
 import { fn } from "storybook/test";
 
-import { CategoryChips } from "./CategoryChips";
-import type { CategoryChipsProps } from "./CategoryChips.types";
+import { FilterChipGroup } from "./FilterChipGroup";
+import type { FilterChipGroupProps } from "./FilterChipGroup.types";
 
 const regionItems = [
   { label: "전체", value: "all" },
@@ -26,7 +26,7 @@ const tagItems = [
   { label: "굿즈", value: "goods" },
 ];
 
-const ControlledCategoryChips = (args: CategoryChipsProps) => {
+const ControlledFilterChipGroup = (args: FilterChipGroupProps) => {
   const [selectedValue, setSelectedValue] = useState(args.selectedValue);
 
   const handleValueChange = (value: string) => {
@@ -35,7 +35,7 @@ const ControlledCategoryChips = (args: CategoryChipsProps) => {
   };
 
   return (
-    <CategoryChips
+    <FilterChipGroup
       {...args}
       selectedValue={selectedValue}
       onValueChange={handleValueChange}
@@ -44,8 +44,8 @@ const ControlledCategoryChips = (args: CategoryChipsProps) => {
 };
 
 const meta = {
-  title: "Components/UI/CategoryChips",
-  component: CategoryChips,
+  title: "Components/UI/FilterChipGroup",
+  component: FilterChipGroup,
 
   parameters: {
     layout: "centered",
@@ -88,10 +88,10 @@ const meta = {
 
   render: (args) => (
     <div className="w-[375px]">
-      <ControlledCategoryChips {...args} />
+      <ControlledFilterChipGroup {...args} />
     </div>
   ),
-} satisfies Meta<typeof CategoryChips>;
+} satisfies Meta<typeof FilterChipGroup>;
 
 export default meta;
 
