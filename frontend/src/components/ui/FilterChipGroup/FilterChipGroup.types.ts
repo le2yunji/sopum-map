@@ -1,10 +1,10 @@
-export interface CategoryChipItem {
+export interface FilterChipItem {
   value: string;
   label: string;
 }
 
-export interface CategoryChipsProps {
-  items: CategoryChipItem[];
+export interface FilterChipGroupProps {
+  items: FilterChipItem[];
   selectedValue?: string;
   ariaLabel: string;
   onValueChange: (value: string) => void;
