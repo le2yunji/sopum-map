@@ -33,18 +33,23 @@ export const CategoryChips = ({
             className={`
               shrink-0 whitespace-nowrap rounded-full
               border px-4 py-2
-              text-sm 
-              transition-colors
+              text-14 transition-colors       
               focus-visible:outline-none
               focus-visible:ring-2
-              focus-visible:ring-gray-900
+              focus-visible:ring-black-950
               focus-visible:ring-offset-2
               ${
                 isSelected
-                  ? "border-gray-900 bg-foreground text-white font-bold"
+                  ? `
+                    border-black-950 bg-black-950
+                    font-bold text-white
+                  `
                   : `
-                    font-medium border-border bg-white text-gray-600 
-                    hover:border-gray-300 hover:bg-gray-50
+                    border-black-100 bg-white
+                    font-medium text-black-800
+                    hover:border-black-300
+                    hover:bg-black-100/50
+                    active:bg-black-100
                   `
               }
             `}

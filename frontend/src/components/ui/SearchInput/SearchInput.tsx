@@ -1,8 +1,6 @@
 "use client";
 
-import { CloseCircleIcon } from "@/components/icons";
-import { LoadingIcon } from "@/components/icons";
-import { SearchIcon } from "@/components/icons";
+import { CloseCircleIcon, LoadingIcon, SearchIcon } from "@/components/icons";
 import {
   forwardRef,
   useState,
@@ -16,21 +14,38 @@ type SearchInputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
   "type" | "size" | "value" | "defaultValue" | "onChange"
 > & {
-  value?: string; // 제어 컴포넌트로 사용할 때의 검색어
-  defaultValue?: string; // 비제어 컴포넌트로 사용할 때의 초기 검색어
-  onValueChange?: (value: string) => void; // 검색어 변경 이벤트
-  onSearch?: (value: string) => void; // Enter 입력 또는 검색 버튼 클릭 시 실행
-  onClear?: () => void; // 검색어 초기화 시 실행
-  size?: SearchInputSize; // 입력창 크기
-  fullWidth?: boolean; // 부모 요소의 전체 너비 사용 여부
-  isLoading?: boolean; // 검색 중 상태
-  showClearButton?: boolean; // 검색어 초기화 버튼 표시 여부
+  /** 제어 컴포넌트로 사용할 때의 검색어 */
+  value?: string;
+
+  /** 비제어 컴포넌트로 사용할 때의 초기 검색어 */
+  defaultValue?: string;
+
+  /** 검색어 변경 이벤트 */
+  onValueChange?: (value: string) => void;
+
+  /** Enter 입력 시 실행 */
+  onSearch?: (value: string) => void;
+
+  /** 검색어 초기화 시 실행 */
+  onClear?: () => void;
+
+  /** 입력창 크기 */
+  size?: SearchInputSize;
+
+  /** 부모 요소의 전체 너비 사용 여부 */
+  fullWidth?: boolean;
+
+  /** 검색 중 상태 */
+  isLoading?: boolean;
+
+  /** 검색어 초기화 버튼 표시 여부 */
+  showClearButton?: boolean;
 };
 
 const sizeClassNames: Record<SearchInputSize, string> = {
-  small: "h-9 px-3 text-sm",
-  medium: "h-11 px-4 text-sm",
-  large: "h-13 px-4 text-base",
+  small: "h-9 px-3 text-14",
+  medium: "h-11 px-4 text-14",
+  large: "h-13 px-4 text-16",
 };
 
 const iconSizeClassNames: Record<SearchInputSize, string> = {
@@ -39,9 +54,17 @@ const iconSizeClassNames: Record<SearchInputSize, string> = {
   large: "size-5",
 };
 
+const clearButtonSizeClassNames: Record<SearchInputSize, string> = {
+  small: "size-6",
+  medium: "size-7",
+  large: "size-7",
+};
+
 /**
+ * 검색어 입력과 검색 실행, 초기화 기능을 제공하는 입력 컴포넌트입니다.
  *
  * @example 제어 방식
+ *
  * ```tsx
  * const [keyword, setKeyword] = useState("");
  *
@@ -53,11 +76,11 @@ const iconSizeClassNames: Record<SearchInputSize, string> = {
  * ```
  *
  * @example 비제어 방식
+ *
  * ```tsx
  * <SearchInput placeholder="상점 이름 검색" />
  * ```
  */
-
 export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
   (
     {
@@ -80,11 +103,9 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
     },
     ref,
   ) => {
-    // 비제어 방식에서 사용할 내부 검색어 상태
     const [internalValue, setInternalValue] = useState(defaultValue);
-    // // value prop 전달 여부에 따라 제어/비제어 컴포넌트를 구분
+
     const isControlled = value !== undefined;
-    // 제어 방식이면 외부 value를, 비제어 방식이면 내부 상태를 사용
     const currentValue = isControlled ? value : internalValue;
 
     const handleValueChange = (nextValue: string) => {
@@ -140,13 +161,16 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
       <div
         className={[
           "flex items-center gap-2 rounded-full bg-white",
-          "text-gray-900",
-          "shadow-[0_0_10px_1px_rgba(0,0,0,0.12)]",
+          "text-black-950",
+          "shadow-[0_0_10px_1px] shadow-black-950/10",
           "transition-shadow",
-          "focus-within:shadow-[0_0_0_2px_rgba(2,0,0,0.3)]",
+          "focus-within:ring-2",
+          "focus-within:ring-black-950/30",
           disabled
-            ? "cursor-not-allowed bg-gray-100 text-gray-400"
-            : "hover:shadow-[0_0_0_1px_rgba(0,0,0,0.25)]",
+            ? "cursor-not-allowed bg-black-100 text-black-400"
+            : ["hover:shadow-[0_0_0_1px]", "hover:shadow-black-950/25"].join(
+                " ",
+              ),
           fullWidth ? "w-full" : "w-fit",
           sizeClassNames[size],
           className,
@@ -155,7 +179,8 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           .join(" ")}
       >
         <SearchIcon
-          className={["shrink-0 text-gray-500", iconSizeClassNames[size]].join(
+          aria-hidden="true"
+          className={["shrink-0 text-black-500", iconSizeClassNames[size]].join(
             " ",
           )}
         />
@@ -169,7 +194,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
           readOnly={readOnly}
           placeholder={placeholder}
           aria-label={ariaLabel ?? "검색어"}
-          aria-busy={isLoading}
+          aria-busy={isLoading || undefined}
           onChange={(event) => handleValueChange(event.target.value)}
           onKeyDown={handleKeyDown}
           className={[
@@ -177,7 +202,7 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             "outline-none ring-0",
             "focus:border-0 focus:outline-none focus:ring-0",
             "focus-visible:outline-none focus-visible:ring-0",
-            "placeholder:text-gray-400",
+            "placeholder:text-black-400",
             "disabled:cursor-not-allowed",
             "[&::-webkit-search-cancel-button]:appearance-none",
             "[&::-webkit-search-decoration]:appearance-none",
@@ -186,8 +211,9 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
 
         {isLoading && (
           <LoadingIcon
+            aria-hidden="true"
             className={[
-              "shrink-0 text-gray-500",
+              "shrink-0 text-black-500",
               iconSizeClassNames[size],
             ].join(" ")}
           />
@@ -200,14 +226,16 @@ export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
             onClick={handleClear}
             className={[
               "flex shrink-0 items-center justify-center rounded-full",
-              "text-gray-400 transition-colors",
-              "hover:bg-gray-100 hover:text-gray-700",
+              "text-black-400 transition-colors",
+              "hover:bg-black-100 hover:text-black-800",
               "focus-visible:outline-none",
-              "focus-visible:ring-2 focus-visible:ring-gray-900",
-              iconSizeClassNames[size],
+              "focus-visible:ring-2",
+              "focus-visible:ring-black-950",
+              "focus-visible:ring-offset-2",
+              clearButtonSizeClassNames[size],
             ].join(" ")}
           >
-            <CloseCircleIcon className="size-7" />
+            <CloseCircleIcon aria-hidden="true" className="size-full" />
           </button>
         )}
       </div>

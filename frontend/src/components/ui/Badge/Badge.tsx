@@ -8,27 +8,23 @@ interface BadgeProps extends ComponentPropsWithoutRef<"span"> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  green: [
-    "h-[19px]",
-    "px-2",
-    "bg-brand-soft",
-    "text-secondary",
-    "text-10",
-  ].join(" "),
+  green: ["h-[19px]", "px-2", "bg-green-100", "text-black-800", "text-10"].join(
+    " ",
+  ),
 
   pink: [
     "h-[26px]",
     "px-2.5",
-    "bg-accent-pink/18",
+    "bg-pink-300/[0.18]",
     "border",
-    "border-accent-pink/35",
-    "text-secondary",
-    "text-xs",
+    "border-pink-300/[0.35]",
+    "text-black-800",
+    "text-12",
   ].join(" "),
 };
 
 /**
- * 텍스트의 길이에 따라 가로 너비가 자동으로 조절되는 배지 컴포넌트
+ * 텍스트 길이에 따라 가로 너비가 자동으로 조절되는 배지 컴포넌트
  *
  * @example
  *
@@ -38,7 +34,6 @@ const variantStyles: Record<BadgeVariant, string> = {
  * </Badge>
  * ```
  */
-
 export function Badge({
   children,
   variant = "green",
@@ -55,8 +50,8 @@ export function Badge({
         "justify-center",
         "whitespace-nowrap",
         "rounded-full",
-        "font-medium",
         "box-border",
+        "font-medium",
         variantStyles[variant],
         className,
       ].join(" ")}

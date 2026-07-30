@@ -15,14 +15,35 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-brand text-white hover:opacity-90 active:opacity-80",
+  primary: [
+    "bg-green-500",
+    "text-white",
+    "hover:bg-green-600",
+    "active:bg-green-600",
+  ].join(" "),
 
-  secondary: "bg-brand-soft text-foreground hover:opacity-90 active:opacity-80",
+  secondary: [
+    "bg-green-100",
+    "text-black-950",
+    "hover:bg-green-200",
+    "active:bg-green-300",
+  ].join(" "),
 
-  outline:
-    "border border-accent-pink/30 bg-background text-secondary hover:bg-accent-pink/10 active:bg-brand-soft",
+  outline: [
+    "border",
+    "border-pink-300/30",
+    "bg-white",
+    "text-black-800",
+    "hover:bg-pink-300/10",
+    "active:bg-pink-300/20",
+  ].join(" "),
 
-  ghost: "bg-transparent text-foreground hover:bg-background active:bg-border",
+  ghost: [
+    "bg-transparent",
+    "text-black-950",
+    "hover:bg-black-100",
+    "active:bg-black-300",
+  ].join(" "),
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -75,7 +96,6 @@ const iconOnlySizeClasses: Record<ButtonSize, string> = {
  * </Button>
  * ```
  */
-
 export function Button({
   type = "button",
   variant = "primary",
@@ -94,9 +114,15 @@ export function Button({
 
   const buttonClassName = [
     "inline-flex shrink-0 items-center justify-center",
-    "font-semibold transition",
+    "font-semibold transition-colors",
     "focus-visible:outline-none",
-    "disabled:cursor-not-allowed disabled:bg-foreground/10 disabled:text-secondary/30",
+    "focus-visible:ring-2",
+    "focus-visible:ring-green-500",
+    "focus-visible:ring-offset-2",
+    "disabled:cursor-not-allowed",
+    "disabled:border-black-100",
+    "disabled:bg-black-100",
+    "disabled:text-black-400",
     variantClasses[variant],
     iconOnly
       ? `${iconOnlySizeClasses[size]} rounded-full p-0`
@@ -119,17 +145,31 @@ export function Button({
         <>
           <span
             aria-hidden="true"
-            className="size-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+            className="
+              size-4 animate-spin rounded-full
+              border-2 border-current border-r-transparent
+            "
           />
+
           {!iconOnly && <span>처리 중</span>}
         </>
       ) : iconOnly ? (
         <span aria-hidden="true">{children}</span>
       ) : (
         <>
-          {leftIcon && <span aria-hidden="true">{leftIcon}</span>}
+          {leftIcon && (
+            <span aria-hidden="true" className="shrink-0">
+              {leftIcon}
+            </span>
+          )}
+
           {children && <span>{children}</span>}
-          {rightIcon && <span aria-hidden="true">{rightIcon}</span>}
+
+          {rightIcon && (
+            <span aria-hidden="true" className="shrink-0">
+              {rightIcon}
+            </span>
+          )}
         </>
       )}
     </button>
