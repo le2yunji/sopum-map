@@ -1,10 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { ChevronRightIcon } from "@/components/icons/ChevronRightIcon";
+import { DEFAULT_IMAGES } from "@/constants/image.constants";
+
+import { Badge } from "../Badge/Badge";
 import type { CourseListItemProps } from "./CourseListItem.type";
 
-const DEFAULT_SHOP_IMAGE = "/images/profiles/shop_default.webp";
-const THUMBNAIL_IMAGE_COUNT = 4;
+const MAX_THUMBNAIL_COUNT = 4;
+
+const thumbnailGridStyles: Record<number, string> = {
+  1: "grid-cols-1 grid-rows-1",
+  2: "grid-cols-2 grid-rows-1",
+  3: "grid-cols-2 grid-rows-2",
+  4: "grid-cols-2 grid-rows-2",
+};
 
 export const CourseListItem = ({
   id,
@@ -13,10 +23,12 @@ export const CourseListItem = ({
   imageUrls,
   tags,
 }: CourseListItemProps) => {
-  const thumbnailImages = Array.from(
-    { length: THUMBNAIL_IMAGE_COUNT },
-    (_, index) => imageUrls[index] || DEFAULT_SHOP_IMAGE,
-  );
+  const thumbnailImages =
+    imageUrls.length > 0
+      ? imageUrls.slice(0, MAX_THUMBNAIL_COUNT)
+      : [DEFAULT_IMAGES.shop];
+
+  const thumbnailCount = thumbnailImages.length;
 
   return (
     <Link
@@ -32,24 +44,30 @@ export const CourseListItem = ({
       "
     >
       <div
-        className="
-          grid size-20 shrink-0
-          grid-cols-2 grid-rows-2
-          overflow-hidden rounded-2xl
-          bg-black-100
-        "
+        className={[
+          "grid size-20 shrink-0 gap-0.5",
+          "overflow-hidden rounded-2xl",
+          "bg-white",
+          thumbnailGridStyles[thumbnailCount],
+        ].join(" ")}
       >
         {thumbnailImages.map((imageUrl, index) => {
+          const isFirstImageInThreeImageLayout =
+            thumbnailCount === 3 && index === 0;
+
           return (
             <div
               key={`${imageUrl}-${index}`}
-              className="relative overflow-hidden"
+              className={[
+                "relative overflow-hidden bg-black-100",
+                isFirstImageInThreeImageLayout ? "row-span-2" : "",
+              ].join(" ")}
             >
               <Image
                 fill
                 src={imageUrl}
                 alt={`${title} 매장 이미지 ${index + 1}`}
-                sizes="40px"
+                sizes="80px"
                 className="
                   object-cover
                   transition-transform duration-300
@@ -64,58 +82,26 @@ export const CourseListItem = ({
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-16 font-medium text-black-950">{title}</h3>
 
-        <p className="mt-1 truncate text-12 text-black-600">{description}</p>
+        <p className="mt-1 truncate text-12 text-pink-900">{description}</p>
 
         {tags.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {tags.slice(0, 3).map((tag) => {
-              return (
-                <span
-                  key={tag}
-                  className="
-                    rounded bg-accent-pink/20
-                    px-2 py-1
-                    text-12 font-medium text-accent-rose
-                  "
-                >
-                  {tag}
-                </span>
-              );
-            })}
+          <div className="mt-2 flex flex-wrap gap-2">
+            {tags.slice(0, 3).map((tag) => (
+              <Badge key={tag} shape="square" variant="pink">
+                {tag}
+              </Badge>
+            ))}
           </div>
         )}
       </div>
 
       <ChevronRightIcon
         className="
-          size-5 shrink-0 text-accent-pink
+          size-5 shrink-0 text-pink-200
           transition-transform duration-200
           group-hover:translate-x-0.5
         "
       />
     </Link>
-  );
-};
-
-type ChevronRightIconProps = {
-  className?: string;
-};
-
-const ChevronRightIcon = ({ className = "" }: ChevronRightIconProps) => {
-  return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      className={className}
-    >
-      <path
-        d="m9 18 6-6-6-6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 };
