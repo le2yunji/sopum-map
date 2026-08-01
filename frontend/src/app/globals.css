@@ -37,7 +37,9 @@
   --red-600: #ec3f42;
 
   /* Pink */
+  --pink-200: #f2e3e6;
   --pink-300: #f9a8be;
+  --pink-500: #e3657b;
 
   /* Cream */
   --cream-100: #fcf2d3;
@@ -122,7 +124,9 @@
   --color-red-600: var(--red-600);
 
   /* Pink */
+  --color-pink-200: var(--pink-200);
   --color-pink-300: var(--pink-300);
+  --color-pink-500: var(--pink-500);
 
   /* Cream */
   --color-cream-100: var(--cream-100);
