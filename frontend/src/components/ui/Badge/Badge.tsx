@@ -1,26 +1,26 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 type BadgeVariant = "green" | "pink";
-
+type BadgeShape = "pill" | "square";
 interface BadgeProps extends ComponentPropsWithoutRef<"span"> {
   children: ReactNode;
   variant?: BadgeVariant;
+  shape?: BadgeShape;
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  green: ["h-[19px]", "px-2", "bg-green-100", "text-black-800", "text-10"].join(
+  green: ["h-[20px]", "px-2", "bg-green-100", "text-black-800", "text-10"].join(
     " ",
   ),
 
-  pink: [
-    "h-[26px]",
-    "px-2.5",
-    "bg-pink-300/[0.18]",
-    "border",
-    "border-pink-300/[0.35]",
-    "text-black-800",
-    "text-12",
-  ].join(" "),
+  pink: ["h-[20px]", "px-2.5", "bg-pink-100", "text-pink-500", "text-12"].join(
+    " ",
+  ),
+};
+
+const shapeStyles: Record<BadgeShape, string> = {
+  pill: "rounded-full",
+  square: "rounded-sm",
 };
 
 /**
@@ -29,7 +29,7 @@ const variantStyles: Record<BadgeVariant, string> = {
  * @example
  *
  * ```tsx
- * <Badge variant="pink" className="font-semibold">
+ * <Badge variant="pink" shape="pill" className="font-semibold">
  *   방문 완료
  * </Badge>
  * ```
@@ -37,6 +37,7 @@ const variantStyles: Record<BadgeVariant, string> = {
 export function Badge({
   children,
   variant = "green",
+  shape = "pill",
   className = "",
   ...props
 }: BadgeProps) {
@@ -49,10 +50,10 @@ export function Badge({
         "items-center",
         "justify-center",
         "whitespace-nowrap",
-        "rounded-full",
         "box-border",
         "font-medium",
         variantStyles[variant],
+        shapeStyles[shape],
         className,
       ].join(" ")}
       {...props}
