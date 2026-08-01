@@ -1,10 +1,11 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 type BadgeVariant = "green" | "pink";
-
+type BadgeShape = "pill" | "square";
 interface BadgeProps extends ComponentPropsWithoutRef<"span"> {
   children: ReactNode;
   variant?: BadgeVariant;
+  shape?: BadgeShape;
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
@@ -23,13 +24,18 @@ const variantStyles: Record<BadgeVariant, string> = {
   ].join(" "),
 };
 
+const shapeStyles: Record<BadgeShape, string> = {
+  pill: "rounded-full",
+  square: "rounded-sm",
+};
+
 /**
  * 텍스트 길이에 따라 가로 너비가 자동으로 조절되는 배지 컴포넌트
  *
  * @example
  *
  * ```tsx
- * <Badge variant="pink" className="font-semibold">
+ * <Badge variant="pink" shape="pill" className="font-semibold">
  *   방문 완료
  * </Badge>
  * ```
@@ -37,6 +43,7 @@ const variantStyles: Record<BadgeVariant, string> = {
 export function Badge({
   children,
   variant = "green",
+  shape = "pill",
   className = "",
   ...props
 }: BadgeProps) {
@@ -49,10 +56,10 @@ export function Badge({
         "items-center",
         "justify-center",
         "whitespace-nowrap",
-        "rounded-full",
         "box-border",
         "font-medium",
         variantStyles[variant],
+        shapeStyles[shape],
         className,
       ].join(" ")}
       {...props}
