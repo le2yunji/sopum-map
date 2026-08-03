@@ -137,6 +137,24 @@
 }
 
 /* ========================================
+   Custom utilities
+======================================== */
+
+@utility bg-brand-gradient {
+  background-image:
+    radial-gradient(
+      circle at 90% 10%,
+      rgba(221, 229, 169, 0.28) 0%,
+      transparent 45%
+    ),
+    radial-gradient(
+      circle at 10% 90%,
+      rgba(221, 229, 169, 0.28) 0%,
+      transparent 48%
+    );
+}
+
+/* ========================================
    Document
 ======================================== */
 
