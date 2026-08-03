@@ -1,4 +1,4 @@
-import type { ApiResponse } from "@sopum-map/shared";
+import type { ApiResponse } from "@sopum-map/shared/src";
 
 import { createApiError } from "./api-error";
 

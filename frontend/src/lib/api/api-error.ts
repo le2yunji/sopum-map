@@ -1,4 +1,4 @@
-import type { ValidationErrorDetails } from "@sopum-map/shared";
+import type { ValidationErrorDetails } from "@sopum-map/shared/src";
 
 /**
  * API 전용 에러 객체를 만들고
