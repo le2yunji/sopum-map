@@ -1,5 +1,7 @@
 import { SocialLoginButton } from "@/app/login/_components/SocialLoginButton/SocialLoginButton";
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "로그인",
@@ -11,21 +13,22 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main className="relative min-h-dvh overflow-hidden bg-white">
+    <main className="flex relative min-h-dvh overflow-hidden bg-white items-center justify-center">
       <div
-        aria-hidden
-        className="
-          pointer-events-none absolute inset-0
-          bg-[
-            radial-gradient(circle_at_90%_90%,rgba(110,183,70,0.16)_0%,transparent_42%),
-            radial-gradient(circle_at_10%_100%,rgba(221,229,169,0.22)_0%,transparent_38%),
-            linear-gradient(to_bottom,#ffffff_0%,#ffffff_58%,#f8fbf5_100%)
-          ]
-        "
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-brand-gradient"
       />
-
-      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-10">
-        <div className="flex w-full flex-col gap-2.5">
+      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-10 gap-[110px] items-center justify-center">
+        <div>
+          <Image
+            src="/images/brand/sopum-map-logo.svg"
+            alt="소품지도"
+            width={129}
+            height={129}
+            priority
+          />
+        </div>
+        <div className="flex w-full flex-col gap-2.5 items-center justify-center">
           <SocialLoginButton provider="naver" />
 
           <SocialLoginButton provider="google" />
@@ -33,6 +36,9 @@ export default function LoginPage() {
           <SocialLoginButton provider="apple" />
 
           <SocialLoginButton provider="kakao" />
+          <Link href={"/"} className="p-4 text-12">
+            계정없이 둘러보기
+          </Link>
         </div>
       </div>
     </main>

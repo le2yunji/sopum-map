@@ -53,7 +53,9 @@ export function SocialLoginButton({
           </span>
         </span>
 
-        <span className="text-center">{config.label}</span>
+        <span className="text-center text-14 font-semibold">
+          {config.label}
+        </span>
 
         <span aria-hidden="true" />
       </span>
