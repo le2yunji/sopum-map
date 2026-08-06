@@ -4,7 +4,7 @@
     "module": "Node16",
     "moduleResolution": "Node16",
 
-    "rootDir": "./",
+    "rootDir": "./shared",
     "outDir": "./dist",
 
     "declaration": true,
@@ -15,6 +15,6 @@
     "skipLibCheck": true,
     "noEmitOnError": true
   },
-  "include": ["shared/src/**/*.ts", "shared/src/index.ts"],
+  "include": ["shared/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { env } from "./config/env";
-// import shopRoutes from "./routes/shop.routes";
+import { shopRouter } from "./routes/shop.routes";
 import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
@@ -22,7 +22,7 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-// app.use("/api/shops", shopRoutes);
+app.use("/api/shops", shopRouter);
 
 app.use(errorMiddleware);
 
