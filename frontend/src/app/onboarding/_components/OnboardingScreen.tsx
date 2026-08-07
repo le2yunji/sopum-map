@@ -20,8 +20,8 @@ export function OnboardingScreen() {
       >
         <div className="relative mb-7 size-36 motion-safe:animate-[onboarding-float_3.6s_ease-in-out_infinite] min-[390px]:size-40">
           <Image
-            src="/images/brand/sopum-map-logo.svg"
-            alt=""
+            src="/images/brand/sopum-map-symbol.svg"
+            alt="소품지도 심볼"
             fill
             priority
             sizes="160px"
