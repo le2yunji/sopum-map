@@ -23,7 +23,7 @@ export const ShopBannerCarousel = ({
           [&::-webkit-scrollbar]:hidden
         "
       >
-        {items.map((item) => {
+        {items.map((item, index) => {
           return (
             <li
               key={item.id}
@@ -47,6 +47,7 @@ export const ShopBannerCarousel = ({
               >
                 <Image
                   fill
+                  loading={index === 0 ? "eager" : "lazy"}
                   src={item.imageUrl}
                   alt={item.imageAlt ?? `${item.name} 매장 이미지`}
                   sizes="(max-width: 480px) calc(100vw - 48px), 298px"

@@ -48,6 +48,7 @@ debug-storybook.log
 
 # Cache and temporary files
 .cache/
+.worktrees/
 *.tmp
 *.temp
 
