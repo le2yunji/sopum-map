@@ -1,6 +1,6 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
 
-import { SHOP_CATEGORIES } from "@sopum-map/shared";
+import { SHOP_CATEGORIES, SHOP_STATUSES } from "@sopum-map/shared";
 
 // 매장 이미지 정보
 const shopImageSchema = new Schema(
@@ -115,6 +115,17 @@ const shopSchema = new Schema(
       required: true,
     },
 
+    // 매장에 연결된 태그 목록
+    tagIds: {
+      type: [
+        {
+          type: Schema.Types.ObjectId,
+          ref: "Tag",
+        },
+      ],
+      default: [],
+    },
+
     // 전체 주소
     address: {
       type: String,
@@ -215,7 +226,7 @@ const shopSchema = new Schema(
     // 매장 운영 및 노출 상태
     status: {
       type: String,
-      enum: ["active", "temporarily_closed", "closed", "hidden"],
+      enum: SHOP_STATUSES,
       default: "active",
       required: true,
     },
@@ -233,8 +244,9 @@ shopSchema.index({
 
 // 카테고리와 상태별 매장 조회
 shopSchema.index({
-  category: 1,
   status: 1,
+  category: 1,
+  tagIds: 1,
 });
 
 // 지역별 매장 조회
