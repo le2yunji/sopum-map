@@ -41,7 +41,7 @@ export const ShopCard = ({
           alt={`${name} 매장 이미지`}
           fill
           className="object-cover"
-          sizes={variant === "compact" ? "50vw" : "100vw"}
+          sizes="160px"
         />
 
         {!isCompact && (
