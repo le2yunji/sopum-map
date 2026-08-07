@@ -204,7 +204,7 @@ Run the full Storybook Vitest project, frontend lint, frontend build, `git diff 
 
 Confirm the diff contains only the design/spec docs, this plan, onboarding files, and the shared Skeleton. Confirm it contains no `.env`, credential, `.agents/`, root `AGENTS.md`, or `MEMORY.md` files.
 
-- [ ] **Step 3: Commit the completed plan checklist**
+- [x] **Step 3: Commit the completed plan checklist**
 
 Run:
 
@@ -213,6 +213,6 @@ git add docs/superpowers/plans/2026-08-07-onboarding-ui.md
 git commit -m "Docs: 온보딩 UI 구현 계획 완료"
 ```
 
-- [ ] **Step 4: Push and create the PR**
+- [x] **Step 4: Push and create the PR**
 
 Push `feat/21/onboarding-ui`, create a PR targeting `dev`, use `.github/pull_request_template.md`, set `Closes #21`, include exact verification results, and keep the worktree for review feedback.
