@@ -31,7 +31,7 @@
 - Consumes: Next.js `Link` and `Image`, `/images/brand/sopum-map-logo.svg`, and `/images/brand/sopum-map-symbol.svg`.
 - Produces: `OnboardingScreen(): React.JSX.Element`, rendered by the `/onboarding` route.
 
-- [ ] **Step 1: Write the failing browser test in the story**
+- [x] **Step 1: Write the failing browser test in the story**
 
 Create `OnboardingScreen.stories.tsx` with the real component import and this interaction contract:
 
@@ -66,13 +66,13 @@ export const Default: Story = {
 };
 ```
 
-- [ ] **Step 2: Run the story test and verify RED**
+- [x] **Step 2: Run the story test and verify RED**
 
 Run: `pnpm --dir frontend exec vitest run --project=storybook src/app/onboarding/_components/OnboardingScreen.stories.tsx`
 
 Expected: FAIL because `./OnboardingScreen` does not exist.
 
-- [ ] **Step 3: Implement the smallest complete screen**
+- [x] **Step 3: Implement the smallest complete screen**
 
 Create `OnboardingScreen.tsx` as a Server Component. It must render:
 
@@ -106,17 +106,17 @@ Use `Link` as both navigation elements and reproduce the existing large primary 
 
 Update `page.tsx` to export metadata with title `온보딩` and render `<OnboardingScreen />`. Add a short purpose comment above both component functions.
 
-- [ ] **Step 4: Run the story test and verify GREEN**
+- [x] **Step 4: Run the story test and verify GREEN**
 
 Run: `pnpm --dir frontend exec vitest run --project=storybook src/app/onboarding/_components/OnboardingScreen.stories.tsx`
 
 Expected: PASS with 1 story and no accessibility query failures.
 
-- [ ] **Step 5: Refactor while green**
+- [x] **Step 5: Refactor while green**
 
 Check that decorative images use empty alt text, the meaningful brand symbol has `alt="소품지도 캐릭터"`, focus styles remain visible, and no duplicated layout constants are introduced. Re-run the Step 4 command.
 
-- [ ] **Step 6: Commit the issue implementation**
+- [x] **Step 6: Commit the issue implementation**
 
 Run:
 
@@ -140,29 +140,29 @@ git commit -m "Feat: 온보딩 페이지 UI 구현"
 - Produces: `Skeleton({ className?, label? }): React.JSX.Element`, `OnboardingLoading(): React.JSX.Element`, and the Next.js route error component accepting `{ error, unstable_retry }`.
 - Consumes: Next.js 16 `error.tsx` contract using `unstable_retry`, confirmed in local framework documentation.
 
-- [ ] **Step 1: Write the failing Skeleton story test**
+- [x] **Step 1: Write the failing Skeleton story test**
 
 Create a Skeleton story that renders the real component and asserts `role="status"` has accessible name `콘텐츠를 불러오는 중` while its visual blocks are `aria-hidden="true"`.
 
-- [ ] **Step 2: Run the Skeleton story test and verify RED**
+- [x] **Step 2: Run the Skeleton story test and verify RED**
 
 Run: `pnpm --dir frontend exec vitest run --project=storybook src/components/ui/Skeleton/Skeleton.stories.tsx`
 
 Expected: FAIL because `Skeleton.tsx` does not exist.
 
-- [ ] **Step 3: Implement Skeleton and route fallbacks**
+- [x] **Step 3: Implement Skeleton and route fallbacks**
 
 `Skeleton` accepts `className?: string` and `label?: string`, defaults the label to `콘텐츠를 불러오는 중`, uses `motion-safe:animate-pulse`, and exposes one concise live loading status. `loading.tsx` composes fixed-size blocks matching the onboarding symbol, copy, and action layout.
 
 `error.tsx` must be a Client Component. Log the unexpected error in `useEffect`, render `온보딩 화면을 불러오지 못했어` with a primary retry button calling `unstable_retry`, and provide a `/login` link so the user is never trapped. Add purpose comments above every new function.
 
-- [ ] **Step 4: Run the Skeleton story test and verify GREEN**
+- [x] **Step 4: Run the Skeleton story test and verify GREEN**
 
 Run: `pnpm --dir frontend exec vitest run --project=storybook src/components/ui/Skeleton/Skeleton.stories.tsx`
 
 Expected: PASS with one concise loading announcement.
 
-- [ ] **Step 5: Run issue-level verification**
+- [x] **Step 5: Run issue-level verification**
 
 Run:
 
@@ -175,7 +175,7 @@ git diff --check
 
 Expected: all commands exit 0. Then inspect `/onboarding` at 320px, 390px, and 480px, verify both links, keyboard focus, reduced-motion behavior, and an empty browser console.
 
-- [ ] **Step 6: Commit fallbacks**
+- [x] **Step 6: Commit fallbacks**
 
 Run:
 
@@ -196,11 +196,11 @@ git commit -m "Feat: 온보딩 로딩 및 오류 화면 추가"
 **Interfaces:**
 - Produces: a verified branch `feat/21/onboarding-ui` and a PR targeting `dev` that closes issue #21.
 
-- [ ] **Step 1: Re-run fresh verification**
+- [x] **Step 1: Re-run fresh verification**
 
 Run the full Storybook Vitest project, frontend lint, frontend build, `git diff --check`, `git status --short`, and `git diff dev...HEAD --name-only`.
 
-- [ ] **Step 2: Verify scope and sensitive data**
+- [x] **Step 2: Verify scope and sensitive data**
 
 Confirm the diff contains only the design/spec docs, this plan, onboarding files, and the shared Skeleton. Confirm it contains no `.env`, credential, `.agents/`, root `AGENTS.md`, or `MEMORY.md` files.
 
