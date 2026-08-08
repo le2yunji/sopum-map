@@ -20,3 +20,21 @@ export const MissingClientId: Story = {
     await expect(await canvas.findByRole("alert")).toHaveTextContent("Client ID 설정이 필요함");
   },
 };
+
+export const Loading: Story = {
+  args: { stateOverride: "loading" },
+  play: async ({ canvasElement }) => {
+    await expect(
+      within(canvasElement).getByRole("status", { name: "지도를 불러오는 중" }),
+    ).toBeInTheDocument();
+  },
+};
+
+export const LoadFailure: Story = {
+  args: { stateOverride: "error" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("alert")).toHaveTextContent("지도 연결에 실패함");
+    await expect(canvas.getByRole("button", { name: "다시 시도" })).toBeInTheDocument();
+  },
+};

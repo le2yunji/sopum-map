@@ -15,6 +15,7 @@ type NaverMapCanvasProps = {
   shops: MapShop[];
   selectedShopId?: string;
   onSelectShop: (shopId: string) => void;
+  stateOverride?: MapSdkState;
 };
 
 type NaverMapsApi = {
@@ -25,11 +26,17 @@ type NaverMapsApi = {
 };
 
 /** 네이버 지도 엔진과 상점 마커를 렌더링합니다. */
-export function NaverMapCanvas({ shops, selectedShopId, onSelectShop }: NaverMapCanvasProps) {
+export function NaverMapCanvas({
+  shops,
+  selectedShopId,
+  onSelectShop,
+  stateOverride,
+}: NaverMapCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID ?? "";
   const [state, setState] = useState<MapSdkState>(clientId ? "loading" : "missing-key");
   const [retryKey, setRetryKey] = useState(0);
+  const visibleState = stateOverride ?? state;
 
   useEffect(() => {
     if (!clientId) {
@@ -84,9 +91,9 @@ export function NaverMapCanvas({ shops, selectedShopId, onSelectShop }: NaverMap
   return (
     <div className="absolute inset-0 bg-green-50">
       <div ref={containerRef} aria-label="네이버 지도" className="size-full" />
-      {state !== "ready" && (
+      {visibleState !== "ready" && (
         <div className="absolute inset-0 grid place-items-center bg-green-50 px-8 text-center">
-          {state === "loading" ? (
+          {visibleState === "loading" ? (
             <div className="w-full" role="status" aria-label="지도를 불러오는 중">
               <Skeleton className="h-64 w-full rounded-3xl" />
             </div>
@@ -94,11 +101,11 @@ export function NaverMapCanvas({ shops, selectedShopId, onSelectShop }: NaverMap
             <div role="alert" className="rounded-3xl bg-white p-6 shadow-lg">
               <p className="font-semibold">지도를 표시할 수 없음</p>
               <p className="mt-2 text-14 text-black-500">
-                {state === "missing-key"
+                {visibleState === "missing-key"
                   ? "네이버 지도 Client ID 설정이 필요함"
                   : "지도 연결에 실패함. 잠시 후 다시 시도해 줘."}
               </p>
-              {state === "error" && <Button className="mt-4" onClick={retry}>다시 시도</Button>}
+              {visibleState === "error" && <Button className="mt-4" onClick={retry}>다시 시도</Button>}
             </div>
           )}
         </div>
