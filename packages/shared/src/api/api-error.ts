@@ -1,4 +1,6 @@
-import type { ValidationErrorDetails } from "@sopum-map/shared/src";
+// api-error.ts
+
+import type { ValidationErrorDetails } from "./api.types";
 
 /**
  * API 전용 에러 객체를 만들고

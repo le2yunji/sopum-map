@@ -1,6 +1,4 @@
-import type { ApiResponse } from "@sopum-map/shared/src";
-
-import { createApiError } from "./api-error";
+import { createApiError, type ApiResponse } from "@sopum-map/shared";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
