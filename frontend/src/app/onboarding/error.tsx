@@ -25,10 +25,10 @@ export default function OnboardingError({
         ♧
       </span>
       <h1 className="mt-4 text-20 font-semibold text-black-950">
-        온보딩 화면을 불러오지 못했어
+        온보딩 화면을 불러오지 못했어요
       </h1>
       <p className="mt-2 text-14 text-black-500">
-        잠시 후 다시 시도하거나 로그인 화면으로 이동해줘.
+        잠시 후 다시 시도하거나 로그인 화면으로 이동해 주세요.
       </p>
 
       <div className="mt-7 flex w-full max-w-72 flex-col gap-2">
