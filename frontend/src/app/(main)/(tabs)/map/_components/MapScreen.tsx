@@ -105,7 +105,7 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
         </div>
         {filteredShops.length === 0 ? (
           <div role="status" className="grid h-40 place-items-center text-center">
-            <div><p className="font-semibold">조건에 맞는 상점이 없음</p><button type="button" className="mt-2 text-14 text-green-700 underline" onClick={() => { setKeyword(""); setCategory("all"); setSelectedTags([]); }}>필터 초기화</button></div>
+            <div><p className="font-semibold">조건에 맞는 상점이 없어요</p><button type="button" className="mt-2 text-14 text-green-700 underline" onClick={() => { setKeyword(""); setCategory("all"); setSelectedTags([]); }}>필터 초기화</button></div>
           </div>
         ) : (
           <ul className="h-[188px] divide-y divide-black-100 overflow-y-auto">

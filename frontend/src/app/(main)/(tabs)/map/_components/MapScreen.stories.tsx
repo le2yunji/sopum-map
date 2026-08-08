@@ -35,7 +35,7 @@ export const SearchEmpty: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.type(canvas.getByRole("searchbox", { name: "상점 이름 검색" }), "없는 상점");
-    await expect(canvas.getByText("조건에 맞는 상점이 없음")).toBeInTheDocument();
+    await expect(canvas.getByText("조건에 맞는 상점이 없어요")).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button", { name: "필터 초기화" }));
     await expect(canvas.getByRole("link", { name: /모모네 소품샵/ })).toBeInTheDocument();
   },
@@ -54,6 +54,6 @@ export const TagFilterSheet: Story = {
 export const EmptyData: Story = {
   args: { shops: [], mapSlot: () => <TestMap /> },
   play: async ({ canvasElement }) => {
-    await expect(within(canvasElement).getByText("조건에 맞는 상점이 없음")).toBeInTheDocument();
+    await expect(within(canvasElement).getByText("조건에 맞는 상점이 없어요")).toBeInTheDocument();
   },
 };

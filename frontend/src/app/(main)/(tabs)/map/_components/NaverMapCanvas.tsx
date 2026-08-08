@@ -99,11 +99,11 @@ export function NaverMapCanvas({
             </div>
           ) : (
             <div role="alert" className="rounded-3xl bg-white p-6 shadow-lg">
-              <p className="font-semibold">지도를 표시할 수 없음</p>
+              <p className="font-semibold">지도를 표시할 수 없어요</p>
               <p className="mt-2 text-14 text-black-500">
                 {visibleState === "missing-key"
-                  ? "네이버 지도 Client ID 설정이 필요함"
-                  : "지도 연결에 실패함. 잠시 후 다시 시도해 줘."}
+                  ? "네이버 지도 Client ID 설정이 필요해요"
+                  : "지도 연결에 실패했어요. 잠시 후 다시 시도해 주세요."}
               </p>
               {visibleState === "error" && <Button className="mt-4" onClick={retry}>다시 시도</Button>}
             </div>

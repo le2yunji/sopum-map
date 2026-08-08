@@ -17,7 +17,7 @@ type Story = StoryObj<typeof meta>;
 export const MissingClientId: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(await canvas.findByRole("alert")).toHaveTextContent("Client ID 설정이 필요함");
+    await expect(await canvas.findByRole("alert")).toHaveTextContent("Client ID 설정이 필요해요");
   },
 };
 
@@ -34,7 +34,7 @@ export const LoadFailure: Story = {
   args: { stateOverride: "error" },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("alert")).toHaveTextContent("지도 연결에 실패함");
+    await expect(canvas.getByRole("alert")).toHaveTextContent("지도 연결에 실패했어요");
     await expect(canvas.getByRole("button", { name: "다시 시도" })).toBeInTheDocument();
   },
 };
