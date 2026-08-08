@@ -38,8 +38,8 @@ function HomeUnavailable({ onRetry }: Pick<HomeScreenProps, "onRetry">) {
   return (
     <section className="flex min-h-[70dvh] flex-col items-center justify-center px-5 text-center">
       <span aria-hidden="true" className="text-24 text-green-500">♧</span>
-      <h1 className="mt-3 text-20 font-semibold">홈 소식을 불러오지 못했어</h1>
-      <p className="mt-2 text-14 text-black-500">잠시 후 다시 확인해줘.</p>
+      <h1 className="mt-3 text-20 font-semibold">홈 소식을 불러오지 못했어요</h1>
+      <p className="mt-2 text-14 text-black-500">잠시 후 다시 확인해 주세요.</p>
       <Button className="mt-6" onClick={onRetry}>다시 시도</Button>
     </section>
   );
@@ -66,8 +66,8 @@ export function HomeScreen({
     return (
       <section className="flex min-h-[70dvh] flex-col items-center justify-center px-5 text-center">
         <span aria-hidden="true" className="text-24 text-green-500">🍀</span>
-        <h1 className="mt-3 text-20 font-semibold">아직 소개할 소품샵이 없어</h1>
-        <p className="mt-2 text-14 text-black-500">새로운 취향 공간을 준비하고 있어.</p>
+        <h1 className="mt-3 text-20 font-semibold">아직 소개할 소품샵이 없어요</h1>
+        <p className="mt-2 text-14 text-black-500">새로운 취향 공간을 준비하고 있어요.</p>
       </section>
     );
   }
@@ -79,7 +79,7 @@ export function HomeScreen({
       <header className="px-4 pb-5 pt-7">
         <p className="text-10 font-bold tracking-[0.12em] text-green-600">DAILY CURATION</p>
         <h1 className="mt-1 text-24 font-bold tracking-[-0.03em] text-black-950">오늘의 행운을 찾아서 🍀</h1>
-        <p className="mt-2 text-12 leading-5 text-black-500">일상 속 숨겨진 작은 보물 같은 소품샵을 소개해.</p>
+        <p className="mt-2 text-12 leading-5 text-black-500">일상 속 숨겨진 작은 보물 같은 소품샵을 소개해요.</p>
       </header>
 
       <ShopBannerCarousel items={data.curation} ariaLabel="오늘의 추천 소품샵" />
@@ -107,8 +107,8 @@ export function HomeScreen({
           </ul>
         ) : (
           <div role="status" className="mx-4 mt-4 rounded-2xl bg-green-50 px-4 py-8 text-center">
-            <p className="text-14 font-medium text-green-900">이 카테고리의 상점을 준비하고 있어</p>
-            <p className="mt-1 text-12 text-black-500">다른 취향도 둘러봐.</p>
+            <p className="text-14 font-medium text-green-900">이 카테고리의 상점을 준비하고 있어요</p>
+            <p className="mt-1 text-12 text-black-500">다른 취향도 둘러보세요.</p>
           </div>
         )}
       </section>
@@ -125,7 +125,7 @@ export function HomeScreen({
 
       <blockquote className="mx-4 mt-9 border-t border-green-100 px-4 pt-9 text-center">
         <p aria-hidden="true" className="text-24 text-green-500">✣</p>
-        <p className="mt-3 text-12 leading-6 text-black-800">“작은 것들을 소중히 여기는 마음이<br />당신의 하루를 더 특별하게 만들 거야.”</p>
+        <p className="mt-3 text-12 leading-6 text-black-800">“작은 것들을 소중히 여기는 마음이<br />당신의 하루를 더 특별하게 만들 거예요.”</p>
         <footer className="mt-2 text-10 text-black-400">— 나만의 소품지도</footer>
       </blockquote>
     </div>
