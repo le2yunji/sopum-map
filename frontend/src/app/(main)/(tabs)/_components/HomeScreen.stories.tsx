@@ -63,7 +63,7 @@ export const Empty: Story = {
   },
   play: async ({ canvasElement }) => {
     await expect(
-      within(canvasElement).getByText("아직 소개할 소품샵이 없어"),
+      within(canvasElement).getByText("아직 소개할 소품샵이 없어요"),
     ).toBeInTheDocument();
   },
 };
