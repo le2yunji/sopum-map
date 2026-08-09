@@ -1,3 +1,5 @@
-export default function Loading() {
-  return <div>loading</div>;
+import { BrandLoadingScreen } from "@/app/_components/BrandLoadingScreen";
+
+export default function HomeLoading() {
+  return <BrandLoadingScreen />;
 }
