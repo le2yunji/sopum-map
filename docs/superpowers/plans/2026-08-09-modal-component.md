@@ -32,7 +32,7 @@
 - Produces: `ModalProps` with `open`, `onOpenChange`, `children`, accessible label props, `closeOnBackdrop`, and `className`.
 - Produces: `Modal` rendering a native `<dialog>` and exposing `Modal.Header`, `Modal.Title`, `Modal.Body`, and `Modal.Footer`.
 
-- [ ] **Step 1: Write the failing closed/open story tests**
+- [x] **Step 1: Write the failing closed/open story tests**
 
 Create a controlled story harness and assert observable dialog state:
 
@@ -61,7 +61,7 @@ export const Controlled: Story = {
 };
 ```
 
-- [ ] **Step 2: Run the focused Storybook test and verify RED**
+- [x] **Step 2: Run the focused Storybook test and verify RED**
 
 Run:
 
@@ -71,7 +71,7 @@ pnpm --dir frontend exec vitest --project storybook --run
 
 Expected: FAIL because `./Modal` does not exist.
 
-- [ ] **Step 3: Define the public type contract**
+- [x] **Step 3: Define the public type contract**
 
 ```ts
 export type ModalProps = Readonly<{
@@ -86,7 +86,7 @@ export type ModalProps = Readonly<{
 }>;
 ```
 
-- [ ] **Step 4: Implement the minimal controlled native dialog**
+- [x] **Step 4: Implement the minimal controlled native dialog**
 
 Use a dialog ref and synchronize only when state differs:
 
@@ -102,11 +102,11 @@ useEffect(() => {
 
 Render the panel as a child wrapper so backdrop clicks can be distinguished later. Keep the closed dialog in the DOM but invisible through native dialog behavior.
 
-- [ ] **Step 5: Run the full Storybook test and verify GREEN**
+- [x] **Step 5: Run the full Storybook test and verify GREEN**
 
 Run the same Vitest command. Expected: all existing tests and the controlled story pass.
 
-- [ ] **Step 6: Commit the lifecycle slice**
+- [x] **Step 6: Commit the lifecycle slice**
 
 ```bash
 git add frontend/src/components/ui/Modal
@@ -125,7 +125,7 @@ git commit -m "Feat: Modal 기본 제어 동작 구현"
 - Consumes: `ModalProps` and controlled native dialog from Task 1.
 - Produces: Escape, backdrop, focus restoration, and body scroll behavior.
 
-- [ ] **Step 1: Add failing interaction stories**
+- [x] **Step 1: Add failing interaction stories**
 
 Add separate play tests that prove:
 
@@ -137,11 +137,11 @@ await expect(trigger).toHaveFocus();
 
 For backdrop behavior, click the `<dialog>` element itself and verify close. Click the visible panel text and verify the dialog stays open. Render a `closeOnBackdrop={false}` story and verify a backdrop click keeps it open.
 
-- [ ] **Step 2: Run Storybook tests and verify RED**
+- [x] **Step 2: Run Storybook tests and verify RED**
 
 Expected failures: Escape may visually close without notifying controlled state, focus contract is not explicit, and backdrop close is absent.
 
-- [ ] **Step 3: Implement dismissal handlers**
+- [x] **Step 3: Implement dismissal handlers**
 
 ```tsx
 const requestClose = () => onOpenChange(false);
@@ -158,11 +158,11 @@ const handleBackdropPointerDown = (event: PointerEvent<HTMLDialogElement>) => {
 
 Capture `document.activeElement` before opening and restore it after the controlled close. Store and restore `document.body.style.overflow`; cleanup must run when an open Modal unmounts.
 
-- [ ] **Step 4: Run tests and verify GREEN**
+- [x] **Step 4: Run tests and verify GREEN**
 
 Expected: dismissal, panel click, disabled backdrop, and focus restoration tests pass with no console errors.
 
-- [ ] **Step 5: Commit the interaction slice**
+- [x] **Step 5: Commit the interaction slice**
 
 ```bash
 git add frontend/src/components/ui/Modal
@@ -182,7 +182,7 @@ git commit -m "Feat: Modal 닫기와 포커스 복구 구현"
 - Consumes: interaction-safe `Modal` from Task 2.
 - Produces: `Modal.Header`, `Modal.Title`, `Modal.Body`, `Modal.Footer` and package-local exports.
 
-- [ ] **Step 1: Write the failing Figma example story**
+- [x] **Step 1: Write the failing Figma example story**
 
 Render the approved copy and section API:
 
@@ -199,11 +199,11 @@ Render the approved copy and section API:
 
 Assert the named dialog, title, polite description, and close action. The emoji is a story-only stand-in for content supplied by a later feature; the primitive must not embed feature imagery.
 
-- [ ] **Step 2: Run Storybook tests and verify RED**
+- [x] **Step 2: Run Storybook tests and verify RED**
 
 Expected: FAIL because compound section properties do not exist.
 
-- [ ] **Step 3: Implement focused section components**
+- [x] **Step 3: Implement focused section components**
 
 Implement named functions with `ComponentPropsWithoutRef` and assign them to a typed compound component. Apply:
 
@@ -214,11 +214,11 @@ Implement named functions with `ComponentPropsWithoutRef` and assign them to a t
 - backdrop: `backdrop:bg-black-950/45`;
 - transitions only under `motion-safe` utilities.
 
-- [ ] **Step 4: Run tests and verify GREEN**
+- [x] **Step 4: Run tests and verify GREEN**
 
 Expected: Figma example and all prior interaction stories pass.
 
-- [ ] **Step 5: Run frontend lint**
+- [x] **Step 5: Run frontend lint**
 
 ```bash
 pnpm --dir frontend lint
@@ -226,7 +226,7 @@ pnpm --dir frontend lint
 
 Expected: zero errors and warnings from changed files.
 
-- [ ] **Step 6: Commit the visual API slice**
+- [x] **Step 6: Commit the visual API slice**
 
 ```bash
 git add frontend/src/components/ui/Modal
@@ -244,7 +244,7 @@ git commit -m "Feat: Modal 합성 영역과 피그마 예시 추가"
 - Consumes: completed Modal component and stories.
 - Produces: verified branch and template-based PR targeting `dev` with `Closes #19`.
 
-- [ ] **Step 1: Run full automated verification**
+- [x] **Step 1: Run full automated verification**
 
 ```bash
 pnpm --dir frontend exec vitest --project storybook --run
@@ -255,7 +255,7 @@ git diff --check
 
 Expected: all commands pass. Existing unrelated Storybook LCP warnings may be recorded but must not hide Modal errors.
 
-- [ ] **Step 2: Inspect in Chromium**
+- [x] **Step 2: Inspect in Chromium**
 
 Open the Modal Figma story at 320px, 390px, and 480px. Verify centered layout, no horizontal overflow, Escape, backdrop close, trigger focus restoration, body scroll lock, accessible name, and clean app console.
 

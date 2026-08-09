@@ -31,6 +31,12 @@ function ControlledModalExample({
 const meta = {
   title: "Components/Modal",
   component: Modal,
+  args: {
+    open: false,
+    onOpenChange: fn(),
+    children: null,
+    ariaLabel: "모달",
+  },
   parameters: { layout: "centered" },
 } satisfies Meta<typeof Modal>;
 
@@ -125,6 +131,7 @@ export const ReportComplete: Story = {
           alt="클로버를 든 다람쥐"
           width={71}
           height={71}
+          priority
         />
         <Modal.Title id="report-complete-title">
           제보가 완료되었습니다
