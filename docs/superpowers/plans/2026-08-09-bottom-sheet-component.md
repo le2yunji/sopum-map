@@ -37,4 +37,4 @@
 - [x] Run the full Storybook suite, lint, production build, and `git diff --check`.
 - [x] Inspect 320px, 390px, and 480px in Chromium with no overflow or console errors.
 - [x] Review the diff against `feat/19/modal` and exclude unrelated files.
-- [ ] Push `feat/20/bottom-sheet` and create a separate stacked PR with `Closes #20`.
+- [x] Push `feat/20/bottom-sheet` and create stacked PR #88 with `Closes #20`.
