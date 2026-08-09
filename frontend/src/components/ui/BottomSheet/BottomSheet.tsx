@@ -88,7 +88,7 @@ function BottomSheetHandle({ className = "", ...props }: BottomSheetSectionProps
       {...props}
       aria-hidden="true"
       className={[
-        "mx-auto h-1.5 w-12 rounded-full bg-black-200",
+        "mx-auto h-1.5 w-12 rounded-full bg-black-300",
         className,
       ].join(" ")}
     />

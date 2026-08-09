@@ -70,6 +70,23 @@ function ReportReasonBottomSheetExample() {
   );
 }
 
+/** 닫기 버튼이 제어 상태를 바꾸는 흐름만 독립적으로 검증합니다. */
+function CloseButtonBottomSheetExample() {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <BottomSheet
+      open={open}
+      onOpenChange={setOpen}
+      ariaLabel="닫기 버튼 예시"
+      showCloseButton
+      closeButtonLabel="바텀시트 닫기"
+    >
+      <p>닫기 버튼 동작을 확인합니다.</p>
+    </BottomSheet>
+  );
+}
+
 const meta = {
   title: "Components/BottomSheet",
   component: BottomSheet,
@@ -150,13 +167,29 @@ export const ReportReason: Story = {
     });
 
     await expect(dialog).toBeVisible();
+    const handle = dialog.querySelector("div[aria-hidden='true']");
+    await expect(handle).not.toBeNull();
+    if (!handle) {
+      throw new Error("BottomSheet 손잡이를 찾을 수 없습니다.");
+    }
+    await expect(getComputedStyle(handle).backgroundColor).not.toBe(
+      "rgba(0, 0, 0, 0)",
+    );
     await expect(
       canvas.getByRole("radio", { name: "영업시간이 달라요" }),
     ).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "다음" })).toBeVisible();
+  },
+};
+
+export const CloseButton: Story = {
+  render: () => <CloseButtonBottomSheetExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = canvas.getByRole("dialog", { name: "닫기 버튼 예시" });
 
     await userEvent.click(
-      canvas.getByRole("button", { name: "제보 사유 닫기" }),
+      canvas.getByRole("button", { name: "바텀시트 닫기" }),
     );
     await waitFor(() => expect(dialog).not.toBeVisible());
   },
