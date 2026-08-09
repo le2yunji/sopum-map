@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import Image from "next/image";
 import { useState } from "react";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
 import { Modal } from "./Modal";
 
@@ -108,5 +109,52 @@ export const PersistentBackdrop: Story = {
 
     await userEvent.click(dialog);
     await expect(dialog).toBeVisible();
+  },
+};
+
+export const ReportComplete: Story = {
+  render: () => (
+    <Modal
+      open
+      onOpenChange={fn()}
+      ariaLabelledBy="report-complete-title"
+    >
+      <Modal.Header>
+        <Image
+          src="/images/modal/report-complete-mascot.png"
+          alt="클로버를 든 다람쥐"
+          width={71}
+          height={71}
+        />
+        <Modal.Title id="report-complete-title">
+          제보가 완료되었습니다
+        </Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        소중한 제보 감사합니다.
+        <br />더 나은 서비스를 위해 빠르게 확인하겠습니다.
+      </Modal.Body>
+      <Modal.Footer>
+        <button
+          type="button"
+          className="h-11 w-full rounded-[9px] bg-black-100 text-14 font-medium text-black-800"
+        >
+          닫기
+        </button>
+      </Modal.Footer>
+    </Modal>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    const dialog = canvas.getByRole("dialog", {
+      name: "제보가 완료되었습니다",
+    });
+
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toHaveTextContent("소중한 제보 감사합니다.");
+    await expect(
+      canvas.getByRole("button", { name: "닫기" }),
+    ).toBeInTheDocument();
   },
 };
