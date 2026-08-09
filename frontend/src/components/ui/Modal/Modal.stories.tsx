@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import { Modal } from "./Modal";
 
 /** 제어 상태로 Modal을 열고 닫는 실제 사용 흐름을 제공합니다. */
-function ControlledModalExample() {
+function ControlledModalExample({
+  closeOnBackdrop = true,
+}: Readonly<{ closeOnBackdrop?: boolean }>) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -13,8 +15,13 @@ function ControlledModalExample() {
       <button type="button" onClick={() => setOpen(true)}>
         모달 열기
       </button>
-      <Modal open={open} onOpenChange={setOpen} ariaLabel="알림">
-        <p>안내 내용입니다.</p>
+      <Modal
+        open={open}
+        onOpenChange={setOpen}
+        ariaLabel="알림"
+        closeOnBackdrop={closeOnBackdrop}
+      >
+        <p data-testid="modal-panel-content">안내 내용입니다.</p>
       </Modal>
     </>
   );
@@ -45,5 +52,61 @@ export const Controlled: Story = {
     await expect(
       canvas.getByRole("dialog", { name: "알림" }),
     ).toBeVisible();
+
+    await expect(document.body.style.overflow).toBe("hidden");
+
+    await userEvent.keyboard("{Escape}");
+
+    await waitFor(() => {
+      expect(
+        canvas.queryByRole("dialog", { name: "알림" }),
+      ).not.toBeInTheDocument();
+      expect(
+        canvas.getByRole("button", { name: "모달 열기" }),
+      ).toHaveFocus();
+      expect(document.body.style.overflow).toBe("");
+    });
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "모달 열기" }),
+    );
+    await expect(
+      canvas.getByRole("dialog", { name: "알림" }),
+    ).toBeVisible();
+  },
+};
+
+export const BackdropDismissal: Story = {
+  render: () => <ControlledModalExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const trigger = canvas.getByRole("button", { name: "모달 열기" });
+
+    await userEvent.click(trigger);
+    const dialog = canvas.getByRole("dialog", { name: "알림" });
+
+    await userEvent.click(canvas.getByTestId("modal-panel-content"));
+    await expect(dialog).toBeVisible();
+
+    await userEvent.click(dialog);
+    await waitFor(() => {
+      expect(dialog).not.toBeVisible();
+      expect(trigger).toHaveFocus();
+    });
+  },
+};
+
+export const PersistentBackdrop: Story = {
+  render: () => <ControlledModalExample closeOnBackdrop={false} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "모달 열기" }),
+    );
+    const dialog = canvas.getByRole("dialog", { name: "알림" });
+
+    await userEvent.click(dialog);
+    await expect(dialog).toBeVisible();
   },
 };
