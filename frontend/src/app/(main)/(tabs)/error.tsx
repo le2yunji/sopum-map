@@ -22,10 +22,10 @@ export default function TabsError({ error, unstable_retry }: TabsErrorProps) {
         ♧
       </span>
       <h1 className="mt-3 text-20 font-semibold text-black-950">
-        화면을 불러오지 못했어
+        화면을 불러오지 못했어요
       </h1>
       <p className="mt-2 text-14 text-black-500">
-        다시 시도하거나 홈으로 이동해줘.
+        다시 시도하거나 홈으로 이동해 주세요.
       </p>
       <div className="mt-6 flex w-full max-w-72 flex-col gap-2">
         <Button fullWidth onClick={unstable_retry}>
