@@ -259,7 +259,7 @@ Expected: all commands pass. Existing unrelated Storybook LCP warnings may be re
 
 Open the Modal Figma story at 320px, 390px, and 480px. Verify centered layout, no horizontal overflow, Escape, backdrop close, trigger focus restoration, body scroll lock, accessible name, and clean app console.
 
-- [ ] **Step 3: Review branch scope**
+- [x] **Step 3: Review branch scope**
 
 ```bash
 git diff --name-status dev...HEAD
@@ -268,7 +268,7 @@ git diff --check dev...HEAD
 
 Expected files: the approved design spec, this implementation plan, and `frontend/src/components/ui/Modal/*` only.
 
-- [ ] **Step 4: Mark this plan complete and commit**
+- [x] **Step 4: Mark this plan complete and commit**
 
 ```bash
 git add docs/superpowers/plans/2026-08-09-modal-component.md
