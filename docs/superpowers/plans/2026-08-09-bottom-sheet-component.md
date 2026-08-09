@@ -27,10 +27,10 @@
 
 ## Task 2: Composable Figma layout
 
-- [ ] Add a failing report-sheet story using `BottomSheet.Header`, `Title`, `Content`, and `Footer`.
-- [ ] Implement compound sections, safe-area padding, dimmed backdrop, and optional close button.
-- [ ] Match Figma node `216:1909` and verify the example copy is polite Korean.
-- [ ] Commit the visual API slice.
+- [x] Add a failing report-sheet story using `BottomSheet.Header`, `Title`, `Body`, and `Footer`.
+- [x] Implement compound sections, safe-area padding, dimmed backdrop, and optional close button.
+- [x] Match Figma node `216:1909` and verify the example copy is polite Korean.
+- [x] Commit the visual API slice.
 
 ## Task 3: Verification and PR
 

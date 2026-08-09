@@ -16,6 +16,8 @@ export type BottomSheetProps = Readonly<{
   children: ReactNode;
   ariaDescribedBy?: string;
   closeOnBackdrop?: boolean;
+  showCloseButton?: boolean;
+  closeButtonLabel?: string;
   className?: string;
 }> &
   BottomSheetAccessibleName;
