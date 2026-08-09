@@ -1,0 +1,4 @@
+interface:
+  display_name: "소품지도 프로젝트 파악"
+  short_description: "소품지도 구조, UI 진행 상태와 구현 현황을 확인해 작업 맥락을 구성"
+  default_prompt: "$sopum-map-context를 사용해 작업 전에 소품지도 프로젝트의 현재 맥락을 파악해줘."
