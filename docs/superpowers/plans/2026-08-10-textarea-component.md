@@ -152,6 +152,6 @@ Open the controlled and error stories in Chromium at 320px, 390px, and 480px. Co
 
 Confirm `git diff --name-status dev...HEAD` contains only the design, plan, and `frontend/src/components/ui/Textarea/*`.
 
-- [ ] **Step 4: Push and create the PR**
+- [x] **Step 4: Push and create PR #89**
 
 Push `feat/62/textarea` and create a PR to `dev` using the repository template. Include `Closes #62`, verification counts, responsive results, and the controlled-component trade-off.
