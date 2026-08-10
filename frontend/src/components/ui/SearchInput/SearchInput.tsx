@@ -1,17 +1,17 @@
 "use client";
 
-import { CloseCircleIcon, LoadingIcon, SearchIcon } from "@/components/icons";
 import {
-  forwardRef,
   useState,
-  type InputHTMLAttributes,
+  type ComponentPropsWithRef,
   type KeyboardEvent,
 } from "react";
+
+import { CloseCircleIcon, LoadingIcon, SearchIcon } from "@/components/icons";
 
 type SearchInputSize = "small" | "medium" | "large";
 
 type SearchInputProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
+  ComponentPropsWithRef<"input">,
   "type" | "size" | "value" | "defaultValue" | "onChange"
 > & {
   /** 제어 컴포넌트로 사용할 때의 검색어 */
@@ -63,8 +63,7 @@ const clearButtonSizeClassNames: Record<SearchInputSize, string> = {
 /**
  * 검색어 입력과 검색 실행, 초기화 기능을 제공하는 입력 컴포넌트입니다.
  *
- * @example 제어 방식
- *
+ * @example
  * ```tsx
  * const [keyword, setKeyword] = useState("");
  *
@@ -74,173 +73,158 @@ const clearButtonSizeClassNames: Record<SearchInputSize, string> = {
  *   onSearch={(value) => console.log(value)}
  * />
  * ```
- *
- * @example 비제어 방식
- *
- * ```tsx
- * <SearchInput placeholder="상점 이름 검색" />
- * ```
  */
-export const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(
-  (
-    {
-      value,
-      defaultValue = "",
-      onValueChange,
-      onSearch,
-      onClear,
-      size = "medium",
-      fullWidth = true,
-      isLoading = false,
-      showClearButton = true,
-      disabled = false,
-      readOnly = false,
-      placeholder = "상점 이름 검색",
-      className = "",
-      onKeyDown,
-      "aria-label": ariaLabel,
-      ...inputProps
-    },
-    ref,
-  ) => {
-    const [internalValue, setInternalValue] = useState(defaultValue);
+export const SearchInput = ({
+  ref,
+  value,
+  defaultValue = "",
+  onValueChange,
+  onSearch,
+  onClear,
+  size = "medium",
+  fullWidth = true,
+  isLoading = false,
+  showClearButton = true,
+  disabled = false,
+  readOnly = false,
+  placeholder = "상점 이름 검색",
+  className = "",
+  onKeyDown,
+  "aria-label": ariaLabel,
+  ...inputProps
+}: SearchInputProps) => {
+  const [internalValue, setInternalValue] = useState(defaultValue);
 
-    const isControlled = value !== undefined;
-    const currentValue = isControlled ? value : internalValue;
+  const isControlled = value !== undefined;
+  const currentValue = isControlled ? value : internalValue;
 
-    const handleValueChange = (nextValue: string) => {
-      if (!isControlled) {
-        setInternalValue(nextValue);
-      }
+  const handleValueChange = (nextValue: string) => {
+    if (!isControlled) {
+      setInternalValue(nextValue);
+    }
 
-      onValueChange?.(nextValue);
-    };
+    onValueChange?.(nextValue);
+  };
 
-    const handleClear = () => {
-      if (disabled || readOnly || isLoading) {
-        return;
-      }
+  const handleClear = () => {
+    if (disabled || readOnly || isLoading) {
+      return;
+    }
 
-      handleValueChange("");
-      onClear?.();
-    };
+    handleValueChange("");
+    onClear?.();
+  };
 
-    const handleSearch = () => {
-      if (disabled || isLoading) {
-        return;
-      }
+  const handleSearch = () => {
+    if (disabled || isLoading) {
+      return;
+    }
 
-      onSearch?.(currentValue.trim());
-    };
+    onSearch?.(currentValue.trim());
+  };
 
-    const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-      onKeyDown?.(event);
+  const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    onKeyDown?.(event);
 
-      if (event.defaultPrevented) {
-        return;
-      }
+    if (event.defaultPrevented) {
+      return;
+    }
 
-      if (event.key === "Enter") {
-        event.preventDefault();
-        handleSearch();
-      }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      handleSearch();
+    }
 
-      if (event.key === "Escape" && currentValue) {
-        handleClear();
-      }
-    };
+    if (event.key === "Escape" && currentValue) {
+      handleClear();
+    }
+  };
 
-    const shouldShowClearButton =
-      showClearButton &&
-      currentValue.length > 0 &&
-      !disabled &&
-      !readOnly &&
-      !isLoading;
+  const shouldShowClearButton =
+    showClearButton &&
+    currentValue.length > 0 &&
+    !disabled &&
+    !readOnly &&
+    !isLoading;
 
-    return (
-      <div
+  return (
+    <div
+      className={[
+        "flex items-center gap-2 rounded-full bg-white",
+        "text-black-950",
+        "shadow-[0_0_10px_1px] shadow-black-950/10",
+        "transition-shadow",
+        "focus-within:ring-2",
+        "focus-within:ring-black-950/30",
+        disabled
+          ? "cursor-not-allowed bg-black-100 text-black-400"
+          : "hover:shadow-[0_0_0_1px] hover:shadow-black-950/25",
+        fullWidth ? "w-full" : "w-fit",
+        sizeClassNames[size],
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      <SearchIcon
+        aria-hidden="true"
+        className={["shrink-0 text-black-500", iconSizeClassNames[size]].join(
+          " ",
+        )}
+      />
+
+      <input
+        {...inputProps}
+        ref={ref}
+        type="search"
+        value={currentValue}
+        disabled={disabled}
+        readOnly={readOnly}
+        placeholder={placeholder}
+        aria-label={ariaLabel ?? "검색어"}
+        aria-busy={isLoading || undefined}
+        onChange={(event) => handleValueChange(event.target.value)}
+        onKeyDown={handleKeyDown}
         className={[
-          "flex items-center gap-2 rounded-full bg-white",
-          "text-black-950",
-          "shadow-[0_0_10px_1px] shadow-black-950/10",
-          "transition-shadow",
-          "focus-within:ring-2",
-          "focus-within:ring-black-950/30",
-          disabled
-            ? "cursor-not-allowed bg-black-100 text-black-400"
-            : ["hover:shadow-[0_0_0_1px]", "hover:shadow-black-950/25"].join(
-                " ",
-              ),
-          fullWidth ? "w-full" : "w-fit",
-          sizeClassNames[size],
-          className,
-        ]
-          .filter(Boolean)
-          .join(" ")}
-      >
-        <SearchIcon
+          "min-w-0 flex-1 appearance-none border-0 bg-transparent",
+          "outline-none ring-0",
+          "focus:border-0 focus:outline-none focus:ring-0",
+          "focus-visible:outline-none focus-visible:ring-0",
+          "placeholder:text-black-400",
+          "disabled:cursor-not-allowed",
+          "[&::-webkit-search-cancel-button]:appearance-none",
+          "[&::-webkit-search-decoration]:appearance-none",
+        ].join(" ")}
+      />
+
+      {isLoading && (
+        <LoadingIcon
           aria-hidden="true"
           className={["shrink-0 text-black-500", iconSizeClassNames[size]].join(
             " ",
           )}
         />
+      )}
 
-        <input
-          {...inputProps}
-          ref={ref}
-          type="search"
-          value={currentValue}
-          disabled={disabled}
-          readOnly={readOnly}
-          placeholder={placeholder}
-          aria-label={ariaLabel ?? "검색어"}
-          aria-busy={isLoading || undefined}
-          onChange={(event) => handleValueChange(event.target.value)}
-          onKeyDown={handleKeyDown}
+      {shouldShowClearButton && (
+        <button
+          type="button"
+          aria-label="검색어 지우기"
+          onClick={handleClear}
           className={[
-            "min-w-0 flex-1 appearance-none border-0 bg-transparent",
-            "outline-none ring-0",
-            "focus:border-0 focus:outline-none focus:ring-0",
-            "focus-visible:outline-none focus-visible:ring-0",
-            "placeholder:text-black-400",
-            "disabled:cursor-not-allowed",
-            "[&::-webkit-search-cancel-button]:appearance-none",
-            "[&::-webkit-search-decoration]:appearance-none",
+            "flex shrink-0 items-center justify-center rounded-full",
+            "text-black-400 transition-colors",
+            "hover:bg-black-100 hover:text-black-800",
+            "focus-visible:outline-none",
+            "focus-visible:ring-2",
+            "focus-visible:ring-black-950",
+            "focus-visible:ring-offset-2",
+            clearButtonSizeClassNames[size],
           ].join(" ")}
-        />
-
-        {isLoading && (
-          <LoadingIcon
-            aria-hidden="true"
-            className={[
-              "shrink-0 text-black-500",
-              iconSizeClassNames[size],
-            ].join(" ")}
-          />
-        )}
-
-        {shouldShowClearButton && (
-          <button
-            type="button"
-            aria-label="검색어 지우기"
-            onClick={handleClear}
-            className={[
-              "flex shrink-0 items-center justify-center rounded-full",
-              "text-black-400 transition-colors",
-              "hover:bg-black-100 hover:text-black-800",
-              "focus-visible:outline-none",
-              "focus-visible:ring-2",
-              "focus-visible:ring-black-950",
-              "focus-visible:ring-offset-2",
-              clearButtonSizeClassNames[size],
-            ].join(" ")}
-          >
-            <CloseCircleIcon aria-hidden="true" className="size-full" />
-          </button>
-        )}
-      </div>
-    );
-  },
-);
-
-SearchInput.displayName = "SearchInput";
+        >
+          <CloseCircleIcon aria-hidden="true" className="size-full" />
+        </button>
+      )}
+    </div>
+  );
+};
