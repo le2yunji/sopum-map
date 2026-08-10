@@ -7,5 +7,5 @@
 - [x] Add failing success, validation, loading, and error stories.
 - [x] Implement shop summary, visit date, tags, review, file previews, cancel, and submit UI.
 - [x] Connect `/shops/[shopId]/reviews/new` with loading and error boundaries.
-- [ ] Verify Storybook, lint, shared build, frontend build, mobile widths, and focus behavior.
+- [x] Verify Storybook, lint, shared build, frontend build, mobile widths, and focus behavior.
 - [ ] Push and open a stacked PR with `Closes #39`.
