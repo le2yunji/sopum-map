@@ -94,4 +94,4 @@
 - [x] Inspect success, empty, and error states in Chromium at 320px, 390px, and 480px with no overflow or console errors.
 - [x] Verify like, carousel, folder, report, Escape, and focus flows with keyboard-capable browser interactions.
 - [x] Review the diff so only #36 plan and shop-detail route files appear.
-- [ ] Push `feat/36/shop-detail-ui` and create a stacked PR to `feat/20/bottom-sheet` with `Closes #36`.
+- [x] Push `feat/36/shop-detail-ui` and create a stacked PR to `feat/20/bottom-sheet` with `Closes #36`.
