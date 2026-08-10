@@ -79,13 +79,13 @@ function ModalRoot({
     return restorePageState;
   }, [restorePageState]);
 
-  /** Escape 요청을 제어 상태 변경으로 전달합니다. */
+  /** Escape 요청을 제어 상태 변경으로 전달 */
   const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
     event.preventDefault();
     onOpenChange(false);
   };
 
-  /** 키보드 테스트와 브라우저 차이에도 Escape 닫기를 동일하게 보장합니다. */
+  /** 키보드 테스트와 브라우저 차이에도 Escape 닫기를 동일하게 보장 */
   const handleKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
     if (event.key === "Escape") {
       event.preventDefault();
@@ -93,7 +93,7 @@ function ModalRoot({
     }
   };
 
-  /** 패널 바깥의 실제 backdrop을 누른 경우에만 닫기를 요청합니다. */
+  /** 패널 바깥의 실제 backdrop을 누른 경우에만 닫기를 요청 */
   const handleBackdropPointerDown = (
     event: PointerEvent<HTMLDialogElement>,
   ) => {
@@ -125,7 +125,7 @@ function ModalRoot({
   );
 }
 
-/** Modal 상단의 시각 요소와 제목을 일정한 간격으로 배치합니다. */
+/** Modal 상단의 시각 요소와 제목을 일정한 간격으로 배치 */
 function ModalHeader({ className = "", ...props }: ModalSectionProps) {
   return (
     <div
@@ -135,7 +135,7 @@ function ModalHeader({ className = "", ...props }: ModalSectionProps) {
   );
 }
 
-/** Modal의 접근 가능한 주제를 제목 계층으로 표시합니다. */
+/** Modal의 접근 가능한 주제를 제목 계층으로 표시 */
 function ModalTitle({ className = "", ...props }: ModalTitleProps) {
   return (
     <h2
@@ -148,7 +148,7 @@ function ModalTitle({ className = "", ...props }: ModalTitleProps) {
   );
 }
 
-/** Modal의 설명 콘텐츠를 피그마 본문 규격으로 배치합니다. */
+/** Modal의 설명 콘텐츠를 피그마 본문 규격으로 배치 */
 function ModalBody({ className = "", ...props }: ModalSectionProps) {
   return (
     <div
@@ -161,7 +161,7 @@ function ModalBody({ className = "", ...props }: ModalSectionProps) {
   );
 }
 
-/** Modal의 주요 닫기 또는 확인 액션을 하단에 배치합니다. */
+/** Modal의 주요 닫기 또는 확인 액션을 하단에 배치 */
 function ModalFooter({ className = "", ...props }: ModalSectionProps) {
   return (
     <div
