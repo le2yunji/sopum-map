@@ -134,7 +134,7 @@ git commit -m "Test: Textarea 상태별 스토리 추가"
 - Consumes: completed Textarea component and stories.
 - Produces: verified branch and PR targeting `dev` with `Closes #62`.
 
-- [ ] **Step 1: Run full automated verification**
+- [x] **Step 1: Run full automated verification**
 
 ```bash
 pnpm --dir packages build
@@ -144,11 +144,11 @@ pnpm --dir frontend build
 git diff --check dev...HEAD
 ```
 
-- [ ] **Step 2: Inspect responsive browser output**
+- [x] **Step 2: Inspect responsive browser output**
 
 Open the controlled and error stories in Chromium at 320px, 390px, and 480px. Confirm no horizontal overflow, visible focus/error states, correct count updates, accessible names, and zero console errors.
 
-- [ ] **Step 3: Review branch scope**
+- [x] **Step 3: Review branch scope**
 
 Confirm `git diff --name-status dev...HEAD` contains only the design, plan, and `frontend/src/components/ui/Textarea/*`.
 
