@@ -1,10 +1,10 @@
 # 소품지도 프로젝트 메모리
 
-> 기준일: 2026-08-09
+> 기준일: 2026-08-10
 >
 > 기준 브랜치: `dev`
 >
-> 기준 커밋: `0d348aa`
+> 기준 커밋: `dc626cf`
 
 이 문서는 프로젝트 구조와 구현 상태를 빠르게 파악하기 위한 스냅샷이다. 내용이 실제 코드나 Git 상태와 다르면 실제 상태를 우선하고 이 문서를 갱신한다.
 
@@ -31,7 +31,7 @@ sopum-map/
 
 - Next.js 16.2.12 App Router
 - React 19.2.4
-- TypeScript 5
+- TypeScript 6
 - Tailwind CSS 4
 - Storybook 10.5.2
 - Vitest 4.1.10과 Playwright 1.61.1
