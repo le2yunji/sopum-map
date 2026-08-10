@@ -33,13 +33,13 @@
 - Produces: `ShopDetailView`, `ShopReviewPreview`, `ShopDetailViewState`, `SHOP_DETAIL_FIXTURE`, and `ShopDetailScreen`.
 - Consumes: local shop images, `Button`, `Badge`, and Next.js `Image`/`Link`.
 
-- [ ] Write a failing `Success` story that expects the shop heading, category and tags, address, hours, phone, Instagram, Naver Map, location preview, two review previews, and `/shops/shop-1/reviews/new` link.
-- [ ] Run the focused Storybook test and verify RED because the screen module does not exist.
-- [ ] Define strict display-model types and a complete local fixture with no API-shaped wrapper.
-- [ ] Implement the image gallery and the semantic page sections with safe image and optional-field fallbacks.
-- [ ] Add `Loading`, `Empty`, and `Error` stories with recovery actions and verify all focused stories pass.
-- [ ] Run scoped ESLint and `git diff --check`.
-- [ ] Commit with `Feat: 상점 상세 정보 화면 구현`.
+- [x] Write a failing `Success` story that expects the shop heading, category and tags, address, hours, phone, Instagram, Naver Map, location preview, two review previews, and `/shops/shop-1/reviews/new` link.
+- [x] Run the focused Storybook test and verify RED because the screen module does not exist.
+- [x] Define strict display-model types and a complete local fixture with no API-shaped wrapper.
+- [x] Implement the image gallery and the semantic page sections with safe image and optional-field fallbacks.
+- [x] Add `Loading`, `Empty`, and `Error` stories with recovery actions and verify all focused stories pass.
+- [x] Run scoped ESLint and `git diff --check`.
+- [x] Commit with `Feat: 상점 상세 정보 화면 구현`.
 
 ---
 
