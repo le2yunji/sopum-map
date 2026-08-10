@@ -59,7 +59,7 @@
 - [x] Implement only local state transitions. Close one overlay before opening the next and expose confirmation through visible status text.
 - [x] Verify Escape/backdrop behavior remains owned by shared overlay primitives.
 - [x] Run focused stories, scoped ESLint, and `git diff --check`.
-- [ ] Commit with `Feat: 상점 상세 상호작용 구현`.
+- [x] Commit with `Feat: 상점 상세 상호작용 구현`.
 
 ---
 
@@ -74,9 +74,9 @@
 - Consumes: `PageProps<"/shops/[shopId]">`, `SHOP_DETAIL_FIXTURE`, and `ShopDetailScreen`.
 - Produces: `/shops/[shopId]` fixture route with Next.js loading and error boundaries.
 
-- [ ] Replace the placeholder page with an async page that awaits `params` and passes the route `shopId` into the fixture display model.
-- [ ] Add route-level loading and retryable error UI using polite copy.
-- [ ] Run scoped lint and production build after building `@sopum-map/shared`.
+- [x] Replace the placeholder page with an async page that awaits `params` and passes the route `shopId` into the fixture display model.
+- [x] Add route-level loading and retryable error UI using polite copy.
+- [x] Run scoped lint and production build after building `@sopum-map/shared`.
 - [ ] Commit with `Feat: 상점 상세 라우트 연결`.
 
 ---
