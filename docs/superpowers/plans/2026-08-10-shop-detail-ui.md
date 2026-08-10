@@ -54,11 +54,11 @@
 - Consumes: Task 1 display model plus existing `BottomSheet` and `Modal`.
 - Produces: local like state, image navigation, pick-folder selection, and report completion flow.
 
-- [ ] Add failing browser assertions for carousel next/previous, `aria-pressed` like state, pick-folder BottomSheet selection, and report BottomSheet to completion Modal transition.
-- [ ] Run the focused stories and verify failures occur at missing interactions.
-- [ ] Implement only local state transitions. Close one overlay before opening the next and expose confirmation through visible status text.
-- [ ] Verify Escape/backdrop behavior remains owned by shared overlay primitives.
-- [ ] Run focused stories, scoped ESLint, and `git diff --check`.
+- [x] Add failing browser assertions for carousel next/previous, `aria-pressed` like state, pick-folder BottomSheet selection, and report BottomSheet to completion Modal transition.
+- [x] Run the focused stories and verify failures occur at missing interactions.
+- [x] Implement only local state transitions. Close one overlay before opening the next and expose confirmation through visible status text.
+- [x] Verify Escape/backdrop behavior remains owned by shared overlay primitives.
+- [x] Run focused stories, scoped ESLint, and `git diff --check`.
 - [ ] Commit with `Feat: 상점 상세 상호작용 구현`.
 
 ---

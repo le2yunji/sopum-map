@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/Badge/Badge";
+import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal/Modal";
 
 import type {
   ShopDetailView,
@@ -16,6 +19,13 @@ type ShopDetailScreenProps = Readonly<{
   state?: ShopDetailViewState;
   onRetry?: () => void;
 }>;
+
+const REPORT_REASONS = [
+  "주소가 달라요",
+  "영업시간이 달라요",
+  "폐점한 매장이에요",
+  "기타",
+] as const;
 
 /** 최종 상세 화면과 비슷한 높이를 유지하는 로딩 상태를 표시합니다. */
 function ShopDetailLoading() {
@@ -77,6 +87,14 @@ export function ShopDetailScreen({
   state = "success",
   onRetry,
 }: ShopDetailScreenProps) {
+  const [isLiked, setIsLiked] = useState(shop?.isLiked ?? false);
+  const [pickOpen, setPickOpen] = useState(false);
+  const [pickStatus, setPickStatus] = useState("");
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState<string>();
+  const [reportCompleteOpen, setReportCompleteOpen] = useState(false);
+  const reportTriggerRef = useRef<HTMLButtonElement>(null);
+
   if (state === "loading") {
     return <ShopDetailLoading />;
   }
@@ -89,6 +107,33 @@ export function ShopDetailScreen({
     return <ShopDetailEmpty />;
   }
 
+  /** 서버 연결 전에도 찜 결과를 바로 확인할 수 있게 화면 상태를 바꿉니다. */
+  function toggleLike() {
+    setIsLiked((liked) => !liked);
+  }
+
+  /** 선택한 픽 이름을 알리고 선택창을 닫습니다. */
+  function addToPick(folderName: string) {
+    setPickStatus(`${folderName}에 추가했어요.`);
+    setPickOpen(false);
+  }
+
+  /** 제보 사유를 확인한 뒤 완료 안내로 전환합니다. */
+  function submitReport() {
+    setReportOpen(false);
+    setReportCompleteOpen(true);
+  }
+
+  /** 완료 안내를 닫은 뒤 제보를 시작한 버튼으로 초점을 돌려줍니다. */
+  function changeReportCompleteOpen(open: boolean) {
+    setReportCompleteOpen(open);
+    if (!open) {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => reportTriggerRef.current?.focus());
+      });
+    }
+  }
+
   return (
     <main className="min-h-dvh bg-white pb-10 text-black-950">
       <div className="relative">
@@ -98,8 +143,8 @@ export function ShopDetailScreen({
             ←
           </Link>
           <div className="flex gap-2">
-            <button type="button" aria-label="상점 정보 수정 제보" className="grid size-11 place-items-center rounded-full bg-white/95 text-14 font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-green-500">!</button>
-            <button type="button" aria-label={shop.isLiked ? "찜 해제" : "찜하기"} aria-pressed={shop.isLiked} className="grid size-11 place-items-center rounded-full bg-white/95 text-20 shadow-sm focus-visible:outline-2 focus-visible:outline-green-500">♡</button>
+            <button ref={reportTriggerRef} type="button" aria-label="상점 정보 수정 제보" onClick={() => setReportOpen(true)} className="grid size-11 place-items-center rounded-full bg-white/95 text-14 font-semibold shadow-sm focus-visible:outline-2 focus-visible:outline-green-500">!</button>
+            <button type="button" aria-label={isLiked ? "찜 해제" : "찜하기"} aria-pressed={isLiked} onClick={toggleLike} className="grid size-11 place-items-center rounded-full bg-white/95 text-20 shadow-sm focus-visible:outline-2 focus-visible:outline-green-500">{isLiked ? "♥" : "♡"}</button>
           </div>
         </div>
       </div>
@@ -107,7 +152,7 @@ export function ShopDetailScreen({
       <div className="px-5 pt-6">
         <div className="flex items-center gap-2">
           <Badge>{shop.categoryLabel}</Badge>
-          <span className="text-12 text-black-500">찜 {shop.likeCount}</span>
+          <span className="text-12 text-black-500">찜 {shop.likeCount + (isLiked ? 1 : 0)}</span>
         </div>
         <h1 className="mt-3 text-24 font-bold tracking-[-0.02em]">{shop.name}</h1>
         {shop.description ? <p className="mt-3 text-14 leading-6 text-black-800">{shop.description}</p> : null}
@@ -115,7 +160,8 @@ export function ShopDetailScreen({
           {shop.tags.length > 0 ? shop.tags.map((tag) => <Badge key={tag} variant="pink">#{tag}</Badge>) : <span className="text-12 text-black-500">등록된 태그가 없어요.</span>}
         </div>
 
-        <Button fullWidth className="mt-6">내 픽에 추가</Button>
+        <Button fullWidth className="mt-6" onClick={() => setPickOpen(true)}>내 픽에 추가</Button>
+        {pickStatus ? <p role="status" className="mt-3 text-center text-12 text-green-700">{pickStatus}</p> : null}
       </div>
 
       <section aria-labelledby="shop-info-title" className="mt-8 border-t-8 border-black-100 px-5 pt-7">
@@ -154,8 +200,45 @@ export function ShopDetailScreen({
             ))}
           </ul>
         ) : <p className="mt-5 rounded-2xl bg-green-50 px-4 py-8 text-center text-14 text-black-700">첫 방문 후기를 남겨 주세요.</p>}
-        <button type="button" className="mt-4 min-h-11 w-full text-14 text-black-500 underline underline-offset-4">상점 정보 수정 제보</button>
+        <button type="button" onClick={() => setReportOpen(true)} className="mt-4 min-h-11 w-full text-14 text-black-500 underline underline-offset-4">상점 정보 수정 제보</button>
       </section>
+
+      <BottomSheet open={pickOpen} onOpenChange={setPickOpen} ariaLabelledBy="pick-sheet-title" showCloseButton>
+        <BottomSheet.Handle />
+        <BottomSheet.Header><BottomSheet.Title id="pick-sheet-title">내 픽에 추가</BottomSheet.Title></BottomSheet.Header>
+        <BottomSheet.Body>
+          <div className="space-y-2">
+            {shop.pickFolders.map((folder) => (
+              <button key={folder.id} type="button" aria-label={`${folder.name}, 상점 ${folder.shopCount}개`} onClick={() => addToPick(folder.name)} className="flex min-h-14 w-full items-center justify-between rounded-xl border border-black-200 px-4 text-left text-14 focus-visible:outline-2 focus-visible:outline-green-500">
+                <span className="font-semibold">{folder.name}</span><span className="text-black-500">상점 {folder.shopCount}개</span>
+              </button>
+            ))}
+          </div>
+        </BottomSheet.Body>
+      </BottomSheet>
+
+      <BottomSheet open={reportOpen} onOpenChange={setReportOpen} ariaLabelledBy="report-sheet-title" showCloseButton>
+        <BottomSheet.Handle />
+        <BottomSheet.Header><BottomSheet.Title id="report-sheet-title">어떤 정보가 잘못되었나요?</BottomSheet.Title></BottomSheet.Header>
+        <BottomSheet.Body>
+          <fieldset className="space-y-2">
+            <legend className="sr-only">수정할 정보 선택</legend>
+            {REPORT_REASONS.map((reason) => (
+              <label key={reason} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-xl border border-black-200 px-4 text-14">
+                <input type="radio" name="report-reason" value={reason} checked={reportReason === reason} onChange={() => setReportReason(reason)} className="size-5 accent-green-500" />
+                {reason}
+              </label>
+            ))}
+          </fieldset>
+        </BottomSheet.Body>
+        <BottomSheet.Footer><Button fullWidth disabled={!reportReason} onClick={submitReport}>다음</Button></BottomSheet.Footer>
+      </BottomSheet>
+
+      <Modal open={reportCompleteOpen} onOpenChange={changeReportCompleteOpen} ariaLabelledBy="report-complete-title" ariaDescribedBy="report-complete-description">
+        <Modal.Header><span aria-hidden="true" className="text-24 text-green-500">✓</span><Modal.Title id="report-complete-title">제보가 완료되었습니다</Modal.Title></Modal.Header>
+        <Modal.Body id="report-complete-description">확인한 뒤 상점 정보에 반영할게요.</Modal.Body>
+        <Modal.Footer><Button fullWidth onClick={() => changeReportCompleteOpen(false)}>닫기</Button></Modal.Footer>
+      </Modal>
     </main>
   );
 }

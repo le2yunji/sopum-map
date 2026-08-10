@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, fn, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
 import { SHOP_DETAIL_FIXTURE } from "../_data/shop-detail.fixture";
 import { ShopDetailScreen } from "./ShopDetailScreen";
@@ -62,5 +62,67 @@ export const Error: Story = {
     ).toBeVisible();
     canvas.getByRole("button", { name: "다시 시도" }).click();
     await expect(args.onRetry).toHaveBeenCalledOnce();
+  },
+};
+
+export const Interactions: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "다음 이미지 보기" }),
+    );
+    await expect(
+      canvas.getByRole("img", { name: "행운상점 연남의 매장 전경" }),
+    ).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "이전 이미지 보기" }),
+    );
+
+    const likeButton = canvas.getByRole("button", { name: "찜하기" });
+    await userEvent.click(likeButton);
+    await expect(likeButton).toHaveAttribute("aria-pressed", "true");
+    await expect(likeButton).toHaveAccessibleName("찜 해제");
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "내 픽에 추가" }),
+    );
+    const pickDialog = canvas.getByRole("dialog", { name: "내 픽에 추가" });
+    await expect(pickDialog).toBeVisible();
+    await userEvent.click(
+      within(pickDialog).getByRole("button", {
+        name: "연남동 산책, 상점 4개",
+      }),
+    );
+    await waitFor(() => expect(pickDialog).not.toBeVisible());
+    await expect(canvas.getByRole("status")).toHaveTextContent(
+      "연남동 산책에 추가했어요.",
+    );
+
+    const reportTrigger = canvas.getAllByRole("button", {
+      name: "상점 정보 수정 제보",
+    })[0];
+    await userEvent.click(reportTrigger);
+    const reportDialog = canvas.getByRole("dialog", {
+      name: "어떤 정보가 잘못되었나요?",
+    });
+    await userEvent.click(
+      within(reportDialog).getByRole("radio", { name: "영업시간이 달라요" }),
+    );
+    await userEvent.click(
+      within(reportDialog).getByRole("button", { name: "다음" }),
+    );
+
+    const completeDialog = canvas.getByRole("dialog", {
+      name: "제보가 완료되었습니다",
+    });
+    await expect(completeDialog).toBeVisible();
+    await userEvent.click(
+      within(completeDialog).getByRole("button", { name: "닫기" }),
+    );
+    await waitFor(() => {
+      expect(completeDialog).not.toBeVisible();
+      expect(reportTrigger).toHaveFocus();
+    });
   },
 };
