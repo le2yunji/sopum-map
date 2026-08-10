@@ -8,4 +8,4 @@
 - [x] Implement shop summary, visit date, tags, review, file previews, cancel, and submit UI.
 - [x] Connect `/shops/[shopId]/reviews/new` with loading and error boundaries.
 - [x] Verify Storybook, lint, shared build, frontend build, mobile widths, and focus behavior.
-- [ ] Push and open a stacked PR with `Closes #39`.
+- [x] Push and open a stacked PR with `Closes #39`.
