@@ -27,6 +27,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       className = "",
       textareaClassName = "",
       "aria-describedby": ariaDescribedBy,
+      "aria-invalid": ariaInvalid,
       ...textareaProps
     },
     ref,
@@ -59,17 +60,28 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           onChange={onChange}
           maxLength={maxLength}
           aria-describedby={describedBy}
+          aria-invalid={errorMessage ? true : ariaInvalid}
           className={[
             "min-h-32 w-full resize-none rounded-xl border border-black-300 bg-white px-4 py-3",
             "text-14 leading-6 text-black-950 outline-none placeholder:text-black-400",
-            "focus:border-green-500 focus:ring-2 focus:ring-green-500/20",
+            "disabled:cursor-not-allowed disabled:bg-black-100 disabled:text-black-400",
+            "read-only:bg-black-100 read-only:text-black-800",
+            errorMessage
+              ? "border-red-600 focus:border-red-600 focus:ring-2 focus:ring-red-400/20"
+              : "focus:border-green-500 focus:ring-2 focus:ring-green-500/20",
             textareaClassName,
           ].join(" ")}
         />
 
         {feedbackText || showCharacterCount ? (
           <div className="mt-2 flex items-start justify-between gap-3 text-12 text-black-500">
-            {feedbackText ? <p id={feedbackId}>{feedbackText}</p> : <span />}
+            {feedbackText ? (
+              <p id={feedbackId} className={errorMessage ? "text-red-600" : ""}>
+                {feedbackText}
+              </p>
+            ) : (
+              <span />
+            )}
             {showCharacterCount ? (
               <span className="ml-auto shrink-0">{countText}</span>
             ) : null}

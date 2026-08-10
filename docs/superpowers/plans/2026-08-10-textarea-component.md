@@ -91,7 +91,7 @@ git commit -m "Feat: Textarea 제어 입력과 접근성 구현"
 - Consumes: the Task 1 `Textarea` contract.
 - Produces: verified helper, error, max length, disabled, read-only, and long-content states.
 
-- [ ] **Step 1: Add failing feedback and state stories**
+- [x] **Step 1: Add failing feedback and state stories**
 
 Add stories for `Default`, `WithLabel`, `Placeholder`, `WithValue`, `HelperText`, `Error`, `CharacterCount`, `MaxLengthReached`, `Disabled`, `ReadOnly`, and `LongReview`. Add play assertions that:
 
@@ -99,15 +99,15 @@ Add stories for `Default`, `WithLabel`, `Placeholder`, `WithValue`, `HelperText`
 - typing beyond `maxLength={5}` keeps the value at five characters;
 - disabled and read-only fields do not change after typing.
 
-- [ ] **Step 2: Run the stories and verify RED**
+- [x] **Step 2: Run the stories and verify RED**
 
 Run the focused command from Task 1. Expected: at least one new state assertion fails before its rendering or accessibility behavior exists.
 
-- [ ] **Step 3: Implement the minimal missing state behavior**
+- [x] **Step 3: Implement the minimal missing state behavior**
 
 Apply `aria-invalid`, error border and focus colors, disabled/read-only styling, `maxLength`, and count rendering. Do not add validation rules or internal input state.
 
-- [ ] **Step 4: Run the focused stories and lint**
+- [x] **Step 4: Run the focused stories and lint**
 
 ```bash
 pnpm --dir frontend exec vitest --project storybook --run src/components/ui/Textarea/Textarea.stories.tsx
@@ -116,7 +116,7 @@ pnpm --dir frontend lint -- src/components/ui/Textarea
 
 Expected: every Textarea story passes with zero ESLint errors.
 
-- [ ] **Step 5: Commit the state coverage slice**
+- [x] **Step 5: Commit the state coverage slice**
 
 ```bash
 git add frontend/src/components/ui/Textarea
