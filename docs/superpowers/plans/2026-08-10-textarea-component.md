@@ -31,11 +31,11 @@
 - Consumes: native `TextareaHTMLAttributes<HTMLTextAreaElement>` and project design tokens.
 - Produces: `Textarea`, `TextareaProps`, controlled value updates, label and feedback accessibility wiring.
 
-- [ ] **Step 1: Write the failing controlled-field story**
+- [x] **Step 1: Write the failing controlled-field story**
 
-Create a `Controlled` story whose render function owns `useState("")`. Its play function clicks the visible label, checks textarea focus, types `행운을 발견했어요`, and expects both the textarea value and a `10 / 20` character count.
+Create a `Controlled` story whose render function owns `useState("")`. Its play function clicks the visible label, checks textarea focus, types `행운을 발견했어요`, and expects both the textarea value and a `9 / 20` character count.
 
-- [ ] **Step 2: Run the story and verify RED**
+- [x] **Step 2: Run the story and verify RED**
 
 Run:
 
@@ -45,7 +45,7 @@ pnpm --dir frontend exec vitest --project storybook --run src/components/ui/Text
 
 Expected: FAIL because `Textarea` does not exist.
 
-- [ ] **Step 3: Implement the typed field**
+- [x] **Step 3: Implement the typed field**
 
 Define the public type as:
 
@@ -68,11 +68,11 @@ export type TextareaProps = Omit<
 
 Use `forwardRef`, `useId`, a real `<label>`, a `resize-none` textarea, and derived helper/error/count rows. Merge a consumer-provided `aria-describedby` with the generated feedback ID.
 
-- [ ] **Step 4: Run the focused story and verify GREEN**
+- [x] **Step 4: Run the focused story and verify GREEN**
 
 Run the command from Step 2. Expected: the controlled story passes.
 
-- [ ] **Step 5: Commit the accessible field slice**
+- [x] **Step 5: Commit the accessible field slice**
 
 ```bash
 git add frontend/src/components/ui/Textarea
