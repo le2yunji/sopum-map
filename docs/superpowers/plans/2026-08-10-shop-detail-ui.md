@@ -77,7 +77,7 @@
 - [x] Replace the placeholder page with an async page that awaits `params` and passes the route `shopId` into the fixture display model.
 - [x] Add route-level loading and retryable error UI using polite copy.
 - [x] Run scoped lint and production build after building `@sopum-map/shared`.
-- [ ] Commit with `Feat: 상점 상세 라우트 연결`.
+- [x] Commit with `Feat: 상점 상세 라우트 연결`.
 
 ---
 
@@ -90,8 +90,8 @@
 - Consumes: completed page, stories, and route boundaries.
 - Produces: verified branch and stacked PR based on `feat/20/bottom-sheet` with `Closes #36`.
 
-- [ ] Run the full Storybook suite, frontend lint, production build, and `git diff --check feat/20/bottom-sheet...HEAD`.
-- [ ] Inspect success, empty, and error states in Chromium at 320px, 390px, and 480px with no overflow or console errors.
-- [ ] Verify like, carousel, folder, report, Escape, and focus flows with keyboard-capable browser interactions.
-- [ ] Review the diff so only #36 plan and shop-detail route files appear.
+- [x] Run the full Storybook suite, frontend lint, production build, and `git diff --check feat/20/bottom-sheet...HEAD`.
+- [x] Inspect success, empty, and error states in Chromium at 320px, 390px, and 480px with no overflow or console errors.
+- [x] Verify like, carousel, folder, report, Escape, and focus flows with keyboard-capable browser interactions.
+- [x] Review the diff so only #36 plan and shop-detail route files appear.
 - [ ] Push `feat/36/shop-detail-ui` and create a stacked PR to `feat/20/bottom-sheet` with `Closes #36`.
