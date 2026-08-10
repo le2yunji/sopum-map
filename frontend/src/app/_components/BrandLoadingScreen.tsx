@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-/** 화면이 준비되는 동안 소품지도 브랜드와 마스코트를 보여줍니다. */
+/** 소품지도의 가치와 다음 진입 경로를 한 화면에 안내합니다. */
 export function BrandLoadingScreen() {
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
@@ -17,15 +17,27 @@ export function BrandLoadingScreen() {
         aria-labelledby="onboarding-title"
         className="relative z-10 flex flex-1 flex-col items-center justify-center text-center"
       >
-        <div className="relative mb-7 motion-safe:animate-[onboarding-float_3.6s_ease-in-out_infinite]">
+        <div className="relative mb-7 size-36 motion-safe:animate-[onboarding-float_3.6s_ease-in-out_infinite] min-[390px]:size-40">
           <Image
-            src="/images/brand/sopum-map-mascot.svg"
-            alt="소품지도 마스코트"
-            width={114}
-            height={135}
+            src="/images/brand/symbol.svg"
+            alt="소품지도 심볼"
+            fill
             priority
-            className="h-auto w-[114px] object-contain"
+            sizes="160px"
+            className="object-contain"
           />
+          <span
+            aria-hidden="true"
+            className="absolute -right-3 top-2 text-24 text-green-500"
+          >
+            ✦
+          </span>
+          <span
+            aria-hidden="true"
+            className="absolute -left-5 bottom-10 text-20 text-green-300"
+          >
+            ♡
+          </span>
         </div>
 
         <h1

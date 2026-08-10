@@ -4,7 +4,7 @@ import { expect, within } from "storybook/test";
 import { BrandLoadingScreen } from "./BrandLoadingScreen";
 
 const meta = {
-  title: "App/BrandLoadingScreen",
+  title: "Pages/Onboarding",
   component: BrandLoadingScreen,
   parameters: {
     layout: "fullscreen",
@@ -23,14 +23,11 @@ export const Default: Story = {
       canvas.getByRole("heading", { name: "소품지도" }),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByRole("img", { name: "소품지도 마스코트" }),
-    ).toBeInTheDocument();
+      canvas.getByRole("link", { name: "시작하기" }),
+    ).toHaveAttribute("href", "/login");
     await expect(
-      canvas.queryByRole("link", { name: "시작하기" }),
-    ).not.toBeInTheDocument();
-    await expect(
-      canvas.queryByRole("link", { name: "로그인하기" }),
-    ).not.toBeInTheDocument();
+      canvas.getByRole("link", { name: "로그인하기" }),
+    ).toHaveAttribute("href", "/login");
   },
 };
 

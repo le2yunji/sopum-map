@@ -21,7 +21,7 @@ export default function LoginPage() {
       <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-10 gap-[110px] items-center justify-center">
         <div>
           <Image
-            src="/images/brand/sopum-map-logo.svg"
+            src="/images/brand/logo.svg"
             alt="소품지도"
             width={129}
             height={129}
