@@ -1,10 +1,7 @@
-import type {
-  ChangeEventHandler,
-  TextareaHTMLAttributes,
-} from "react";
+import type { ChangeEventHandler, ComponentPropsWithRef } from "react";
 
 export type TextareaProps = Omit<
-  TextareaHTMLAttributes<HTMLTextAreaElement>,
+  ComponentPropsWithRef<"textarea">,
   "value" | "onChange" | "className"
 > &
   Readonly<{
