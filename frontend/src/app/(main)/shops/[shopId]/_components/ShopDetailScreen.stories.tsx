@@ -32,6 +32,11 @@ export const Success: Story = {
     await expect(
       canvas.getByRole("link", { name: "방문 후기 작성" }),
     ).toHaveAttribute("href", "/shops/shop-1/reviews/new");
+    for (const iconName of ["heart", "pen", "location", "comment", "store"]) {
+      await expect(
+        canvas.getByTestId(`${iconName}-icon`),
+      ).toHaveAttribute("src", expect.stringContaining(`${iconName}.svg`));
+    }
   },
 };
 
