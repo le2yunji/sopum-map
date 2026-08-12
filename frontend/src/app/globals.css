@@ -172,6 +172,7 @@
 html {
   min-width: 320px;
   min-height: 100%;
+  scrollbar-gutter: stable both-edges;
 
   -webkit-text-size-adjust: 100%;
 }
