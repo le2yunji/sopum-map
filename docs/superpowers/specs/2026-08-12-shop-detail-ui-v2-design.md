@@ -60,4 +60,3 @@ Storybook에서 `success`, `loading`, `empty`, `error`, 긴 콘텐츠와 깨진 
 - 320px, 390px, 480px의 화면, 키보드, 포커스와 콘솔 오류 확인
 - `frontend` Storybook 테스트, 린트와 빌드 통과
 - `git diff --check`와 변경 파일 범위 확인
-
