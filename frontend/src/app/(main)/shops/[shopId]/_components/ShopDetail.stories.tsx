@@ -1,8 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, fireEvent, fn, userEvent, waitFor, within } from "storybook/test";
+import {
+  expect,
+  fireEvent,
+  fn,
+  userEvent,
+  waitFor,
+  within,
+} from "storybook/test";
 
 import { SHOP_DETAIL_FIXTURE } from "../_data/shop-detail.fixture";
-import { ShopDetailScreen } from "./ShopDetailScreen";
+import { ShopDetailScreen } from "./ShopDetail";
 
 const meta = {
   title: "Pages/ShopDetail",
@@ -33,9 +40,10 @@ export const Success: Story = {
       canvas.getByRole("link", { name: "방문 후기 작성" }),
     ).toHaveAttribute("href", "/shops/shop-1/reviews/new");
     for (const iconName of ["heart", "pen", "location", "comment", "store"]) {
-      await expect(
-        canvas.getByTestId(`${iconName}-icon`),
-      ).toHaveAttribute("src", expect.stringContaining(`${iconName}.svg`));
+      await expect(canvas.getByTestId(`${iconName}-icon`)).toHaveAttribute(
+        "src",
+        expect.stringContaining(`${iconName}.svg`),
+      );
     }
   },
 };
@@ -57,16 +65,16 @@ export const Interactions: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "폴더에 담기" }));
     await expect(canvas.getByText("성수 나들이에 담았어요")).toBeVisible();
 
-    await userEvent.click(canvas.getByRole("button", { name: "정보 수정 제보" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "정보 수정 제보" }),
+    );
     await userEvent.click(
       canvas.getByRole("radio", { name: "영업시간이 달라요" }),
     );
     await userEvent.click(canvas.getByRole("button", { name: "제보하기" }));
     await expect(
       canvas.getByRole("status", { name: "제보가 접수되었어요" }),
-    ).toHaveTextContent(
-      "제보가 접수되었어요",
-    );
+    ).toHaveTextContent("제보가 접수되었어요");
     await userEvent.click(canvas.getByRole("button", { name: "닫기" }));
     await waitFor(() =>
       expect(

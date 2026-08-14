@@ -1,4 +1,4 @@
-import { ShopDetailSkeleton } from "./_components/ShopDetailScreen";
+import { ShopDetailSkeleton } from "./_components/ShopDetail";
 
 /** 상점 상세 경로가 준비되는 동안 화면 구조를 유지합니다. */
 export default function Loading() {
