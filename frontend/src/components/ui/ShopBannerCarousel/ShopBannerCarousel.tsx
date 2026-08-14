@@ -76,9 +76,9 @@ export const ShopBannerCarousel = ({
                     shadow-lg backdrop-blur-sm
                   "
                 >
-                  <h2 className="line-clamp-1 text-18 font-semibold text-black-950">
+                  <p className="line-clamp-1 text-18 font-semibold text-black-950">
                     {item.name}
-                  </h2>
+                  </p>
 
                   <p className="mt-0.5 truncate text-14 text-black-800">
                     {item.region} · {item.description}
