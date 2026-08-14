@@ -59,9 +59,9 @@ const iconOnlySizeClasses: Record<ButtonSize, string> = {
 };
 
 const iconSizeClasses: Record<ButtonSize, string> = {
-  small: "[&>span>svg]:size-5", // 20px
-  medium: "[&>span>svg]:size-6", // 24px
-  large: "[&>span>svg]:size-6", // 24px
+  small: "[&_svg]:size-5", // 20px
+  medium: "[&_svg]:size-5", // 20px
+  large: "[&_svg]:size-6", // 24px
 };
 
 /**
@@ -129,6 +129,7 @@ export function Button({
     "disabled:border-black-100",
     "disabled:bg-black-100",
     "disabled:text-black-400",
+    iconSizeClasses[size],
     variantClasses[variant],
     iconOnly
       ? `${iconOnlySizeClasses[size]} ${iconSizeClasses[size]} rounded-full p-0`
