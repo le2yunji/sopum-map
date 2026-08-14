@@ -102,7 +102,8 @@ sopum-map/
 - 패키지 이름은 `@sopum-map/shared`다.
 - API 성공·오류 응답과 상점 목록·상세·태그 계약을 제공한다.
 - 태그, 코스, 상점 카테고리와 상태 상수를 관리한다.
-- 실제 소스 위치는 `packages/shared/`, 패키지 진입점과 빌드 설정은 `packages/`에 있다.
+- 실제 소스는 `packages/shared/src/`에서 `shop`, `tag`, `course`, `api` 도메인별로 관리한다.
+- `packages/shared/src/index.ts`가 도메인 export를 모으고, `packages/shared/index.ts`가 패키지 빌드 진입점으로 이를 다시 내보낸다.
 
 ## UI 작업을 이어갈 때
 

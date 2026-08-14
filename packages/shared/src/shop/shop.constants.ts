@@ -13,3 +13,18 @@ export const SHOP_STATUS_LABELS = {
   closed: "폐업",
   hidden: "숨김",
 } as const;
+
+export const SHOP_SOURCE_TYPES = [
+  "admin",
+  "official",
+  "user_suggestion",
+  "public_data",
+] as const;
+
+export const SHOP_IMAGE_SOURCE_TYPES = [
+  "official",
+  "user",
+  "admin",
+  "public_data",
+  "etc",
+] as const;
