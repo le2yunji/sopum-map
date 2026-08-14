@@ -1,6 +1,12 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
 
-import { SHOP_CATEGORIES, SHOP_STATUSES } from "@sopum-map/shared";
+import {
+  SHOP_CATEGORIES,
+  SHOP_IMAGE_SOURCE_TYPES,
+  SHOP_SOURCE_TYPES,
+  SHOP_STATUSES,
+  TAG_KEYS,
+} from "@sopum-map/shared";
 
 // 매장 이미지 정보
 const shopImageSchema = new Schema(
@@ -30,7 +36,7 @@ const shopImageSchema = new Schema(
     // 이미지 출처 유형
     sourceType: {
       type: String,
-      enum: ["official", "user", "admin", "public_data", "etc"],
+      enum: SHOP_IMAGE_SOURCE_TYPES,
       default: "official",
       required: true,
     },
@@ -50,6 +56,28 @@ const shopImageSchema = new Schema(
   },
   {
     // 이미지 객체 내부에 별도 _id를 생성하지 않음
+    _id: false,
+  },
+);
+
+// 매장별 사용자 태그 집계 정보
+const shopTagStatSchema = new Schema(
+  {
+    // 태그 식별값
+    key: {
+      type: String,
+      enum: TAG_KEYS,
+      required: true,
+    },
+
+    // 해당 태그가 선택된 횟수
+    count: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+  },
+  {
     _id: false,
   },
 );
@@ -115,15 +143,18 @@ const shopSchema = new Schema(
       required: true,
     },
 
-    // 매장에 연결된 태그 목록
-    tagIds: {
-      type: [
-        {
-          type: Schema.Types.ObjectId,
-          ref: "Tag",
-        },
-      ],
+    // 사용자 후기에서 집계된 태그
+    tagStats: {
+      type: [shopTagStatSchema],
       default: [],
+      validate: {
+        validator(value: Array<{ key: string; count: number }>) {
+          const keys = value.map((tag) => tag.key);
+
+          return new Set(keys).size === keys.length;
+        },
+        message: "동일한 태그를 tagStats에 중복해서 저장할 수 없습니다.",
+      },
     },
 
     // 전체 주소
@@ -211,8 +242,8 @@ const shopSchema = new Schema(
     // 매장 정보 수집 출처
     sourceType: {
       type: String,
-      enum: ["direct", "official", "user_suggestion", "public_data"],
-      default: "direct",
+      enum: SHOP_SOURCE_TYPES,
+      default: "admin",
       required: true,
     },
 

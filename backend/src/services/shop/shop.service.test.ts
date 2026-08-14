@@ -70,7 +70,7 @@ const shopDocument = {
       order: 1,
     },
   ],
-  sourceType: "direct" as const,
+  sourceType: "admin" as const,
   likeCount: 4,
   status: "active" as const,
   createdAt: new Date("2026-08-01T00:00:00.000Z"),
@@ -84,9 +84,7 @@ describe("shop service", () => {
   });
 
   it("빈 목록의 페이지 정보를 반환하고 추가 조회를 생략한다", async () => {
-    modelMocks.aggregateShops.mockResolvedValue([
-      { items: [], metadata: [] },
-    ]);
+    modelMocks.aggregateShops.mockResolvedValue([{ items: [], metadata: [] }]);
 
     const result = await getShops({
       page: 1,
