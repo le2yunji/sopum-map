@@ -163,7 +163,9 @@ export function ShopImageCarousel({
         </div>
       </div>
 
-      <Badge className="absolute right-4 bottom-8.5 z-10">{shopCategory}</Badge>
+      <Badge className="absolute w-3 right-4 bottom-8.5 z-10 bg-green-100/70 text-green-800">
+        {shopCategory}
+      </Badge>
 
       {images.length > 1 && (
         <div className="absolute inset-x-0 bottom-4 flex justify-center py-4">

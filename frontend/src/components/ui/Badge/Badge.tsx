@@ -9,11 +9,11 @@ interface BadgeProps extends ComponentPropsWithoutRef<"span"> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  green: ["h-[20px]", "px-2", "bg-green-100", "text-black-800", "text-10"].join(
+  green: ["h-[24px]", "px-3", "bg-green-100", "text-black-800", "text-12"].join(
     " ",
   ),
 
-  pink: ["h-[20px]", "px-2.5", "bg-pink-100", "text-pink-500", "text-12"].join(
+  pink: ["h-[24px]", "px-3", "bg-pink-100", "text-pink-500", "text-12"].join(
     " ",
   ),
 };
