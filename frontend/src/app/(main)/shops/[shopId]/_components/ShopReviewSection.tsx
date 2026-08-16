@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ShopDetailView } from "../_types/shop-detail.types";
+import { CameraIcon } from "@/components/icons/CameraIcon";
 
 type Props = Readonly<{
   shop: Pick<ShopDetailView, "id" | "reviews" | "reviewCount" | "likeCount">;
@@ -14,8 +15,9 @@ export function ShopReviewSection({ shop }: Props) {
 
         <Link
           href={`/shops/${shop.id}/reviews/new`}
-          className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-pink-300/30 px-3 text-12 font-semibold text-black-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+          className="inline-flex gap-1 min-h-9 shrink-0 items-center rounded-lg border border-pink-300/30 px-3 text-12 font-medium text-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
         >
+          <CameraIcon className="w-4 text-green-700" />
           후기 작성하기
         </Link>
       </div>

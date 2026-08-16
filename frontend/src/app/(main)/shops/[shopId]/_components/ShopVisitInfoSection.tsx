@@ -13,7 +13,7 @@ export function ShopVisitInfoSection({ shop }: Props) {
         <div className="flex">
           <dt className="w-20 shrink-0 text-black-500">영업시간</dt>
 
-          <dd className="font-semibold">{shop.hours}</dd>
+          <dd>{shop.hours}</dd>
         </div>
 
         {shop.closedDay ? (
