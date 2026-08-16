@@ -1,16 +1,24 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ShopDetailView } from "../_types/shop-detail.types";
 
 type Props = Readonly<{
-  shop: Pick<ShopDetailView, "reviews" | "reviewCount" | "likeCount">;
+  shop: Pick<ShopDetailView, "id" | "reviews" | "reviewCount" | "likeCount">;
 }>;
 
 export function ShopReviewSection({ shop }: Props) {
   return (
     <section className="mt-2 bg-white px-5 py-6">
-      <h2 className="flex items-center gap-1.5 text-16 font-semibold">
-        후기 {shop.reviewCount}개
-      </h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-16 font-semibold">후기 {shop.reviewCount}개</h2>
+
+        <Link
+          href={`/shops/${shop.id}/reviews/new`}
+          className="inline-flex min-h-11 shrink-0 items-center rounded-lg border border-pink-300/30 px-3 text-12 font-semibold text-black-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+        >
+          후기 작성하기
+        </Link>
+      </div>
 
       {shop.reviews.length === 0 ? (
         <div className="py-10 text-center">

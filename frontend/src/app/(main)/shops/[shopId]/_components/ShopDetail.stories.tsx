@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, within } from "storybook/test";
 
 import type {
   ShopDetailView,
@@ -79,6 +80,13 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     shop: defaultShop,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(
+      canvas.getByRole("link", { name: "후기 작성하기" }),
+    ).toHaveAttribute("href", "/shops/shop-1/reviews/new");
   },
 };
 
