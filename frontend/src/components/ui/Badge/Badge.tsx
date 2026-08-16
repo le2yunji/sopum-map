@@ -13,9 +13,15 @@ const variantStyles: Record<BadgeVariant, string> = {
     " ",
   ),
 
-  pink: ["h-[24px]", "px-3", "bg-pink-100", "text-pink-500", "text-12"].join(
-    " ",
-  ),
+  pink: [
+    "h-[26px]",
+    "px-3",
+    "bg-pink-300/15",
+    "text-green-700",
+    "text-12",
+    "border",
+    "border-pink-300/35",
+  ].join(" "),
 };
 
 const shapeStyles: Record<BadgeShape, string> = {

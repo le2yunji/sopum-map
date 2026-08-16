@@ -53,7 +53,7 @@ export const ShopCard = ({
             className="absolute right-2 top-2 rounded-full bg-white/90 p-2"
           >
             <HeartIcon
-              fill={isLiked ? "currentColor" : "none"}
+              filled={isLiked}
               className={isLiked ? "text-red-600" : "text-black-950"}
             />
           </button>
