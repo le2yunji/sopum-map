@@ -19,10 +19,9 @@ export function BrandLoadingScreen() {
       >
         <div className="relative mb-7 size-36 motion-safe:animate-[onboarding-float_3.6s_ease-in-out_infinite] min-[390px]:size-40">
           <Image
-            src="/images/brand/symbol.svg"
+            src="/images/brand/mascot.webp"
             alt="소품지도 심볼"
             fill
-            priority
             sizes="160px"
             className="object-contain"
           />
