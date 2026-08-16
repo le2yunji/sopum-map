@@ -126,6 +126,54 @@ export const Controlled: Story = {
   },
 };
 
+export const AlignedWithPage: Story = {
+  render: () => <ControlledBottomSheetExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const originalInnerWidth = window.innerWidth;
+    const clientWidthDescriptor = Object.getOwnPropertyDescriptor(
+      document.documentElement,
+      "clientWidth",
+    );
+
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 400,
+    });
+    Object.defineProperty(document.documentElement, "clientWidth", {
+      configurable: true,
+      value: 384,
+    });
+
+    try {
+      await userEvent.click(
+        canvas.getByRole("button", { name: "바텀시트 열기" }),
+      );
+
+      await expect(document.body.style.paddingRight).toBe("");
+      await expect(
+        getComputedStyle(document.documentElement).scrollbarGutter,
+      ).toBe("stable both-edges");
+      await userEvent.keyboard("{Escape}");
+      await waitFor(() => expect(document.body.style.overflow).toBe(""));
+    } finally {
+      Object.defineProperty(window, "innerWidth", {
+        configurable: true,
+        value: originalInnerWidth,
+      });
+      if (clientWidthDescriptor) {
+        Object.defineProperty(
+          document.documentElement,
+          "clientWidth",
+          clientWidthDescriptor,
+        );
+      } else {
+        Reflect.deleteProperty(document.documentElement, "clientWidth");
+      }
+    }
+  },
+};
+
 export const BackdropDismissal: Story = {
   render: () => <ControlledBottomSheetExample />,
   play: async ({ canvasElement }) => {

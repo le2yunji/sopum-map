@@ -60,7 +60,11 @@ export const getShopDetailController = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const data = await getShopById(req.params.shopId);
+    const requestWithUser = req as RequestWithOptionalUser;
+    const data = await getShopById(
+      req.params.shopId,
+      requestWithUser.user?.id,
+    );
 
     res.status(200).json({
       success: true,

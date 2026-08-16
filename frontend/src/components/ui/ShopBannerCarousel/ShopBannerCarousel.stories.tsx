@@ -78,13 +78,11 @@ const meta = {
   },
 
   decorators: [
-    (Story) => {
-      return (
-        <div className="mx-auto w-full max-w-[480px] py-6">
-          <Story />
-        </div>
-      );
-    },
+    (Story) => (
+      <div className="mx-auto w-full max-w-[480px] py-6">
+        <Story />
+      </div>
+    ),
   ],
 
   tags: ["autodocs"],
@@ -92,17 +90,15 @@ const meta = {
   argTypes: {
     items: {
       control: "object",
-      description: "배너에 표시할 매장 목록",
+      description: "캐러셀에 표시할 매장 목록",
     },
-
     ariaLabel: {
       control: "text",
       description: "캐러셀 영역을 설명하는 접근성 라벨",
     },
-
     className: {
       control: "text",
-      description: "캐러셀 최상위 요소에 추가할 클래스",
+      description: "최상위 section 요소에 추가할 클래스",
     },
   },
 
@@ -116,14 +112,17 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
+/** 기본 캐러셀 */
 export const Default: Story = {};
 
+/** 매장이 하나만 있는 경우 */
 export const SingleItem: Story = {
   args: {
     items: [shopBannerItems[0]],
   },
 };
 
+/** 여러 매장을 좌우 스와이프로 탐색하는 경우 */
 export const ManyItems: Story = {
   args: {
     items: [
@@ -151,6 +150,7 @@ export const ManyItems: Story = {
   },
 };
 
+/** 긴 매장명과 설명의 말줄임 처리를 확인합니다. */
 export const LongContent: Story = {
   args: {
     items: [
@@ -186,16 +186,24 @@ export const LongContent: Story = {
   },
 };
 
+/** 모바일 390px 화면에서 카드 크기와 스크롤을 확인합니다. */
+export const Mobile390: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: "mobile2",
+    },
+  },
+};
+
+/** 매장이 없으면 캐러셀을 렌더링하지 않습니다. */
 export const Empty: Story = {
   args: {
     items: [],
   },
 
-  render: (args) => {
-    return (
-      <div className="min-h-40">
-        <ShopBannerCarousel {...args} />
-      </div>
-    );
-  },
+  render: (args) => (
+    <div className="min-h-40">
+      <ShopBannerCarousel {...args} />
+    </div>
+  ),
 };

@@ -47,15 +47,21 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  small: "min-h-9 rounded-lg px-3 py-2 text-12",
-  medium: "min-h-11 rounded-xl px-4 py-3 text-14",
-  large: "min-h-13 rounded-xl px-5 py-3.5 text-16",
+  small: "min-h-11 rounded-lg px-3 text-12", // 44px
+  medium: "min-h-12 rounded-xl px-4 py-3 text-14", // 48px
+  large: "min-h-14 rounded-xl px-5 py-3.5 text-16", // 56px
 };
 
 const iconOnlySizeClasses: Record<ButtonSize, string> = {
-  small: "size-9",
-  medium: "size-11",
-  large: "size-13",
+  small: "size-11", // 44px
+  medium: "size-12", // 48px
+  large: "size-14", // 56px
+};
+
+const iconSizeClasses: Record<ButtonSize, string> = {
+  small: "[&_svg]:size-5", // 20px
+  medium: "[&_svg]:size-5", // 20px
+  large: "[&_svg]:size-6", // 24px
 };
 
 /**
@@ -123,9 +129,10 @@ export function Button({
     "disabled:border-black-100",
     "disabled:bg-black-100",
     "disabled:text-black-400",
+    iconSizeClasses[size],
     variantClasses[variant],
     iconOnly
-      ? `${iconOnlySizeClasses[size]} rounded-full p-0`
+      ? `${iconOnlySizeClasses[size]} ${iconSizeClasses[size]} rounded-full p-0`
       : `${sizeClasses[size]} gap-2`,
     fullWidth && !iconOnly ? "w-full" : "",
     className,

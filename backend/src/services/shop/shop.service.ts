@@ -158,7 +158,10 @@ export const getShops = async (
 /**
  * 매장 ID로 활성 상태의 매장 상세 정보를 조회한다.
  */
-export const getShopById = async (shopId: string): Promise<ShopDetailData> => {
+export const getShopById = async (
+  shopId: string,
+  userId?: string,
+): Promise<ShopDetailData> => {
   const shopObjectId = toObjectId(shopId, "shopId");
 
   const shop = await ShopModel.findOne({
@@ -174,12 +177,16 @@ export const getShopById = async (shopId: string): Promise<ShopDetailData> => {
     });
   }
 
-  const visitLogCount = await VisitLogModel.countDocuments({
-    shopId: shopObjectId,
-  });
+  const [visitLogCount, likedShopIdSet] = await Promise.all([
+    VisitLogModel.countDocuments({
+      shopId: shopObjectId,
+    }),
+    getLikedShopIdSet(userId, [shopObjectId]),
+  ]);
 
   return mapShopDetail({
     shop,
     visitLogCount,
+    isLiked: likedShopIdSet.has(shopId),
   });
 };

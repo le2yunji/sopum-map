@@ -37,7 +37,12 @@ const userId = new Types.ObjectId("64b000000000000000000002");
 const shopDocument = {
   _id: shopId,
   category: "소품샵" as const,
-  tagIds: [],
+  tagStats: [
+    {
+      key: "cute" as const,
+      count: 3,
+    },
+  ],
   name: "초록 서랍",
   address: "서울특별시 마포구 연남동 1",
   region1: "서울특별시",
@@ -70,7 +75,7 @@ const shopDocument = {
       order: 1,
     },
   ],
-  sourceType: "direct" as const,
+  sourceType: "admin" as const,
   likeCount: 4,
   status: "active" as const,
   createdAt: new Date("2026-08-01T00:00:00.000Z"),
@@ -84,9 +89,7 @@ describe("shop service", () => {
   });
 
   it("빈 목록의 페이지 정보를 반환하고 추가 조회를 생략한다", async () => {
-    modelMocks.aggregateShops.mockResolvedValue([
-      { items: [], metadata: [] },
-    ]);
+    modelMocks.aggregateShops.mockResolvedValue([{ items: [], metadata: [] }]);
 
     const result = await getShops({
       page: 1,
@@ -139,6 +142,7 @@ describe("shop service", () => {
       mainImageUrl: "https://example.com/main.webp",
       visitLogCount: 3,
       isLiked: true,
+      tags: [{ key: "cute", count: 3 }],
       distance: 126,
     });
     expect(result.pagination).toEqual({
@@ -177,14 +181,21 @@ describe("shop service", () => {
       lean: () => Promise.resolve(shopDocument),
     });
     modelMocks.countVisitLogs.mockResolvedValue(7);
+    modelMocks.findLikes.mockReturnValue({
+      select: () => ({
+        lean: () => Promise.resolve([{ shopId }]),
+      }),
+    });
 
-    const result = await getShopById(shopId.toString());
+    const result = await getShopById(shopId.toString(), userId.toString());
 
     expect(result).toMatchObject({
       id: shopId.toString(),
       latitude: 37.56,
       longitude: 126.92,
       visitLogCount: 7,
+      isLiked: true,
+      tags: [{ key: "cute", count: 3 }],
       createdAt: "2026-08-01T00:00:00.000Z",
       updatedAt: "2026-08-02T00:00:00.000Z",
     });

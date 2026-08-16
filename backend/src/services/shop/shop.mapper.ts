@@ -11,6 +11,7 @@ type MapShopListItemParams = {
 type MapShopDetailParams = {
   shop: ShopDocument;
   visitLogCount: number;
+  isLiked: boolean;
 };
 
 /**
@@ -36,6 +37,11 @@ const getMainImageUrl = (images: ShopDocument["images"]): string | null => {
   return mainImage?.imageUrl ?? null;
 };
 
+/** 매장 태그 집계를 API 응답 형태로 복사합니다. */
+const mapShopTags = (tagStats: ShopDocument["tagStats"]): ShopListItem["tags"] => {
+  return tagStats.map(({ key, count }) => ({ key, count }));
+};
+
 /**
  * Shop 문서를 GET /shops의 개별 목록 항목으로 변환한다.
  */
@@ -49,6 +55,7 @@ export const mapShopListItem = ({
   const item: ShopListItem = {
     id: shop._id.toString(),
     category: shop.category,
+    tags: mapShopTags(shop.tagStats),
     name: shop.name,
     address: shop.address,
     region1: shop.region1,
@@ -79,6 +86,7 @@ export const mapShopListItem = ({
 export const mapShopDetail = ({
   shop,
   visitLogCount,
+  isLiked,
 }: MapShopDetailParams): ShopDetailData => {
   const [longitude, latitude] = shop.location.coordinates;
 
@@ -94,6 +102,7 @@ export const mapShopDetail = ({
   return {
     id: shop._id.toString(),
     category: shop.category,
+    tags: mapShopTags(shop.tagStats),
     name: shop.name,
     address: shop.address,
     region1: shop.region1,
@@ -111,6 +120,7 @@ export const mapShopDetail = ({
     status: shop.status,
     likeCount: shop.likeCount,
     visitLogCount,
+    isLiked,
     createdAt: shop.createdAt.toISOString(),
     updatedAt: shop.updatedAt.toISOString(),
   };
