@@ -26,7 +26,8 @@ type ShopImageCarouselProps = Readonly<{
  * ```tsx
  * <ShopImageCarousel
  *   shopName={shop.name}
- *   imageUrls={imageUrls}
+ *   shopCategory={shop.category}
+ *   imageUrls={shop.imageUrls}
  *   isLiked={isLiked}
  *   onToggleLike={() => setLiked((prev) => !prev)}
  *   onReport={() => setSheet("report")}
@@ -61,13 +62,19 @@ export function ShopImageCarousel({
 
     const nextIndex = Math.round(container.scrollLeft / container.clientWidth);
 
-    if (nextIndex !== imageIndex) {
-      setImageIndex(nextIndex);
+    const safeIndex = Math.min(Math.max(nextIndex, 0), images.length - 1);
+
+    if (safeIndex !== imageIndex) {
+      setImageIndex(safeIndex);
     }
   };
 
   const handleImageError = (index: number) => {
     setFailedImages((prev) => {
+      if (prev.has(index)) {
+        return prev;
+      }
+
       const next = new Set(prev);
       next.add(index);
 
@@ -95,6 +102,7 @@ export function ShopImageCarousel({
         "
       >
         {images.map((imageUrl, index) => {
+          const hasFailed = failedImages.has(index);
           const src = failedImages.has(index) ? fallbackImageUrl : imageUrl;
 
           return (
@@ -112,7 +120,7 @@ export function ShopImageCarousel({
                 alt={`${shopName} 매장 이미지 ${index + 1}`}
                 sizes="(max-width: 480px) 100vw, 480px"
                 className="object-cover"
-                onError={() => handleImageError(index)}
+                onError={hasFailed ? undefined : () => handleImageError(index)}
               />
             </div>
           );
@@ -163,14 +171,13 @@ export function ShopImageCarousel({
         </div>
       </div>
 
-      <Badge className="absolute w-3 right-4 bottom-8.5 z-10 bg-green-100/70 text-green-800">
+      <Badge className="absolute right-4 bottom-8.5 z-10 bg-green-100/70 text-green-800">
         {shopCategory}
       </Badge>
 
       {images.length > 1 && (
         <div className="absolute inset-x-0 bottom-4 flex justify-center py-4">
           <span
-            aria-live="polite"
             className="
               rounded-full bg-black-950/60
               px-3 py-1

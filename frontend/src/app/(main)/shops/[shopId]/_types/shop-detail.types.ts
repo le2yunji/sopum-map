@@ -13,14 +13,18 @@ export type ShopDetailView = Readonly<{
   category: string;
   distance: string;
   tags: readonly string[];
+
   imageUrls: readonly string[];
+
   mapImageUrl?: string;
   address: string;
+  naverMapUrl?: string;
+  smartStoreUrl?: string;
+
   hours: string;
   closedDay?: string;
+
   likeCount: number;
   reviewCount: number;
   reviews: readonly ShopReviewPreview[];
 }>;
-
-export type ShopDetailViewState = "success" | "loading" | "error";
