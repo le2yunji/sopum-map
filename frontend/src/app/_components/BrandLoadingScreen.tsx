@@ -1,6 +1,7 @@
+import { SparkleIcon } from "@/components/icons/SparkleIcon";
 import Image from "next/image";
 
-/** 소품지도의 가치와 다음 진입 경로를 한 화면에 안내합니다. */
+/** 앱이 준비되는 동안 소품지도의 브랜드 가치를 안내합니다. */
 export function BrandLoadingScreen() {
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
@@ -22,15 +23,16 @@ export function BrandLoadingScreen() {
             src="/images/brand/mascot.webp"
             alt="소품지도 심볼"
             fill
+            loading="eager"
             sizes="160px"
             className="object-contain"
           />
-          <span
+
+          <SparkleIcon
             aria-hidden="true"
-            className="absolute -right-3 top-2 text-24 text-green-500"
-          >
-            ✦
-          </span>
+            className="absolute -right-4 top-1 size-8 text-green-300"
+          />
+
           <span
             aria-hidden="true"
             className="absolute -left-5 bottom-10 text-20 text-green-300"

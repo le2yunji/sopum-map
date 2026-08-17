@@ -3,6 +3,7 @@ import { expect, userEvent, within } from "storybook/test";
 
 import { HOME_DATA } from "../_data/home.fixture";
 import { HomeScreen } from "./HomeScreen";
+import { HomeSkeleton } from "./HomeSkeleton";
 
 const meta = {
   title: "Pages/Home",
@@ -52,29 +53,5 @@ export const Default: Story = {
 };
 
 export const Loading: Story = {
-  args: {
-    state: "loading",
-  },
-};
-
-export const Empty: Story = {
-  args: {
-    state: "empty",
-  },
-  play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByText("아직 소개할 소품샵이 없어요"),
-    ).toBeInTheDocument();
-  },
-};
-
-export const Error: Story = {
-  args: {
-    state: "error",
-  },
-  play: async ({ canvasElement }) => {
-    await expect(
-      within(canvasElement).getByRole("button", { name: "다시 시도" }),
-    ).toBeInTheDocument();
-  },
+  render: () => <HomeSkeleton />,
 };

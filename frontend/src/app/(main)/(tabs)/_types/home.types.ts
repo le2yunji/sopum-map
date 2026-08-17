@@ -1,7 +1,5 @@
 import type { ShopBannerItem } from "@/components/ui/ShopBannerCarousel/ShopBannerCarousel.types";
 
-export type HomeViewState = "loading" | "success" | "empty" | "error";
-
 export type HomeCategory = Readonly<{
   value: string;
   label: string;
