@@ -6,10 +6,10 @@ type Props = Readonly<{
 
 export function ShopVisitInfoSection({ shop }: Props) {
   return (
-    <section className="mt-2 bg-white px-5 py-8">
+    <section className="mt-2 bg-white px-5 pt-4 pb-5">
       <h2 className="text-16 font-semibold">운영 정보</h2>
 
-      <dl className="mt-4 space-y-3 text-13">
+      <dl className="mt-4 space-y-3 text-14">
         <div className="flex">
           <dt className="w-20 shrink-0 text-black-500">영업시간</dt>
 

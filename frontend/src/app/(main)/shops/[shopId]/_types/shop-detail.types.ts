@@ -24,6 +24,8 @@ export type ShopDetailView = Readonly<{
   hours: string;
   closedDay?: string;
 
+  isLiked: boolean;
+
   likeCount: number;
   reviewCount: number;
   reviews: readonly ShopReviewPreview[];

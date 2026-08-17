@@ -10,6 +10,7 @@ import {
 import { Badge } from "@/components/ui/Badge/Badge";
 import type { ShopDetailView } from "../_types/shop-detail.types";
 import { Button } from "@/components/ui/Button";
+import { MetroIcon } from "@/components/icons/MetroIcon";
 
 type Props = Readonly<{
   shop: Pick<
@@ -31,25 +32,25 @@ export function ShopSummarySection({ shop }: Props) {
         <h1 className="text-20 font-semibold">{shop.name}</h1>
 
         <div className="flex gap-2">
-          <span className="flex items-center gap-1 text-14 text-black-400">
+          <span className="flex items-center gap-1 text-14 text-black-800">
             <HeartIcon filled className="w-4 text-red-400" />
             {shop.likeCount}
           </span>
-          <span className="flex items-center gap-1 text-14 text-black-400">
+          <span className="flex items-center gap-1 text-14 text-black-800">
             <CommentIcon className="w-5 text-black-400" />
             {shop.reviewCount}
           </span>
         </div>
       </div>
 
-      <p className="mt-1 flex items-center gap-1.5 text-12 text-black-500">
-        <LocationIcon className="w-4" filled />
+      <p className="mt-2 flex items-center gap-1 text-12 text-black-800">
+        <MetroIcon className="w-3.5 text-green-700/90" />
         {shop.distance}
       </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         {shop.tags.map((tag) => (
-          <Badge key={tag} variant="pink">
+          <Badge key={tag} shape="square" variant="pink" size="medium">
             # {tag}
           </Badge>
         ))}
@@ -90,7 +91,7 @@ export function ShopSummarySection({ shop }: Props) {
           </Link>
         ) : (
           <Button disabled className="flex items-center justify-center">
-            스마트 스토어 없음
+            스마트 스토어 준비중
           </Button>
         )}
       </div>

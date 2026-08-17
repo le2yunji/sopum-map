@@ -23,11 +23,8 @@ export const Default: Story = {
       canvas.getByRole("heading", { name: "소품지도" }),
     ).toBeInTheDocument();
     await expect(
-      canvas.getByRole("link", { name: "시작하기" }),
-    ).toHaveAttribute("href", "/login");
-    await expect(
-      canvas.getByRole("link", { name: "로그인하기" }),
-    ).toHaveAttribute("href", "/login");
+      canvas.getByRole("img", { name: "소품지도 심볼" }),
+    ).toBeInTheDocument();
   },
 };
 

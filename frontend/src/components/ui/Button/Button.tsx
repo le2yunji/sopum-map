@@ -133,7 +133,7 @@ export function Button({
     variantClasses[variant],
     iconOnly
       ? `${iconOnlySizeClasses[size]} ${iconSizeClasses[size]} rounded-full p-0`
-      : `${sizeClasses[size]} gap-2`,
+      : `${sizeClasses[size]} gap-1`,
     fullWidth && !iconOnly ? "w-full" : "",
     className,
   ]

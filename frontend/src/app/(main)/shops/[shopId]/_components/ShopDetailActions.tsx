@@ -2,59 +2,49 @@
 
 import { useState } from "react";
 
+import { PickAction } from "@/components/pick/PickAction";
+
 import { ShopImageCarousel } from "./ShopImageCarousel";
-import { ShopPickSheet } from "./ShopPickSheet";
 import { ShopReportSheet } from "./ShopReportSheet";
 
-type ShopDetailSheet = "pick" | "report" | null;
-
 type Props = Readonly<{
+  shopId: string;
   shopName: string;
   shopCategory: string;
   imageUrls: readonly string[];
-  initialIsLiked?: boolean;
+  initialIsPicked?: boolean;
   backHref?: string;
 }>;
 
 export function ShopDetailActions({
+  shopId,
   shopName,
   shopCategory,
   imageUrls,
-  initialIsLiked = false,
+  initialIsPicked = false,
   backHref = "/",
 }: Props) {
-  const [isLiked, setLiked] = useState(initialIsLiked);
-  const [sheet, setSheet] = useState<ShopDetailSheet>(null);
-
-  const handleToggleLike = () => {
-    setLiked((prev) => !prev);
-    setSheet("pick");
-  };
+  const [isReportSheetOpen, setReportSheetOpen] = useState(false);
 
   return (
     <>
-      <ShopImageCarousel
-        shopName={shopName}
-        shopCategory={shopCategory}
-        imageUrls={imageUrls}
-        isLiked={isLiked}
-        onToggleLike={handleToggleLike}
-        onReport={() => setSheet("report")}
-        backHref={backHref}
-      />
-
-      <ShopPickSheet
-        open={sheet === "pick"}
-        onOpenChange={(open) => {
-          setSheet(open ? "pick" : null);
-        }}
-      />
+      <PickAction shopId={shopId} initialIsPicked={initialIsPicked}>
+        {({ isPicked, onToggle }) => (
+          <ShopImageCarousel
+            shopName={shopName}
+            shopCategory={shopCategory}
+            imageUrls={imageUrls}
+            isLiked={isPicked}
+            onToggleLike={onToggle}
+            onReport={() => setReportSheetOpen(true)}
+            backHref={backHref}
+          />
+        )}
+      </PickAction>
 
       <ShopReportSheet
-        open={sheet === "report"}
-        onOpenChange={(open) => {
-          setSheet(open ? "report" : null);
-        }}
+        open={isReportSheetOpen}
+        onOpenChange={setReportSheetOpen}
       />
     </>
   );
