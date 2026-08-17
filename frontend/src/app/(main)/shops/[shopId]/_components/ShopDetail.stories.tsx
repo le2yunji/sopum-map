@@ -53,6 +53,7 @@ const defaultShop: ShopDetailView = {
   hours: "12:00 - 20:00",
   closedDay: "매주 월요일",
 
+  isLiked: false,
   likeCount: 128,
   reviewCount: 2,
   reviews: [firstReview, secondReview],

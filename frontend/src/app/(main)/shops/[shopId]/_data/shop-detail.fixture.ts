@@ -18,6 +18,7 @@ export const SHOP_DETAIL_FIXTURE: ShopDetailView = {
   address: "서울 성동구 성수동 일대로 2",
   hours: "매일 11:00 - 20:00",
   closedDay: "매주 월요일 정기휴무",
+  isLiked: false,
   likeCount: 124,
   reviewCount: 16,
   reviews: [

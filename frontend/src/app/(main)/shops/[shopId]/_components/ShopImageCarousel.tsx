@@ -153,7 +153,7 @@ export function ShopImageCarousel({
             className="bg-white/90! active:bg-black-100!"
           >
             <HeartIcon
-              fill={isLiked ? "currentColor" : "none"}
+              filled={isLiked}
               className={isLiked ? "text-red-600" : "text-black-950"}
             />
           </Button>

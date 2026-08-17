@@ -1,5 +1,8 @@
 import Image from "next/image";
+
 import type { ShopDetailView } from "../_types/shop-detail.types";
+
+import { CopyAddressButton } from "./CopyAddressButton";
 
 type Props = Readonly<{
   shop: Pick<ShopDetailView, "name" | "mapImageUrl" | "address">;
@@ -9,7 +12,7 @@ const DEFAULT_MAP_IMAGE = "/images/profiles/shop_default.webp";
 
 export function ShopLocationSection({ shop }: Props) {
   return (
-    <section aria-label="상점 위치" className="mt-2 bg-white px-5 py-6">
+    <section aria-label="상점 위치" className="mt-2 bg-white px-5 pt-4 pb-2">
       <h2 className="text-16 font-semibold">위치</h2>
 
       <div className="relative mt-3 aspect-[345/236] overflow-hidden rounded-xl bg-green-100">
@@ -23,7 +26,10 @@ export function ShopLocationSection({ shop }: Props) {
         />
       </div>
 
-      <p className="mt-2 text-12 text-black-500">{shop.address}</p>
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <p className="min-w-0 text-12 text-black-500">{shop.address}</p>
+        <CopyAddressButton address={shop.address} />
+      </div>
     </section>
   );
 }

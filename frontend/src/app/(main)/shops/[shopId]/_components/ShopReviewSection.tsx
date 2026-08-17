@@ -9,7 +9,7 @@ type Props = Readonly<{
 
 export function ShopReviewSection({ shop }: Props) {
   return (
-    <section className="mt-2 bg-white px-5 py-6">
+    <section className="mt-2 bg-white px-5 py-4">
       <div className="flex items-center justify-between gap-3">
         <h2 className="text-16 font-semibold">후기 {shop.reviewCount}개</h2>
 
@@ -34,16 +34,16 @@ export function ShopReviewSection({ shop }: Props) {
             <article key={review.id}>
               <div className="flex items-center gap-2">
                 <Image
-                  width={32}
-                  height={32}
+                  width={36}
+                  height={36}
                   src={review.avatarUrl}
                   alt=""
-                  className="size-8 rounded-full object-cover"
+                  className="rounded-full object-cover"
                 />
 
                 <div>
-                  <h3 className="text-13 font-semibold">{review.author}</h3>
-                  <p className="text-10 text-black-400">{review.date}</p>
+                  <h3 className="text-14 font-semibold">{review.author}</h3>
+                  <p className="text-12 text-black-400">{review.date}</p>
                 </div>
               </div>
 

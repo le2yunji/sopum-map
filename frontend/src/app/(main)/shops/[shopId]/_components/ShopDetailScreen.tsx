@@ -16,10 +16,13 @@ export function ShopDetailScreen({ shop }: Props) {
   return (
     <main className="min-h-dvh bg-black-100/40 pb-10">
       <ShopDetailActions
+        shopId={shop.id}
         shopName={shop.name}
         shopCategory={shop.category}
         imageUrls={shop.imageUrls}
+        initialIsPicked={shop.isLiked}
       />
+
       <ShopSummarySection shop={shop} />
 
       <ShopLocationSection shop={shop} />
