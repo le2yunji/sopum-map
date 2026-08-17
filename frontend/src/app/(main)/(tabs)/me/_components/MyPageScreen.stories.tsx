@@ -16,11 +16,28 @@ type Story = StoryObj<typeof meta>;
 export const Success: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("heading", { name: "마이페이지" })).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", { name: "마이페이지" }),
+    ).toBeVisible();
     await expect(canvas.getByText("소품 수집가")).toBeVisible();
-    await expect(canvas.getByRole("link", { name: "좋아요한 매장 8개 보기" })).toHaveAttribute("href", "/picks?folder=likes");
-    await expect(canvas.getByRole("link", { name: "내 픽 12개 보기" })).toHaveAttribute("href", "/picks");
-    await expect(canvas.getByRole("link", { name: "내 코스 3개 보기" })).toHaveAttribute("href", "/me/courses");
+    await expect(
+      canvas.getByRole("link", { name: "방문 기록 5개 보기" }),
+    ).toHaveAttribute("href", "/me/visit-logs");
+    await expect(
+      canvas.getByRole("link", { name: "찜한 산책 코스 3개 보기" }),
+    ).toHaveAttribute("href", "/me/courses");
+    await expect(
+      canvas.getByRole("link", { name: "소품샵 제보하기" }),
+    ).toHaveAttribute("href", "/shops/suggest");
+    await expect(
+      canvas.getByRole("link", { name: "계정 설정" }),
+    ).toHaveAttribute("href", "/me/settings");
+    await expect(
+      canvas.queryByRole("link", { name: /내 픽/ }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole("link", { name: /좋아요한 매장/ }),
+    ).not.toBeInTheDocument();
   },
 };
 
@@ -60,8 +77,12 @@ export const Empty: Story = {
   args: { isEmpty: true },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("아직 모아둔 취향 기록이 없습니다.")).toBeVisible();
-    await expect(canvas.getByRole("link", { name: "상점 둘러보기" })).toHaveAttribute("href", "/map");
+    await expect(
+      canvas.getByRole("link", { name: "방문 기록 0개 보기" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("link", { name: "찜한 산책 코스 0개 보기" }),
+    ).toBeVisible();
   },
 };
 

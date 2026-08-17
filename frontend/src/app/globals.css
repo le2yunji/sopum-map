@@ -9,6 +9,7 @@
 
   /* Green */
   --green-50: #f5f8e9;
+  --green-75: #eef2cf;
   --green-100: #dde5a9;
   --green-200: #cad982;
   --green-300: #afcb62;
@@ -100,6 +101,7 @@
   /* Green */
   /* Green */
   --color-green-50: var(--green-50);
+  --color-green-75: var(--green-75);
   --color-green-100: var(--green-100);
   --color-green-200: var(--green-200);
   --color-green-300: var(--green-300);

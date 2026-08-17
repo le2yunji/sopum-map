@@ -16,3 +16,8 @@ export { LinkIcon } from "./LinkIcon";
 export { LocationIcon } from "./LocationIcon";
 export { StoreIcon } from "./StoreIcon";
 export { TimeIcon } from "./TimeIcon";
+export { VisitLogIcon } from "./VisitLogIcon";
+export { StarIcon } from "./StarIcon";
+export { SettingsIcon } from "./SettingsIcon";
+export { LogoutIcon } from "./LogoutIcon";
+export { ProfileFlowerIcon } from "./ProfileFlowerIcon";
