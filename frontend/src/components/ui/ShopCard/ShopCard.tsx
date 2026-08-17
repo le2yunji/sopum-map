@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import type { ShopCardProps, ShopCardVariant } from "./ShopCard.types";
 import { HeartIcon } from "@/components/icons/HeartIcon";
+import { Button } from "../Button";
 
 const DEFAULT_SHOP_IMAGE = "/images/profiles/shop_default.webp";
 
@@ -45,18 +46,24 @@ export const ShopCard = ({
         />
 
         {!isCompact && (
-          <button
-            type="button"
-            aria-label={isLiked ? "찜 해제" : "찜하기"}
+          <Button
+            iconOnly
+            size="small"
+            variant="ghost"
+            aria-label={isLiked ? "내 픽에서 제거" : "내 픽에 추가"}
             aria-pressed={isLiked}
             onClick={onLikeClick}
-            className="absolute right-2 top-2 rounded-full bg-white/90 p-2"
+            className="absolute right-0 bottom-0 hover:bg-transparent! active:bg-black-100/0!"
           >
             <HeartIcon
               filled={isLiked}
-              className={isLiked ? "text-red-600" : "text-black-950"}
+              className={
+                isLiked
+                  ? "size-7! text-red-600 [&_path]:stroke-[2]"
+                  : "size-7! text-white [&_path]:fill-white/10 [&_path]:stroke-white [&_path]:stroke-[1.5]"
+              }
             />
-          </button>
+          </Button>
         )}
       </div>
 
@@ -65,7 +72,7 @@ export const ShopCard = ({
         <div>
           {tags.map((tag) => {
             return (
-              <span className="mb-1 text-xs text-gray-500" key={tag}>
+              <span className="mb-1 text-xs text-gray-500 mr-1" key={tag}>
                 #{tag}
               </span>
             );

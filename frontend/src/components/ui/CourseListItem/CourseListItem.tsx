@@ -35,7 +35,7 @@ export const CourseListItem = ({
       href={`/courses/${id}`}
       aria-label={`${title} 코스 상세 보기`}
       className="
-        group flex w-full items-center gap-4 rounded-xl py-3
+        group flex w-full items-center gap-4 rounded-xl py-4
         transition-colors
         hover:bg-black-100/50
         focus-visible:outline-2
@@ -87,7 +87,7 @@ export const CourseListItem = ({
         {tags.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
             {tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} shape="square" variant="pink">
+              <Badge key={tag} shape="square" variant="pink" size="small">
                 {tag}
               </Badge>
             ))}

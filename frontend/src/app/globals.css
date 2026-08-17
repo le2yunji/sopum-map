@@ -22,6 +22,7 @@
 
   /* Black */
   --black-100: #f0f0f0;
+  --black-200: #d9d9d9;
   --black-300: #cccccc;
   --black-400: #999999;
   --black-500: #888888;
@@ -112,6 +113,7 @@
 
   /* Black */
   --color-black-100: var(--black-100);
+  --color-black-200: var(--black-200);
   --color-black-300: var(--black-300);
   --color-black-400: var(--black-400);
   --color-black-500: var(--black-500);
