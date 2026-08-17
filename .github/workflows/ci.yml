@@ -1,0 +1,105 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - dev
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  PNPM_VERSION: 10.34.4
+  NODE_VERSION: 20
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      MONGODB_URI: mongodb://127.0.0.1:27017/sopum_map_test
+      CLIENT_ORIGIN: http://127.0.0.1:3000
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm --dir packages build
+
+      - name: Test backend
+        run: pnpm --dir backend test
+
+      - name: Build backend
+        run: pnpm --dir backend build
+
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      NEXT_PUBLIC_API_BASE_URL: http://127.0.0.1:4000/api
+      NEXT_PUBLIC_NAVER_MAP_CLIENT_ID: ci-placeholder
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm --dir packages build
+
+      - name: Lint frontend
+        run: pnpm --dir frontend lint
+
+      - name: Test frontend units
+        run: pnpm --dir frontend test:unit
+
+      - name: Build frontend
+        run: pnpm --dir frontend build
+
+      - name: Install Chromium
+        run: pnpm --dir frontend exec playwright install --with-deps chromium
+
+      - name: Test Storybook
+        run: pnpm --dir frontend exec vitest --project storybook --run
