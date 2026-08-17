@@ -25,9 +25,9 @@ export const Default: Story = {
     await expect(canvas.getByLabelText("네이버 지도")).toBeInTheDocument();
     await expect(canvas.getByRole("searchbox", { name: "상점 이름 검색" })).toBeInTheDocument();
     await expect(canvas.getByRole("link", { name: /가챠가챠/ })).toHaveAttribute("href", "/shops/gachagacha");
-    await userEvent.click(canvas.getByRole("button", { name: "선물" }));
+    await userEvent.click(canvas.getByRole("button", { name: "홍대·연남" }));
     await expect(canvas.getByRole("link", { name: /럭키 클로버/ })).toBeInTheDocument();
-    await expect(canvas.queryByRole("link", { name: /가챠가챠/ })).not.toBeInTheDocument();
+    await expect(canvas.queryByRole("link", { name: /모모네 소품샵/ })).not.toBeInTheDocument();
   },
 };
 
@@ -46,8 +46,11 @@ export const TagFilterSheet: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "상세 필터 열기" }));
     const dialog = canvas.getByRole("dialog", { name: "태그 필터" });
-    await userEvent.click(within(dialog).getByRole("button", { name: "#문구" }));
+    await userEvent.click(within(dialog).getByRole("button", { name: "# 문구" }));
     await expect(within(dialog).getByRole("button", { name: "1개 태그 적용" })).toBeInTheDocument();
+    await userEvent.keyboard("{Escape}");
+    await expect(canvas.queryByRole("dialog", { name: "태그 필터" })).not.toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "상세 필터 열기" })).toHaveFocus();
   },
 };
 
