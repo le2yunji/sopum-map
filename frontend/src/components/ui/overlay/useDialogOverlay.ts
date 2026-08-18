@@ -2,10 +2,15 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useState,
   type KeyboardEvent,
   type PointerEvent,
   type SyntheticEvent,
 } from "react";
+
+export type DialogVisualState = "closed" | "opening" | "open" | "closing";
+
+const DIALOG_TRANSITION_DURATION = 250;
 
 type UseDialogOverlayOptions = Readonly<{
   open: boolean;
@@ -22,6 +27,10 @@ export function useDialogOverlay({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const previousOverflowRef = useRef<string | null>(null);
+  const closeTimerRef = useRef<number | undefined>(undefined);
+  const openFrameRef = useRef<number | undefined>(undefined);
+  const [visualState, setVisualState] =
+    useState<DialogVisualState>("closed");
 
   /** overlay가 바꾼 스크롤과 포커스를 원래 상태로 되돌립니다. */
   const restorePageState = useCallback(() => {
@@ -53,15 +62,59 @@ export function useDialogOverlay({
       previousOverflowRef.current = document.body.style.overflow;
       document.body.style.overflow = "hidden";
       dialog.showModal();
+      setVisualState("opening");
+      openFrameRef.current = window.requestAnimationFrame(() => {
+        setVisualState("open");
+      });
+      return;
     }
 
-    if (!open && dialog.open) {
-      dialog.close();
-      restorePageState();
+    if (open && dialog.open) {
+      if (closeTimerRef.current !== undefined) {
+        window.clearTimeout(closeTimerRef.current);
+        closeTimerRef.current = undefined;
+      }
+      setVisualState("open");
+      return;
+    }
+
+    if (
+      !open &&
+      dialog.open &&
+      closeTimerRef.current === undefined
+    ) {
+      if (openFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(openFrameRef.current);
+        openFrameRef.current = undefined;
+      }
+
+      setVisualState("closing");
+      const duration = window.matchMedia("(prefers-reduced-motion: reduce)")
+        .matches
+        ? 0
+        : DIALOG_TRANSITION_DURATION;
+
+      closeTimerRef.current = window.setTimeout(() => {
+        dialog.close();
+        setVisualState("closed");
+        closeTimerRef.current = undefined;
+        restorePageState();
+      }, duration);
     }
   }, [open, restorePageState]);
 
-  useEffect(() => restorePageState, [restorePageState]);
+  useEffect(
+    () => () => {
+      if (closeTimerRef.current !== undefined) {
+        window.clearTimeout(closeTimerRef.current);
+      }
+      if (openFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(openFrameRef.current);
+      }
+      restorePageState();
+    },
+    [restorePageState],
+  );
 
   /** Escape 요청을 제어 상태 변경으로 전달합니다. */
   const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
@@ -88,6 +141,7 @@ export function useDialogOverlay({
 
   return {
     dialogRef,
+    visualState,
     handleCancel,
     handleKeyDown,
     handleBackdropPointerDown,

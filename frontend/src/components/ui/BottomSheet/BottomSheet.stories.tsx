@@ -115,9 +115,14 @@ export const Controlled: Story = {
     await userEvent.click(trigger);
     const dialog = canvas.getByRole("dialog", { name: "선택 메뉴" });
     await expect(dialog).toBeVisible();
+    await waitFor(() =>
+      expect(dialog).toHaveAttribute("data-state", "open"),
+    );
     await expect(document.body.style.overflow).toBe("hidden");
 
     await userEvent.keyboard("{Escape}");
+    await expect(dialog).toHaveAttribute("data-state", "closing");
+    await expect(dialog).toBeVisible();
     await waitFor(() => {
       expect(dialog).not.toBeVisible();
       expect(trigger).toHaveFocus();

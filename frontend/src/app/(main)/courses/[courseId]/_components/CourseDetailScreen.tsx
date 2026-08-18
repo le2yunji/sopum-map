@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/Badge/Badge";
 import { Button } from "@/components/ui/Button/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
+import { BackButton } from "@/components/navigation/BackButton";
 
 type CourseShop = Readonly<{ id: string; name: string; description: string; imageUrl: string; naverMapUrl: string }>;
 const DEFAULT_SHOPS: readonly CourseShop[] = [
@@ -22,7 +23,7 @@ export function CourseDetailScreen({ courseId = "seoul-forest-postcard", shops =
   if (state === "loading") return <CourseSkeleton />;
   if (state === "error") return <StatePanel title="코스를 불러오지 못했습니다." action="다시 시도" onAction={onRetry} />;
   return <main className="min-h-dvh bg-white pb-12">
-    <nav aria-label="코스 상세 작업" className="flex h-14 items-center justify-between px-4 pt-2"><Link href="/" aria-label="이전 화면" className="grid size-11 place-items-center rounded-full text-20 focus-visible:ring-2 focus-visible:ring-green-500">←</Link>{isOwner ? <div className="flex gap-1"><Link href={`/courses/${courseId}/edit`} className="inline-flex min-h-9 items-center rounded-lg px-3 text-12 font-semibold hover:bg-black-100">수정</Link><Button variant="ghost" size="small" onClick={() => setDeletePending(true)} aria-label="코스 삭제">삭제</Button></div> : null}</nav>
+    <nav aria-label="코스 상세 작업" className="flex h-14 items-center justify-between px-4 pt-2"><BackButton />{isOwner ? <div className="flex gap-1"><Link href={`/courses/${courseId}/edit`} className="inline-flex min-h-9 items-center rounded-lg px-3 text-12 font-semibold hover:bg-black-100">수정</Link><Button variant="ghost" size="small" onClick={() => setDeletePending(true)} aria-label="코스 삭제">삭제</Button></div> : null}</nav>
     <header className="px-6 py-4"><div className="flex items-center gap-2"><Badge>공개 코스</Badge><span className="text-12 text-black-500">어진 님</span></div><h1 className="mt-3 text-24 font-semibold">서울숲 엽서 투어</h1><p className="mt-2 text-14 leading-6 text-black-600">달콤한 핑크빛 영감으로 가득한 서울숲 체리픽 코스입니다.</p><div className="mt-4 flex items-center justify-between"><dl className="flex items-center gap-4"><div><dt className="text-10 text-black-400">거리</dt><dd className="text-16 font-bold">1.5km</dd></div><div className="h-8 w-px bg-black-100"/><div><dt className="text-10 text-black-400">소요시간</dt><dd className="text-16 font-bold">30분</dd></div></dl><span className="text-14 font-semibold text-green-700">서울숲 · 성수</span></div></header>
     <CourseMap shops={shops} />
     <section className="px-6 py-7"><h2 className="text-18 font-semibold">코스 상세 경로</h2>{shops.length === 0 ? <StatePanel title="아직 코스에 담긴 상점이 없습니다." /> : <CourseTimeline shops={shops} />}</section>
