@@ -23,6 +23,8 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByLabelText("네이버 지도")).toBeInTheDocument();
+    await expect(canvas.getByRole("link", { name: "지도 나가기" })).toHaveAttribute("href", "/");
+    await expect(canvasElement.querySelectorAll("dialog")).toHaveLength(1);
     await expect(canvas.getByRole("searchbox", { name: "상점 이름 검색" })).toBeInTheDocument();
     await expect(canvas.getByRole("link", { name: /가챠가챠/ })).toHaveAttribute("href", "/shops/gachagacha");
     await userEvent.click(canvas.getByRole("button", { name: "홍대·연남" }));

@@ -62,6 +62,10 @@ export function PickFolderSheet({ open, onOpenChange, onFolderChange }: Props) {
     onOpenChange(false);
   };
 
+  if (!open) {
+    return null;
+  }
+
   return (
     <BottomSheet
       open={open}

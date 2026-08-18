@@ -2,13 +2,22 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import type { MapShop } from "../_types/map.types";
+import { Button } from "@/components/ui/Button";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
+
+import type { MapSdkState, MapShop } from "../_types/map.types";
 import { NaverMapScript } from "./NaverMapScript";
 
 type NaverMapCanvasProps = Readonly<{
   shops: MapShop[]; // 지도에 표시할 상점 목록
   selectedShopId?: string; // 현재 선택된 상점
   onSelectShop: (shopId: string) => void; // 마커를 클릭했을 때 부모에게 선택된 상점을 알려주는 함수
+  stateOverride?: MapSdkState;
+}>;
+
+type MapMarker = Readonly<{
+  marker: naver.maps.Marker;
+  listener: naver.maps.MapEventListener;
 }>;
 
 const DEFAULT_CENTER = {
@@ -22,18 +31,24 @@ export function NaverMapCanvas({
   shops,
   selectedShopId,
   onSelectShop,
+  stateOverride,
 }: NaverMapCanvasProps) {
+  const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
   const mapElementRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
-  const markersRef = useRef<naver.maps.Marker[]>([]);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const markersRef = useRef(new Map<string, MapMarker>());
+  const [sdkState, setSdkState] = useState<MapSdkState>(
+    clientId ? "loading" : "missing-key",
+  );
+  const [retryCount, setRetryCount] = useState(0);
+  const visibleState = stateOverride ?? sdkState;
 
   /**
    * NAVER Maps SDK가 로드된 뒤
    * 최초 한 번 지도 인스턴스를 생성합니다.
    */
   useEffect(() => {
-    if (!isScriptLoaded) {
+    if (sdkState !== "ready") {
       return;
     }
 
@@ -64,49 +79,67 @@ export function NaverMapCanvas({
     });
 
     mapRef.current = map;
-  }, [isScriptLoaded]);
+  }, [sdkState]);
+
+  /** 지도 화면을 떠날 때 SDK 객체와 이벤트를 함께 정리합니다. */
+  useEffect(
+    () => () => {
+      markersRef.current.forEach(({ marker, listener }) => {
+        naver.maps.Event.removeListener(listener);
+        marker.setMap(null);
+      });
+      markersRef.current.clear();
+      mapRef.current?.destroy();
+      mapRef.current = null;
+    },
+    [],
+  );
 
   /**
-   * shops가 변경될 때마다
-   * 기존 마커를 제거하고 현재 상점들만 표시합니다.
+   * 상점 ID를 기준으로 필요한 마커만 추가하거나 제거합니다.
    */
   useEffect(() => {
     const map = mapRef.current;
 
-    if (!map || !isScriptLoaded) {
+    if (!map || sdkState !== "ready") {
       return;
     }
 
-    markersRef.current.forEach((marker) => {
+    const visibleShopIds = new Set(shops.map((shop) => shop.id));
+
+    markersRef.current.forEach(({ marker, listener }, shopId) => {
+      if (visibleShopIds.has(shopId)) {
+        return;
+      }
+
+      naver.maps.Event.removeListener(listener);
       marker.setMap(null);
+      markersRef.current.delete(shopId);
     });
 
-    markersRef.current = [];
+    shops.forEach((shop) => {
+      const existingMarker = markersRef.current.get(shop.id);
+      const position = new naver.maps.LatLng(shop.latitude, shop.longitude);
 
-    const markers = shops.map((shop) => {
+      if (existingMarker) {
+        existingMarker.marker.setPosition(position);
+        existingMarker.marker.setTitle(shop.name);
+        return;
+      }
+
       const marker = new naver.maps.Marker({
         map,
-        position: new naver.maps.LatLng(shop.latitude, shop.longitude),
+        position,
         title: shop.name,
       });
 
-      naver.maps.Event.addListener(marker, "click", () => {
+      const listener = naver.maps.Event.addListener(marker, "click", () => {
         onSelectShop(shop.id);
       });
 
-      return marker;
+      markersRef.current.set(shop.id, { marker, listener });
     });
-
-    markersRef.current = markers;
-
-    console.log(shops);
-
-    return () => {
-      markers.forEach((marker) => {
-        marker.setMap(null);
-      });
-    };
-  }, [shops, isScriptLoaded, onSelectShop]);
+  }, [shops, sdkState, onSelectShop]);
 
   /**
    * 선택된 상점이 변경되면
@@ -133,16 +166,44 @@ export function NaverMapCanvas({
     map.panTo(position);
   }, [selectedShopId, shops]);
 
+  /** 실패한 지도 SDK를 새 요청으로 다시 불러옵니다. */
+  const retry = () => {
+    setSdkState("loading");
+    setRetryCount((count) => count + 1);
+  };
+
   return (
-    <>
-      {/* Maps JS SDK 로드 */}
+    <div className="absolute inset-0 bg-green-50">
       <NaverMapScript
-        onLoad={() => {
-          setIsScriptLoaded(true);
-        }}
+        retryCount={retryCount}
+        onReady={() => setSdkState("ready")}
+        onError={() => setSdkState("error")}
       />
-      {/* 실제 지도 표시 영역 */}
       <div ref={mapElementRef} className="size-full" aria-label="소품샵 지도" />
-    </>
+
+      {visibleState !== "ready" ? (
+        <div className="absolute inset-0 grid place-items-center bg-green-50 px-8 text-center">
+          {visibleState === "loading" ? (
+            <div className="w-full" role="status" aria-label="지도를 불러오는 중">
+              <Skeleton className="h-64 w-full rounded-3xl" />
+            </div>
+          ) : (
+            <div role="alert" className="rounded-3xl bg-white p-6 shadow-lg">
+              <p className="font-semibold">지도를 표시할 수 없어요</p>
+              <p className="mt-2 text-14 text-black-500">
+                {visibleState === "missing-key"
+                  ? "네이버 지도 Client ID 설정이 필요해요"
+                  : "지도 연결에 실패했어요. 잠시 후 다시 시도해 주세요."}
+              </p>
+              {visibleState === "error" ? (
+                <Button className="mt-4" onClick={retry}>
+                  다시 시도
+                </Button>
+              ) : null}
+            </div>
+          )}
+        </div>
+      ) : null}
+    </div>
   );
 }

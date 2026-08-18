@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { ChevronLeftIcon, FilterIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button/Button";
@@ -19,8 +19,6 @@ export function MapSearchHeader({
   onKeywordChange,
   onOpenFilter,
 }: MapSearchHeaderProps) {
-  const router = useRouter();
-
   return (
     <div className="flex items-center gap-2">
       <SearchInput
@@ -29,10 +27,9 @@ export function MapSearchHeader({
         placeholder="상점 이름 검색"
         aria-label="상점 이름 검색"
         leftAction={
-          <button
-            type="button"
+          <Link
+            href="/"
             aria-label="지도 나가기"
-            onClick={() => router.back()}
             className="
               flex size-7
               items-center justify-center
@@ -44,7 +41,7 @@ export function MapSearchHeader({
             "
           >
             <ChevronLeftIcon className="size-5" />
-          </button>
+          </Link>
         }
       />
 
