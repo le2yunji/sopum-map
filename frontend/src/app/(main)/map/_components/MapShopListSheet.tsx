@@ -18,6 +18,7 @@ export type MapShopListSheetState = "collapsed" | "expanded";
 
 type MapShopListSheetProps = Readonly<{
   shops: MapShop[];
+  visible?: boolean;
   state: MapShopListSheetState;
   selectedShopId?: string;
   selectedRegionLabel?: string;
@@ -55,6 +56,7 @@ const DRAG_START_THRESHOLD = 5;
 
 export function MapShopListSheet({
   shops,
+  visible = true,
   state,
   selectedShopId,
   selectedRegionLabel,
@@ -182,12 +184,16 @@ export function MapShopListSheet({
       style={{
         height: sheetHeight,
       }}
+      aria-hidden={!visible}
+      inert={!visible}
       className={`
         absolute inset-x-0 bottom-0 z-9999
         overflow-hidden
         rounded-t-3xl
         bg-white
         shadow-[0_-6px_16px_rgba(0,0,0,0.08)]
+        transition-transform duration-300 ease-out
+        ${visible ? "translate-y-0" : "pointer-events-none translate-y-full"}
         ${
           dragHeight === undefined
             ? "transition-[height] duration-300 ease-out"

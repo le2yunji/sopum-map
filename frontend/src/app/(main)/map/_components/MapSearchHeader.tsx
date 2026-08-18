@@ -1,47 +1,54 @@
 "use client";
 
-import Link from "next/link";
+import type { KeyboardEvent } from "react";
 
-import { ChevronLeftIcon, FilterIcon } from "@/components/icons";
+import { FilterIcon } from "@/components/icons";
+import { BackButton } from "@/components/navigation/BackButton";
 import { Button } from "@/components/ui/Button/Button";
 import { SearchInput } from "@/components/ui/SearchInput/SearchInput";
 
 type MapSearchHeaderProps = Readonly<{
   keyword: string;
   isFilterOpen: boolean;
-  onKeywordChange: (value: string) => void;
+  isSearchOpen: boolean;
+  onOpenSearch: () => void;
   onOpenFilter: () => void;
 }>;
 
 export function MapSearchHeader({
   keyword,
   isFilterOpen,
-  onKeywordChange,
+  isSearchOpen,
+  onOpenSearch,
   onOpenFilter,
 }: MapSearchHeaderProps) {
+  /** 읽기 전용 검색창을 키보드에서도 검색 시트 트리거로 동작시킵니다. */
+  const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+
+    event.preventDefault();
+    onOpenSearch();
+  };
+
   return (
     <div className="flex items-center gap-2">
       <SearchInput
         value={keyword}
-        onValueChange={onKeywordChange}
+        readOnly
         placeholder="상점 이름 검색"
         aria-label="상점 이름 검색"
+        aria-haspopup="dialog"
+        aria-expanded={isSearchOpen}
+        onClick={onOpenSearch}
+        onKeyDown={handleSearchKeyDown}
+        className="[&_input]:cursor-pointer"
         leftAction={
-          <Link
-            href="/"
-            aria-label="지도 나가기"
-            className="
-              flex size-7
-              items-center justify-center
-              rounded-full
-              text-black-950
-              focus-visible:outline-none
-              focus-visible:ring-2
-              focus-visible:ring-black-950
-            "
-          >
-            <ChevronLeftIcon className="size-5" />
-          </Link>
+          <BackButton
+            ariaLabel="지도 나가기"
+            className="size-7! min-h-0! text-black-950"
+          />
         }
       />
 
