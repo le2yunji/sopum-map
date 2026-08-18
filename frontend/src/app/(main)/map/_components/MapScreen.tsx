@@ -90,7 +90,7 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
       aria-labelledby="map-heading"
       className="
         relative
-        h-[calc(100dvh-65px)]
+        h-dvh
         min-h-[560px]
         overflow-hidden
         bg-green-50

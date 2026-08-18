@@ -13,6 +13,9 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,
+
+    "types": ["navermaps"],
+
     "plugins": [
       {
         "name": "next"

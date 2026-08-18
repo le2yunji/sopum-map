@@ -4,6 +4,7 @@ import {
   useState,
   type ComponentPropsWithRef,
   type KeyboardEvent,
+  type ReactNode,
 } from "react";
 
 import { CloseCircleIcon, LoadingIcon, SearchIcon } from "@/components/icons";
@@ -40,6 +41,9 @@ type SearchInputProps = Omit<
 
   /** 검색어 초기화 버튼 표시 여부 */
   showClearButton?: boolean;
+
+  /** 입력창 왼쪽에 표시할 액션 영역 */
+  leftAction?: ReactNode;
 };
 
 const sizeClassNames: Record<SearchInputSize, string> = {
@@ -54,7 +58,7 @@ const iconSizeClassNames: Record<SearchInputSize, string> = {
   large: "size-5",
 };
 
-const clearButtonSizeClassNames: Record<SearchInputSize, string> = {
+const actionSizeClassNames: Record<SearchInputSize, string> = {
   small: "size-6",
   medium: "size-7",
   large: "size-7",
@@ -62,17 +66,6 @@ const clearButtonSizeClassNames: Record<SearchInputSize, string> = {
 
 /**
  * 검색어 입력과 검색 실행, 초기화 기능을 제공하는 입력 컴포넌트입니다.
- *
- * @example
- * ```tsx
- * const [keyword, setKeyword] = useState("");
- *
- * <SearchInput
- *   value={keyword}
- *   onValueChange={setKeyword}
- *   onSearch={(value) => console.log(value)}
- * />
- * ```
  */
 export const SearchInput = ({
   ref,
@@ -85,6 +78,7 @@ export const SearchInput = ({
   fullWidth = true,
   isLoading = false,
   showClearButton = true,
+  leftAction,
   disabled = false,
   readOnly = false,
   placeholder = "상점 이름 검색",
@@ -155,7 +149,7 @@ export const SearchInput = ({
         "shadow-[0_0_10px_1px] shadow-black-950/10",
         "transition-shadow",
         "focus-within:ring-2",
-        "focus-within:ring-black-950/30",
+        "focus-within:ring-green-400/50",
         disabled
           ? "cursor-not-allowed bg-black-100 text-black-400"
           : "hover:shadow-[0_0_0_1px] hover:shadow-black-950/25",
@@ -166,12 +160,20 @@ export const SearchInput = ({
         .filter(Boolean)
         .join(" ")}
     >
-      <SearchIcon
-        aria-hidden="true"
-        className={["shrink-0 text-black-500", iconSizeClassNames[size]].join(
-          " ",
-        )}
-      />
+      {leftAction && (
+        <>
+          <div
+            className={[
+              "flex shrink-0 items-center justify-center",
+              actionSizeClassNames[size],
+            ].join(" ")}
+          >
+            {leftAction}
+          </div>
+
+          <div aria-hidden="true" className="h-5 w-px shrink-0 bg-black-100" />
+        </>
+      )}
 
       <input
         {...inputProps}
@@ -188,7 +190,7 @@ export const SearchInput = ({
         className={[
           "min-w-0 flex-1 appearance-none border-0 bg-transparent",
           "outline-none ring-0",
-          "focus:border-0 focus:outline-none focus:ring-0",
+          "focus:border-0 focus:outline-none focus:ring-0 ",
           "focus-visible:outline-none focus-visible:ring-0",
           "placeholder:text-black-400",
           "disabled:cursor-not-allowed",
@@ -197,16 +199,14 @@ export const SearchInput = ({
         ].join(" ")}
       />
 
-      {isLoading && (
+      {isLoading ? (
         <LoadingIcon
           aria-hidden="true"
           className={["shrink-0 text-black-500", iconSizeClassNames[size]].join(
             " ",
           )}
         />
-      )}
-
-      {shouldShowClearButton && (
+      ) : shouldShowClearButton ? (
         <button
           type="button"
           aria-label="검색어 지우기"
@@ -218,12 +218,18 @@ export const SearchInput = ({
             "focus-visible:outline-none",
             "focus-visible:ring-2",
             "focus-visible:ring-black-950",
-            "focus-visible:ring-offset-2",
-            clearButtonSizeClassNames[size],
+            actionSizeClassNames[size],
           ].join(" ")}
         >
           <CloseCircleIcon aria-hidden="true" className="size-full" />
         </button>
+      ) : (
+        <SearchIcon
+          aria-hidden="true"
+          className={["shrink-0 text-black-500", iconSizeClassNames[size]].join(
+            " ",
+          )}
+        />
       )}
     </div>
   );

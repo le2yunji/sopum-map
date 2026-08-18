@@ -183,7 +183,7 @@ export function MapShopListSheet({
         height: sheetHeight,
       }}
       className={`
-        absolute inset-x-0 bottom-0 z-30
+        absolute inset-x-0 bottom-0 z-9999
         overflow-hidden
         rounded-t-3xl
         bg-white
