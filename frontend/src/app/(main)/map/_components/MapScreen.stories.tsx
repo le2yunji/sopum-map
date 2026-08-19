@@ -41,7 +41,7 @@ export const Default: Story = {
     await expect(canvas.getByRole("searchbox", { name: "상점 이름 검색" })).toBeInTheDocument();
     await expect(canvas.getByRole("link", { name: /가챠가챠/ })).toHaveAttribute("href", "/shops/gachagacha");
     await userEvent.click(canvas.getByRole("button", { name: "홍대·연남" }));
-    await expect(canvas.getByRole("link", { name: /럭키 클로버/ })).toBeInTheDocument();
+    await expect(canvas.getByRole("link", { name: /클로버/ })).toBeInTheDocument();
     await expect(canvas.queryByRole("link", { name: /모모네 소품샵/ })).not.toBeInTheDocument();
   },
 };
@@ -72,22 +72,22 @@ export const SearchAndSelect: Story = {
     const searchInput = within(dialog).getByRole("searchbox", {
       name: "검색할 상점 입력",
     });
-    await userEvent.type(searchInput, "럭키");
+    await userEvent.type(searchInput, "클로버");
     await expect(
-      within(dialog).getByRole("button", { name: /럭키 클로버/ }),
+      within(dialog).getByRole("button", { name: /클로버/ }),
     ).toBeInTheDocument();
     await userEvent.click(
-      within(dialog).getByRole("button", { name: /럭키 클로버/ }),
+      within(dialog).getByRole("button", { name: /클로버/ }),
     );
     await waitFor(() =>
       expect(
         canvas.queryByRole("dialog", { name: "상점 검색" }),
       ).not.toBeInTheDocument(),
     );
-    await expect(trigger).toHaveValue("럭키");
+    await expect(trigger).toHaveValue("클로버");
     await expect(
       canvas.getByRole("region", { name: "선택한 상점" }),
-    ).toHaveTextContent("럭키 클로버");
+    ).toHaveTextContent("클로버");
     await expect(
       canvas.queryByRole("region", { name: "검색된 소품샵" }),
     ).not.toBeInTheDocument();
