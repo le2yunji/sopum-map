@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef } from "react";
 
-import { LocationIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { SearchInput } from "@/components/ui/SearchInput/SearchInput";
@@ -85,26 +84,24 @@ export function MapSearchSheet({
                   onClick={() => onSelectShop(shop.id)}
                   className="h-auto! justify-start! rounded-none! px-0! py-3! text-left!"
                 >
-                  <Image
-                    src={shop.imageUrl}
-                    alt=""
-                    width={64}
-                    height={64}
-                    loading={index === 0 ? "eager" : "lazy"}
-                    className="size-16 shrink-0 rounded-xl object-cover"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-15 font-semibold">
-                      {shop.name}
+                  <div className="flex gap-3">
+                    <Image
+                      src={shop.imageUrl}
+                      alt=""
+                      width={48}
+                      height={48}
+                      loading={index === 0 ? "eager" : "lazy"}
+                      className="size-12 shrink-0 rounded-xl object-cover"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-15 font-semibold">
+                        {shop.name}
+                      </span>
+                      <span className="mt-1 block truncate text-12 font-normal text-black-500">
+                        {shop.address}
+                      </span>
                     </span>
-                    <span className="mt-1 block truncate text-12 font-normal text-black-500">
-                      {shop.address}
-                    </span>
-                    <span className="mt-1 flex items-center gap-1 text-12 font-normal text-green-700">
-                      <LocationIcon className="size-3.5" />
-                      {shop.region}
-                    </span>
-                  </span>
+                  </div>
                 </Button>
               </li>
             ))}
