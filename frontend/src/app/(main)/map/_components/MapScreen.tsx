@@ -106,15 +106,23 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
     setIsSelectedShopCardVisible(true);
   }, []);
 
+  /** 검색 조건이 바뀔 때 이전 상점 선택을 함께 해제합니다. */
+  const clearSelectedShop = () => {
+    setSelectedShopId(undefined);
+    setIsSelectedShopCardVisible(false);
+  };
+
   /** 검색어 변경 시 목록을 첫 페이지부터 다시 보여줍니다. */
   const handleKeywordChange = (value: string) => {
     setKeyword(value);
+    clearSelectedShop();
     resetPagination();
   };
 
   /** 지역 변경 시 목록을 첫 페이지부터 다시 보여줍니다. */
   const handleRegionChange = (region: MapRegion) => {
     setSelectedRegion(region);
+    clearSelectedShop();
     resetPagination();
   };
 
@@ -126,6 +134,7 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
         : [...current, tag],
     );
 
+    clearSelectedShop();
     resetPagination();
   };
 
@@ -167,6 +176,7 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
     setSelectedRegion("all");
     setSelectedTags([]);
 
+    clearSelectedShop();
     resetPagination();
   };
 

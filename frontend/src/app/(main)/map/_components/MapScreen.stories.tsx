@@ -139,6 +139,10 @@ export const SelectMapMarker: Story = {
     await expect(
       canvas.getByRole("region", { name: "검색된 소품샵" }),
     ).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "전체" }));
+    await expect(
+      canvas.queryByRole("region", { name: "선택한 상점" }),
+    ).not.toBeInTheDocument();
   },
 };
 
