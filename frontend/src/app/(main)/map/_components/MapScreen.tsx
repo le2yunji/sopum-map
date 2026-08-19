@@ -92,7 +92,12 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
     return MAP_REGIONS.find((region) => region.value === selectedRegion)?.label;
   }, [selectedRegion]);
 
-  const selectedShop = shops.find((shop) => shop.id === selectedShopId);
+  const selectedShop = filteredShops.find(
+    (shop) => shop.id === selectedShopId,
+  );
+  const isSelectedShopCardOpen = Boolean(
+    selectedShop && isSelectedShopCardVisible,
+  );
 
   /** 지도 마커나 검색 결과에서 선택한 상점 카드를 표시합니다. */
   const selectShop = useCallback((shopId: string) => {
@@ -228,7 +233,7 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
       <MapShopListSheet
         shops={visibleShops}
         totalCount={filteredShops.length}
-        visible={!isSelectedShopCardVisible}
+        visible={!isSelectedShopCardOpen}
         state={shopListSheetState}
         selectedRegionLabel={selectedRegionLabel}
         selectedTagCount={selectedTags.length}
@@ -239,7 +244,7 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
         onResetFilters={resetFilters}
       />
 
-      {selectedShop && isSelectedShopCardVisible ? (
+      {selectedShop && isSelectedShopCardOpen ? (
         <MapSelectedShopCard
           shop={selectedShop}
           onShowList={handleShowShopList}

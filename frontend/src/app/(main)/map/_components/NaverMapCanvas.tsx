@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 
 import type { MapSdkState, MapShop } from "../_types/map.types";
+import { getMapMarkerIcon } from "../_utils/mapMarker";
 import { NaverMapScript } from "./NaverMapScript";
 
 type NaverMapCanvasProps = Readonly<{
@@ -124,6 +125,9 @@ export function NaverMapCanvas({
       if (existingMarker) {
         existingMarker.marker.setPosition(position);
         existingMarker.marker.setTitle(shop.name);
+        existingMarker.marker.setIcon(
+          getMapMarkerIcon(shop.id === selectedShopId),
+        );
         return;
       }
 
@@ -131,6 +135,7 @@ export function NaverMapCanvas({
         map,
         position,
         title: shop.name,
+        icon: getMapMarkerIcon(shop.id === selectedShopId),
       });
 
       const listener = naver.maps.Event.addListener(marker, "click", () => {
@@ -139,7 +144,7 @@ export function NaverMapCanvas({
 
       markersRef.current.set(shop.id, { marker, listener });
     });
-  }, [shops, sdkState, onSelectShop]);
+  }, [shops, sdkState, onSelectShop, selectedShopId]);
 
   /**
    * 선택된 상점이 변경되면

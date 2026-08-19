@@ -132,6 +132,36 @@ export const SelectMapMarker: Story = {
     await expect(
       canvas.getByRole("region", { name: "선택한 상점" }),
     ).toHaveTextContent("모모네 소품샵");
+    await userEvent.click(canvas.getByRole("button", { name: "홍대·연남" }));
+    await expect(
+      canvas.queryByRole("region", { name: "선택한 상점" }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByRole("region", { name: "검색된 소품샵" }),
+    ).toBeInTheDocument();
+  },
+};
+
+export const InfiniteScroll: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.queryByRole("link", { name: /무드 스토어/ }),
+    ).not.toBeInTheDocument();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "상점 목록 펼치기" }),
+    );
+
+    const loadMoreTarget = canvasElement.querySelector(
+      'li[aria-hidden="true"]',
+    );
+    loadMoreTarget?.scrollIntoView();
+
+    await waitFor(() =>
+      expect(
+        canvas.getByRole("link", { name: /무드 스토어/ }),
+      ).toBeInTheDocument(),
+    );
   },
 };
 

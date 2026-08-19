@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/Button/Button";
 import type { MapShop } from "../_types/map.types";
 import { MapShopList } from "./MapShopList";
-import { MapShopListSheetState } from "../_hooks/mapShopListSheet.types";
+import type { MapShopListSheetState } from "../_hooks/mapShopListSheet.types";
 import { EXPANDED_TOP_OFFSET } from "../_hooks/mapShopListSheet.constants";
 import { useMapShopListSheetGesture } from "../_hooks/useMapShopListSheetGesture";
 

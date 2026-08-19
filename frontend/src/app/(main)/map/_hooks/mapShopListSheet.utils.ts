@@ -1,5 +1,5 @@
 import { COLLAPSED_HEIGHT, DRAG_THRESHOLD } from "./mapShopListSheet.constants";
-import { MapShopListSheetState } from "./mapShopListSheet.types";
+import type { MapShopListSheetState } from "./mapShopListSheet.types";
 
 /** 첫 렌더에서 사용할 시트의 시작 위치를 계산합니다. */
 export function getInitialTransform(

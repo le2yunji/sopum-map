@@ -20,7 +20,7 @@ import {
   getNextSheetState,
 } from "./mapShopListSheet.utils";
 import { useMapShopListTouchGesture } from "./useMapShopListTouchGesture";
-import { MapShopListSheetState } from "./mapShopListSheet.types";
+import type { MapShopListSheetState } from "./mapShopListSheet.types";
 
 type UseMapShopListSheetGestureOptions = Readonly<{
   visible: boolean;
