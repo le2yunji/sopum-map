@@ -33,6 +33,7 @@ function BottomSheetRoot({
 }: BottomSheetProps) {
   const {
     dialogRef,
+    visualState,
     handleCancel,
     handleKeyDown,
     handleBackdropPointerDown,
@@ -44,6 +45,7 @@ function BottomSheetRoot({
       aria-label={ariaLabel}
       aria-labelledby={ariaLabelledBy}
       aria-describedby={ariaDescribedBy}
+      data-state={visualState}
       onCancel={handleCancel}
       onKeyDown={handleKeyDown}
       onPointerDown={handleBackdropPointerDown}
@@ -51,7 +53,8 @@ function BottomSheetRoot({
     >
       <div
         className={[
-          "relative max-h-[calc(100dvh-1.25rem)] overflow-y-auto rounded-t-[20px] bg-white px-6 pt-3 pb-[max(24px,env(safe-area-inset-bottom))]",
+          "relative max-h-[calc(100dvh-1.25rem)] overflow-y-auto rounded-t-[20px] bg-white px-6 pt-3 pb-[max(24px,env(safe-area-inset-bottom))] transition-transform duration-[250ms] ease-out motion-reduce:duration-0",
+          visualState === "open" ? "translate-y-0" : "translate-y-full",
           className,
         ].join(" ")}
       >

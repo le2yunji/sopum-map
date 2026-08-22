@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useRef, useState } from "react";
 
-import { ChevronLeftIcon, HeartIcon, PenIcon } from "@/components/icons";
+import { HeartIcon, PenIcon } from "@/components/icons";
+import { BackButton } from "@/components/navigation/BackButton";
 import { Button } from "@/components/ui/Button/Button";
 import { Badge } from "@/components/ui/Badge/Badge";
 
@@ -15,7 +15,6 @@ type ShopImageCarouselProps = Readonly<{
   isLiked: boolean;
   onToggleLike: () => void;
   onReport: () => void;
-  backHref?: string;
   fallbackImageUrl?: string;
 }>;
 
@@ -41,7 +40,6 @@ export function ShopImageCarousel({
   isLiked,
   onToggleLike,
   onReport,
-  backHref = "/",
   fallbackImageUrl = "/images/profiles/shop_default.webp",
 }: ShopImageCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -128,9 +126,8 @@ export function ShopImageCarousel({
       </div>
 
       <div className="absolute inset-x-4 top-5 flex justify-between">
-        <Link
-          href={backHref}
-          aria-label="뒤로가기"
+        <BackButton
+          ariaLabel="뒤로가기"
           className="
             grid size-11 place-items-center
             rounded-full bg-white/90
@@ -138,9 +135,7 @@ export function ShopImageCarousel({
             focus-visible:outline-2
             focus-visible:outline-green-700
           "
-        >
-          <ChevronLeftIcon className="size-5" />
-        </Link>
+        />
 
         <div className="flex gap-2">
           <Button

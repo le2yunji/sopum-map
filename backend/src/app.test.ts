@@ -1,6 +1,7 @@
-import type { Express } from "express";
 import request from "supertest";
-import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import app from "./app.js";
 
 const serviceMocks = vi.hoisted(() => {
   process.env.MONGODB_URI = "mongodb://localhost:27017/sopum-map-test";
@@ -11,13 +12,7 @@ const serviceMocks = vi.hoisted(() => {
   };
 });
 
-vi.mock("./services/shop/shop.service", () => serviceMocks);
-
-let app: Express;
-
-beforeAll(async () => {
-  app = (await import("./app")).default;
-});
+vi.mock("./services/shop/shop.service.js", () => serviceMocks);
 
 beforeEach(() => {
   vi.clearAllMocks();

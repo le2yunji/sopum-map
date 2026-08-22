@@ -13,7 +13,6 @@ type Props = Readonly<{
   shopCategory: string;
   imageUrls: readonly string[];
   initialIsPicked?: boolean;
-  backHref?: string;
 }>;
 
 export function ShopDetailActions({
@@ -22,7 +21,6 @@ export function ShopDetailActions({
   shopCategory,
   imageUrls,
   initialIsPicked = false,
-  backHref = "/",
 }: Props) {
   const [isReportSheetOpen, setReportSheetOpen] = useState(false);
 
@@ -37,7 +35,6 @@ export function ShopDetailActions({
             isLiked={isPicked}
             onToggleLike={onToggle}
             onReport={() => setReportSheetOpen(true)}
-            backHref={backHref}
           />
         )}
       </PickAction>
