@@ -8,7 +8,10 @@
     "test:watch": "vitest src",
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "collect:public-shops": "tsx src/scripts/public-shop/collect-public-shops.ts",
+    "split:public-shops": "tsx src/scripts/public-shop/split-public-shop-candidates.ts",
+    "seed:prepare-shops": "tsx src/scripts/public-shop/create-shop-seeds.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +20,7 @@
   "dependencies": {
     "@sopum-map/shared": "workspace:*",
     "cors": "^2.8.6",
+    "csv-parse": "^7.0.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "mongoose": "^9.7.3",
@@ -27,6 +31,7 @@
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.0",
     "@types/supertest": "^7.2.1",
+    "playwright": "^1.62.0",
     "supertest": "^7.2.2",
     "tsx": "^4.23.0",
     "typescript": "^6.0.3",

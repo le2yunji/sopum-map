@@ -226,6 +226,20 @@ const shopSchema = new Schema(
       trim: true,
     },
 
+    // 네이버 플레이스 고유 ID
+    naverPlaceId: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
+    // 네이버 플레이스 상세 주소
+    naverPlaceUrl: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
     // 네이버 지도 주소
     naverMapUrl: {
       type: String,
@@ -277,7 +291,6 @@ shopSchema.index({
 shopSchema.index({
   status: 1,
   category: 1,
-  tagIds: 1,
 });
 
 // 지역별 매장 조회
