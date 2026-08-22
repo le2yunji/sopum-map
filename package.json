@@ -6,6 +6,11 @@
   "scripts": {
     "prepare": "husky"
   },
+  "pnpm": {
+    "overrides": {
+      "nanoid@3": "3.3.18"
+    }
+  },
   "lint-staged": {
     "frontend/**/*.{js,jsx,ts,tsx}": [
       "pnpm --dir frontend exec eslint --fix"
