@@ -11,7 +11,8 @@
     "start": "node dist/server.js",
     "collect:public-shops": "tsx src/scripts/public-shop/collect-public-shops.ts",
     "split:public-shops": "tsx src/scripts/public-shop/split-public-shop-candidates.ts",
-    "seed:prepare-shops": "tsx src/scripts/public-shop/create-shop-seeds.ts"
+    "seed:prepare-shops": "tsx src/scripts/public-shop/create-shop-seeds.ts",
+    "seed:shops": "tsx src/scripts/seed-shops.ts"
   },
   "keywords": [],
   "author": "",
