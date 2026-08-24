@@ -113,7 +113,7 @@ export const buildShopListPipeline = (
           $limit: params.limit,
         },
       ],
-      metadata: [
+      count: [
         {
           $count: "totalCount",
         },
