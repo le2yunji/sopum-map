@@ -9,6 +9,7 @@ import { env } from "../config/env";
 import ShopModel from "../models/shop.model";
 
 type FinalShop = {
+  sourceId: string;
   name: string;
   category: "소품샵" | "가챠샵";
 
@@ -28,8 +29,10 @@ const SHOPS_PATH = path.resolve(
   "data/public/final/shops.final.json",
 );
 
+// 공공데이터 한 행을 Shop 컬렉션에 저장할 형태로 바꾼다.
 function toShopDocument(shop: FinalShop) {
   return {
+    publicSourceId: shop.sourceId,
     name: shop.name,
     category: shop.category,
 
@@ -49,13 +52,14 @@ function toShopDocument(shop: FinalShop) {
   };
 }
 
+// 확정 상점 데이터를 기존 운영 데이터는 보존하면서 반복 실행 가능하게 저장한다.
 async function seedShops() {
   const raw = await fs.readFile(SHOPS_PATH, "utf8");
   const shops = JSON.parse(raw) as FinalShop[];
 
-  if (shops.length !== 43) {
+  if (shops.length !== 42) {
     throw new Error(
-      `확정 매장 수가 예상과 다릅니다. expected=43, actual=${shops.length}`,
+      `확정 매장 수가 예상과 다릅니다. expected=42, actual=${shops.length}`,
     );
   }
 
@@ -78,8 +82,10 @@ async function seedShops() {
       return {
         updateOne: {
           filter: {
-            name: document.name,
-            address: document.address,
+            $or: [
+              { publicSourceId: document.publicSourceId },
+              { name: document.name, address: document.address },
+            ],
           },
 
           update: {
@@ -87,6 +93,7 @@ async function seedShops() {
              * 공공데이터에서 실제 확보한 정보만 갱신한다.
              */
             $set: {
+              publicSourceId: document.publicSourceId,
               name: document.name,
               category: document.category,
               address: document.address,
