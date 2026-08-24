@@ -58,7 +58,7 @@ export const getShopsQuerySchema = z
     if (hasLat !== hasLng) {
       context.addIssue({
         code: "custom",
-        path: [hasLat ? "lng" : "lat"],
+        path: ["location"],
         message: "lat와 lng는 함께 전달해야 합니다.",
       });
     }
