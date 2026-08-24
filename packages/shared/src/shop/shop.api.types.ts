@@ -1,5 +1,5 @@
 // shop.api.types.ts
-import type { Pagination } from "../api/api.types";
+import type { ApiSuccessResponse, Pagination } from "../api/api.types";
 import type { TagKey } from "../tag";
 
 import type {
@@ -64,6 +64,11 @@ export type ShopListData = {
   pagination: Pagination;
 };
 
+/**
+ * GET /api/shops 성공 응답
+ */
+export type GetShopsResponse = ApiSuccessResponse<ShopListData>;
+
 export type ShopDetailData = {
   id: string;
   category: ShopCategory;
@@ -89,3 +94,8 @@ export type ShopDetailData = {
   createdAt: string;
   updatedAt: string;
 };
+
+/**
+ * GET /api/shops/:shopId 성공 응답
+ */
+export type GetShopDetailResponse = ApiSuccessResponse<ShopDetailData>;
