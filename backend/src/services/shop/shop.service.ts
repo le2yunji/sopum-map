@@ -8,7 +8,8 @@ import type {
 } from "./shop.service.types";
 
 type ShopListAggregateResult = {
-  items: Parameters<typeof mapShopListItem>[0][];
+  // items: Parameters<typeof mapShopListItem>[0][];
+  items: Parameters<typeof mapShopListItem>[0]["shop"][];
 
   count: {
     totalCount: number;
@@ -47,8 +48,21 @@ export const getShops = async (
    * 3.
    * DB 형태 → API 형태 변환
    */
-  const items = rawItems.map(mapShopListItem);
+  // const items = rawItems.map(mapShopListItem);
 
+  /**
+   * 3. DB 형태 → API 형태
+   *
+   * VisitLog / Like 기능은 아직 연결하지 않았으므로
+   * 임시 기본값을 전달한다.
+   */
+  const items = rawItems.map((shop) =>
+    mapShopListItem({
+      shop,
+      visitLogCount: 0,
+      isLiked: false,
+    }),
+  );
   /**
    * 4.
    * 페이지 수 계산

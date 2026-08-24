@@ -41,6 +41,14 @@ const mapShopTags = (
   return tagStats.map(({ key, count }) => ({ key, count }));
 };
 
+const sortShopImages = (
+  images: ShopQueryResult["images"],
+): ShopQueryResult["images"][number][] => {
+  return [...images].sort(
+    (first, second) => (first.order ?? 0) - (second.order ?? 0),
+  );
+};
+
 const mapShopImage = (
   image: NonNullable<ShopQueryResult["images"]>[number],
 ): ShopImage => {
@@ -122,7 +130,7 @@ export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
     openingHours: shop.openingHours ?? null,
     instagramUrl: shop.instagramUrl ?? null,
     naverMapUrl: shop.naverMapUrl ?? null,
-    images: (shop.images ?? []).map(mapShopImage),
+    images: sortShopImages(shop.images ?? []).map(mapShopImage),
     sourceType: shop.sourceType,
     status: shop.status,
     likeCount: shop.likeCount ?? 0,
