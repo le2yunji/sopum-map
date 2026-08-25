@@ -1,3 +1,4 @@
+import { createApiError } from "@sopum-map/shared";
 import ShopModel from "../../models/shop.model";
 import { buildShopListPipeline } from "./shop-query.builder";
 import { mapShopDetail, mapShopListItem } from "./shop.mapper";
@@ -35,6 +36,7 @@ export const getShops = async (
    * 2.
    * Data Layer(Mongoose)를 통해 MongoDB 조회
    */
+
   const [result] = await ShopModel.aggregate<ShopListAggregateResult>(pipeline);
 
   /**
@@ -115,13 +117,13 @@ export const getShopById = async (
   /**
    * 2.
    * Shop이 존재하지 않는 경우
-   *
-   * 여기서는 일단 Error를 사용했지만,
-   * 프로젝트에 ApiError / NotFoundError가 있다면
-   * 그것을 사용하는 것이 더 좋다.
    */
   if (!shop) {
-    throw new Error("상점을 찾을 수 없습니다.");
+    throw createApiError({
+      status: 404,
+      code: "SHOP_NOT_FOUND",
+      message: "상점을 찾을 수 없습니다.",
+    });
   }
 
   /**
