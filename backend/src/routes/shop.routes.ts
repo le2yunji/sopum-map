@@ -1,4 +1,7 @@
-import { getShopsController } from "../controllers/shop.controller";
+import {
+  getShopDetailController,
+  getShopsController,
+} from "../controllers/shop.controller";
 import { Router } from "express";
 
 // import { optionalAuthMiddleware } from "../middlewares/optional-auth.middleware";
@@ -16,4 +19,4 @@ shopRouter.get("/", getShopsController);
 /*
  * GET /shops/:shopId
  */
-// shopRouter.get("/:shopId", getShopDetailController);
+shopRouter.get("/:shopId", getShopDetailController);
