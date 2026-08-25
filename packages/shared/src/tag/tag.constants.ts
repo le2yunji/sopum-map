@@ -124,7 +124,7 @@ export const TAG_DEFINITIONS = [
     isActive: true,
   },
   {
-    key: "interior_props",
+    key: "interior",
     selectionLabel: "인테리어 소품이 많아요",
     shortLabel: "인테리어 소품",
     group: "product",

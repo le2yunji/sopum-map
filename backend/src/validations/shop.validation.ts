@@ -49,7 +49,7 @@ export const getShopsQuerySchema = z
 
     limit: z.coerce.number().int().min(1).max(100).default(20),
 
-    sort: z.enum(["latest", "distance", "bookmark"]).default("latest"),
+    sort: z.enum(["latest", "distance", "popular"]).default("latest"),
   })
   .superRefine((value, context) => {
     const hasLat = value.lat !== undefined;

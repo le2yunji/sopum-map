@@ -9,7 +9,7 @@ import type {
   ShopStatus,
 } from "./shop.types";
 
-export type ShopSort = "latest" | "distance" | "bookmark";
+export type ShopSort = "latest" | "distance" | "popular";
 
 export type GetShopsQuery = {
   category?: ShopCategory;
