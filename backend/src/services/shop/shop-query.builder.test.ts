@@ -37,7 +37,7 @@ describe("buildShopMatchFilter", () => {
     });
   });
 
-  it("tagKeys가 있으면 모든 태그를 포함한 매장만 조회한다", () => {
+  it("tagKeys가 있으면 태그 중 하나 이상을 가지고 있는 매장을 조회한다.", () => {
     expect(
       buildShopMatchFilter({
         ...defaultParams,
@@ -47,7 +47,7 @@ describe("buildShopMatchFilter", () => {
       status: "active",
 
       "tagStats.key": {
-        $all: ["cute", "interior"],
+        $in: ["cute", "interior"],
       },
     });
   });
