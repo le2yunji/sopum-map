@@ -76,14 +76,13 @@ export const buildShopListPipeline = (
 ): PipelineStage[] => {
   const match = buildShopMatchFilter(params);
   const pipeline: PipelineStage[] = [];
-  const hasCoordinates = params.lat !== undefined && params.lng !== undefined;
 
-  if (hasCoordinates) {
+  if (params.lat !== undefined && params.lng !== undefined) {
     pipeline.push({
       $geoNear: {
         near: {
           type: "Point",
-          coordinates: [params.lng!, params.lat!],
+          coordinates: [params.lng, params.lat],
         },
         key: "location",
         distanceField: "distance",
@@ -113,7 +112,7 @@ export const buildShopListPipeline = (
           $limit: params.limit,
         },
       ],
-      metadata: [
+      count: [
         {
           $count: "totalCount",
         },

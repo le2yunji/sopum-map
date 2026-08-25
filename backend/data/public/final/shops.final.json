@@ -274,7 +274,7 @@
   {
     "sourceId": "MA0101202601A0007145",
     "sourceDataset": "소상공인시장진흥공단 상가업소정보",
-    "name": "도레미랜드",
+    "name": "도레미랜드 2호점",
     "category": "소품샵",
     "originalCategoryLarge": "소매",
     "originalCategoryMiddle": "장식품 소매",
@@ -559,23 +559,6 @@
     "regionGroup": "홍대/연남",
     "longitude": 126.925491117467,
     "latitude": 37.56234269065
-  },
-  {
-    "sourceId": "MA0101202310A0054384",
-    "sourceDataset": "소상공인시장진흥공단 상가업소정보",
-    "name": "도레미랜드",
-    "category": "소품샵",
-    "originalCategoryLarge": "소매",
-    "originalCategoryMiddle": "장식품 소매",
-    "originalCategorySmall": "기념품점",
-    "address": "서울특별시 마포구 연남동 383-42",
-    "roadAddress": "서울특별시 마포구 동교로38길 33-12",
-    "region1": "서울특별시",
-    "region2": "마포구",
-    "region3": "연남동",
-    "regionGroup": "홍대/연남",
-    "longitude": 126.926261468108,
-    "latitude": 37.561631387096
   },
   {
     "sourceId": "MA0101202302A0072599",

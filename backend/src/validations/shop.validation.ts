@@ -53,7 +53,6 @@ export const getShopsQuerySchema = z
   })
   .superRefine((value, context) => {
     const hasLat = value.lat !== undefined;
-
     const hasLng = value.lng !== undefined;
 
     if (hasLat !== hasLng) {
@@ -80,5 +79,22 @@ export const getShopsQuerySchema = z
       });
     }
   });
+
+/**
+ * MongoDB ObjectId는
+ * 24자리 16진수 문자열이다.
+ */
+const mongoObjectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, {
+  message: "유효하지 않은 shopId입니다.",
+});
+
+/**
+ * GET /api/shops/:shopId
+ *
+ * Path Parameter 검증
+ */
+export const getShopDetailParamsSchema = z.object({
+  shopId: mongoObjectIdSchema,
+});
 
 export type ParsedGetShopsQuery = z.infer<typeof getShopsQuerySchema>;

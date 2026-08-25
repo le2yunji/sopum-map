@@ -1,192 +1,134 @@
-import {
-  createApiError,
-  type ShopDetailData,
-  type ShopListData,
-} from "@sopum-map/shared";
-import mongoose, { Types } from "mongoose";
-
-import LikeModel from "../../models/like.model";
+import { createApiError } from "@sopum-map/shared";
 import ShopModel from "../../models/shop.model";
-import VisitLogModel from "../../models/visit-log.model";
-import { mapShopDetail, mapShopListItem } from "./shop.mapper";
 import { buildShopListPipeline } from "./shop-query.builder";
+import { mapShopDetail, mapShopListItem } from "./shop.mapper";
 import type {
+  GetShopDetailServiceResult,
   GetShopsServiceParams,
-  LikedShopDocument,
-  ShopDocument,
-  ShopListFacetResult,
-  VisitLogCountAggregationResult,
+  GetShopsServiceResult,
 } from "./shop.service.types";
 
-/**
- * 문자열이 올바른 MongoDB ObjectId인지 확인하고 변환한다.
- */
-const toObjectId = (value: string, fieldName: string): Types.ObjectId => {
-  if (!mongoose.isObjectIdOrHexString(value)) {
-    throw createApiError({
-      status: 400,
-      code: "INVALID_PARAMETER",
-      message: `${fieldName} 값이 올바르지 않습니다.`,
-      details: {
-        [fieldName]: `${fieldName} 값이 올바른 ObjectId 형식이 아닙니다.`,
-      },
-    });
-  }
+type ShopListAggregateResult = {
+  // items: Parameters<typeof mapShopListItem>[0][];
+  items: Parameters<typeof mapShopListItem>[0]["shop"][];
 
-  return new Types.ObjectId(value);
+  count: {
+    totalCount: number;
+  }[];
 };
 
 /**
- * 매장 ID별 방문 기록 개수를 조회한다.
+ * Shop 목록 Aggregation 결과의 개별 Shop 타입
  *
- * 매장마다 countDocuments를 실행하지 않고,
- * 한 번의 Aggregation으로 여러 매장의 개수를 계산한다.
- */
-const getVisitLogCountMap = async (
-  shopIds: Types.ObjectId[],
-): Promise<Map<string, number>> => {
-  if (shopIds.length === 0) {
-    return new Map();
-  }
-
-  const results = await VisitLogModel.aggregate<VisitLogCountAggregationResult>(
-    [
-      {
-        $match: {
-          shopId: {
-            $in: shopIds,
-          },
-        },
-      },
-      {
-        $group: {
-          _id: "$shopId",
-          count: {
-            $sum: 1,
-          },
-        },
-      },
-    ],
-  );
-
-  return new Map(
-    results.map((result) => [result._id.toString(), result.count]),
-  );
-};
-
-/**
- * 로그인 사용자가 좋아요한 매장 ID 목록을 조회한다.
- *
- * 비로그인 사용자인 경우 빈 Set을 반환한다.
- */
-const getLikedShopIdSet = async (
-  userId: string | undefined,
-  shopIds: Types.ObjectId[],
-): Promise<Set<string>> => {
-  if (!userId || shopIds.length === 0) {
-    return new Set();
-  }
-
-  const userObjectId = toObjectId(userId, "userId");
-
-  const likes = await LikeModel.find({
-    userId: userObjectId,
-    shopId: {
-      $in: shopIds,
-    },
-  })
-    .select({
-      _id: 0,
-      shopId: 1,
-    })
-    .lean<LikedShopDocument[]>();
-
-  return new Set(likes.map((like) => like.shopId.toString()));
-};
-
-/**
- * 검색 조건에 맞는 매장 목록을 조회한다.
+ * MongoDB 원본 Shop 필드에
+ * $geoNear가 생성하는 distance가 추가될 수 있다.
  */
 export const getShops = async (
   params: GetShopsServiceParams,
-): Promise<ShopListData> => {
+): Promise<GetShopsServiceResult> => {
+  /**
+   * 1.
+   * 요청 조건을 MongoDB Pipeline으로 변환
+   */
   const pipeline = buildShopListPipeline(params);
 
-  const [facetResult] =
-    await ShopModel.aggregate<ShopListFacetResult>(pipeline);
-
-  const shops = facetResult?.items ?? [];
-
-  const totalCount = facetResult?.metadata?.[0]?.totalCount ?? 0;
-
-  const totalPages =
-    totalCount === 0 ? 0 : Math.ceil(totalCount / params.limit);
-
-  const shopIds = shops.map((shop) => shop._id);
-
-  /*
-   * 방문 기록 수와 사용자 좋아요 여부는
-   * 서로 독립적이므로 동시에 조회한다.
+  /**
+   * 2.
+   * Data Layer(Mongoose)를 통해 MongoDB 조회
    */
-  const [visitLogCountMap, likedShopIdSet] = await Promise.all([
-    getVisitLogCountMap(shopIds),
-    getLikedShopIdSet(params.userId, shopIds),
-  ]);
 
-  const items = shops.map((shop) => {
-    const shopId = shop._id.toString();
+  const [result] = await ShopModel.aggregate<ShopListAggregateResult>(pipeline);
 
-    return mapShopListItem({
+  /**
+   * 검색 결과가 없을 수 있다.
+   */
+  const rawItems = result?.items ?? [];
+
+  const totalCount = result?.count?.[0]?.totalCount ?? 0;
+
+  /**
+   * 3.
+   * DB 형태 → API 형태 변환
+   */
+  // const items = rawItems.map(mapShopListItem);
+
+  /**
+   * 3. DB 형태 → API 형태
+   *
+   * VisitLog / Like 기능은 아직 연결하지 않았으므로
+   * 임시 기본값을 전달한다.
+   */
+  const items = rawItems.map((shop) =>
+    mapShopListItem({
       shop,
-      visitLogCount: visitLogCountMap.get(shopId) ?? 0,
-      isLiked: likedShopIdSet.has(shopId),
-    });
-  });
+      visitLogCount: 0,
+      isLiked: false,
+    }),
+  );
+  /**
+   * 4.
+   * 페이지 수 계산
+   */
+  const totalPages = Math.ceil(totalCount / params.limit);
 
+  /**
+   * 5.
+   * 다음 페이지 유무
+   */
+  const hasNext = params.page < totalPages;
+
+  /**
+   * 6.
+   * Controller에게 Service 결과 반환
+   */
   return {
     items,
+
     pagination: {
+      totalCount,
       page: params.page,
       limit: params.limit,
-      totalCount,
       totalPages,
-      hasNext: params.page < totalPages,
+      hasNext,
     },
   };
 };
 
 /**
- * 매장 ID로 활성 상태의 매장 상세 정보를 조회한다.
+ * Shop 상세 조회
+ *
+ * shopId에 해당하는 활성화된 Shop 하나를 조회한다.
  */
 export const getShopById = async (
   shopId: string,
-  userId?: string,
-): Promise<ShopDetailData> => {
-  const shopObjectId = toObjectId(shopId, "shopId");
-
+): Promise<GetShopDetailServiceResult> => {
+  /**
+   * 1.
+   * MongoDB에서 Shop 조회
+   *
+   * lean()을 사용해서 Mongoose Document가 아닌
+   * 일반 JavaScript Object로 받는다.
+   */
   const shop = await ShopModel.findOne({
-    _id: shopObjectId,
+    _id: shopId,
     status: "active",
-  }).lean<ShopDocument | null>();
+  }).lean();
 
+  /**
+   * 2.
+   * Shop이 존재하지 않는 경우
+   */
   if (!shop) {
     throw createApiError({
       status: 404,
       code: "SHOP_NOT_FOUND",
-      message: "매장을 찾을 수 없습니다.",
+      message: "상점을 찾을 수 없습니다.",
     });
   }
 
-  const [visitLogCount, likedShopIdSet] = await Promise.all([
-    VisitLogModel.countDocuments({
-      shopId: shopObjectId,
-    }),
-    getLikedShopIdSet(userId, [shopObjectId]),
-  ]);
-
-  return mapShopDetail({
-    shop,
-    visitLogCount,
-    isLiked: likedShopIdSet.has(shopId),
-  });
+  /**
+   * 3.
+   * DB 형태 → Shop 상세 API 형태
+   */
+  return mapShopDetail(shop);
 };

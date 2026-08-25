@@ -128,6 +128,13 @@ const geoLocationSchema = new Schema(
 
 const shopSchema = new Schema(
   {
+    // 공공데이터 sourceId
+    publicSourceId: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
     // 매장 이름
     name: {
       type: String,

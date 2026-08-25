@@ -1,64 +1,27 @@
-import type { Types } from "mongoose";
-
-import type { ShopSchemaType } from "../../models/shop.model";
+import type {
+  GetShopsQuery,
+  ShopListData,
+  ShopDetailData,
+} from "@sopum-map/shared";
 
 /**
  * 컨트롤러에서 기본값 적용과 검증을 마치고
  * 서비스에 전달하는 매장 목록 조회 조건
- */
-export type GetShopsServiceParams = {
-  category?: ShopSchemaType["category"];
-  keyword?: string;
-  region1?: string;
-  region2?: string;
-  region3?: string;
-  lat?: number;
-  lng?: number;
-  radius?: number;
-  page: number;
-  limit: number;
-  sort: "latest" | "distance" | "bookmark";
-
-  /**
-   * optionalAuthMiddleware가 설정한 로그인 사용자 ID
-   */
-  userId?: string;
-};
-
-/**
- * lean() 또는 aggregate()를 통해 얻는 Shop 문서 타입
  *
- * timestamps로 생성되는 createdAt, updatedAt과
- * Aggregation으로 생성되는 distance를 추가한다.
+ * API 요청 시점에는 optional이지만 Service 시점에는 필수이기 때문
  */
-export type ShopDocument = ShopSchemaType & {
-  _id: Types.ObjectId;
-  createdAt: Date;
-  updatedAt: Date;
-  distance?: number;
+export type GetShopsServiceParams = Omit<
+  GetShopsQuery,
+  "page" | "limit" | "sort"
+> & {
+  page: NonNullable<GetShopsQuery["page"]>;
+  limit: NonNullable<GetShopsQuery["limit"]>;
+  sort: NonNullable<GetShopsQuery["sort"]>;
 };
 
-/**
- * MongoDB $facet 실행 결과
- */
-export type ShopListFacetResult = {
-  items: ShopDocument[];
-  metadata: Array<{
-    totalCount: number;
-  }>;
-};
+export type GetShopsServiceResult = ShopListData;
 
 /**
- * 방문 기록 개수 Aggregation 결과
+ * Shop 상세 Service 반환 타입
  */
-export type VisitLogCountAggregationResult = {
-  _id: Types.ObjectId;
-  count: number;
-};
-
-/**
- * 로그인 사용자의 좋아요 조회 결과
- */
-export type LikedShopDocument = {
-  shopId: Types.ObjectId;
-};
+export type GetShopDetailServiceResult = ShopDetailData;
