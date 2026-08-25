@@ -37,6 +37,21 @@ describe("buildShopMatchFilter", () => {
     });
   });
 
+  it("tagKeys가 있으면 모든 태그를 포함한 매장만 조회한다", () => {
+    expect(
+      buildShopMatchFilter({
+        ...defaultParams,
+        tagKeys: ["cute", "interior"],
+      }),
+    ).toEqual({
+      status: "active",
+
+      "tagStats.key": {
+        $all: ["cute", "interior"],
+      },
+    });
+  });
+
   it("검색어를 상점명과 주소 검색 조건으로 변환한다", () => {
     const filter = buildShopMatchFilter({
       ...defaultParams,
@@ -252,7 +267,7 @@ describe("buildShopListPipeline", () => {
   it("인기순은 좋아요 수와 생성일을 차례로 사용한다", () => {
     const pipeline = buildShopListPipeline({
       ...defaultParams,
-      sort: "bookmark",
+      sort: "popular",
     });
 
     expect(pipeline[1]).toEqual({
