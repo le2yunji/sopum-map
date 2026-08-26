@@ -1,3 +1,4 @@
+import { TagKey } from "@sopum-map/shared";
 import { MAP_REGIONS, type MapRegion } from "../_constants/map.constants";
 import type { MapShop } from "../_types/map.types";
 
@@ -5,7 +6,7 @@ type FilterShopsParams = Readonly<{
   shops: MapShop[];
   keyword: string;
   selectedRegion: MapRegion;
-  selectedTags: string[];
+  selectedTags: TagKey[];
 }>;
 
 export function filterShops({
@@ -23,7 +24,7 @@ export function filterShops({
   return shops.filter((shop) => {
     const matchesKeyword =
       !normalizedKeyword ||
-      [shop.name, shop.address, shop.region, ...shop.tags]
+      [shop.name, shop.address, shop.regionGroup, ...shop.tags]
         .join(" ")
         .toLocaleLowerCase("ko-KR")
         .includes(normalizedKeyword);
@@ -31,7 +32,7 @@ export function filterShops({
     const matchesRegion =
       selectedRegion === "all" ||
       selectedRegionGroup?.regions.some((region) =>
-        shop.region.includes(region),
+        shop.regionGroup.includes(region),
       ) === true;
 
     const matchesTags =

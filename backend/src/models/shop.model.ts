@@ -3,6 +3,7 @@ import { Schema, model, type InferSchemaType } from "mongoose";
 import {
   SHOP_CATEGORIES,
   SHOP_IMAGE_SOURCE_TYPES,
+  SHOP_REGION_GROUPS,
   SHOP_SOURCE_TYPES,
   SHOP_STATUSES,
   TAG_KEYS,
@@ -196,6 +197,12 @@ const shopSchema = new Schema(
       maxlength: 30,
     },
 
+    regionGroup: {
+      type: String,
+      enum: SHOP_REGION_GROUPS,
+      required: true,
+    },
+
     // MongoDB 지도 검색에 사용하는 좌표
     location: {
       type: geoLocationSchema,
@@ -228,13 +235,6 @@ const shopSchema = new Schema(
 
     // 인스타그램 주소
     instagramUrl: {
-      type: String,
-      default: null,
-      trim: true,
-    },
-
-    // 네이버 플레이스 고유 ID
-    naverPlaceId: {
       type: String,
       default: null,
       trim: true,

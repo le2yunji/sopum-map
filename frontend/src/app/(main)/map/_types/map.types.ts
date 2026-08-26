@@ -1,12 +1,13 @@
+import type { ShopRegionGroup, TagKey } from "@sopum-map/shared";
+
 export type MapShop = {
   id: string;
   name: string;
   address: string;
-  region: string;
-  tags: string[];
+  regionGroup: ShopRegionGroup;
+  tags: TagKey[];
   imageUrl: string;
   isLiked: boolean;
-
   latitude: number;
   longitude: number;
 };
