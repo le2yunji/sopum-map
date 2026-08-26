@@ -6,6 +6,7 @@ import { SHOP_SORTS } from "./shop.constants";
 import type {
   ShopCategory,
   ShopImageSourceType,
+  ShopRegionGroup,
   ShopSourceType,
   ShopStatus,
 } from "./shop.types";
@@ -16,9 +17,7 @@ export type GetShopsQuery = {
   category?: ShopCategory;
   tagKeys?: TagKey[];
   keyword?: string;
-  region1?: string;
-  region2?: string;
-  region3?: string;
+  regionGroup?: ShopRegionGroup;
   lat?: number;
   lng?: number;
   radius?: number;

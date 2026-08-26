@@ -30,3 +30,10 @@ export const SHOP_IMAGE_SOURCE_TYPES = [
   "public_data",
   "etc",
 ] as const;
+
+export const SHOP_REGION_GROUPS = [
+  "seongsu-seoulforest",
+  "hongdae-yeonnam",
+  "mangwon",
+  "seochon",
+] as const;
