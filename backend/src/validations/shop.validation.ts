@@ -1,4 +1,4 @@
-import { SHOP_CATEGORIES } from "@sopum-map/shared";
+import { SHOP_CATEGORIES, TAG_KEYS } from "@sopum-map/shared";
 import { z } from "zod";
 
 /**
@@ -15,9 +15,27 @@ const optionalNumber = z.preprocess(
   z.coerce.number().finite().optional(),
 );
 
+const tagKeysSchema = z.preprocess(
+  (value) => {
+    if (value === undefined || value === "") {
+      return undefined;
+    }
+
+    if (Array.isArray(value)) {
+      return value;
+    }
+
+    return [value];
+  },
+
+  z.array(z.enum(TAG_KEYS)).optional(),
+);
+
 export const getShopsQuerySchema = z
   .object({
     category: z.enum(SHOP_CATEGORIES).optional(),
+
+    tagKeys: tagKeysSchema,
 
     keyword: z.string().trim().min(1).max(100).optional(),
 

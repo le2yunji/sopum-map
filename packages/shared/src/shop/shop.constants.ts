@@ -14,6 +14,8 @@ export const SHOP_STATUS_LABELS = {
   hidden: "숨김",
 } as const;
 
+export const SHOP_SORTS = ["latest", "distance", "popular"] as const;
+
 export const SHOP_SOURCE_TYPES = [
   "admin",
   "official",

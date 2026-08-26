@@ -1,6 +1,7 @@
 // shop.api.types.ts
 import type { ApiSuccessResponse, Pagination } from "../api/api.types";
 import type { TagKey } from "../tag";
+import { SHOP_SORTS } from "./shop.constants";
 
 import type {
   ShopCategory,
@@ -9,7 +10,7 @@ import type {
   ShopStatus,
 } from "./shop.types";
 
-export type ShopSort = "latest" | "distance" | "popular";
+export type ShopSort = (typeof SHOP_SORTS)[number];
 
 export type GetShopsQuery = {
   category?: ShopCategory;
