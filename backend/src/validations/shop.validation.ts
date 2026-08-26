@@ -1,4 +1,8 @@
-import { SHOP_CATEGORIES, TAG_KEYS } from "@sopum-map/shared";
+import {
+  SHOP_CATEGORIES,
+  SHOP_REGION_GROUPS,
+  TAG_KEYS,
+} from "@sopum-map/shared";
 import { z } from "zod";
 
 /**
@@ -27,7 +31,6 @@ const tagKeysSchema = z.preprocess(
 
     return [value];
   },
-
   z.array(z.enum(TAG_KEYS)).optional(),
 );
 
@@ -39,11 +42,7 @@ export const getShopsQuerySchema = z
 
     keyword: z.string().trim().min(1).max(100).optional(),
 
-    region1: z.string().trim().min(1).max(30).optional(),
-
-    region2: z.string().trim().min(1).max(30).optional(),
-
-    region3: z.string().trim().min(1).max(30).optional(),
+    regionGroup: z.enum(SHOP_REGION_GROUPS).optional(),
 
     lat: optionalNumber.refine(
       (value) => value === undefined || (value >= -90 && value <= 90),
