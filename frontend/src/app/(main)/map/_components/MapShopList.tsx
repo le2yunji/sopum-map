@@ -94,7 +94,7 @@ export function MapShopList({
               <p className="mt-1 flex items-center gap-1 text-12 text-green-700">
                 <LocationIcon className="size-3.5" />
 
-                {shop.region}
+                {shop.regionGroup}
               </p>
 
               <div className="mt-2 flex flex-wrap gap-1">

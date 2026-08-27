@@ -30,7 +30,7 @@ export const MAP_REGIONS = [
 
 export type MapRegion = (typeof MAP_REGIONS)[number]["value"];
 
-type MapTagFilter =
+export type MapTagFilter =
   | {
       type: "tag";
       value: TagKey;
@@ -40,6 +40,7 @@ type MapTagFilter =
       type: "group";
       value: TagGroup;
       label: string;
+      tags: readonly TagKey[];
     };
 
 export const MAP_TAG_FILTERS = [
@@ -57,6 +58,15 @@ export const MAP_TAG_FILTERS = [
     type: "group",
     value: "character",
     label: "캐릭터",
+    tags: [
+      "sanrio",
+      "shinchan",
+      "disney",
+      "ghibli",
+      "pokemon",
+      "japanese_anime",
+      "original_character",
+    ],
   },
   {
     type: "tag",
@@ -69,3 +79,12 @@ export const MAP_TAG_FILTERS = [
     label: "유행템",
   },
 ] as const satisfies readonly MapTagFilter[];
+
+export type MapTagFilterValue = `filter:${MapTagFilter["type"]}:${MapTagFilter["value"]}`;
+
+/** 칩에서 사용할 문자열 값을 태그 종류와 값이 겹치지 않게 만듭니다. */
+export function getMapTagFilterValue(
+  filter: MapTagFilter,
+): MapTagFilterValue {
+  return `filter:${filter.type}:${filter.value}`;
+}
