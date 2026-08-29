@@ -6,7 +6,7 @@ import { PickAction } from "@/components/pick/PickAction";
 import { FilterChipGroup } from "@/components/ui/FilterChipGroup/FilterChipGroup";
 import { ShopCard } from "@/components/ui/ShopCard/ShopCard";
 
-import type { HomeData } from "../_types/home.types";
+import type { HomeData } from "../types/home.types";
 
 type Props = Readonly<{
   categories: HomeData["categories"];

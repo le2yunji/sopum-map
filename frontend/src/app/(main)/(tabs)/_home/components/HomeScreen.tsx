@@ -1,4 +1,4 @@
-import type { HomeData } from "../_types/home.types";
+import type { HomeData } from "../types/home.types";
 import { HomeBrandMessage } from "./HomeBrandMessage";
 
 import { HomeCategorySection } from "./HomeCategorySection";
@@ -11,7 +11,7 @@ type Props = Readonly<{
   initialCategory?: string;
 }>;
 
-export function HomeScreen({ data, initialCategory = "all" }: Props) {
+export function HomeScreen({ initialCategory = "all" }: Props) {
   return (
     <main className="bg-white pb-8">
       <HomeHeader />

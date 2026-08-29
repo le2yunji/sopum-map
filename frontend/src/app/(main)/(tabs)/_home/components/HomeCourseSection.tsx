@@ -1,6 +1,6 @@
 import { CourseListItem } from "@/components/ui/CourseListItem/CourseListItem";
 
-import type { HomeData } from "../_types/home.types";
+import type { HomeData } from "../types/home.types";
 
 type Props = Readonly<{
   courses: HomeData["courses"];
