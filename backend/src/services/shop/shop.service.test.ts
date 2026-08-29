@@ -281,5 +281,28 @@ describe("shop service", () => {
 
       expect(result.images.map((image) => image.order)).toEqual([1, 2]);
     });
+
+    it("상세 대표 이미지는 order보다 isMain을 우선한다", async () => {
+      modelMocks.findOneShop.mockReturnValue({
+        lean: () =>
+          Promise.resolve({
+            ...shopDocument,
+            images: [
+              {
+                ...shopDocument.images[0],
+                order: 1,
+              },
+              {
+                ...shopDocument.images[1],
+                order: 2,
+              },
+            ],
+          }),
+      });
+
+      const result = await getShopById(shopId.toString());
+
+      expect(result.mainImageUrl).toBe("https://example.com/main.webp");
+    });
   });
 });

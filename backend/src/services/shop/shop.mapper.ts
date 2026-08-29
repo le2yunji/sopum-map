@@ -4,6 +4,9 @@ import type {
   ShopListItem,
 } from "@sopum-map/shared";
 
+import type { ShopSchemaType } from "../../models/shop.model";
+import { getMainShopImageUrl } from "../../utils/shop-image";
+
 import type {
   ShopListAggregateItem,
   ShopQueryResult,
@@ -15,32 +18,17 @@ type MapShopListItemParams = {
   isLiked: boolean;
 };
 
-/**
- * 대표 이미지를 찾는다.
- *
- * isMain이 true인 이미지가 없으면
- * 노출 순서가 가장 빠른 이미지를 사용한다.
- */
-const getMainImageUrl = (
-  images: ShopListAggregateItem["images"],
-): string | null => {
-  const sortedImages = [...images].sort(
-    (first, second) => first.order - second.order,
-  );
-
-  const mainImage =
-    sortedImages.find((image) => image.isMain) ?? sortedImages[0];
-
-  return mainImage?.imageUrl ?? null;
-};
-
 /** 매장 태그 집계를 API 응답 형태로 복사합니다. */
 const mapShopTags = (
-  tagStats: ShopListAggregateItem["tagStats"],
+  tagStats: ShopSchemaType["tagStats"],
 ): ShopListItem["tags"] => {
-  return tagStats.map(({ key, count }) => ({ key, count }));
+  return tagStats.map(({ key, count }) => ({
+    key,
+    count,
+  }));
 };
 
+/** 매장 이미지를 노출 순서대로 정렬합니다. */
 const sortShopImages = (
   images: ShopQueryResult["images"],
 ): ShopQueryResult["images"][number][] => {
@@ -49,9 +37,8 @@ const sortShopImages = (
   );
 };
 
-const mapShopImage = (
-  image: NonNullable<ShopQueryResult["images"]>[number],
-): ShopImage => {
+/** MongoDB 이미지 데이터를 API 이미지 데이터로 변환합니다. */
+const mapShopImage = (image: ShopQueryResult["images"][number]): ShopImage => {
   return {
     imageUrl: image.imageUrl,
     altText: image.altText ?? "",
@@ -84,7 +71,7 @@ export const mapShopListItem = ({
     regionGroup: shop.regionGroup,
     latitude,
     longitude,
-    mainImageUrl: getMainImageUrl(shop.images),
+    mainImageUrl: getMainShopImageUrl(shop.images),
     status: shop.status,
     likeCount: shop.likeCount,
     visitLogCount,
@@ -104,17 +91,14 @@ export const mapShopListItem = ({
 /**
  * Shop 문서를 GET /shops/:shopId 상세 응답으로 변환한다.
  */
-/**
- * MongoDB Shop → Shop 상세 API 응답
- */
 export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
   const [longitude, latitude] = shop.location.coordinates;
-  const images = sortShopImages(shop.images ?? []);
+  const sortedImages = sortShopImages(shop.images);
 
   return {
     id: shop._id.toString(),
     category: shop.category,
-    tags: shop.tagStats ?? [],
+    tags: mapShopTags(shop.tagStats),
     name: shop.name,
     address: shop.address,
     region1: shop.region1,
@@ -135,8 +119,9 @@ export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
     instagramUrl: shop.instagramUrl ?? null,
     naverMapUrl: shop.naverMapUrl ?? null,
 
-    images: images.map(mapShopImage),
-    mainImageUrl: images[0]?.imageUrl ?? null,
+    mainImageUrl: getMainShopImageUrl(shop.images),
+    images: sortedImages.map(mapShopImage),
+
     sourceType: shop.sourceType,
     status: shop.status,
     likeCount: shop.likeCount ?? 0,
