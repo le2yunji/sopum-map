@@ -1,5 +1,5 @@
-import { BrandLoadingScreen } from "@/app/_components/BrandLoadingScreen";
+import { BrandSplashScreen } from "@/app/_components/BrandSplashScreen";
 
 export default function HomeLoading() {
-  return <BrandLoadingScreen />;
+  return <BrandSplashScreen />;
 }
