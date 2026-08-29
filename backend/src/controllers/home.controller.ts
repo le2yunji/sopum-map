@@ -1,18 +1,18 @@
-import { getHome } from "../services/home/home.service";
-import type { GetHomeResponse } from "@sopum-map/shared";
+import { getHomeCuratedShops } from "../services/home/home.service";
+import type { GetHomeCuratedShopResponse } from "@sopum-map/shared";
 
 import type { NextFunction, Request, Response } from "express";
 
 /**
  * GET /api/home
  */
-export const getHomeController = async (
+export const getHomeCuratedShopsController = async (
   _req: Request,
-  res: Response<GetHomeResponse>,
+  res: Response<GetHomeCuratedShopResponse>,
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const data = await getHome();
+    const data = await getHomeCuratedShops();
 
     res.status(200).json({
       success: true,

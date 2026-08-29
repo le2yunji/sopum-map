@@ -1,7 +1,7 @@
 import { Router } from "express";
 
-import { getHomeController } from "../controllers/home.controller";
+import { getHomeCuratedShopsController } from "../controllers/home.controller";
 
 export const homeRouter = Router();
 
-homeRouter.get("/", getHomeController);
+homeRouter.get("/", getHomeCuratedShopsController);
