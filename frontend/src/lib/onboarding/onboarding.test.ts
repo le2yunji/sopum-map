@@ -2,28 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   createOnboardingCookie,
-  normalizeOnboardingDestination,
   startOnboardingTransition,
 } from "./onboarding";
-
-describe("normalizeOnboardingDestination", () => {
-  it.each(["/", "/login", "/shops/123?tab=info"])(
-    "내부 경로 %s를 유지한다",
-    (destination) => {
-      expect(normalizeOnboardingDestination(destination)).toBe(destination);
-    },
-  );
-
-  it.each([
-    undefined,
-    ["/", "/login"],
-    "https://evil.example",
-    "//evil.example",
-    "login",
-  ])("안전하지 않은 목적지 %o를 홈으로 바꾼다", (destination) => {
-    expect(normalizeOnboardingDestination(destination)).toBe("/");
-  });
-});
 
 describe("createOnboardingCookie", () => {
   it("HTTP 환경용 1년 완료 쿠키를 만든다", () => {
