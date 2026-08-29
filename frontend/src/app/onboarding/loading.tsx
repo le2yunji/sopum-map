@@ -5,29 +5,40 @@ export default function OnboardingLoading() {
   return (
     <main
       aria-busy="true"
-      className="flex min-h-dvh flex-col bg-white px-5 pb-5 pt-8"
+      className="flex min-h-dvh flex-col bg-white px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))] min-[390px]:px-5 min-[390px]:pt-[max(2rem,env(safe-area-inset-top))]"
     >
-      <section className="flex flex-1 flex-col items-center justify-center">
+      <section className="flex flex-1 flex-col items-center justify-center py-4">
         <Skeleton
           label="온보딩 화면을 불러오는 중"
-          className="size-36 rounded-full min-[390px]:size-40"
+          className="h-56 w-72 rounded-3xl min-[390px]:h-64 min-[390px]:w-80"
         />
-        <Skeleton announce={false} className="mt-7 h-8 w-28 rounded-lg" />
-        <Skeleton announce={false} className="mt-3 h-6 w-64 rounded-lg" />
-        <Skeleton announce={false} className="mt-2 h-6 w-52 rounded-lg" />
+        <Skeleton
+          announce={false}
+          className="mt-6 h-7 w-64 rounded-lg min-[390px]:mt-7 min-[390px]:h-8 min-[390px]:w-72"
+        />
+        <Skeleton
+          announce={false}
+          className="mt-3 h-6 w-72 rounded-lg min-[390px]:h-7 min-[390px]:w-80"
+        />
       </section>
 
-      <div aria-hidden="true" className="mx-auto w-full max-w-84">
-        <Skeleton announce={false} className="h-15 w-full rounded-2xl" />
-        <Skeleton
-          announce={false}
-          className="mx-auto mt-2 h-12 w-28 rounded-xl"
-        />
-        <Skeleton
-          announce={false}
-          className="mx-auto mt-5 h-4 w-32 rounded-md"
-        />
-      </div>
+      <nav aria-hidden="true" className="w-full">
+        <ol className="flex justify-center gap-2">
+          <li>
+            <Skeleton announce={false} className="size-2 rounded-full" />
+          </li>
+          <li>
+            <Skeleton announce={false} className="size-2 rounded-full" />
+          </li>
+          <li>
+            <Skeleton announce={false} className="size-2 rounded-full" />
+          </li>
+          <li>
+            <Skeleton announce={false} className="size-2 rounded-full" />
+          </li>
+        </ol>
+        <Skeleton announce={false} className="mt-6 h-14 w-full rounded-xl" />
+      </nav>
     </main>
   );
 }

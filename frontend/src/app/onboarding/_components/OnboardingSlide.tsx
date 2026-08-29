@@ -8,10 +8,7 @@ type OnboardingSlideProps = Readonly<{
 }>;
 
 /** 한 온보딩 페이지의 그림과 핵심 설명을 읽기 좋은 순서로 보여줍니다. */
-export function OnboardingSlide({
-  slide,
-  headingRef,
-}: OnboardingSlideProps) {
+export function OnboardingSlide({ slide, headingRef }: OnboardingSlideProps) {
   const titleId = `onboarding-${slide.id}-title`;
 
   return (
