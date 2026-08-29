@@ -1,3 +1,5 @@
+import type { ShopRegionGroup } from "./shop.types";
+
 export const SHOP_CATEGORIES = ["소품샵", "가챠샵", "굿즈샵"] as const;
 
 export const SHOP_STATUSES = [
@@ -37,3 +39,10 @@ export const SHOP_REGION_GROUPS = [
   "mangwon",
   "seochon",
 ] as const;
+
+export const SHOP_REGION_GROUP_LABELS: Record<ShopRegionGroup, string> = {
+  "seongsu-seoulforest": "성수·서울숲",
+  "hongdae-yeonnam": "홍대·연남",
+  mangwon: "망원",
+  seochon: "서촌",
+};
