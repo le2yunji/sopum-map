@@ -19,11 +19,11 @@ export type HomeCuratedShop = {
   curatorText: string | null;
 };
 
-export type HomeData = {
-  featuredShops: HomeCuratedShop[];
+export type HomeCuratedShops = {
+  curatedShops: HomeCuratedShop[];
 };
 
 /**
  * GET /api/home 성공 응답
  */
-export type GetHomeResponse = ApiSuccessResponse<HomeData>;
+export type GetHomeCuratedShopResponse = ApiSuccessResponse<HomeCuratedShops>;

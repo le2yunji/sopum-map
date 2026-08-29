@@ -4,14 +4,13 @@ import type {
 } from "@sopum-map/shared";
 
 import type { MapShop } from "../_types/map.types";
+import { DEFAULT_IMAGES } from "@/constants/image.constants";
 
 type ShopListItem = GetShopsResponse["data"]["items"][number];
 
 type ShopDetail = GetShopDetailResponse["data"];
 
 type MapShopSource = ShopListItem | ShopDetail;
-
-const DEFAULT_SHOP_IMAGE = "/images/profiles/shop_default.webp";
 
 /** 상점 API 데이터를 지도 화면 전용 타입으로 변환합니다. */
 export function toMapShop(shop: MapShopSource): MapShop {
@@ -24,7 +23,7 @@ export function toMapShop(shop: MapShopSource): MapShop {
     latitude: shop.latitude,
     longitude: shop.longitude,
 
-    imageUrl: shop.mainImageUrl ?? DEFAULT_SHOP_IMAGE,
+    imageUrl: shop.mainImageUrl ?? DEFAULT_IMAGES["shop"],
 
     tags: shop.tags.map((tag) => tag.key),
 

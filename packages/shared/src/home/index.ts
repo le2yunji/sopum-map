@@ -1,5 +1,5 @@
 export type {
-  GetHomeResponse,
-  HomeData,
+  GetHomeCuratedShopResponse,
+  HomeCuratedShops,
   HomeCuratedShop,
 } from "./home.api.types.js";
