@@ -122,7 +122,13 @@ export function OnboardingCarousel({ onComplete }: OnboardingCarouselProps) {
             />
           ))}
         </ol>
-        <div className="mt-6 flex items-center gap-2">
+        <div
+          className={
+            currentIndex > 0
+              ? "mt-6 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-2"
+              : "mt-6 grid grid-cols-1"
+          }
+        >
           {currentIndex > 0 && (
             <Button variant="ghost" size="large" onClick={showPreviousSlide}>
               이전

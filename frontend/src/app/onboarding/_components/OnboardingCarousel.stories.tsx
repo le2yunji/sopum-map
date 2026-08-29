@@ -39,6 +39,34 @@ export const CompleteFlow: Story = {
     ).toHaveFocus();
     await expect(args.onComplete).not.toHaveBeenCalled();
 
+    await userEvent.click(canvas.getByRole("button", { name: "이전" }));
+    await expect(
+      canvas.getByRole("heading", {
+        name: "취향에 맞는 소품샵을 발견해요",
+      }),
+    ).toHaveFocus();
+
+    const guide = canvas.getByRole("main", {
+      name: "소품지도 기능 안내",
+    });
+    await userEvent.pointer([
+      {
+        keys: "[MouseLeft>]",
+        target: guide,
+        coords: { clientX: 240, clientY: 200 },
+      },
+      {
+        keys: "[/MouseLeft]",
+        target: guide,
+        coords: { clientX: 120, clientY: 200 },
+      },
+    ]);
+    await expect(
+      canvas.getByRole("heading", {
+        name: "마음에 드는 곳은 내 픽에 모아요",
+      }),
+    ).toHaveFocus();
+
     await userEvent.keyboard("{ArrowRight}{ArrowRight}");
     await expect(
       canvas.getByRole("button", { name: "소품지도 시작하기" }),
@@ -58,6 +86,33 @@ export const SmallMobile: Story = {
       value: "sopumSmall",
       isRotated: false,
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const guide = canvas.getByRole("main", {
+      name: "소품지도 기능 안내",
+    });
+    const navigation = canvas.getByRole("navigation", {
+      name: "온보딩 페이지 이동",
+    });
+    const nextButton = canvas.getByRole("button", { name: "다음" });
+
+    expect(nextButton.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+      navigation.getBoundingClientRect().width - 1,
+    );
+
+    await userEvent.click(nextButton);
+
+    const previousButton = canvas.getByRole("button", { name: "이전" });
+    const guideBounds = guide.getBoundingClientRect();
+    const previousBounds = previousButton.getBoundingClientRect();
+    const nextBounds = canvas
+      .getByRole("button", { name: "다음" })
+      .getBoundingClientRect();
+
+    await expect(previousButton).toBeInTheDocument();
+    await expect(previousBounds.left).toBeGreaterThanOrEqual(guideBounds.left);
+    await expect(nextBounds.right).toBeLessThanOrEqual(guideBounds.right);
   },
 };
 
