@@ -110,20 +110,20 @@ export function useMapScreenState() {
   );
 
   /** 상세 필터 시트를 엽니다. */
-  const handleOpenFilter = useCallback(() => {
+  const handleOpenFilter = () => {
     setIsFilterOpen(true);
-  }, []);
+  };
 
   /** 상세 필터 시트를 닫습니다. */
-  const handleCloseFilter = useCallback(() => {
+  const handleCloseFilter = () => {
     setIsFilterOpen(false);
-  }, []);
+  };
 
   /** 지도 검색 시트를 엽니다. */
-  const handleOpenSearch = useCallback(() => {
+  const handleOpenSearch = () => {
     setShopListSheetState("collapsed");
     setIsSearchOpen(true);
-  }, []);
+  };
 
   /** 검색 결과에서 상점을 선택합니다. */
   const handleSelectSearchResult = useCallback(
@@ -135,10 +135,10 @@ export function useMapScreenState() {
   );
 
   /** 검색 시트의 열림 상태를 변경합니다. */
-  const handleSearchOpenChange = useCallback((open: boolean) => {
+  const handleSearchOpenChange = (open: boolean) => {
     setShopListSheetState("collapsed");
     setIsSearchOpen(open);
-  }, []);
+  };
 
   /** 선택 상점을 해제하고 목록으로 돌아갑니다. */
   const handleShowShopList = useCallback(() => {
