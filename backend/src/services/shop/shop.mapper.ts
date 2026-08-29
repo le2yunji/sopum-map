@@ -109,6 +109,8 @@ export const mapShopListItem = ({
  */
 export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
   const [longitude, latitude] = shop.location.coordinates;
+  const images = sortShopImages(shop.images ?? []);
+
   return {
     id: shop._id.toString(),
     category: shop.category,
@@ -132,7 +134,9 @@ export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
     openingHours: shop.openingHours ?? null,
     instagramUrl: shop.instagramUrl ?? null,
     naverMapUrl: shop.naverMapUrl ?? null,
-    images: sortShopImages(shop.images ?? []).map(mapShopImage),
+
+    images: images.map(mapShopImage),
+    mainImageUrl: images[0]?.imageUrl ?? null,
     sourceType: shop.sourceType,
     status: shop.status,
     likeCount: shop.likeCount ?? 0,

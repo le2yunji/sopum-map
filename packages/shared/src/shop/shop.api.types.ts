@@ -47,6 +47,8 @@ export type ShopBaseData = {
   name: string;
   address: string;
 
+  mainImageUrl: string | null;
+
   region1: string;
   region2: string;
   region3: string | null;
@@ -62,7 +64,6 @@ export type ShopBaseData = {
 };
 
 export type ShopListItem = ShopBaseData & {
-  mainImageUrl: string | null;
   distanceMeters?: number;
 };
 
@@ -77,6 +78,7 @@ export type ShopDetailData = ShopBaseData & {
   openingHours: string | null;
   instagramUrl: string | null;
   naverMapUrl: string | null;
+
   images: ShopImage[];
   sourceType: ShopSourceType;
   createdAt: string;
