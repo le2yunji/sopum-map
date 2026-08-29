@@ -17,11 +17,9 @@ export function proxy(request: NextRequest): NextResponse {
   }
 
   const onboardingUrl = request.nextUrl.clone();
-  const destination = `${request.nextUrl.pathname}${request.nextUrl.search}`;
 
   onboardingUrl.pathname = "/onboarding";
   onboardingUrl.search = "";
-  onboardingUrl.searchParams.set("next", destination);
 
   return NextResponse.redirect(onboardingUrl);
 }
