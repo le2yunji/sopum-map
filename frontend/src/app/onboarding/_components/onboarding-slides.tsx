@@ -17,8 +17,7 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlideData[] = [
   {
     id: "discover",
     title: "취향에 맞는 소품샵을 발견해요",
-    description:
-      "지역과 취향 태그로 나에게 꼭 맞는 소품샵을 찾아보세요.",
+    description: "지역과 취향 태그로 나에게 꼭 맞는 소품샵을 찾아보세요.",
     visual: (
       <div className="relative h-56 w-72 overflow-hidden rounded-3xl bg-green-75 min-[390px]:h-64 min-[390px]:w-80">
         <div
@@ -50,8 +49,7 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlideData[] = [
   {
     id: "pick",
     title: "마음에 드는 곳은 내 픽에 모아요",
-    description:
-      "다시 가고 싶은 소품샵을 저장하고 한곳에서 모아볼 수 있어요.",
+    description: "다시 가고 싶은 소품샵을 저장하고 한곳에서 모아볼 수 있어요.",
     visual: (
       <div className="relative h-56 w-72 overflow-hidden rounded-3xl bg-cream-100 min-[390px]:h-64 min-[390px]:w-80">
         <div
@@ -86,8 +84,7 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlideData[] = [
   {
     id: "course",
     title: "소품샵을 나만의 코스로 이어봐요",
-    description:
-      "여러 소품샵을 이어 나만의 산책 코스를 만들어보세요.",
+    description: "여러 소품샵을 이어 나만의 산책 코스를 만들어보세요.",
     visual: (
       <div className="relative h-56 w-72 overflow-hidden rounded-3xl bg-green-100 min-[390px]:h-64 min-[390px]:w-80">
         <div
@@ -125,8 +122,7 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlideData[] = [
   {
     id: "visit",
     title: "다녀온 추억을 기록해요",
-    description:
-      "사진과 한 줄 후기로 소품샵에서의 추억을 남겨보세요.",
+    description: "사진과 한 줄 후기로 소품샵에서의 추억을 남겨보세요.",
     visual: (
       <div className="relative h-56 w-72 overflow-hidden rounded-3xl bg-pink-100 min-[390px]:h-64 min-[390px]:w-80">
         <div className="absolute left-5 top-5 w-40 -rotate-3 rounded-2xl bg-white p-3 shadow-sm">
