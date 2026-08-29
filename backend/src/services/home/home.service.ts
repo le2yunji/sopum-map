@@ -1,4 +1,4 @@
-import type { HomeData } from "@sopum-map/shared";
+import type { HomeCuratedShops } from "@sopum-map/shared";
 
 import HomeShopCurationModel from "../../models/home-shop-curation.model";
 import ShopModel from "../../models/shop.model";
@@ -8,7 +8,7 @@ import { buildHomeCuratedShops } from "./home.mapper";
 /**
  * 현재 홈 화면에 노출할 데이터를 조회한다.
  */
-export const getHome = async (): Promise<HomeData> => {
+export const getHomeCuratedShops = async (): Promise<HomeCuratedShops> => {
   const now = new Date();
 
   /**
@@ -37,7 +37,7 @@ export const getHome = async (): Promise<HomeData> => {
    */
   if (!curation) {
     return {
-      featuredShops: [],
+      curatedShops: [],
     };
   }
 
@@ -65,6 +65,6 @@ export const getHome = async (): Promise<HomeData> => {
     .lean();
 
   return {
-    featuredShops: buildHomeCuratedShops(curation.items, shops),
+    curatedShops: buildHomeCuratedShops(curation.items, shops),
   };
 };
