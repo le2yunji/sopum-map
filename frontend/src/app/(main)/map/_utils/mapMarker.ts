@@ -4,7 +4,18 @@ export function getMapMarkerIcon(isSelected: boolean): naver.maps.HtmlIcon {
   const anchor = size / 2;
 
   return {
-    content: `<span aria-hidden="true" style="display:grid;place-items:center;width:${size}px;height:${size}px;border:2px solid #dde5a9;border-radius:999px;background:#fff;color:#5d9c3e;font-size:18px;box-shadow:0 3px 8px rgba(0,0,0,.18)">✤</span>`,
+    content: `
+            <span aria-hidden="true" style="display:grid;place-items:center;width:${size}px;height:${size}px;border:2px solid #dde5a9;border-radius:999px;background:#fff;color:#5d9c3e;font-size:18px;box-shadow:0 3px 8px rgba(0,0,0,.18)">
+                <img
+                  src="/images/icons/clover.webp"
+                  alt=""
+                  style="
+                    width:${isSelected ? 22 : 18}px;
+                    height:${isSelected ? 22 : 18}px;
+                    object-fit:contain;
+                  "
+                />
+            </span>`,
     anchor: { x: anchor, y: anchor },
   };
 }
