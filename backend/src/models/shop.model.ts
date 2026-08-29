@@ -258,6 +258,13 @@ const shopSchema = new Schema(
     images: {
       type: [shopImageSchema],
       default: [],
+      validate: {
+        // 대표 이미지 충돌로 API마다 다른 이미지를 선택하는 상황을 막는다.
+        validator(value: Array<{ isMain?: boolean }>) {
+          return value.filter((image) => image.isMain).length <= 1;
+        },
+        message: "대표 이미지는 최대 한 장만 저장할 수 있습니다.",
+      },
     },
 
     // 매장 정보 수집 출처
