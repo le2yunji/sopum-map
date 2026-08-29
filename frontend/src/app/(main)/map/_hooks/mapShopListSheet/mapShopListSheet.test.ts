@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getNextSheetState } from "./mapShopListSheet.utils";
+import { getNextSheetState } from "./mapShopListSheet";
 
 describe("getNextSheetState", () => {
   it("충분히 위로 끌면 시트를 펼칩니다", () => {
