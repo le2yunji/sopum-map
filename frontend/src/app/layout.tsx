@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { pretendard } from "./font";
+import { QueryProvider } from "@/providers/QueryProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +21,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="ko" className={pretendard.variable}>
       <body>
-        <div id="mobile-app">{children}</div>
+        <QueryProvider>
+          <div id="mobile-app">{children}</div>
+        </QueryProvider>
       </body>
     </html>
   );

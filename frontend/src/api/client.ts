@@ -2,24 +2,17 @@ import { createApiError, type ApiResponse } from "@sopum-map/shared";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-type FetcherOptions = Omit<RequestInit, "body"> & {
+type ApiClientOptions = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
 
 /**
  * 공통 API 요청을 실행하고 성공 응답의 data를 반환합니다.
- *
- * @template T 반환할 데이터 타입
- * @param path 요청할 API 경로
- * @param options fetch 요청 옵션
- * @returns API 성공 응답 데이터
- * @throws 요청 실패 시 ApiError
  */
-
-export const fetcher = async <T>(
+export async function apiClient<T>(
   path: string,
-  options: FetcherOptions = {},
-): Promise<T> => {
+  options: ApiClientOptions = {},
+): Promise<T> {
   if (!API_BASE_URL) {
     throw new Error("NEXT_PUBLIC_API_BASE_URL이 설정되지 않았습니다.");
   }
@@ -37,7 +30,6 @@ export const fetcher = async <T>(
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   });
 
-  // DELETE 등의 204 No Content 응답 처리
   if (response.status === 204) {
     return undefined as T;
   }
@@ -81,4 +73,4 @@ export const fetcher = async <T>(
   }
 
   return result.data;
-};
+}
