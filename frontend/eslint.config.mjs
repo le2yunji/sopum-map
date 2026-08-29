@@ -5,6 +5,12 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 
+const storybookFiles = [
+  "**/*.stories.@(ts|tsx|js|jsx|mjs|cjs)",
+  "**/*.story.@(ts|tsx|js|jsx|mjs|cjs)",
+  ".storybook/main.@(js|cjs|mjs|ts)",
+];
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -16,7 +22,10 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
-  ...storybook.configs["flat/recommended"]
+  ...storybook.configs["flat/recommended"].map((config) => ({
+    ...config,
+    files: config.files ?? storybookFiles,
+  })),
 ]);
 
 export default eslintConfig;
