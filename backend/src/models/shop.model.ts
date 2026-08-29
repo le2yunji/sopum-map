@@ -302,9 +302,7 @@ shopSchema.index({
 
 // 지역별 매장 조회
 shopSchema.index({
-  region1: 1,
-  region2: 1,
-  region3: 1,
+  regionGroup: 1,
 });
 
 // 매장명, 주소, 설명 검색

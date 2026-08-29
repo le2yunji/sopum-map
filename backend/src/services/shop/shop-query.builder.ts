@@ -26,9 +26,7 @@ export const buildShopMatchFilter = ({
   category,
   tagKeys,
   keyword,
-  region1,
-  region2,
-  region3,
+  regionGroup,
 }: GetShopsServiceParams): Record<string, unknown> => {
   /**
    * 모든 Shop 목록 조회의 기본 조건
@@ -65,16 +63,8 @@ export const buildShopMatchFilter = ({
     };
   }
 
-  if (region1) {
-    match.region1 = region1;
-  }
-
-  if (region2) {
-    match.region2 = region2;
-  }
-
-  if (region3) {
-    match.region3 = region3;
+  if (regionGroup) {
+    match.regionGroup = regionGroup;
   }
 
   /**
