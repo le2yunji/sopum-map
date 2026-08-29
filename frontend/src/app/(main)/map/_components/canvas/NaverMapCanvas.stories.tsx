@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, within } from "storybook/test";
 
 import { MAP_SHOPS } from "../../_data/map.fixture";
-import { NaverMapCanvas } from "../NaverMapCanvas";
+import { NaverMapCanvas } from "./NaverMapCanvas";
 
 const meta = {
   title: "Pages/MapScreen/NaverMapCanvas",
