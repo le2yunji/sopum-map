@@ -12,6 +12,7 @@ export type ShopBannerItem = {
   imageUrl: string;
   imageAlt?: string;
   region: string;
+  curatorText?: string;
   description: string;
   tags: ShopBannerTag[];
 };

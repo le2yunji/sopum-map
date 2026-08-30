@@ -26,14 +26,14 @@ export const ShopBannerCarousel = ({
         {items.map((item, index) => {
           return (
             <li
-              key={item.id}
+              key={index}
               className="
                 w-[calc(100vw-48px)] max-w-[298px]
                 shrink-0 snap-center
               "
             >
               <Link
-                href={item.href}
+                href={`/shops/${item.id}`}
                 aria-label={`${item.name} 상세 보기`}
                 className="
                   group relative block
@@ -49,7 +49,7 @@ export const ShopBannerCarousel = ({
                   fill
                   loading={index === 0 ? "eager" : "lazy"}
                   src={item.imageUrl}
-                  alt={item.imageAlt ?? `${item.name} 매장 이미지`}
+                  alt={`${item.name} 매장 이미지`}
                   sizes="(max-width: 480px) calc(100vw - 48px), 298px"
                   className="
                     object-cover
@@ -76,6 +76,10 @@ export const ShopBannerCarousel = ({
                     shadow-lg backdrop-blur-sm
                   "
                 >
+                  <p className="mt-0.5 truncate text-14 text-black-800">
+                    {item.curatorText && ` · ${item.curatorText}`}
+                  </p>
+
                   <p className="line-clamp-1 text-18 font-semibold text-black-950">
                     {item.name}
                   </p>

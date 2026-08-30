@@ -1,8 +1,10 @@
 import type { ApiSuccessResponse } from "../api/api.types";
 import type { ShopTag } from "../shop/shop.api.types";
+import type { ShopRegionGroup } from "../shop/shop.types";
 
 export type HomeCuratedShop = {
   shopId: string;
+  regionGroup: ShopRegionGroup;
 
   name: string;
   mainImageUrl: string | null;
@@ -13,8 +15,6 @@ export type HomeCuratedShop = {
 
   /**
    * 홈 큐레이션 선정 시 관리자가 작성하는 한 줄 소개.
-   *
-   * 작성하지 않은 경우 null.
    */
   curatorText: string | null;
 };
