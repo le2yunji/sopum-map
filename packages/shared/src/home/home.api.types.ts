@@ -1,4 +1,6 @@
-import type { ApiSuccessResponse, ShopRegionGroup, ShopTag } from "../index.js";
+import type { ApiSuccessResponse } from "../api/api.types";
+import type { ShopTag } from "../shop/shop.api.types";
+import type { ShopRegionGroup } from "../shop/shop.types";
 
 export type HomeCuratedShop = {
   shopId: string;
