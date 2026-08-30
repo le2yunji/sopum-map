@@ -178,7 +178,7 @@ describe("shop service", () => {
          * mapShopListItem에서
          * Math.round()를 적용하고 있음
          */
-        distance: 126,
+        distanceMeters: 126,
       });
 
       expect(result.pagination).toEqual({

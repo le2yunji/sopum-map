@@ -5,10 +5,13 @@ import type { FilterChipGroupProps } from "./FilterChipGroup.types";
 export const FilterChipGroup = ({
   items,
   selectedValue,
+  selectedValues,
   ariaLabel,
   onValueChange,
   className = "",
 }: FilterChipGroupProps) => {
+  const activeValues = selectedValues ?? (selectedValue ? [selectedValue] : []);
+
   return (
     <div
       role="group"
@@ -22,7 +25,7 @@ export const FilterChipGroup = ({
       `}
     >
       {items.map((item) => {
-        const isSelected = selectedValue === item.value;
+        const isSelected = activeValues.includes(item.value);
 
         return (
           <button
@@ -32,7 +35,7 @@ export const FilterChipGroup = ({
             onClick={() => onValueChange(item.value)}
             className={`
               shrink-0 whitespace-nowrap rounded-full
-              border px-4 py-2
+              flex items-center gap-1.5 border px-4 py-2
               text-14 transition-colors       
               focus-visible:outline-none
               focus-visible:ring-2
@@ -54,6 +57,7 @@ export const FilterChipGroup = ({
               }
             `}
           >
+            {item.icon}
             {item.label}
           </button>
         );

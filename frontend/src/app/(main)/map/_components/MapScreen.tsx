@@ -1,24 +1,26 @@
 "use client";
 
-import { useCallback, useMemo, useState, type ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 
-import { MAP_REGIONS, type MapRegion } from "../_constants/map.constants";
+import type { TagKey } from "@sopum-map/shared";
+
+import { getMapTagFilterValue } from "../_constants/map.constants";
+import { useMapScreenState } from "../_hooks/useMapScreenState";
+import { toMapShop } from "../_mappers/mapShop.mapper";
 import type { MapShop } from "../_types/map.types";
-import { filterShops } from "../_utils/filterShops";
 
-import { MapControlButtons } from "./MapControlButtons";
+import { useInfiniteShops, useShopDetail } from "@/api/shops/shop.query";
+
+import { MapLocationControls } from "./canvas/MapLocationControls";
+import { NaverMapCanvas } from "./canvas/NaverMapCanvas";
 import { MapFilterSheet } from "./MapFilterSheet";
-import { MapRegionChips } from "./MapRegionChips";
 import { MapSearchHeader } from "./MapSearchHeader";
 import { MapSearchSheet } from "./MapSearchSheet";
 import { MapSelectedShopCard } from "./MapSelectedShopCard";
 import { MapShopListSheet } from "./MapShopListSheet";
-import { NaverMapCanvas } from "./NaverMapCanvas";
-import { MapShopListSheetState } from "../_hooks/mapShopListSheet.types";
+import { MapTagFilterChips } from "./MapTagFilterChips";
 
 type MapScreenProps = Readonly<{
-  shops: MapShop[];
-
   mapSlot?: (props: {
     shops: MapShop[];
     selectedShopId?: string;
@@ -28,157 +30,91 @@ type MapScreenProps = Readonly<{
 
 const PAGE_SIZE = 10;
 
-/** 지도, 검색, 지역 필터와 상점 목록 탐색 흐름을 조합합니다. */
-export function MapScreen({ shops, mapSlot }: MapScreenProps) {
-  const [keyword, setKeyword] = useState("");
+/** 지도, 검색, 필터와 상점 탐색 화면을 조합합니다. */
+export function MapScreen({ mapSlot }: MapScreenProps) {
+  const {
+    keyword,
+    pickedOnly,
+    selectedDetailedFilters,
+    selectedShopId,
+    isFilterOpen,
+    isSearchOpen,
+    shopListSheetState,
 
-  const [selectedRegion, setSelectedRegion] = useState<MapRegion>("all");
+    setShopListSheetState,
 
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    selectShop,
+    handleKeywordChange,
+    handleShowAll,
+    handleShowPicked,
+    handleToggleDetailedFilter,
+    handleOpenFilter,
+    handleCloseFilter,
+    handleOpenSearch,
+    handleSelectSearchResult,
+    handleSearchOpenChange,
+    handleShowShopList,
+    resetFilters,
+  } = useMapScreenState();
 
-  const [selectedShopId, setSelectedShopId] = useState<string>();
-
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  const [isSelectedShopCardVisible, setIsSelectedShopCardVisible] =
-    useState(false);
-
-  const [shopListSheetState, setShopListSheetState] =
-    useState<MapShopListSheetState>("collapsed");
-
-  /** 현재 목록에 노출할 상점 개수 */
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-
-  /** 검색어/지역/태그 조건에 맞는 전체 상점 */
-  const filteredShops = useMemo(
+  /**
+   * 현재 MapTagFilter 값이 실제 TagKey라는 전제입니다.
+   *
+   * MapTagFilter에 group 필터도 포함되어 있다면
+   * group → tagKeys 변환 로직을 별도로 두어야 합니다.
+   */
+  const selectedTagKeys = useMemo(
     () =>
-      filterShops({
-        shops,
-        keyword,
-        selectedRegion,
-        selectedTags,
-      }),
-    [shops, keyword, selectedRegion, selectedTags],
+      selectedDetailedFilters.map(
+        (filter) => getMapTagFilterValue(filter) as TagKey,
+      ),
+    [selectedDetailedFilters],
   );
 
-  /** 무한스크롤을 통해 현재까지 노출된 상점 */
+  const {
+    data: shopsData,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteShops({
+    keyword: keyword.trim() || undefined,
+    tagKeys: selectedTagKeys.length > 0 ? selectedTagKeys : undefined,
+    limit: PAGE_SIZE,
+    sort: "latest",
+  });
+
+  /** 조회된 모든 페이지를 하나의 지도 상점 배열로 합칩니다. */
+  const shops = useMemo(
+    () => shopsData?.pages.flatMap((page) => page.items.map(toMapShop)) ?? [],
+    [shopsData],
+  );
+
+  /**
+   * A안에서는 pickedOnly를 아직 서버 쿼리로 보내지 않습니다.
+   *
+   * 현재 로드된 데이터 안에서만 임시로 필터링합니다.
+   */
   const visibleShops = useMemo(
-    () => filteredShops.slice(0, visibleCount),
-    [filteredShops, visibleCount],
+    () => (pickedOnly ? shops.filter((shop) => shop.isLiked) : shops),
+    [pickedOnly, shops],
   );
 
-  /** 아직 추가로 보여줄 상점이 있는지 여부 */
-  const hasNextPage = visibleCount < filteredShops.length;
+  const totalCount = shopsData?.pages[0]?.pagination.totalCount ?? 0;
 
-  /** 목록 pagination을 첫 페이지로 초기화합니다. */
-  const resetPagination = () => {
-    setVisibleCount(PAGE_SIZE);
-  };
+  /**
+   * URL에 shopId가 있으면 목록 데이터와 별개로
+   * 상세 API를 호출합니다.
+   */
+  const { data: shopDetailData } = useShopDetail(selectedShopId);
 
-  /** 무한스크롤에서 다음 상점 묶음을 노출합니다. */
-  const loadNextPage = useCallback(() => {
-    setVisibleCount((current) =>
-      Math.min(current + PAGE_SIZE, filteredShops.length),
-    );
-  }, [filteredShops.length]);
-
-  const selectedRegionLabel = useMemo(() => {
-    if (selectedRegion === "all") {
-      return undefined;
-    }
-
-    return MAP_REGIONS.find((region) => region.value === selectedRegion)?.label;
-  }, [selectedRegion]);
-
-  const selectedShop = filteredShops.find(
-    (shop) => shop.id === selectedShopId,
-  );
-  const isSelectedShopCardOpen = Boolean(
-    selectedShop && isSelectedShopCardVisible,
+  const selectedShop = useMemo(
+    () => (shopDetailData ? toMapShop(shopDetailData) : undefined),
+    [shopDetailData],
   );
 
-  /** 지도 마커나 검색 결과에서 선택한 상점 카드를 표시합니다. */
-  const selectShop = useCallback((shopId: string) => {
-    setSelectedShopId(shopId);
-    setShopListSheetState("collapsed");
-    setIsSelectedShopCardVisible(true);
-  }, []);
-
-  /** 검색 조건이 바뀔 때 이전 상점 선택을 함께 해제합니다. */
-  const clearSelectedShop = () => {
-    setSelectedShopId(undefined);
-    setIsSelectedShopCardVisible(false);
-  };
-
-  /** 검색어 변경 시 목록을 첫 페이지부터 다시 보여줍니다. */
-  const handleKeywordChange = (value: string) => {
-    setKeyword(value);
-    clearSelectedShop();
-    resetPagination();
-  };
-
-  /** 지역 변경 시 목록을 첫 페이지부터 다시 보여줍니다. */
-  const handleRegionChange = (region: MapRegion) => {
-    setSelectedRegion(region);
-    clearSelectedShop();
-    resetPagination();
-  };
-
-  /** 태그 변경 시 목록을 첫 페이지부터 다시 보여줍니다. */
-  const handleToggleTag = (tag: string) => {
-    setSelectedTags((current) =>
-      current.includes(tag)
-        ? current.filter((currentTag) => currentTag !== tag)
-        : [...current, tag],
-    );
-
-    clearSelectedShop();
-    resetPagination();
-  };
-
-  const handleOpenFilter = () => {
-    setIsFilterOpen(true);
-  };
-
-  /** 지도 검색창의 전용 검색 시트를 엽니다. */
-  const handleOpenSearch = () => {
-    setShopListSheetState("collapsed");
-    setIsSearchOpen(true);
-  };
-
-  /** 검색 결과를 지도와 상점 목록에 함께 반영합니다. */
-  const handleSelectSearchResult = (shopId: string) => {
-    selectShop(shopId);
-    setIsSearchOpen(false);
-  };
-
-  /** 검색 시트가 닫힐 때 목록 시트를 접힌 상태로 되돌립니다. */
-  const handleSearchOpenChange = (open: boolean) => {
-    setShopListSheetState("collapsed");
-    setIsSearchOpen(open);
-  };
-
-  /** 선택 카드를 닫고 상점 목록을 다시 보여줍니다. */
-  const handleShowShopList = () => {
-    setShopListSheetState("collapsed");
-    setIsSelectedShopCardVisible(false);
-  };
-
-  const handleCloseFilter = () => {
-    setIsFilterOpen(false);
-  };
-
-  /** 모든 검색 조건과 pagination을 초기화합니다. */
-  const resetFilters = () => {
-    setKeyword("");
-    setSelectedRegion("all");
-    setSelectedTags([]);
-
-    clearSelectedShop();
-    resetPagination();
-  };
+  const isSelectedShopCardOpen = selectedShop != null;
 
   return (
     <section
@@ -197,13 +133,13 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
 
       {mapSlot ? (
         mapSlot({
-          shops: filteredShops,
+          shops: visibleShops,
           selectedShopId,
           onSelectShop: selectShop,
         })
       ) : (
         <NaverMapCanvas
-          shops={filteredShops}
+          shops={visibleShops}
           selectedShopId={selectedShopId}
           onSelectShop={selectShop}
         />
@@ -226,35 +162,40 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
       >
         <MapSearchHeader
           keyword={keyword}
-          isFilterOpen={isFilterOpen}
           isSearchOpen={isSearchOpen}
           onOpenSearch={handleOpenSearch}
-          onOpenFilter={handleOpenFilter}
         />
 
-        <MapRegionChips
-          selectedRegion={selectedRegion}
-          onRegionChange={handleRegionChange}
+        <MapTagFilterChips
+          pickedOnly={pickedOnly}
+          hasDetailedFilters={selectedDetailedFilters.length > 0}
+          onShowAll={handleShowAll}
+          onShowPicked={handleShowPicked}
+          onOpenTags={handleOpenFilter}
         />
       </div>
 
-      <MapControlButtons visible={shopListSheetState === "collapsed"} />
+      <MapLocationControls
+        visible={shopListSheetState === "collapsed"}
+        className={isSelectedShopCardOpen ? "bottom-[160px]" : "bottom-[206px]"}
+      />
 
       <MapShopListSheet
         shops={visibleShops}
-        totalCount={filteredShops.length}
+        totalCount={pickedOnly ? visibleShops.length : totalCount}
         visible={!isSelectedShopCardOpen}
         state={shopListSheetState}
-        selectedRegionLabel={selectedRegionLabel}
-        selectedTagCount={selectedTags.length}
-        hasNextPage={hasNextPage}
-        isLoadingMore={false}
-        onLoadMore={loadNextPage}
+        selectedTagCount={selectedDetailedFilters.length}
+        hasNextPage={Boolean(hasNextPage)}
+        isLoadingMore={isFetchingNextPage}
+        onLoadMore={() => {
+          void fetchNextPage();
+        }}
         onStateChange={setShopListSheetState}
         onResetFilters={resetFilters}
       />
 
-      {selectedShop && isSelectedShopCardOpen ? (
+      {selectedShop ? (
         <MapSelectedShopCard
           shop={selectedShop}
           onShowList={handleShowShopList}
@@ -263,19 +204,46 @@ export function MapScreen({ shops, mapSlot }: MapScreenProps) {
 
       <MapFilterSheet
         open={isFilterOpen}
-        selectedTags={selectedTags}
-        onToggleTag={handleToggleTag}
+        selectedFilters={selectedDetailedFilters}
+        onToggleFilter={handleToggleDetailedFilter}
         onClose={handleCloseFilter}
       />
 
       <MapSearchSheet
         open={isSearchOpen}
         keyword={keyword}
-        shops={filteredShops}
+        shops={visibleShops}
+        totalCount={totalCount}
         onKeywordChange={handleKeywordChange}
         onSelectShop={handleSelectSearchResult}
         onOpenChange={handleSearchOpenChange}
       />
+
+      {isLoading ? (
+        <div role="status" className="sr-only">
+          상점 목록을 불러오는 중입니다.
+        </div>
+      ) : null}
+
+      {isError ? (
+        <div
+          role="alert"
+          className="
+            absolute
+            left-1/2
+            top-24
+            z-30
+            -translate-x-1/2
+            rounded-lg
+            bg-white
+            px-4
+            py-3
+            shadow-md
+          "
+        >
+          상점 정보를 불러오지 못했습니다.
+        </div>
+      ) : null}
     </section>
   );
 }

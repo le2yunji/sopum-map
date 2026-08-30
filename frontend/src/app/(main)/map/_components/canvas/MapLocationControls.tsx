@@ -3,23 +3,27 @@
 import { CurrentLocationIcon, LocationIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button/Button";
 
-type MapControlButtonsProps = Readonly<{
+type MapLocationControlsProps = Readonly<{
   visible?: boolean;
+  className?: string;
   onSearchCurrentArea?: () => void;
   onMoveToCurrentLocation?: () => void;
 }>;
 
-export function MapControlButtons({
+export function MapLocationControls({
   visible = true,
+  className,
   onSearchCurrentArea,
   onMoveToCurrentLocation,
-}: MapControlButtonsProps) {
+}: MapLocationControlsProps) {
   if (!visible) {
     return null;
   }
 
   return (
-    <div className="absolute bottom-[206px] left-4 z-20 flex flex-col gap-2">
+    <div
+      className={`absolute left-4 z-20 flex flex-col gap-2 ${className ?? ""}`}
+    >
       <Button
         type="button"
         variant="ghost"

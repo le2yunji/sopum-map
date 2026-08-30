@@ -24,16 +24,12 @@ describe("buildShopMatchFilter", () => {
       buildShopMatchFilter({
         ...defaultParams,
         category: "소품샵",
-        region1: "서울특별시",
-        region2: "마포구",
-        region3: "연남동",
+        regionGroup: "seongsu-seoulforest",
       }),
     ).toEqual({
       status: "active",
       category: "소품샵",
-      region1: "서울특별시",
-      region2: "마포구",
-      region3: "연남동",
+      regionGroup: "seongsu-seoulforest",
     });
   });
 

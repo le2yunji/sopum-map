@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/Button/Button";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 import type { MapShop } from "../_types/map.types";
+import { SHOP_REGION_GROUP_LABELS } from "@sopum-map/shared";
 
 type MapShopListProps = Readonly<{
   shops: MapShop[];
@@ -94,7 +95,7 @@ export function MapShopList({
               <p className="mt-1 flex items-center gap-1 text-12 text-green-700">
                 <LocationIcon className="size-3.5" />
 
-                {shop.region}
+                <span>{SHOP_REGION_GROUP_LABELS[shop.regionGroup]}</span>
               </p>
 
               <div className="mt-2 flex flex-wrap gap-1">

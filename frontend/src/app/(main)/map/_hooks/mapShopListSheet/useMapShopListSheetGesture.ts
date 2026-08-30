@@ -15,10 +15,7 @@ import {
   SNAP_DURATION,
 } from "./mapShopListSheet.constants";
 
-import {
-  getInitialTransform,
-  getNextSheetState,
-} from "./mapShopListSheet.utils";
+import { getInitialTransform, getNextSheetState } from "./mapShopListSheet";
 import { useMapShopListTouchGesture } from "./useMapShopListTouchGesture";
 import type { MapShopListSheetState } from "./mapShopListSheet.types";
 

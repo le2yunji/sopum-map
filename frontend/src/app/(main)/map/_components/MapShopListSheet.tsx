@@ -3,9 +3,11 @@
 import { Button } from "@/components/ui/Button/Button";
 import type { MapShop } from "../_types/map.types";
 import { MapShopList } from "./MapShopList";
-import type { MapShopListSheetState } from "../_hooks/mapShopListSheet.types";
-import { EXPANDED_TOP_OFFSET } from "../_hooks/mapShopListSheet.constants";
-import { useMapShopListSheetGesture } from "../_hooks/useMapShopListSheetGesture";
+import {
+  EXPANDED_TOP_OFFSET,
+  useMapShopListSheetGesture,
+  type MapShopListSheetState,
+} from "../_hooks/mapShopListSheet";
 
 type MapShopListSheetProps = Readonly<{
   /** 현재 실제로 렌더링할 상점 */

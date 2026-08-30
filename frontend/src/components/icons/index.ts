@@ -22,3 +22,4 @@ export { SettingsIcon } from "./SettingsIcon";
 export { LogoutIcon } from "./LogoutIcon";
 export { ProfileFlowerIcon } from "./ProfileFlowerIcon";
 export { FilterIcon } from "./FilterIcon";
+export { TagIcon } from "./TagIcon";

@@ -60,7 +60,7 @@ export function MapSelectedShopCard({
             </span>
             <span className="mt-1 flex items-center gap-1 text-12 text-green-700">
               <LocationIcon className="size-3.5" />
-              {shop.region}
+              {shop.regionGroup}
             </span>
             <span className="mt-3 flex gap-1 overflow-hidden">
               {shop.tags.map((tag) => (

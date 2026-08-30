@@ -3,19 +3,23 @@
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button/Button";
 
-import { MAP_TAGS } from "../_constants/map.constants";
+import {
+  getMapTagFilterValue,
+  MAP_TAG_FILTERS,
+  type MapTagFilter,
+} from "../_constants/map.constants";
 
 type MapFilterSheetProps = Readonly<{
   open: boolean;
-  selectedTags: string[];
-  onToggleTag: (tag: string) => void;
+  selectedFilters: readonly MapTagFilter[];
+  onToggleFilter: (filter: MapTagFilter) => void;
   onClose: () => void;
 }>;
 
 export function MapFilterSheet({
   open,
-  selectedTags,
-  onToggleTag,
+  selectedFilters,
+  onToggleFilter,
   onClose,
 }: MapFilterSheetProps) {
   /** 공용 BottomSheet의 제어 상태를 지도 화면의 닫기 동작으로 연결합니다. */
@@ -39,17 +43,21 @@ export function MapFilterSheet({
 
       <BottomSheet.Body>
         <div className="mt-5 flex flex-wrap gap-2">
-          {MAP_TAGS.map((tag) => {
-            const isSelected = selectedTags.includes(tag);
+          {MAP_TAG_FILTERS.map((filter) => {
+            const filterValue = getMapTagFilterValue(filter);
+            const isSelected = selectedFilters.some(
+              (selectedFilter) =>
+                getMapTagFilterValue(selectedFilter) === filterValue,
+            );
 
             return (
               <Button
-                key={tag}
+                key={filterValue}
                 type="button"
                 variant="outline"
                 size="small"
                 aria-pressed={isSelected}
-                onClick={() => onToggleTag(tag)}
+                onClick={() => onToggleFilter(filter)}
                 className={`
                   rounded-full
                   ${
@@ -59,7 +67,7 @@ export function MapFilterSheet({
                   }
                 `}
               >
-                # {tag}
+                # {filter.label}
               </Button>
             );
           })}
@@ -74,8 +82,8 @@ export function MapFilterSheet({
           fullWidth
           onClick={onClose}
         >
-          {selectedTags.length
-            ? `${selectedTags.length}개 태그 적용`
+          {selectedFilters.length
+            ? `${selectedFilters.length}개 태그 적용`
             : "전체 상점 보기"}
         </Button>
       </BottomSheet.Footer>

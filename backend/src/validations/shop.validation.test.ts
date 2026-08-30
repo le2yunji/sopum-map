@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { getShopsQuerySchema } from "./shop.validation";
+import { SHOP_REGION_GROUPS } from "@sopum-map/shared";
 
 describe("getShopsQuerySchema", () => {
   it("페이지, 개수, 정렬의 기본값을 적용한다", () => {
@@ -33,6 +34,25 @@ describe("getShopsQuerySchema", () => {
     });
   });
 
+  it("유효한 지역 그룹을 허용한다", () => {
+    const result = getShopsQuerySchema.parse({
+      regionGroup: "seongsu-seoulforest",
+    });
+
+    expect(result.regionGroup).toBe("seongsu-seoulforest");
+  });
+
+  it.each(SHOP_REGION_GROUPS)(
+    "지원하는 지역 그룹 %s을 허용한다",
+    (regionGroup) => {
+      const result = getShopsQuerySchema.safeParse({
+        regionGroup,
+      });
+
+      expect(result.success).toBe(true);
+    },
+  );
+
   it.each([
     [{ lat: "37.5" }, "location"],
     [{ lng: "127" }, "location"],
@@ -42,6 +62,7 @@ describe("getShopsQuerySchema", () => {
     const result = getShopsQuerySchema.safeParse(input);
 
     expect(result.success).toBe(false);
+
     if (!result.success) {
       expect(result.error.issues.some((issue) => issue.path[0] === path)).toBe(
         true,
@@ -59,6 +80,7 @@ describe("getShopsQuerySchema", () => {
     const result = getShopsQuerySchema.safeParse(input);
 
     expect(result.success).toBe(false);
+
     if (!result.success) {
       expect(result.error.issues.some((issue) => issue.path[0] === path)).toBe(
         true,
@@ -66,19 +88,31 @@ describe("getShopsQuerySchema", () => {
     }
   });
 
-  it.each([
-    [{ keyword: "가".repeat(101) }, "keyword"],
-    [{ region1: "가".repeat(31) }, "region1"],
-    [{ region2: "가".repeat(31) }, "region2"],
-    [{ region3: "가".repeat(31) }, "region3"],
-  ])("너무 긴 검색 조건 %o을 거부한다", (input, path) => {
-    const result = getShopsQuerySchema.safeParse(input);
+  it("너무 긴 검색어를 거부한다", () => {
+    const result = getShopsQuerySchema.safeParse({
+      keyword: "가".repeat(101),
+    });
 
     expect(result.success).toBe(false);
+
     if (!result.success) {
-      expect(result.error.issues.some((issue) => issue.path[0] === path)).toBe(
-        true,
-      );
+      expect(
+        result.error.issues.some((issue) => issue.path[0] === "keyword"),
+      ).toBe(true);
+    }
+  });
+
+  it("지원하지 않는 지역 그룹을 거부한다", () => {
+    const result = getShopsQuerySchema.safeParse({
+      regionGroup: "gangnam",
+    });
+
+    expect(result.success).toBe(false);
+
+    if (!result.success) {
+      expect(
+        result.error.issues.some((issue) => issue.path[0] === "regionGroup"),
+      ).toBe(true);
     }
   });
 });

@@ -22,6 +22,13 @@ export const TAG_DEFINITIONS = [
     isActive: true,
   },
   {
+    key: "vintage",
+    selectionLabel: "빈티지한 소품이 많아요",
+    shortLabel: "빈티지",
+    group: "mood",
+    isActive: true,
+  },
+  {
     key: "cozy",
     selectionLabel: "포근한 감성이에요",
     shortLabel: "포근한 감성",
@@ -247,13 +254,7 @@ export const TAG_DEFINITIONS = [
     group: "shopping",
     isActive: true,
   },
-  {
-    key: "good_for_collecting",
-    selectionLabel: "소장욕구 자극하는 상품이 많아요",
-    shortLabel: "소장욕구",
-    group: "shopping",
-    isActive: true,
-  },
+
   {
     key: "good_for_souvenir",
     selectionLabel: "기념품 고르기 좋아요",
@@ -265,13 +266,6 @@ export const TAG_DEFINITIONS = [
     key: "good_for_browsing",
     selectionLabel: "구경하는 재미가 있어요",
     shortLabel: "구경맛집",
-    group: "shopping",
-    isActive: true,
-  },
-  {
-    key: "impulse_buy",
-    selectionLabel: "자꾸 하나씩 집게 돼요",
-    shortLabel: "충동구매 주의",
     group: "shopping",
     isActive: true,
   },
@@ -428,16 +422,9 @@ export const TAG_DEFINITIONS = [
     isActive: true,
   },
   {
-    key: "sns_trending",
-    selectionLabel: "SNS에서 자주 보던 아이템이 있어요",
-    shortLabel: "SNS 유행템",
-    group: "trend",
-    isActive: true,
-  },
-  {
-    key: "new_trend_item",
-    selectionLabel: "요즘 뜨는 유행템이 있어요",
-    shortLabel: "요즘 유행템",
+    key: "trend_item",
+    selectionLabel: "유행템이 있어요",
+    shortLabel: "유행템",
     group: "trend",
     isActive: true,
   },

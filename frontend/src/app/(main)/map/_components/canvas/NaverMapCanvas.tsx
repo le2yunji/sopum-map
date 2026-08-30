@@ -5,8 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 
-import type { MapSdkState, MapShop } from "../_types/map.types";
-import { getMapMarkerIcon } from "../_utils/mapMarker";
+import type { MapSdkState, MapShop } from "../../_types/map.types";
+import { getMapMarkerIcon } from "../../_utils/mapMarker";
 import { NaverMapScript } from "./NaverMapScript";
 
 type NaverMapCanvasProps = Readonly<{
@@ -189,7 +189,11 @@ export function NaverMapCanvas({
       {visibleState !== "ready" ? (
         <div className="absolute inset-0 grid place-items-center bg-green-50 px-8 text-center">
           {visibleState === "loading" ? (
-            <div className="w-full" role="status" aria-label="지도를 불러오는 중">
+            <div
+              className="w-full"
+              role="status"
+              aria-label="지도를 불러오는 중"
+            >
               <Skeleton className="h-64 w-full rounded-3xl" />
             </div>
           ) : (

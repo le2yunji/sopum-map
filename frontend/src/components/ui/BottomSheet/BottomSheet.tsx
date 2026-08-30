@@ -85,7 +85,10 @@ function BottomSheetRoot({
 }
 
 /** BottomSheet의 시작점을 알려주는 장식 손잡이를 표시합니다. */
-function BottomSheetHandle({ className = "", ...props }: BottomSheetSectionProps) {
+function BottomSheetHandle({
+  className = "",
+  ...props
+}: BottomSheetSectionProps) {
   return (
     <div
       {...props}
@@ -99,7 +102,10 @@ function BottomSheetHandle({ className = "", ...props }: BottomSheetSectionProps
 }
 
 /** BottomSheet 제목 영역을 일정한 간격으로 배치합니다. */
-function BottomSheetHeader({ className = "", ...props }: BottomSheetSectionProps) {
+function BottomSheetHeader({
+  className = "",
+  ...props
+}: BottomSheetSectionProps) {
   return <div {...props} className={["mt-6", className].join(" ")} />;
 }
 
@@ -117,17 +123,20 @@ function BottomSheetTitle({ className = "", ...props }: BottomSheetTitleProps) {
 }
 
 /** 선택 항목이나 기능 콘텐츠를 본문 영역에 배치합니다. */
-function BottomSheetBody({ className = "", ...props }: BottomSheetSectionProps) {
+function BottomSheetBody({
+  className = "",
+  ...props
+}: BottomSheetSectionProps) {
   return <div {...props} className={["mt-6", className].join(" ")} />;
 }
 
 /** BottomSheet의 주요 액션을 하단에 배치합니다. */
-function BottomSheetFooter({ className = "", ...props }: BottomSheetSectionProps) {
+function BottomSheetFooter({
+  className = "",
+  ...props
+}: BottomSheetSectionProps) {
   return (
-    <div
-      {...props}
-      className={["mt-6 flex w-full", className].join(" ")}
-    />
+    <div {...props} className={["mt-6 flex w-full", className].join(" ")} />
   );
 }
 

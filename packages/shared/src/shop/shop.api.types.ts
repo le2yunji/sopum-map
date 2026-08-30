@@ -6,6 +6,7 @@ import { SHOP_SORTS } from "./shop.constants";
 import type {
   ShopCategory,
   ShopImageSourceType,
+  ShopRegionGroup,
   ShopSourceType,
   ShopStatus,
 } from "./shop.types";
@@ -16,9 +17,7 @@ export type GetShopsQuery = {
   category?: ShopCategory;
   tagKeys?: TagKey[];
   keyword?: string;
-  region1?: string;
-  region2?: string;
-  region3?: string;
+  regionGroup?: ShopRegionGroup;
   lat?: number;
   lng?: number;
   radius?: number;
@@ -41,23 +40,31 @@ export type ShopImage = {
   order: number;
 };
 
-export type ShopListItem = {
+export type ShopBaseData = {
   id: string;
   category: ShopCategory;
   tags: ShopTag[];
   name: string;
   address: string;
+
+  mainImageUrl: string | null;
+
   region1: string;
   region2: string;
   region3: string | null;
+  regionGroup: ShopRegionGroup;
+
   latitude: number;
   longitude: number;
-  mainImageUrl: string | null;
+
   status: ShopStatus;
   likeCount: number;
   visitLogCount: number;
   isLiked: boolean;
-  distance?: number;
+};
+
+export type ShopListItem = ShopBaseData & {
+  distanceMeters?: number;
 };
 
 export type ShopListData = {
@@ -65,36 +72,23 @@ export type ShopListData = {
   pagination: Pagination;
 };
 
-/**
- * GET /api/shops 성공 응답
- */
-export type GetShopsResponse = ApiSuccessResponse<ShopListData>;
-
-export type ShopDetailData = {
-  id: string;
-  category: ShopCategory;
-  tags: ShopTag[];
-  name: string;
-  address: string;
-  region1: string;
-  region2: string;
-  region3: string | null;
-  latitude: number;
-  longitude: number;
+export type ShopDetailData = ShopBaseData & {
   phone: string | null;
   description: string | null;
   openingHours: string | null;
   instagramUrl: string | null;
   naverMapUrl: string | null;
+
   images: ShopImage[];
   sourceType: ShopSourceType;
-  status: ShopStatus;
-  likeCount: number;
-  visitLogCount: number;
-  isLiked: boolean;
   createdAt: string;
   updatedAt: string;
 };
+
+/**
+ * GET /api/shops 성공 응답
+ */
+export type GetShopsResponse = ApiSuccessResponse<ShopListData>;
 
 /**
  * GET /api/shops/:shopId 성공 응답

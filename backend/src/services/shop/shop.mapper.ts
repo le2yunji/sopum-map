@@ -63,7 +63,7 @@ const mapShopImage = (
 };
 
 /**
- * Shop 문서를 GET /shops의 개별 목록 항목으로 변환한다.
+ * Shop 문서를 GET /api/shops의 개별 목록 항목으로 변환한다.
  */
 export const mapShopListItem = ({
   shop,
@@ -81,6 +81,7 @@ export const mapShopListItem = ({
     region1: shop.region1,
     region2: shop.region2,
     region3: shop.region3 ?? null,
+    regionGroup: shop.regionGroup,
     latitude,
     longitude,
     mainImageUrl: getMainImageUrl(shop.images),
@@ -94,7 +95,7 @@ export const mapShopListItem = ({
    * $geoNear를 사용한 경우에만 distance가 존재한다.
    */
   if (shop.distance !== undefined) {
-    item.distance = Math.round(shop.distance);
+    item.distanceMeters = Math.round(shop.distance);
   }
 
   return item;
@@ -107,6 +108,9 @@ export const mapShopListItem = ({
  * MongoDB Shop → Shop 상세 API 응답
  */
 export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
+  const [longitude, latitude] = shop.location.coordinates;
+  const images = sortShopImages(shop.images ?? []);
+
   return {
     id: shop._id.toString(),
     category: shop.category,
@@ -116,21 +120,23 @@ export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
     region1: shop.region1,
     region2: shop.region2,
     region3: shop.region3 ?? null,
-
+    regionGroup: shop.regionGroup,
     /**
      * GeoJSON:
      *
      * coordinates[0] = longitude
      * coordinates[1] = latitude
      */
-    longitude: shop.location.coordinates[0],
-    latitude: shop.location.coordinates[1],
+    latitude,
+    longitude,
     phone: shop.phone ?? null,
     description: shop.description ?? null,
     openingHours: shop.openingHours ?? null,
     instagramUrl: shop.instagramUrl ?? null,
     naverMapUrl: shop.naverMapUrl ?? null,
-    images: sortShopImages(shop.images ?? []).map(mapShopImage),
+
+    images: images.map(mapShopImage),
+    mainImageUrl: images[0]?.imageUrl ?? null,
     sourceType: shop.sourceType,
     status: shop.status,
     likeCount: shop.likeCount ?? 0,
