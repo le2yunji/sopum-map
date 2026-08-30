@@ -22,7 +22,7 @@ export type HomeCourse = Readonly<{
   tags: string[];
 }>;
 
-export type HomeData = Readonly<{
+export type HomeCurationData = Readonly<{
   curation: ShopBannerItem[];
   categories: HomeCategory[];
   shopsByCategory: Readonly<Record<string, HomeShop[]>>;

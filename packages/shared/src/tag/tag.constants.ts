@@ -1,3 +1,5 @@
+import { TagKey } from "./tag.types";
+
 export const TAG_GROUPS = [
   "mood",
   "product",
@@ -441,3 +443,23 @@ export const TAG_KEYS = TAG_DEFINITIONS.map((tag) => tag.key);
 export const ACTIVE_TAG_DEFINITIONS = TAG_DEFINITIONS.filter(
   (tag) => tag.isActive,
 );
+
+/**
+ * 태그 key로 짧은 노출명을 조회
+ *
+ * 예:
+ * cute -> 아기자기
+ */
+export const TAG_SHORT_LABELS = Object.fromEntries(
+  TAG_DEFINITIONS.map(({ key, shortLabel }) => [key, shortLabel]),
+) as Record<TagKey, string>;
+
+/**
+ * 태그 key로 긴 노출명을 조회
+ *
+ * 예:
+ * cute -> 아기자기한 소품이 많아요
+ */
+export const TAG_SELECTION_LABELS = Object.fromEntries(
+  TAG_DEFINITIONS.map(({ key, selectionLabel }) => [key, selectionLabel]),
+) as Record<TagKey, string>;

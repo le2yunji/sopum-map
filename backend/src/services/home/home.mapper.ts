@@ -8,7 +8,7 @@ type HomeCurationItem = HomeShopCurationSchemaType["items"][number];
 
 type HomeShopSource = Pick<
   ShopSchemaType,
-  "name" | "description" | "images" | "tagStats"
+  "name" | "description" | "images" | "tagStats" | "regionGroup"
 > & {
   _id: Types.ObjectId;
 };
@@ -40,6 +40,7 @@ export const buildHomeCuratedShops = (
         {
           shopId: shop._id.toString(),
           name: shop.name,
+          regionGroup: shop.regionGroup,
 
           mainImageUrl: getMainShopImageUrl(shop.images),
 
