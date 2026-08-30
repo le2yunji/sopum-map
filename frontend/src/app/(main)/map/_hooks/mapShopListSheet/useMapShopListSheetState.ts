@@ -1,23 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MapShopListSheetState } from "./mapShopListSheet.types";
 
+/** 지도 진입 시 목록 시트를 접힌 상태로 시작하고 현재 상태를 관리합니다. */
 export function useMapShopListSheetState() {
   const [state, setState] = useState<MapShopListSheetState>("collapsed");
 
-  useEffect(() => {
-    const savedState = sessionStorage.getItem("map-shop-list-sheet-state");
-
-    if (savedState === "collapsed" || savedState === "expanded") {
-      setState(savedState);
-    }
-  }, []);
-
+  /** 사용자 조작에 따라 목록 시트의 표시 상태를 변경합니다. */
   const changeState = (nextState: MapShopListSheetState) => {
     setState(nextState);
-
-    sessionStorage.setItem("map-shop-list-sheet-state", nextState);
   };
 
   return [state, changeState] as const;
