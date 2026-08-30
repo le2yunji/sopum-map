@@ -61,6 +61,7 @@ export const getHomeCuratedShops = async (): Promise<HomeCuratedShops> => {
       description: 1,
       images: 1,
       tagStats: 1,
+      regionGroup: 1,
     })
     .lean();
 

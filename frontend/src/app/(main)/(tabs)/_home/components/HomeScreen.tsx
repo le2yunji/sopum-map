@@ -1,33 +1,20 @@
-import type { HomeData } from "../types/home.types";
 import { HomeBrandMessage } from "./HomeBrandMessage";
 
 import { HomeCategorySection } from "./HomeCategorySection";
 import { HomeCourseSection } from "./HomeCourseSection";
+import { HomeCuratedShopSection } from "./HomeCuratedShopSection";
 import { HomeHeader } from "./HomeHeader";
-import { ShopBannerCarousel } from "@/components/ui/ShopBannerCarousel/ShopBannerCarousel";
 
-type Props = Readonly<{
-  data: HomeData;
-  initialCategory?: string;
-}>;
-
-export function HomeScreen({ initialCategory = "all" }: Props) {
+export function HomeScreen() {
   return (
     <main className="bg-white pb-8">
       <HomeHeader />
 
-      <ShopBannerCarousel
-        items={data.curation}
-        ariaLabel="오늘의 추천 소품샵"
-      />
+      <HomeCuratedShopSection />
 
-      <HomeCategorySection
-        categories={data.categories}
-        shopsByCategory={data.shopsByCategory}
-        initialCategory={initialCategory}
-      />
+      <HomeCategorySection />
 
-      <HomeCourseSection courses={data.courses} />
+      <HomeCourseSection />
 
       <HomeBrandMessage />
     </main>

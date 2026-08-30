@@ -1,27 +1,50 @@
 "use client";
 
+import { SHOP_CATEGORIES, type ShopCategory } from "@sopum-map/shared";
 import { useState } from "react";
 
+import { useInfiniteShops } from "@/api/shops/shop.query";
 import { PickAction } from "@/components/pick/PickAction";
 import { FilterChipGroup } from "@/components/ui/FilterChipGroup/FilterChipGroup";
 import { ShopCard } from "@/components/ui/ShopCard/ShopCard";
 
-import type { HomeData } from "../types/home.types";
+import { toHomeShopCardItem } from "../mappers/homeShopCard.mapper";
 
-type Props = Readonly<{
-  categories: HomeData["categories"];
-  shopsByCategory: HomeData["shopsByCategory"];
-  initialCategory?: string;
+type HomeCategory = "all" | ShopCategory;
+
+const HOME_CATEGORY_ITEMS = [
+  {
+    value: "all",
+    label: "전체",
+  },
+
+  ...SHOP_CATEGORIES.map((category) => ({
+    value: category,
+    label: category,
+  })),
+] satisfies ReadonlyArray<{
+  value: HomeCategory;
+  label: string;
 }>;
 
-export function HomeCategorySection({
-  categories,
-  shopsByCategory,
-  initialCategory = "all",
-}: Props) {
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+export function HomeCategorySection() {
+  const [selectedCategory, setSelectedCategory] = useState<HomeCategory>("all");
 
-  const selectedShops = shopsByCategory[selectedCategory] ?? [];
+  const { data, isLoading, isError } = useInfiniteShops({
+    category: selectedCategory === "all" ? undefined : selectedCategory,
+
+    limit: 10,
+
+    sort: "latest",
+  });
+
+  const shops = data?.pages.flatMap((page) => page.items) ?? [];
+
+  const shopItems = shops.map(toHomeShopCardItem);
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value as HomeCategory);
+  };
 
   return (
     <section aria-labelledby="home-category-title" className="mt-8">
@@ -34,14 +57,28 @@ export function HomeCategorySection({
       </div>
 
       <FilterChipGroup
-        items={categories}
+        items={HOME_CATEGORY_ITEMS}
         selectedValue={selectedCategory}
-        onValueChange={setSelectedCategory}
+        onValueChange={handleCategoryChange}
         ariaLabel="상점 카테고리"
         className="mt-3 px-4"
       />
 
-      {selectedShops.length > 0 ? (
+      {isLoading ? (
+        <div
+          role="status"
+          className="px-4 py-8 text-center text-13 text-black-500"
+        >
+          상점을 불러오고 있어요
+        </div>
+      ) : isError ? (
+        <div
+          role="alert"
+          className="px-4 py-8 text-center text-13 text-black-500"
+        >
+          상점을 불러오지 못했어요
+        </div>
+      ) : shopItems.length > 0 ? (
         <ul
           className="
             mt-4 flex gap-3
@@ -50,7 +87,7 @@ export function HomeCategorySection({
             [&::-webkit-scrollbar]:hidden
           "
         >
-          {selectedShops.map((shop) => (
+          {shopItems.map((shop) => (
             <li key={shop.id} className="w-40 shrink-0">
               <PickAction shopId={shop.id} initialIsPicked={shop.isLiked}>
                 {({ isPicked, onToggle }) => (
