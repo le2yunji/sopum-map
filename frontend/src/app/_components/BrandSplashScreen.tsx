@@ -1,8 +1,8 @@
 import { SparkleIcon } from "@/components/icons/SparkleIcon";
 import Image from "next/image";
 
-/** 앱이 준비되는 동안 소품지도의 브랜드 가치를 안내합니다. */
-export function BrandLoadingScreen() {
+/** 소품지도의 브랜드 메시지를 보여주는 스플래시 화면입니다. */
+export function BrandSplashScreen() {
   return (
     <main className="relative flex min-h-dvh flex-col overflow-hidden bg-white px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))]">
       <div
@@ -15,7 +15,7 @@ export function BrandLoadingScreen() {
       />
 
       <section
-        aria-labelledby="onboarding-title"
+        aria-labelledby="brand-title"
         className="relative z-10 flex flex-1 flex-col items-center justify-center text-center"
       >
         <div className="relative mb-7 size-36 motion-safe:animate-[onboarding-float_3.6s_ease-in-out_infinite] min-[390px]:size-40">
@@ -41,14 +41,13 @@ export function BrandLoadingScreen() {
         </div>
 
         <h1
-          id="onboarding-title"
+          id="brand-title"
           className="text-24 font-bold tracking-[-0.04em] text-green-700"
         >
           소품지도
         </h1>
-        <p className="mt-3 max-w-72 text-16 leading-7 text-black-800">
-          취향에 맞는 소품샵을 찾고,
-          <br />내 픽으로 모아 코스를 만들어보세요.
+        <p className="mt-3 text-16 leading-7 text-black-800">
+          행운을 찾는 소품산책
         </p>
       </section>
 

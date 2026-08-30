@@ -11,18 +11,17 @@ function createRequest(path: string, cookie?: string): NextRequest {
 }
 
 describe("proxy", () => {
-  it.each([
-    ["/", "/"],
-    ["/login", "/login"],
-    ["/login?from=home", "/login?from=home"],
-  ])("첫 방문 요청 %s를 원래 목적지와 함께 온보딩으로 보낸다", (path, next) => {
-    const response = proxy(createRequest(path));
-    const location = new URL(response.headers.get("location") ?? "");
+  it.each(["/", "/login", "/login?from=home"])(
+    "첫 방문 요청 %s를 온보딩으로 보낸다",
+    (path) => {
+      const response = proxy(createRequest(path));
+      const location = new URL(response.headers.get("location") ?? "");
 
-    expect(response.status).toBe(307);
-    expect(location.pathname).toBe("/onboarding");
-    expect(location.searchParams.get("next")).toBe(next);
-  });
+      expect(response.status).toBe(307);
+      expect(location.pathname).toBe("/onboarding");
+      expect(location.search).toBe("");
+    },
+  );
 
   it("완료 쿠키가 있으면 요청을 그대로 통과시킨다", () => {
     const response = proxy(

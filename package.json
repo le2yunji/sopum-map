@@ -13,7 +13,7 @@
   },
   "lint-staged": {
     "frontend/**/*.{js,jsx,ts,tsx}": [
-      "pnpm --dir frontend exec eslint --fix"
+      "pnpm --dir frontend exec eslint --fix --cache --cache-location .next/cache/eslint/.eslintcache"
     ]
   }
 }

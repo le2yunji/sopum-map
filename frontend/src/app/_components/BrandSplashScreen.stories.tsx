@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
 
-import { BrandLoadingScreen } from "./BrandLoadingScreen";
+import { BrandSplashScreen } from "./BrandSplashScreen";
 
 const meta = {
   title: "Pages/Onboarding",
-  component: BrandLoadingScreen,
+  component: BrandSplashScreen,
   parameters: {
     layout: "fullscreen",
   },
-} satisfies Meta<typeof BrandLoadingScreen>;
+} satisfies Meta<typeof BrandSplashScreen>;
 
 export default meta;
 
@@ -25,6 +25,8 @@ export const Default: Story = {
     await expect(
       canvas.getByRole("img", { name: "소품지도 심볼" }),
     ).toBeInTheDocument();
+    await expect(canvas.getByText("행운을 찾는 소품산책")).toBeInTheDocument();
+    await expect(canvas.queryByRole("button")).not.toBeInTheDocument();
   },
 };
 
