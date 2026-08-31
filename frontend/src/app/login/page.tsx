@@ -29,9 +29,9 @@ export default function LoginPage() {
           />
         </div>
         <div className="flex w-full flex-col gap-2.5 items-center justify-center">
-          <SocialLoginButton provider="naver" />
+          {/* <SocialLoginButton provider="naver" />
 
-          <SocialLoginButton provider="google" />
+          <SocialLoginButton provider="google" /> */}
 
           <SocialLoginButton provider="apple" />
 

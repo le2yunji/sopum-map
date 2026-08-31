@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import { env } from "./config/env";
 import { errorMiddleware } from "./middlewares/error.middleware";
+
+import { authRouter } from "./routes/auth.routes.js";
 import { shopRouter } from "./routes/shop.routes";
 import { homeRouter } from "./routes/home.routes";
 
@@ -23,6 +25,7 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+app.use("/api/auth", authRouter);
 app.use("/api/home", homeRouter);
 app.use("/api/shops", shopRouter);
 

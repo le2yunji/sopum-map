@@ -1,0 +1,1 @@
+export const OAUTH_TRANSACTION_TTL_MS = 10 * 60 * 1000;
