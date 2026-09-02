@@ -29,6 +29,9 @@ jobs:
     env:
       MONGODB_URI: mongodb://127.0.0.1:27017/sopum_map_test
       CLIENT_ORIGIN: http://127.0.0.1:3000
+      KAKAO_REST_API_KEY: test-kakao-rest-api-key
+      KAKAO_CLIENT_SECRET: test-kakao-client-secret
+      KAKAO_REDIRECT_URI: http://127.0.0.1:4000/api/auth/kakao/callback
 
     steps:
       - name: Checkout repository
