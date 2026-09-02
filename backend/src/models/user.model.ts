@@ -6,8 +6,8 @@ const userSchema = new Schema(
       type: String,
       trim: true,
       minlength: 2,
-      maxlength: 10,
-      default: "",
+      maxlength: 12,
+      unique: true,
     },
 
     profileImage: {

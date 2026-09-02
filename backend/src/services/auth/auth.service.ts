@@ -18,6 +18,10 @@ import { createSecureToken, hashToken } from "../../utils/secure-token.js";
 
 import { AUTH_SESSION_TTL_MS } from "./auth.constants.js";
 
+import { NICKNAME_GENERATION_MAX_RETRIES } from "../../constants/nickname.constants.js";
+
+import { createRandomNickname } from "../../utils/random-nickname.js";
+
 export async function startOAuthLogin(
   provider: OAuthProvider,
   returnTo?: string,
@@ -114,7 +118,7 @@ export async function findOrCreateAuthUser(socialIdentity: SocialIdentity) {
   });
 
   /**
-   * 이미 AuthIdentity가 존재하면 기존 회원입니다.
+   * 기존 회원
    */
   if (authIdentity) {
     const user = await UserModel.findById(authIdentity.userId);
@@ -138,14 +142,12 @@ export async function findOrCreateAuthUser(socialIdentity: SocialIdentity) {
   }
 
   /**
-   * AuthIdentity가 없다면 처음 로그인한 사용자입니다.
+   * 신규 회원
    *
-   * 우리 서비스 User를 먼저 생성합니다.
-   *
-   * nickname/profileImage 등은 Schema의
-   * 기본값을 사용합니다.
+   * 중복되지 않는 기본 랜덤 닉네임으로
+   * User를 생성합니다.
    */
-  const user = await UserModel.create({});
+  const user = await createUserWithRandomNickname();
 
   /**
    * 새 User와 Kakao 계정을 연결합니다.
@@ -276,4 +278,61 @@ export async function deleteAuthSession(sessionToken: string) {
   await AuthSessionModel.deleteOne({
     tokenHash,
   });
+}
+
+/**
+ * MongoDB duplicate key error인지 확인합니다.
+ *
+ * MongoDB unique index가 충돌하면
+ * error.code === 11000이 발생합니다.
+ */
+function isDuplicateKeyError(error: unknown): error is { code: number } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === 11000
+  );
+}
+
+/**
+ * 신규 사용자를 랜덤 닉네임으로 생성합니다.
+ */
+async function createUserWithRandomNickname() {
+  for (
+    let attempt = 0;
+    attempt < NICKNAME_GENERATION_MAX_RETRIES;
+    attempt += 1
+  ) {
+    /**
+     * 매 시도마다 완전히 새로운 닉네임 조합을 생성합니다.
+     *
+     * 예:
+     * 1차 → 말랑토끼042
+     * 충돌
+     *
+     * 2차 → 포근여우731
+     */
+    const nickname = createRandomNickname();
+
+    try {
+      return await UserModel.create({
+        nickname,
+      });
+    } catch (error) {
+      /**
+       * nickname unique 충돌이 아닌 DB 오류는
+       * 재시도하지 않고 그대로 전달합니다.
+       */
+      if (!isDuplicateKeyError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * 매우 드문 경우지만 계속 충돌한다면
+   * 무한 루프에 빠지지 않고 실패 처리합니다.
+   */
+  throw new Error("사용 가능한 랜덤 닉네임을 생성하지 못했습니다.");
 }
