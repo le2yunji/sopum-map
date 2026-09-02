@@ -1,7 +1,7 @@
 import type { ShopSort } from "@sopum-map/shared";
 import type { PipelineStage } from "mongoose";
 
-import type { GetShopsServiceParams } from "./shop.service.types";
+import type { GetShopsServiceParams } from "./shop.service.types.js";
 
 const escapeRegExp = (value: string): string => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
