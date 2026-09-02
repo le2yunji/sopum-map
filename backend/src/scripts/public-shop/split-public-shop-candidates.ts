@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { PublicShopCandidate } from "./public-shop.types";
+import type { PublicShopCandidate } from "./public-shop.types.js";
 
 /**
  * 전체 후보 파일.

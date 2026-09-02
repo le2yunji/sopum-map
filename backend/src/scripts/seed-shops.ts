@@ -5,8 +5,8 @@ import path from "node:path";
 
 import mongoose from "mongoose";
 
-import { env } from "../config/env";
-import ShopModel from "../models/shop.model";
+import { env } from "../config/env.js";
+import ShopModel from "../models/shop.model.js";
 
 type FinalShop = {
   sourceId: string;

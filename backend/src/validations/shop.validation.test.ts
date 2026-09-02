@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { getShopsQuerySchema } from "./shop.validation";
+import { getShopsQuerySchema } from "./shop.validation.js";
 import { SHOP_REGION_GROUPS } from "@sopum-map/shared";
 
 describe("getShopsQuerySchema", () => {

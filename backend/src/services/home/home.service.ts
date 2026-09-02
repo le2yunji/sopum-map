@@ -1,9 +1,9 @@
 import type { HomeCuratedShops } from "@sopum-map/shared";
 
-import HomeShopCurationModel from "../../models/home-shop-curation.model";
-import ShopModel from "../../models/shop.model";
+import HomeShopCurationModel from "../../models/home-shop-curation.model.js";
+import ShopModel from "../../models/shop.model.js";
 
-import { buildHomeCuratedShops } from "./home.mapper";
+import { buildHomeCuratedShops } from "./home.mapper.js";
 
 /**
  * 현재 홈 화면에 노출할 데이터를 조회한다.

@@ -1,8 +1,8 @@
 import type { HomeCuratedShop } from "@sopum-map/shared";
 import type { Types } from "mongoose";
-import type { HomeShopCurationSchemaType } from "../../models/home-shop-curation.model";
-import type { ShopSchemaType } from "../../models/shop.model";
-import { getMainShopImageUrl } from "../../utils/shop-image";
+import type { HomeShopCurationSchemaType } from "../../models/home-shop-curation.model.js";
+import type { ShopSchemaType } from "../../models/shop.model.js";
+import { getMainShopImageUrl } from "../../utils/shop-image.js";
 
 type HomeCurationItem = HomeShopCurationSchemaType["items"][number];
 

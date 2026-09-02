@@ -3,11 +3,11 @@ import type {
   GetShopsResponse,
   GetShopDetailResponse,
 } from "@sopum-map/shared";
-import { getShops, getShopById } from "../services/shop/shop.service";
+import { getShops, getShopById } from "../services/shop/shop.service.js";
 import {
   getShopDetailParamsSchema,
   getShopsQuerySchema,
-} from "../validations/shop.validation";
+} from "../validations/shop.validation.js";
 
 /**
  * GET /api/shops

@@ -1,4 +1,4 @@
-import type { PublicShopRegionGroup } from "./public-shop.config";
+import type { PublicShopRegionGroup } from "./public-shop.config.js";
 
 export type PublicShopSelectionReason =
   | "name_sopum"

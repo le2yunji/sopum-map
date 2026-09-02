@@ -1,7 +1,7 @@
 import {
   getShopDetailController,
   getShopsController,
-} from "../controllers/shop.controller";
+} from "../controllers/shop.controller.js";
 import { Router } from "express";
 
 // import { optionalAuthMiddleware } from "../middlewares/optional-auth.middleware";
