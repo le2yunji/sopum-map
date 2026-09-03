@@ -2,7 +2,7 @@
 
 import type { Types } from "mongoose";
 
-import type { ShopSchemaType } from "../../models/shop.model";
+import type { ShopSchemaType } from "../../models/shop.model.js";
 
 /**
  * MongoDB에서 조회한 Shop 문서 형태

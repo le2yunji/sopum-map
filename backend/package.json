@@ -1,5 +1,6 @@
 {
   "name": "backend",
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "dist/server.js",
@@ -20,14 +21,17 @@
   "packageManager": "pnpm@10.34.4",
   "dependencies": {
     "@sopum-map/shared": "workspace:*",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "csv-parse": "^7.0.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "jose": "^6.2.10",
     "mongoose": "^9.7.3",
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^26.1.0",

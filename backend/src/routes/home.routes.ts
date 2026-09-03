@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getHomeCuratedShopsController } from "../controllers/home.controller";
+import { getHomeCuratedShopsController } from "../controllers/home.controller.js";
 
 export const homeRouter = Router();
 

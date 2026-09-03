@@ -13,7 +13,7 @@ import {
   NAVER_REFERENCE_STATUS,
   REQUIRED_LARGE_CATEGORY,
   SOPUM_NAME_KEYWORD,
-} from "./public-shop.config";
+} from "./public-shop.config.js";
 
 import type {
   MatchedNaverReference,
@@ -23,7 +23,7 @@ import type {
   PublicShopCandidate,
   PublicShopSelectionReason,
   UnmatchedNaverReference,
-} from "./public-shop.types";
+} from "./public-shop.types.js";
 
 import {
   calculateDistanceMeters,
@@ -33,7 +33,7 @@ import {
   normalizeOptionalString,
   normalizeShopName,
   parseOptionalNumber,
-} from "./public-shop.utils";
+} from "./public-shop.utils.js";
 
 const PUBLIC_RAW_PATH = path.resolve(
   process.cwd(),
@@ -320,22 +320,20 @@ function createMatchCandidate(
 
     nameSimilarity = 1;
   } else if (referenceName === publicName) {
-
-  /**
-   * ----------------------------------------------------------
-   * 공백/기호 제거 후 일치
-   * ----------------------------------------------------------
-   */
+    /**
+     * ----------------------------------------------------------
+     * 공백/기호 제거 후 일치
+     * ----------------------------------------------------------
+     */
     type = "normalized";
 
     nameSimilarity = 1;
   } else {
-
-  /**
-   * ----------------------------------------------------------
-   * 부분 이름 매칭
-   * ----------------------------------------------------------
-   */
+    /**
+     * ----------------------------------------------------------
+     * 부분 이름 매칭
+     * ----------------------------------------------------------
+     */
     const shorterLength = Math.min(referenceName.length, publicName.length);
 
     /**

@@ -13,7 +13,7 @@ vi.mock("../../models/shop.model", () => ({
   },
 }));
 
-import { getShopById, getShops } from "./shop.service";
+import { getShopById, getShops } from "./shop.service.js";
 
 const shopId = new Types.ObjectId("64b000000000000000000001");
 

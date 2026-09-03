@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import ShopModel from "./shop.model";
+import ShopModel from "./shop.model.js";
 
 /** 모델 검증에 필요한 최소 상점 문서를 생성합니다. */
 const createShop = () => {

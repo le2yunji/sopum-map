@@ -1,7 +1,7 @@
 import {
   PUBLIC_SHOP_REGIONS,
   type PublicShopRegionGroup,
-} from "./public-shop.config";
+} from "./public-shop.config.js";
 
 export function normalizeOptionalString(value?: string): string | undefined {
   const normalized = value?.trim();

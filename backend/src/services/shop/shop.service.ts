@@ -1,12 +1,12 @@
 import { createApiError } from "@sopum-map/shared";
-import ShopModel from "../../models/shop.model";
-import { buildShopListPipeline } from "./shop-query.builder";
-import { mapShopDetail, mapShopListItem } from "./shop.mapper";
+import ShopModel from "../../models/shop.model.js";
+import { buildShopListPipeline } from "./shop-query.builder.js";
+import { mapShopDetail, mapShopListItem } from "./shop.mapper.js";
 import type {
   GetShopDetailServiceResult,
   GetShopsServiceParams,
   GetShopsServiceResult,
-} from "./shop.service.types";
+} from "./shop.service.types.js";
 
 type ShopListAggregateResult = {
   // items: Parameters<typeof mapShopListItem>[0][];

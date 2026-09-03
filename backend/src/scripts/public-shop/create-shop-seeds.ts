@@ -1,9 +1,9 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { PublicShopCandidate, ShopSeed } from "./public-shop.types";
+import type { PublicShopCandidate, ShopSeed } from "./public-shop.types.js";
 
-import { isValidKoreaCoordinate } from "./public-shop.utils";
+import { isValidKoreaCoordinate } from "./public-shop.utils.js";
 
 const INPUT_PATH = path.resolve(
   process.cwd(),

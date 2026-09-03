@@ -4,13 +4,13 @@ import type {
   ShopListItem,
 } from "@sopum-map/shared";
 
-import type { ShopSchemaType } from "../../models/shop.model";
-import { getMainShopImageUrl } from "../../utils/shop-image";
+import type { ShopSchemaType } from "../../models/shop.model.js";
+import { getMainShopImageUrl } from "../../utils/shop-image.js";
 
 import type {
   ShopListAggregateItem,
   ShopQueryResult,
-} from "./shop.query.types";
+} from "./shop.query.types.js";
 
 type MapShopListItemParams = {
   shop: ShopListAggregateItem;

@@ -1,4 +1,4 @@
-import { getHomeCuratedShops } from "../services/home/home.service";
+import { getHomeCuratedShops } from "../services/home/home.service.js";
 import type { GetHomeCuratedShopResponse } from "@sopum-map/shared";
 
 import type { NextFunction, Request, Response } from "express";

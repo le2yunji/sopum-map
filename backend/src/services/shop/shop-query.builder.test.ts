@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   buildShopListPipeline,
   buildShopMatchFilter,
-} from "./shop-query.builder";
-import type { GetShopsServiceParams } from "./shop.service.types";
+} from "./shop-query.builder.js";
+import type { GetShopsServiceParams } from "./shop.service.types.js";
 
 const defaultParams: GetShopsServiceParams = {
   page: 1,
