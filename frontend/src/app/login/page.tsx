@@ -1,7 +1,7 @@
 import { SocialLoginButton } from "@/app/login/_components/SocialLoginButton/SocialLoginButton";
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
+import { LoginActions } from "./_components/LoginActions";
 
 export const metadata: Metadata = {
   title: "로그인",
@@ -29,16 +29,9 @@ export default function LoginPage() {
           />
         </div>
         <div className="flex w-full flex-col gap-2.5 items-center justify-center">
-          {/* <SocialLoginButton provider="naver" />
-
-          <SocialLoginButton provider="google" /> */}
-
           <SocialLoginButton provider="apple" />
 
-          <SocialLoginButton provider="kakao" />
-          <Link href={"/"} className="p-4 text-12">
-            계정없이 둘러보기
-          </Link>
+          <LoginActions />
         </div>
       </div>
     </main>
