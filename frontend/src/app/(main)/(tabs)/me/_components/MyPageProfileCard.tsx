@@ -34,16 +34,6 @@ export function MyPageProfileCard({
 
   const [isSaved, setIsSaved] = useState(false);
 
-  /** 서버에서 전달된 사용자 정보가 변경되면 표시값도 동기화합니다. */
-  useEffect(() => {
-    setNickname(initialNickname);
-    setDraftNickname(initialNickname);
-  }, [initialNickname]);
-
-  useEffect(() => {
-    setProfileImageUrl(profileImage ?? DEFAULT_PROFILE_IMAGE);
-  }, [profileImage]);
-
   /** 생성한 Blob URL이 더 이상 필요하지 않을 때 해제합니다. */
   useEffect(() => {
     return () => {

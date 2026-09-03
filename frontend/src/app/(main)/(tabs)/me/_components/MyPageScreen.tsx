@@ -72,6 +72,7 @@ export function MyPageScreen({ isEmpty = false, state = "success" }: Props) {
       <h1 className="px-1 text-24 font-semibold text-black-950">마이페이지</h1>
 
       <MyPageProfileCard
+        key={JSON.stringify([user.id, user.nickname, user.profileImage])}
         nickname={user.nickname}
         profileImage={user.profileImage}
       />
