@@ -12,15 +12,29 @@ import { Button } from "@/components/ui/Button/Button";
 
 const DEFAULT_PROFILE_IMAGE = "/images/profiles/user_default.webp";
 
+type MyPageProfileCardProps = Readonly<{
+  nickname: string;
+  profileImage: string | null;
+}>;
+
 /** 프로필 표시와 로컬 편집 상태를 한 경계에서 관리합니다. */
-export function MyPageProfileCard() {
-  const [nickname, setNickname] = useState("소품 수집가");
-  const [draftNickname, setDraftNickname] = useState(nickname);
-  const [profileImageUrl, setProfileImageUrl] = useState(DEFAULT_PROFILE_IMAGE);
+export function MyPageProfileCard({
+  nickname: initialNickname,
+  profileImage,
+}: MyPageProfileCardProps) {
+  const [nickname, setNickname] = useState(initialNickname);
+
+  const [draftNickname, setDraftNickname] = useState(initialNickname);
+
+  const [profileImageUrl, setProfileImageUrl] = useState(
+    profileImage ?? DEFAULT_PROFILE_IMAGE,
+  );
+
   const [isEditing, setIsEditing] = useState(false);
+
   const [isSaved, setIsSaved] = useState(false);
 
-  /** 새 로컬 미리보기가 생기거나 화면을 떠날 때 이전 URL을 해제합니다. */
+  /** 생성한 Blob URL이 더 이상 필요하지 않을 때 해제합니다. */
   useEffect(() => {
     return () => {
       if (profileImageUrl.startsWith("blob:")) {
@@ -29,14 +43,17 @@ export function MyPageProfileCard() {
     };
   }, [profileImageUrl]);
 
-  /** 현재 프로필 값을 편집 폼에 복사해 안전하게 편집을 시작합니다. */
+  /** 현재 프로필 값을 편집 폼에 복사해 편집을 시작합니다. */
   const startEditing = () => {
     setDraftNickname(nickname);
     setIsSaved(false);
     setIsEditing(true);
   };
 
-  /** 비어 있지 않은 닉네임만 로컬 프로필에 반영합니다. */
+  /**
+   * 현재는 로컬 상태에만 반영합니다.
+   * 이후 PATCH /me 연결 시 서버 저장으로 교체합니다.
+   */
   const saveProfile = () => {
     const nextNickname = draftNickname.trim();
 
@@ -60,7 +77,10 @@ export function MyPageProfileCard() {
 
   if (isEditing) {
     return (
-      <section aria-label="프로필 편집" className="mt-5 rounded-2xl border border-green-100 bg-green-75 p-4">
+      <section
+        aria-label="프로필 편집"
+        className="mt-5 rounded-2xl border border-green-100 bg-green-75 p-4"
+      >
         <form
           onSubmit={(event) => {
             event.preventDefault();
@@ -73,6 +93,7 @@ export function MyPageProfileCard() {
           >
             프로필 이미지 변경
           </label>
+
           <input
             id="profile-image"
             type="file"
@@ -81,21 +102,30 @@ export function MyPageProfileCard() {
             onChange={(event) => changeProfileImage(event.target.files?.[0])}
           />
 
-          <label htmlFor="nickname" className="mt-3 block text-13 font-semibold">
+          <label
+            htmlFor="nickname"
+            className="mt-3 block text-13 font-semibold"
+          >
             닉네임
           </label>
+
           <input
             id="nickname"
             value={draftNickname}
-            maxLength={20}
+            maxLength={12}
             onChange={(event) => setDraftNickname(event.target.value)}
             className="mt-2 min-h-11 w-full rounded-xl border border-green-200 bg-white px-3 outline-none focus:ring-2 focus:ring-green-500"
           />
 
           <div className="mt-3 flex gap-2">
-            <Button variant="outline" onClick={() => setIsEditing(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsEditing(false)}
+            >
               취소
             </Button>
+
             <Button type="submit" disabled={!draftNickname.trim()}>
               저장
             </Button>
@@ -127,7 +157,8 @@ export function MyPageProfileCard() {
               className="rounded-full object-cover"
             />
           )}
-          <span className="absolute -bottom-1 -right-1 grid size-5 place-items-center rounded-full bg-green-700 text-white">
+
+          <span className="absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-full bg-green-700 text-white">
             <PenIcon className="size-3" aria-hidden="true" />
           </span>
         </span>
@@ -136,10 +167,16 @@ export function MyPageProfileCard() {
           <strong className="block truncate text-16 font-semibold text-black-950">
             {nickname}
           </strong>
-          <span className="mt-0.5 block text-12 text-black-500">소품샵 탐색가</span>
+
+          <span className="mt-0.5 block text-12 text-black-500">
+            소품샵 탐색가
+          </span>
         </span>
 
-        <ChevronRightIcon className="size-5 text-green-700" aria-hidden="true" />
+        <ChevronRightIcon
+          className="size-5 text-green-700"
+          aria-hidden="true"
+        />
       </button>
 
       {isSaved ? (

@@ -32,9 +32,7 @@ export function HomeCategorySection() {
 
   const { data, isLoading, isError } = useInfiniteShops({
     category: selectedCategory === "all" ? undefined : selectedCategory,
-
     limit: 10,
-
     sort: "latest",
   });
 
