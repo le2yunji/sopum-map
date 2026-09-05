@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import {
   getMapTagFilterValue,
   type MapTagFilter,
@@ -16,13 +16,16 @@ export function useMapScreenState() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const [keyword, setKeyword] = useState("");
+
+  const debouncedKeyword = useDebouncedValue(keyword.trim(), 300);
+
   /**
    * 선택된 상점은 URL을 기준으로 관리합니다.
    * /map?shopId=123
    */
   const selectedShopId = searchParams.get("shopId") ?? undefined;
 
-  const [keyword, setKeyword] = useState("");
   const [pickedOnly, setPickedOnly] = useState(false);
   const [selectedDetailedFilters, setSelectedDetailedFilters] = useState<
     MapTagFilter[]
@@ -157,6 +160,7 @@ export function useMapScreenState() {
 
   return {
     keyword,
+    debouncedKeyword,
     pickedOnly,
     selectedDetailedFilters,
     selectedShopId,

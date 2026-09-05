@@ -34,15 +34,14 @@ const PAGE_SIZE = 10;
 export function MapScreen({ mapSlot }: MapScreenProps) {
   const {
     keyword,
+    debouncedKeyword,
     pickedOnly,
     selectedDetailedFilters,
     selectedShopId,
     isFilterOpen,
     isSearchOpen,
     shopListSheetState,
-
     setShopListSheetState,
-
     selectShop,
     handleKeywordChange,
     handleShowAll,
@@ -79,7 +78,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
     hasNextPage,
     isFetchingNextPage,
   } = useInfiniteShops({
-    keyword: keyword.trim() || undefined,
+    keyword: debouncedKeyword || undefined,
     tagKeys: selectedTagKeys.length > 0 ? selectedTagKeys : undefined,
     limit: PAGE_SIZE,
     sort: "latest",

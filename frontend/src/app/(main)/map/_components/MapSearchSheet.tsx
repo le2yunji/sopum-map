@@ -38,7 +38,9 @@ export function MapSearchSheet({
       searchInputRef.current?.focus();
     }
   }, [open]);
+
   const hasKeyword = keyword.trim().length > 0;
+
   return (
     <BottomSheet
       open={open}

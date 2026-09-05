@@ -7,13 +7,9 @@ import { getShopDetail, getShops } from "./shop.api";
 /** 상점 관련 React Query key를 관리합니다. */
 export const shopQueryKeys = {
   all: ["shops"] as const,
-
   lists: () => [...shopQueryKeys.all, "list"] as const,
-
   list: (query: GetShopsQuery) => [...shopQueryKeys.lists(), query] as const,
-
   details: () => [...shopQueryKeys.all, "detail"] as const,
-
   detail: (shopId: string) => [...shopQueryKeys.details(), shopId] as const,
 };
 

@@ -62,7 +62,7 @@ export function HomeCategorySection() {
   };
 
   return (
-    <section aria-labelledby="home-category-title" className="mt-8">
+    <section aria-labelledby="home-category-title" className="mt-6">
       <div className="flex items-center justify-between px-4">
         <h2 id="home-category-title" className="text-16 font-semibold">
           카테고리
@@ -76,7 +76,7 @@ export function HomeCategorySection() {
         selectedValue={selectedCategory}
         onValueChange={handleCategoryChange}
         ariaLabel="상점 카테고리"
-        className="mt-3 px-4"
+        className="mt-2 px-4"
       />
 
       {isLoading ? (
