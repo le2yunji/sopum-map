@@ -4,7 +4,8 @@
     "lint-staged": "^17.1.0"
   },
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "build:frontend": "pnpm --filter @sopum-map/shared build && pnpm --filter frontend build"
   },
   "pnpm": {
     "overrides": {
