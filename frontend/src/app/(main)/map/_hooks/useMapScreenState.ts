@@ -37,6 +37,9 @@ export function useMapScreenState() {
 
   /** URL에서 선택된 상점 정보를 제거합니다. */
   const clearSelectedShop = useCallback(() => {
+    if (!selectedShopId) {
+      return;
+    }
     const params = new URLSearchParams(searchParams.toString());
 
     params.delete("shopId");
