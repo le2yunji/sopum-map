@@ -34,7 +34,7 @@ export const getShopsController = async (
      * 2.
      * Business Layer 호출
      */
-    const data = await getShops(query);
+    const data = await getShops({ ...query, userId: req.auth?.userId });
 
     /**
      * 3.

@@ -8,6 +8,8 @@ import type {
   GetShopsServiceResult,
 } from "./shop.service.types.js";
 
+import ShopLikeModel from "../../models/shop-like.model.js";
+
 type ShopListAggregateResult = {
   // items: Parameters<typeof mapShopListItem>[0][];
   items: Parameters<typeof mapShopListItem>[0]["shop"][];
@@ -39,32 +41,41 @@ export const getShops = async (
 
   const [result] = await ShopModel.aggregate<ShopListAggregateResult>(pipeline);
 
-  /**
-   * 검색 결과가 없을 수 있다.
-   */
   const rawItems = result?.items ?? [];
-
   const totalCount = result?.count?.[0]?.totalCount ?? 0;
 
   /**
    * 3.
-   * DB 형태 → API 형태 변환
+   * 로그인 사용자인 경우
+   * 현재 페이지의 Shop 중 좋아요한 Shop ID만 조회
    */
-  // const items = rawItems.map(mapShopListItem);
+  const likedShopIds = params.userId
+    ? await ShopLikeModel.find({
+        userId: params.userId,
+        shopId: {
+          $in: rawItems.map((shop) => shop._id),
+        },
+      }).distinct("shopId")
+    : [];
+
+  /**
+   * 좋아요 여부 확인을 빠르게 하기 위해 Set으로 변환
+   */
+  const likedShopIdSet = new Set(
+    likedShopIds.map((shopId) => shopId.toString()),
+  );
 
   /**
    * 3. DB 형태 → API 형태
-   *
-   * VisitLog / Like 기능은 아직 연결하지 않았으므로
-   * 임시 기본값을 전달한다.
    */
   const items = rawItems.map((shop) =>
     mapShopListItem({
       shop,
       visitLogCount: 0,
-      isLiked: false,
+      isLiked: likedShopIdSet.has(shop._id.toString()),
     }),
   );
+
   /**
    * 4.
    * 페이지 수 계산

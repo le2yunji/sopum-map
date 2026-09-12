@@ -17,6 +17,9 @@ export type GetShopsServiceParams = Omit<
   page: NonNullable<GetShopsQuery["page"]>;
   limit: NonNullable<GetShopsQuery["limit"]>;
   sort: NonNullable<GetShopsQuery["sort"]>;
+
+  /** 로그인 사용자인 경우 좋아요 여부 계산에 사용 */
+  userId?: string;
 };
 
 export type GetShopsServiceResult = ShopListData;
