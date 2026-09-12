@@ -34,6 +34,7 @@ const PAGE_SIZE = 10;
 export function MapScreen({ mapSlot }: MapScreenProps) {
   const {
     keyword,
+    handleClearKeyword,
     debouncedKeyword,
     pickedOnly,
     selectedDetailedFilters,
@@ -163,6 +164,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
           keyword={keyword}
           isSearchOpen={isSearchOpen}
           onOpenSearch={handleOpenSearch}
+          onClearKeyword={handleClearKeyword}
         />
 
         <MapTagFilterChips

@@ -101,11 +101,13 @@ export const SearchInput = ({
   };
 
   const handleClear = () => {
-    if (disabled || readOnly || isLoading) {
+    if (disabled || isLoading) {
       return;
     }
 
-    handleValueChange("");
+    if (!readOnly) {
+      handleValueChange("");
+    }
     onClear?.();
   };
 
@@ -138,8 +140,8 @@ export const SearchInput = ({
     showClearButton &&
     currentValue.length > 0 &&
     !disabled &&
-    !readOnly &&
-    !isLoading;
+    !isLoading &&
+    (!readOnly || Boolean(onClear));
 
   return (
     <div

@@ -9,12 +9,14 @@ type MapSearchHeaderProps = Readonly<{
   keyword: string;
   isSearchOpen: boolean;
   onOpenSearch: () => void;
+  onClearKeyword: () => void;
 }>;
 
 export function MapSearchHeader({
   keyword,
   isSearchOpen,
   onOpenSearch,
+  onClearKeyword,
 }: MapSearchHeaderProps) {
   /** 읽기 전용 검색창을 키보드에서도 검색 시트 트리거로 동작시킵니다. */
   const handleSearchKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
@@ -31,12 +33,14 @@ export function MapSearchHeader({
       <SearchInput
         value={keyword}
         readOnly
+        showClearButton
         placeholder="상점 이름 검색"
         aria-label="상점 이름 검색"
         aria-haspopup="dialog"
         aria-expanded={isSearchOpen}
         onClick={onOpenSearch}
         onKeyDown={handleSearchKeyDown}
+        onClear={onClearKeyword}
         className="[&_input]:cursor-pointer"
         leftAction={
           <BackButton

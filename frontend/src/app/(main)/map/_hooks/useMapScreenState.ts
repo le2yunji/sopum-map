@@ -26,7 +26,7 @@ export function useMapScreenState() {
    */
   const selectedShopId = searchParams.get("shopId") ?? undefined;
 
-  const [pickedOnly, setPickedOnly] = useState(false);
+  const [pickedOnly, setPickedOnly] = useState(false); // 찜한 상점만 보기
   const [selectedDetailedFilters, setSelectedDetailedFilters] = useState<
     MapTagFilter[]
   >([]);
@@ -50,7 +50,7 @@ export function useMapScreenState() {
         scroll: false,
       },
     );
-  }, [pathname, router, searchParams]);
+  }, [pathname, router, searchParams, selectedShopId]);
 
   /** 지도 마커나 검색 결과에서 상점을 선택합니다. */
   const selectShop = useCallback(
@@ -161,9 +161,17 @@ export function useMapScreenState() {
     clearSelectedShop();
   }, [clearSelectedShop]);
 
+  /** 검색어를 초기화하고 선택된 상점을 해제합니다. */
+  const handleClearKeyword = useCallback(() => {
+    setKeyword("");
+    clearSelectedShop();
+  }, [clearSelectedShop]);
+
   return {
     keyword,
+
     debouncedKeyword,
+    handleClearKeyword,
     pickedOnly,
     selectedDetailedFilters,
     selectedShopId,
