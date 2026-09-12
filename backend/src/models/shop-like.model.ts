@@ -1,6 +1,6 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
 
-const likeSchema = new Schema(
+const shopLikeSchema = new Schema(
   {
     // 좋아요를 누른 사용자
     userId: {
@@ -22,7 +22,7 @@ const likeSchema = new Schema(
 );
 
 // 동일한 사용자가 같은 매장에 중복 좋아요하는 것을 방지
-likeSchema.index(
+shopLikeSchema.index(
   {
     userId: 1,
     shopId: 1,
@@ -33,13 +33,13 @@ likeSchema.index(
 );
 
 // 사용자별 좋아요 목록 조회 성능 개선
-likeSchema.index({
+shopLikeSchema.index({
   userId: 1,
   createdAt: -1,
 });
 
-export type LikeSchemaType = InferSchemaType<typeof likeSchema>;
+export type LikeSchemaType = InferSchemaType<typeof shopLikeSchema>;
 
-const LikeModel = model("Like", likeSchema);
+const ShopLikeModel = model("Like", shopLikeSchema);
 
-export default LikeModel;
+export default ShopLikeModel;

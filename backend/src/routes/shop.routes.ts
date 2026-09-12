@@ -1,3 +1,8 @@
+import { requireAuth } from "../middlewares/require-auth.middleware.js";
+import {
+  createShopLike,
+  deleteShopLike,
+} from "../controllers/shop-like.controller.js";
 import {
   getShopDetailController,
   getShopsController,
@@ -20,3 +25,13 @@ shopRouter.get("/", getShopsController);
  * GET /shops/:shopId
  */
 shopRouter.get("/:shopId", getShopDetailController);
+
+/**
+ * POST /:shopId/likes
+ */
+shopRouter.post("/:shopId/likes", requireAuth, createShopLike);
+
+/**
+ * DELETE /:shopId/likes
+ */
+shopRouter.delete("/:shopId/likes", requireAuth, deleteShopLike);

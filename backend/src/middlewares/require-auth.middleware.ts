@@ -3,7 +3,7 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { AUTH_SESSION_COOKIE_NAME } from "../services/auth/auth.constants.js";
-import { getAuthenticatedUser } from "../services/auth/auth.service.js";
+import { getAuthenticatedUserId } from "../services/auth/auth.service.js";
 
 export async function requireAuth(
   req: Request,
@@ -22,9 +22,9 @@ export async function requireAuth(
       return;
     }
 
-    const user = await getAuthenticatedUser(sessionToken);
+    const userId = await getAuthenticatedUserId(sessionToken);
 
-    if (!user) {
+    if (!userId) {
       res.status(401).json({
         success: false,
         message: "유효하지 않은 로그인 세션입니다.",
@@ -34,7 +34,7 @@ export async function requireAuth(
     }
 
     req.auth = {
-      userId: user._id.toString(),
+      userId,
     };
 
     next();

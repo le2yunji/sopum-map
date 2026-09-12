@@ -212,23 +212,11 @@ export async function createAuthSession(userId: Types.ObjectId) {
 
 /**
  * 브라우저에서 전달된 세션 토큰을 검증하고
- * 현재 로그인한 User를 반환합니다.
+ * 현재 로그인한 사용자의 ID를 반환합니다.
  */
-export async function getAuthenticatedUser(sessionToken: string) {
-  /**
-   * 브라우저에는 원본 Token이 있고
-   * DB에는 hash만 저장되어 있으므로
-   * 먼저 동일하게 SHA-256 처리합니다.
-   */
+export async function getAuthenticatedUserId(sessionToken: string) {
   const tokenHash = hashToken(sessionToken);
 
-  /**
-   * 아직 만료되지 않은 세션만 조회합니다.
-   *
-   * TTL index가 있더라도 MongoDB가 정확히
-   * 만료 순간에 데이터를 삭제하는 것은 아니므로
-   * expiresAt도 직접 검사합니다.
-   */
   const session = await AuthSessionModel.findOne({
     tokenHash,
 
@@ -237,23 +225,35 @@ export async function getAuthenticatedUser(sessionToken: string) {
     },
   });
 
-  /**
-   * 해당 세션이 없다면
-   * 로그인하지 않은 상태입니다.
-   */
   if (!session) {
     return null;
   }
 
-  /**
-   * AuthSession에 연결된 실제 User 조회
-   */
-  const user = await UserModel.findById(session.userId);
+  const user = await UserModel.findOne({
+    _id: session.userId,
+    isDeleted: false,
+  }).select("_id");
 
-  /**
-   * User가 삭제됐거나 데이터가 비정상이라면
-   * 인증된 사용자로 취급하지 않습니다.
-   */
+  if (!user) {
+    return null;
+  }
+
+  return user._id.toString();
+}
+
+/**
+ * 브라우저에서 전달된 세션 토큰을 검증하고
+ * 현재 로그인한 User를 반환합니다.
+ */
+export async function getAuthenticatedUser(sessionToken: string) {
+  const userId = await getAuthenticatedUserId(sessionToken);
+
+  if (!userId) {
+    return null;
+  }
+
+  const user = await UserModel.findById(userId);
+
   if (!user || user.isDeleted) {
     return null;
   }
