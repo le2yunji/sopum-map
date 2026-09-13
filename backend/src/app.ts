@@ -7,6 +7,7 @@ import { errorMiddleware } from "./middlewares/error.middleware.js";
 import { authRouter } from "./routes/auth.routes.js";
 import { shopRouter } from "./routes/shop.routes.js";
 import { homeRouter } from "./routes/home.routes.js";
+import { meRouter } from "./routes/me.routes.js";
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+app.use("/api/me", meRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/home", homeRouter);
 app.use("/api/shops", shopRouter);

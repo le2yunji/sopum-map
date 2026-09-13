@@ -1,7 +1,10 @@
+import { SHOP_REGION_GROUPS } from "@sopum-map/shared";
 import { describe, expect, it } from "vitest";
 
-import { getShopsQuerySchema } from "./shop.validation.js";
-import { SHOP_REGION_GROUPS } from "@sopum-map/shared";
+import {
+  getShopDetailParamsSchema,
+  getShopsQuerySchema,
+} from "./shop.validation.js";
 
 describe("getShopsQuerySchema", () => {
   it("페이지, 개수, 정렬의 기본값을 적용한다", () => {
@@ -112,6 +115,39 @@ describe("getShopsQuerySchema", () => {
     if (!result.success) {
       expect(
         result.error.issues.some((issue) => issue.path[0] === "regionGroup"),
+      ).toBe(true);
+    }
+  });
+});
+
+describe("getShopDetailParamsSchema", () => {
+  it("24자리 MongoDB ObjectId 형식의 shopId를 허용한다", () => {
+    const result = getShopDetailParamsSchema.parse({
+      shopId: "64b000000000000000000001",
+    });
+
+    expect(result).toEqual({
+      shopId: "64b000000000000000000001",
+    });
+  });
+
+  it.each([
+    "",
+    "abc",
+    "123",
+    "64b00000000000000000000",
+    "64b0000000000000000000001",
+    "zzzzzzzzzzzzzzzzzzzzzzzz",
+  ])("유효하지 않은 shopId %s를 거부한다", (shopId) => {
+    const result = getShopDetailParamsSchema.safeParse({
+      shopId,
+    });
+
+    expect(result.success).toBe(false);
+
+    if (!result.success) {
+      expect(
+        result.error.issues.some((issue) => issue.path[0] === "shopId"),
       ).toBe(true);
     }
   });

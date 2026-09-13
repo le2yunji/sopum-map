@@ -6,6 +6,7 @@ import {
   startKakaoLogin,
   logout,
 } from "../controllers/auth.controller.js";
+import { requireAuth } from "../middlewares/require-auth.middleware.js";
 
 const authRouter = Router();
 
@@ -28,7 +29,7 @@ authRouter.get("/kakao/callback", handleKakaoCallback);
  *
  * GET /api/auth/me
  */
-authRouter.get("/me", getMe);
+authRouter.get("/me", requireAuth, getMe);
 
 /**
  * 로그아웃

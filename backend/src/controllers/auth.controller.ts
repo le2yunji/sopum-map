@@ -12,6 +12,7 @@ import {
 } from "../services/auth/auth.service.js";
 
 import { AUTH_SESSION_COOKIE_NAME } from "../services/auth/auth.constants.js";
+import UserModel from "../models/user.model.js";
 
 export async function startKakaoLogin(
   req: Request,
@@ -164,48 +165,21 @@ export async function handleKakaoCallback(
  */
 export async function getMe(req: Request, res: Response, next: NextFunction) {
   try {
-    /**
-     * HttpOnly Cookie도 서버에서는 읽을 수 있습니다.
-     *
-     * HttpOnly의 의미는
-     * "브라우저 JavaScript에서 읽지 못한다"는 뜻이지,
-     * 서버가 못 읽는다는 뜻은 아닙니다.
-     */
-    const sessionToken = req.cookies[AUTH_SESSION_COOKIE_NAME];
+    const userId = req.auth!.userId;
 
-    /**
-     * Cookie가 없으면 로그인 상태가 아닙니다.
-     */
-    if (typeof sessionToken !== "string" || !sessionToken) {
-      res.status(401).json({
-        success: false,
-        message: "로그인이 필요합니다.",
-      });
+    const user = await UserModel.findById(userId);
 
-      return;
-    }
-
-    const user = await getAuthenticatedUser(sessionToken);
-
-    /**
-     * Cookie는 존재하지만 세션이 없거나 만료된 경우
-     */
     if (!user) {
-      res.status(401).json({
+      res.status(404).json({
         success: false,
-        message: "유효하지 않은 로그인 세션입니다.",
+        message: "사용자를 찾을 수 없습니다.",
       });
 
       return;
     }
 
-    /**
-     * MongoDB 문서 전체를 그대로 보내기보다
-     * 프론트가 필요한 필드만 반환합니다.
-     */
     res.json({
       success: true,
-
       data: {
         id: user._id.toString(),
         nickname: user.nickname,

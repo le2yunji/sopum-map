@@ -34,7 +34,8 @@ export const getShopsController = async (
      * 2.
      * Business Layer 호출
      */
-    const data = await getShops(query);
+
+    const data = await getShops({ ...query, userId: req.auth?.userId });
 
     /**
      * 3.
@@ -84,7 +85,10 @@ export const getShopDetailController = async (
      * 2.
      * Business Layer 호출
      */
-    const data = await getShopById(shopId);
+    const data = await getShopById({
+      shopId,
+      userId: req.auth?.userId,
+    });
 
     /**
      * 3.

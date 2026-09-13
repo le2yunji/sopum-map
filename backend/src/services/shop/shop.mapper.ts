@@ -88,10 +88,20 @@ export const mapShopListItem = ({
   return item;
 };
 
+type MapShopDetailParams = {
+  shop: ShopQueryResult;
+  visitLogCount: number;
+  isLiked: boolean;
+};
+
 /**
  * Shop 문서를 GET /shops/:shopId 상세 응답으로 변환한다.
  */
-export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
+export const mapShopDetail = ({
+  shop,
+  visitLogCount,
+  isLiked,
+}: MapShopDetailParams): ShopDetailData => {
   const [longitude, latitude] = shop.location.coordinates;
   const sortedImages = sortShopImages(shop.images);
 
@@ -126,14 +136,9 @@ export const mapShopDetail = (shop: ShopQueryResult): ShopDetailData => {
     status: shop.status,
     likeCount: shop.likeCount ?? 0,
 
-    /**
-     * VisitLog / Like 사용자 기능 연결 전 임시값.
-     *
-     * 이후 Service에서 조회해서 Mapper에 전달하는 구조로
-     * 바꾸는 것이 좋다.
-     */
-    visitLogCount: 0,
-    isLiked: false,
+    visitLogCount,
+    isLiked,
+
     createdAt: shop.createdAt.toISOString(),
 
     updatedAt: shop.updatedAt.toISOString(),
