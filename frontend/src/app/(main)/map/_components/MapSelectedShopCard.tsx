@@ -76,7 +76,7 @@ export function MapSelectedShopCard({
         </Link>
 
         <PickAction shopId={shop.id} initialIsPicked={shop.isLiked}>
-          {({ isPicked, onToggle }) => (
+          {({ isPicked, isPending, onToggle }) => (
             <Button
               type="button"
               iconOnly
@@ -84,6 +84,7 @@ export function MapSelectedShopCard({
               variant="ghost"
               aria-label={isPicked ? "내 픽에서 제거" : "내 픽에 추가"}
               aria-pressed={isPicked}
+              disabled={isPending}
               onClick={() => void onToggle()}
               className="absolute right-1 top-1 hover:bg-transparent! active:bg-transparent!"
             >

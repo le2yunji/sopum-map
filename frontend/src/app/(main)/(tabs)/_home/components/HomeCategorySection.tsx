@@ -106,10 +106,11 @@ export function HomeCategorySection() {
           {shopItems.map((shop) => (
             <li key={shop.id} className="w-40 shrink-0">
               <PickAction shopId={shop.id} initialIsPicked={shop.isLiked}>
-                {({ isPicked, onToggle }) => (
+                {({ isPicked, isPending, onToggle }) => (
                   <ShopCard
                     {...shop}
                     isLiked={isPicked}
+                    isLikePending={isPending}
                     onLikeClick={onToggle}
                   />
                 )}

@@ -7,6 +7,7 @@ export interface ShopCardProps {
   region: string;
   tags: string[];
   isLiked?: boolean;
+  isLikePending?: boolean;
   variant?: ShopCardVariant;
   onLikeClick?: () => void;
 }
