@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { getLikedShops } from "../services/shop-like.service.js";
+import { likedShopsQuerySchema } from "../validations/shop-like.validation.js";
 
 export async function getMyLikedShops(
   req: Request,
@@ -10,11 +11,7 @@ export async function getMyLikedShops(
   try {
     const userId = req.auth!.userId;
 
-    const page =
-      typeof req.query.page === "string" ? Number(req.query.page) : 1;
-
-    const limit =
-      typeof req.query.limit === "string" ? Number(req.query.limit) : 20;
+    const { page, limit } = likedShopsQuerySchema.parse(req.query);
 
     const result = await getLikedShops({
       userId,

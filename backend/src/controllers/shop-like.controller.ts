@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { likeShop, unlikeShop } from "../services/shop-like.service.js";
+import { shopIdParamsSchema } from "../validations/shop.validation.js";
 
 type ShopLikeParams = {
   shopId: string;
@@ -12,7 +13,8 @@ export async function createShopLike(
   next: NextFunction,
 ) {
   try {
-    const { shopId } = req.params;
+    const { shopId } = shopIdParamsSchema.parse(req.params);
+
     const userId = req.auth?.userId;
 
     if (!userId) {
@@ -41,7 +43,7 @@ export async function deleteShopLike(
   next: NextFunction,
 ) {
   try {
-    const { shopId } = req.params;
+    const { shopId } = shopIdParamsSchema.parse(req.params);
 
     const userId = req.auth?.userId;
 

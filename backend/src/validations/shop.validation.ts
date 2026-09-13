@@ -4,6 +4,7 @@ import {
   TAG_KEYS,
 } from "@sopum-map/shared";
 import { z } from "zod";
+import { createPaginationQuerySchema } from "./pagination.validation.js";
 
 /**
  * 빈 문자열을 undefined로 변환한다.
@@ -34,6 +35,11 @@ const tagKeysSchema = z.preprocess(
   z.array(z.enum(TAG_KEYS)).optional(),
 );
 
+const shopPaginationQuerySchema = createPaginationQuerySchema({
+  defaultLimit: 20,
+  maxLimit: 100,
+});
+
 export const getShopsQuerySchema = z
   .object({
     category: z.enum(SHOP_CATEGORIES).optional(),
@@ -62,9 +68,10 @@ export const getShopsQuerySchema = z
       message: "radius는 0보다 커야 합니다.",
     }),
 
-    page: z.coerce.number().int().min(1).default(1),
-
-    limit: z.coerce.number().int().min(1).max(100).default(20),
+    /**
+     * 공통 pagination
+     */
+    ...shopPaginationQuerySchema.shape,
 
     sort: z.enum(["latest", "distance", "popular"]).default("latest"),
   })
@@ -106,12 +113,16 @@ const mongoObjectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, {
 });
 
 /**
- * GET /api/shops/:shopId
+ * Shop ID를 Path Parameter로 받는 API에서 공통 사용
  *
- * Path Parameter 검증
+ * GET    /api/shops/:shopId
+ * POST   /api/shops/:shopId/likes
+ * DELETE /api/shops/:shopId/likes
  */
-export const getShopDetailParamsSchema = z.object({
+export const shopIdParamsSchema = z.object({
   shopId: mongoObjectIdSchema,
 });
+
+export const getShopDetailParamsSchema = shopIdParamsSchema;
 
 export type ParsedGetShopsQuery = z.infer<typeof getShopsQuerySchema>;
