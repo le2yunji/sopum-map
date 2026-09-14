@@ -2,6 +2,7 @@ import type { Preview } from "@storybook/nextjs-vite";
 import { MINIMAL_VIEWPORTS } from "storybook/viewport";
 
 import { pretendard } from "../src/app/font";
+import { QueryProvider } from "../src/providers/QueryProvider";
 import "../src/app/globals.css";
 
 const sopumViewports = {
@@ -36,11 +37,13 @@ const sopumViewports = {
 const preview: Preview = {
   decorators: [
     (Story) => (
-      <div className={`${pretendard.variable} min-h-dvh font-sans`}>
-        <div id="mobile-app">
-          <Story />
+      <QueryProvider>
+        <div className={`${pretendard.variable} min-h-dvh font-sans`}>
+          <div id="mobile-app">
+            <Story />
+          </div>
         </div>
-      </div>
+      </QueryProvider>
     ),
   ],
 

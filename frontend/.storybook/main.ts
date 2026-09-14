@@ -16,13 +16,14 @@ const config: StorybookConfig = {
   "staticDirs": [
     "../public"
   ],
-  /** Next Script를 첫 테스트 실행 전에 최적화해 브라우저 재로딩을 막습니다. */
+  /** 브라우저 테스트 의존성을 미리 최적화해 모듈 형식 차이와 재로딩을 막습니다. */
   viteFinal(viteConfig) {
     viteConfig.optimizeDeps = {
       ...viteConfig.optimizeDeps,
       include: [
         ...(viteConfig.optimizeDeps?.include ?? []),
         "next/script",
+        "@sopum-map/shared",
       ],
     };
 
