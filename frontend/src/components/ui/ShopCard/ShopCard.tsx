@@ -29,6 +29,7 @@ export const ShopCard = ({
   region,
   tags,
   isLiked = false,
+  isLikePending = false,
   variant = "default",
   onLikeClick,
 }: ShopCardProps) => {
@@ -52,6 +53,7 @@ export const ShopCard = ({
             variant="ghost"
             aria-label={isLiked ? "내 픽에서 제거" : "내 픽에 추가"}
             aria-pressed={isLiked}
+            disabled={isLikePending}
             onClick={onLikeClick}
             className="absolute right-0 bottom-0 hover:bg-transparent! active:bg-black-100/0!"
           >

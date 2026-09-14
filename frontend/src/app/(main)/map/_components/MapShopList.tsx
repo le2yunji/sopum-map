@@ -118,7 +118,7 @@ export function MapShopList({
           </Link>
 
           <PickAction shopId={shop.id} initialIsPicked={shop.isLiked}>
-            {({ isPicked, onToggle }) => (
+            {({ isPicked, isPending, onToggle }) => (
               <Button
                 type="button"
                 iconOnly
@@ -127,6 +127,7 @@ export function MapShopList({
                 aria-label={isPicked ? "내 픽에서 제거" : "내 픽에 추가"}
                 aria-pressed={isPicked}
                 onClick={() => void onToggle()}
+                disabled={isPending}
                 className="
                     absolute
                     right-1
