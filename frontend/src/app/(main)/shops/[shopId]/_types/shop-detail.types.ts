@@ -18,8 +18,8 @@ export type ShopDetailView = Readonly<{
 
   mapImageUrl?: string;
   address: string;
-  naverMapUrl?: string;
-  smartStoreUrl?: string;
+
+  naverPlaceUrl?: string;
 
   hours: string;
   closedDay?: string;

@@ -47,8 +47,7 @@ const defaultShop: ShopDetailView = {
   mapImageUrl: "/images/shops/shop_example.png",
   address: "서울특별시 성동구 연무장길 33",
 
-  naverMapUrl: "https://map.naver.com",
-  smartStoreUrl: "https://smartstore.naver.com",
+  naverPlaceUrl: "https://smartstore.naver.com",
 
   hours: "12:00 - 20:00",
   closedDay: "매주 월요일",
@@ -105,8 +104,7 @@ export const NoExternalLinks: Story = {
   args: {
     shop: {
       ...defaultShop,
-      naverMapUrl: undefined,
-      smartStoreUrl: undefined,
+      naverPlaceUrl: undefined,
     },
   },
 };
@@ -115,7 +113,7 @@ export const NoSmartStore: Story = {
   args: {
     shop: {
       ...defaultShop,
-      smartStoreUrl: undefined,
+      naverPlaceUrl: undefined,
     },
   },
 };

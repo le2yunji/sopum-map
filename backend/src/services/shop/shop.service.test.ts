@@ -79,7 +79,7 @@ const shopDocument = {
 
   instagramUrl: null,
 
-  naverMapUrl: null,
+  naverPlaceUrl: null,
 
   images: [
     {

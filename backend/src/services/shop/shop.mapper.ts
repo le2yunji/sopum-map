@@ -1,4 +1,5 @@
 import type {
+  ShopBusinessHour,
   ShopDetailData,
   ShopImage,
   ShopListItem,
@@ -47,6 +48,20 @@ const mapShopImage = (image: ShopQueryResult["images"][number]): ShopImage => {
     isMain: image.isMain ?? false,
     order: image.order ?? 0,
   };
+};
+
+/** 매장 영업시간을 API 응답 형태로 변환합니다. */
+const mapShopBusinessHours = (
+  businessHours: ShopQueryResult["businessHours"],
+): ShopBusinessHour[] => {
+  return businessHours.map(({ day, isClosed, periods }) => ({
+    day,
+    isClosed,
+    periods: periods.map(({ open, close }) => ({
+      open,
+      close,
+    })),
+  }));
 };
 
 /**
@@ -125,10 +140,11 @@ export const mapShopDetail = ({
     longitude,
     phone: shop.phone ?? null,
     description: shop.description ?? null,
-    businessHours: shop.businessHours ?? [],
+    businessHours: mapShopBusinessHours(shop.businessHours),
     businessHoursNote: shop.businessHoursNote ?? null,
     instagramUrl: shop.instagramUrl ?? null,
-    naverMapUrl: shop.naverMapUrl ?? null,
+
+    naverPlaceUrl: shop.naverPlaceUrl ?? null,
 
     mainImageUrl: getMainShopImageUrl(shop.images),
     images: sortedImages.map(mapShopImage),

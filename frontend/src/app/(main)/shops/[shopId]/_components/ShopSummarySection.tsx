@@ -15,13 +15,7 @@ import { MetroIcon } from "@/components/icons/MetroIcon";
 type Props = Readonly<{
   shop: Pick<
     ShopDetailView,
-    | "name"
-    | "reviewCount"
-    | "likeCount"
-    | "distance"
-    | "tags"
-    | "naverMapUrl"
-    | "smartStoreUrl"
+    "name" | "reviewCount" | "likeCount" | "distance" | "tags" | "naverPlaceUrl"
   >;
 }>;
 
@@ -57,7 +51,7 @@ export function ShopSummarySection({ shop }: Props) {
       </div>
 
       <div className="mt-5 grid grid-cols-2 gap-2">
-        {shop.naverMapUrl ? (
+        {/* {shop.naverMapUrl ? (
           <Link
             href={shop.naverMapUrl}
             target="_blank"
@@ -74,11 +68,11 @@ export function ShopSummarySection({ shop }: Props) {
           <Button disabled className="flex items-center justify-center">
             길찾기 준비중
           </Button>
-        )}
+        )} */}
 
-        {shop.smartStoreUrl ? (
+        {shop.naverPlaceUrl ? (
           <Link
-            href={shop.smartStoreUrl}
+            href={shop.naverPlaceUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex min-h-11 items-center justify-between rounded-xl border border-pink-300/30 text-14 px-4"

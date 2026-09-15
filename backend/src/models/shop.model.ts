@@ -602,18 +602,6 @@ const shopSchema = new Schema(
       },
     },
 
-    // 네이버 지도 주소
-    naverMapUrl: {
-      type: String,
-      default: null,
-      trim: true,
-
-      validate: {
-        validator: isHttpUrl,
-        message: "naverMapUrl은 올바른 http/https URL이어야 합니다.",
-      },
-    },
-
     // -------------------------------------------------------------------------
     // 이미지
     // -------------------------------------------------------------------------

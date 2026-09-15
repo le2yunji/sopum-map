@@ -1,5 +1,5 @@
-import type { PublicShopRegionGroup } from "./public-shop.config.js";
 import type { ShopBusinessHour } from "@sopum-map/shared";
+import type { PublicShopRegionGroup } from "./public-shop.config.js";
 
 export type PublicShopSelectionReason =
   | "name_sopum"
@@ -172,11 +172,7 @@ export type ShopSeed = {
 
   instagramUrl: null;
 
-  naverPlaceId: null;
-
   naverPlaceUrl: null;
-
-  naverMapUrl: null;
 
   images: [];
 
