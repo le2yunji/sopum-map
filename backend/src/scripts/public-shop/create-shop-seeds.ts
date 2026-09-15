@@ -76,7 +76,8 @@ function createSeed(candidate: PublicShopCandidate): ShopSeed | null {
 
     description: null,
 
-    openingHours: null,
+    businessHours: [],
+    businessHoursNote: null,
 
     instagramUrl: null,
 

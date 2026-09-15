@@ -1,4 +1,5 @@
 import type { PublicShopRegionGroup } from "./public-shop.config.js";
+import type { ShopBusinessHour } from "@sopum-map/shared";
 
 export type PublicShopSelectionReason =
   | "name_sopum"
@@ -166,7 +167,8 @@ export type ShopSeed = {
 
   description: null;
 
-  openingHours: null;
+  businessHours: ShopBusinessHour[];
+  businessHoursNote: string | null;
 
   instagramUrl: null;
 

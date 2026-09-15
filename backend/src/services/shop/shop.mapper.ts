@@ -125,7 +125,8 @@ export const mapShopDetail = ({
     longitude,
     phone: shop.phone ?? null,
     description: shop.description ?? null,
-    openingHours: shop.openingHours ?? null,
+    businessHours: shop.businessHours ?? [],
+    businessHoursNote: shop.businessHoursNote ?? null,
     instagramUrl: shop.instagramUrl ?? null,
     naverMapUrl: shop.naverMapUrl ?? null,
 

@@ -4,6 +4,7 @@ import type { TagKey } from "../tag";
 import { SHOP_SORTS } from "./shop.constants";
 
 import type {
+  ShopBusinessDay,
   ShopCategory,
   ShopImageSourceType,
   ShopRegionGroup,
@@ -72,10 +73,22 @@ export type ShopListData = {
   pagination: Pagination;
 };
 
+export type ShopBusinessPeriod = Readonly<{
+  open: string;
+  close: string;
+}>;
+
+export type ShopBusinessHour = Readonly<{
+  day: ShopBusinessDay;
+  isClosed: boolean;
+  periods: ShopBusinessPeriod[];
+}>;
+
 export type ShopDetailData = ShopBaseData & {
   phone: string | null;
   description: string | null;
-  openingHours: string | null;
+  businessHours: ShopBusinessHour[];
+  businessHoursNote: string | null;
   instagramUrl: string | null;
   naverMapUrl: string | null;
 

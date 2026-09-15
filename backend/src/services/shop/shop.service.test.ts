@@ -58,7 +58,24 @@ const shopDocument = {
 
   description: "작은 소품 가게",
 
-  openingHours: "매일 11:00-20:00",
+  businessHours: [
+    {
+      day: "monday",
+      isClosed: false,
+      periods: [
+        {
+          open: "11:00",
+          close: "20:00",
+        },
+      ],
+    },
+    {
+      day: "tuesday",
+      isClosed: true,
+      periods: [],
+    },
+  ],
+  businessHoursNote: "공휴일 영업시간 변동",
 
   instagramUrl: null,
 

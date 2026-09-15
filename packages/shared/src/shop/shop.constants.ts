@@ -46,3 +46,16 @@ export const SHOP_REGION_GROUP_LABELS: Record<ShopRegionGroup, string> = {
   mangwon: "망원",
   seochon: "서촌",
 };
+
+/**
+ * 영업 요일
+ */
+export const SHOP_BUSINESS_DAYS = [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+] as const;
