@@ -1,4 +1,4 @@
-import type { ShopBusinessHour } from "@sopum-map/shared";
+import type { ShopBusinessHour, ShopCategory } from "@sopum-map/shared";
 import type { PublicShopRegionGroup } from "./public-shop.config.js";
 
 export type PublicShopSelectionReason =
@@ -37,7 +37,7 @@ export type PublicShopCandidate = {
 
   name: string;
 
-  category: "소품샵" | "가챠샵";
+  category: ShopCategory;
 
   originalCategoryLarge?: string;
 
@@ -145,7 +145,7 @@ export type UnmatchedNaverReference = {
 export type ShopSeed = {
   name: string;
 
-  category: "소품샵" | "가챠샵";
+  category: ShopCategory;
 
   tagStats: [];
 
