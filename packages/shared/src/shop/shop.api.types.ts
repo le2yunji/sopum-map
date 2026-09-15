@@ -90,7 +90,6 @@ export type ShopDetailData = ShopBaseData & {
   businessHours: ShopBusinessHour[];
   businessHoursNote: string | null;
   instagramUrl: string | null;
-  naverMapUrl: string | null;
   naverPlaceUrl: string | null;
   images: ShopImage[];
   sourceType: ShopSourceType;
