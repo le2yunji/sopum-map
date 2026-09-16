@@ -5,3 +5,4 @@ export * from "./shop";
 export * from "./tag";
 export * from "./home";
 export * from "./auth/index.js";
+export * from "./visit-log";
