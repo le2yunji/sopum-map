@@ -2,6 +2,7 @@
 import type { ApiSuccessResponse, Pagination } from "../api/api.types";
 import type { TagKey } from "../tag";
 import { SHOP_SORTS } from "./shop.constants";
+import type { VisitLogListItem } from "../visit-log";
 
 import type {
   ShopBusinessDay,
@@ -59,8 +60,7 @@ export type ShopBaseData = {
   longitude: number;
 
   status: ShopStatus;
-  likeCount: number;
-  visitLogCount: number;
+
   isLiked: boolean;
 };
 
@@ -91,7 +91,12 @@ export type ShopDetailData = ShopBaseData & {
   businessHoursNote: string | null;
   instagramUrl: string | null;
   naverPlaceUrl: string | null;
+
   images: ShopImage[];
+
+  likeCount: number;
+  visitLogCount: number;
+
   sourceType: ShopSourceType;
   createdAt: string;
   updatedAt: string;

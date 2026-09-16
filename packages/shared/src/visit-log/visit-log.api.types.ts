@@ -10,10 +10,15 @@ export type VisitLogAuthor = Readonly<{
 export type VisitLogListItem = Readonly<{
   id: string;
   author: VisitLogAuthor;
-  content: string;
+  content: string | null;
   imageUrls: readonly string[];
   visitedAt: string;
   createdAt: string;
+}>;
+
+export type GetVisitLogsQuery = Readonly<{
+  page?: number;
+  limit?: number;
 }>;
 
 export type VisitLogListData = Readonly<{
