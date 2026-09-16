@@ -4,18 +4,18 @@ import {
   CommentIcon,
   HeartIcon,
   LinkIcon,
-  LocationIcon,
   StoreIcon,
 } from "@/components/icons";
 import { Badge } from "@/components/ui/Badge/Badge";
-import type { ShopDetailView } from "../_types/shop-detail.types";
+
 import { Button } from "@/components/ui/Button";
-import { MetroIcon } from "@/components/icons/MetroIcon";
+
+import { ShopDetailData } from "@sopum-map/shared";
 
 type Props = Readonly<{
   shop: Pick<
-    ShopDetailView,
-    "name" | "reviewCount" | "likeCount" | "distance" | "tags" | "naverPlaceUrl"
+    ShopDetailData,
+    "name" | "visitLogCount" | "likeCount" | "tags" | "naverPlaceUrl"
   >;
 }>;
 
@@ -32,20 +32,25 @@ export function ShopSummarySection({ shop }: Props) {
           </span>
           <span className="flex items-center gap-1 text-14 text-black-800">
             <CommentIcon className="w-5 text-black-400" />
-            {shop.reviewCount}
+            {shop.visitLogCount}
           </span>
         </div>
       </div>
 
-      <p className="mt-2 flex items-center gap-1 text-12 text-black-800">
+      {/* <p className="mt-2 flex items-center gap-1 text-12 text-black-800">
         <MetroIcon className="w-3.5 text-green-700/90" />
         {shop.distance}
-      </p>
+      </p> */}
 
       <div className="mt-3 flex flex-wrap gap-2">
-        {shop.tags.map((tag) => (
-          <Badge key={tag} shape="square" variant="pink" size="medium">
-            # {tag}
+        {shop.tags.map((tag, index) => (
+          <Badge
+            key={`${tag}-${index}`}
+            shape="square"
+            variant="pink"
+            size="medium"
+          >
+            # {tag.key}
           </Badge>
         ))}
       </div>

@@ -1,14 +1,12 @@
-import Image from "next/image";
-
-import type { ShopDetailView } from "../_types/shop-detail.types";
-
+import { ShopDetailData } from "@sopum-map/shared";
 import { CopyAddressButton } from "./CopyAddressButton";
 
 type Props = Readonly<{
-  shop: Pick<ShopDetailView, "name" | "mapImageUrl" | "address">;
+  shop: Pick<
+    ShopDetailData,
+    "name" | "address" | "latitude" | "longitude" | "naverPlaceUrl"
+  >;
 }>;
-
-const DEFAULT_MAP_IMAGE = "/images/profiles/shop_default.webp";
 
 export function ShopLocationSection({ shop }: Props) {
   return (
@@ -16,14 +14,14 @@ export function ShopLocationSection({ shop }: Props) {
       <h2 className="text-16 font-semibold">위치</h2>
 
       <div className="relative mt-3 aspect-[345/236] overflow-hidden rounded-xl bg-green-100">
-        <Image
+        {/* <Image
           fill
           loading="eager"
           src={shop.mapImageUrl ?? DEFAULT_MAP_IMAGE}
           alt={`${shop.name} 위치 지도`}
           className="object-cover"
           sizes="(max-width: 480px) calc(100vw - 40px), 440px"
-        />
+        /> */}
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-3">

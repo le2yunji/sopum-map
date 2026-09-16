@@ -1,7 +1,7 @@
 // (main)/shops/[shopId]/page.tsx
 
-import { SHOP_DETAIL_FIXTURE } from "./_data/shop-detail.fixture";
 import { ShopDetailScreen } from "./_components/ShopDetailScreen";
+import { getShopDetail } from "@/api/shops/shop.api";
 
 type Props = Readonly<{
   params: Promise<{
@@ -11,7 +11,7 @@ type Props = Readonly<{
 
 export default async function ShopDetailPage({ params }: Props) {
   const { shopId } = await params;
-  const shop = { ...SHOP_DETAIL_FIXTURE, id: shopId };
+  const shop = await getShopDetail(shopId);
 
   return <ShopDetailScreen shop={shop} />;
 }

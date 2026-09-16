@@ -5,3 +5,5 @@ export const DEFAULT_IMAGES = {
   profile: "/images/profiles/user_default.webp",
   shop_ex: "/images/profiles/example.png",
 } as const;
+
+export const DEFAULT_PROFILE_IMAGE = "/images/profiles/user_default.webp";
