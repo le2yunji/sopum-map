@@ -3,7 +3,7 @@ import type { ApiSuccessResponse, Pagination } from "../api/api.types";
 export type VisitLogAuthor = Readonly<{
   id: string;
   nickname: string;
-  profileImageUrl: string;
+  profileImageUrl: string | null;
   isMe: boolean;
 }>;
 

@@ -11,6 +11,7 @@ import type {
 } from "./shop.service.types.js";
 
 import ShopLikeModel from "../../models/shop-like.model.js";
+import VisitLogModel from "../../models/visit-log.model.js";
 
 export const getShops = async (
   params: GetShopsServiceParams,
@@ -97,21 +98,25 @@ export const getShopById = async (
       message: "상점을 찾을 수 없습니다.",
     });
   }
-  const isLiked = userId
-    ? Boolean(
-        await ShopLikeModel.exists({
+  const [isLiked, visitLogCount] = await Promise.all([
+    userId
+      ? ShopLikeModel.exists({
           userId,
           shopId: shop._id,
-        }),
-      )
-    : false;
+        }).then(Boolean)
+      : Promise.resolve(false),
+
+    VisitLogModel.countDocuments({
+      shopId: shop._id,
+    }),
+  ]);
 
   /**
    * DB 형태 → Shop 상세 API 형태
    */
   return mapShopDetail({
     shop,
-    visitLogCount: 0,
+    visitLogCount,
     isLiked,
   });
 };

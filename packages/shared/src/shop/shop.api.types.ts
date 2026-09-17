@@ -60,6 +60,8 @@ export type ShopBaseData = {
   longitude: number;
 
   status: ShopStatus;
+  likeCount: number;
+  visitLogCount: number;
 
   isLiked: boolean;
 };
@@ -93,9 +95,6 @@ export type ShopDetailData = ShopBaseData & {
   naverPlaceUrl: string | null;
 
   images: ShopImage[];
-
-  likeCount: number;
-  visitLogCount: number;
 
   sourceType: ShopSourceType;
   createdAt: string;

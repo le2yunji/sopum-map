@@ -17,10 +17,18 @@ type Props = Readonly<{
 
 const PAGE_SIZE = 10;
 
+export function formatVisitedAt(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+  }).format(new Date(value));
+}
+
 export function ShopReviewSection({ shopId, visitLogCount }: Props) {
   const [visitLogs, setVisitLogs] = useState<VisitLogListItem[]>([]);
   const [page, setPage] = useState(1);
-  const [hasNextPage, setHasNextPage] = useState(true);
+  const [hasNextPage, setHasNextPage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
@@ -47,7 +55,7 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
 
         setPage(data.pagination.page);
 
-        setHasNextPage(data.pagination.page < data.pagination.totalPages);
+        setHasNextPage(data.pagination.hasNext);
       } finally {
         isLoadingRef.current = false;
         setIsLoading(false);
@@ -117,7 +125,9 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
                     {visitLog.author.nickname}
                   </h3>
 
-                  <p className="text-12 text-black-400">{visitLog.visitedAt}</p>
+                  <p className="text-12 text-black-400">
+                    {formatVisitedAt(visitLog.visitedAt)}
+                  </p>
                 </div>
               </div>
 
