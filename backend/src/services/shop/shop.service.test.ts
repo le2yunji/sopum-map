@@ -7,6 +7,8 @@ const modelMocks = vi.hoisted(() => ({
 
   distinctLikedShopIds: vi.fn(),
   existsShopLike: vi.fn(),
+
+  countVisitLogs: vi.fn(),
 }));
 
 vi.mock("../../models/shop.model.js", () => ({
@@ -20,6 +22,12 @@ vi.mock("../../models/shop-like.model.js", () => ({
   default: {
     distinct: modelMocks.distinctLikedShopIds,
     exists: modelMocks.existsShopLike,
+  },
+}));
+
+vi.mock("../../models/visit-log.model.js", () => ({
+  default: {
+    countDocuments: modelMocks.countVisitLogs,
   },
 }));
 
