@@ -1,69 +1,150 @@
+import type { ShopDetailData } from "@sopum-map/shared";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, within } from "storybook/test";
 
-import type {
-  ShopDetailView,
-  ShopReviewPreview,
-} from "../_types/shop-detail.types";
-
 import { ShopDetailScreen } from "./ShopDetailScreen";
 
-const firstReview: ShopReviewPreview = {
-  id: "review-1",
-  author: "소품러버",
-  avatarUrl: "/images/profiles/user_default.webp",
-  date: "2026.08.10",
-  content:
-    "아기자기한 소품이 많아서 구경하는 재미가 있었어요. 문구류 종류도 다양하고 선물 고르기 좋았습니다.",
-  imageUrls: [
-    "/images/shops/shop_example.png",
-    "/images/profiles/shop_default.webp",
-  ],
-};
-
-const secondReview: ShopReviewPreview = {
-  id: "review-2",
-  author: "성수산책",
-  avatarUrl: "/images/profiles/user_default.webp",
-  date: "2026.08.08",
-  content:
-    "성수 구경하다가 들르기 좋아요. 매장은 크지 않지만 귀여운 제품들이 많았습니다.",
-  imageUrls: [],
-};
-
-const defaultShop: ShopDetailView = {
+const defaultShop: ShopDetailData = {
   id: "shop-1",
+
   name: "오브젝트 성수",
   category: "소품샵",
-  distance: "1.2km",
-  tags: ["문구", "캐릭터", "선물", "다꾸"],
 
-  imageUrls: [
-    "/images/shops/shop_example.png",
-    "/images/profiles/shop_default.webp",
-    "/images/shops/shop_example.png",
+  tags: [
+    {
+      key: "cute",
+      count: 3,
+    },
   ],
 
-  mapImageUrl: "/images/shops/shop_example.png",
   address: "서울특별시 성동구 연무장길 33",
 
-  naverPlaceUrl: "https://smartstore.naver.com",
+  mainImageUrl: "/images/shops/shop_example.png",
 
-  hours: "12:00 - 20:00",
-  closedDay: "매주 월요일",
+  region1: "서울특별시",
+  region2: "성동구",
+  region3: "성수동2가",
+  regionGroup: "seongsu-seoulforest",
 
-  isLiked: false,
+  latitude: 37.5445,
+  longitude: 127.056,
+
+  status: "active",
+
   likeCount: 128,
-  reviewCount: 2,
-  reviews: [firstReview, secondReview],
+  visitLogCount: 2,
+  isLiked: false,
+
+  phone: "0212345678",
+
+  description: "문구와 캐릭터 소품을 만날 수 있는 성수동 소품샵입니다.",
+
+  businessHours: [
+    {
+      day: "monday",
+      isClosed: true,
+      periods: [],
+    },
+    {
+      day: "tuesday",
+      isClosed: false,
+      periods: [
+        {
+          open: "12:00",
+          close: "20:00",
+        },
+      ],
+    },
+    {
+      day: "wednesday",
+      isClosed: false,
+      periods: [
+        {
+          open: "12:00",
+          close: "20:00",
+        },
+      ],
+    },
+    {
+      day: "thursday",
+      isClosed: false,
+      periods: [
+        {
+          open: "12:00",
+          close: "20:00",
+        },
+      ],
+    },
+    {
+      day: "friday",
+      isClosed: false,
+      periods: [
+        {
+          open: "12:00",
+          close: "20:00",
+        },
+      ],
+    },
+    {
+      day: "saturday",
+      isClosed: false,
+      periods: [
+        {
+          open: "12:00",
+          close: "20:00",
+        },
+      ],
+    },
+    {
+      day: "sunday",
+      isClosed: false,
+      periods: [
+        {
+          open: "12:00",
+          close: "20:00",
+        },
+      ],
+    },
+  ],
+
+  businessHoursNote: "매주 월요일 휴무",
+
+  instagramUrl: "https://www.instagram.com/example/",
+  naverPlaceUrl: "https://m.place.naver.com/place/123456789/home",
+
+  images: [
+    {
+      imageUrl: "/images/shops/shop_example.png",
+      altText: "오브젝트 성수 매장",
+      sourceUrl: null,
+      sourceType: "official",
+      isMain: true,
+      order: 0,
+    },
+    {
+      imageUrl: "/images/profiles/shop_default.webp",
+      altText: "오브젝트 성수 내부",
+      sourceUrl: null,
+      sourceType: "official",
+      isMain: false,
+      order: 1,
+    },
+  ],
+
+  sourceType: "admin",
+
+  createdAt: "2026-08-01T00:00:00.000Z",
+  updatedAt: "2026-08-02T00:00:00.000Z",
 };
 
 const meta = {
   title: "Shop/ShopDetailScreen",
   component: ShopDetailScreen,
+
   parameters: {
     layout: "fullscreen",
   },
+
   decorators: [
     (Story) => (
       <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-black-100">
@@ -81,21 +162,23 @@ export const Default: Story = {
   args: {
     shop: defaultShop,
   },
+
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByRole("link", { name: "후기 작성하기" }),
+      canvas.getByRole("link", {
+        name: "후기 작성하기",
+      }),
     ).toHaveAttribute("href", "/shops/shop-1/reviews/new");
   },
 };
 
-export const NoReviews: Story = {
+export const NoVisitLogs: Story = {
   args: {
     shop: {
       ...defaultShop,
-      reviewCount: 0,
-      reviews: [],
+      visitLogCount: 0,
     },
   },
 };
@@ -104,34 +187,29 @@ export const NoExternalLinks: Story = {
   args: {
     shop: {
       ...defaultShop,
-      naverPlaceUrl: undefined,
+
+      instagramUrl: null,
+      naverPlaceUrl: null,
     },
   },
 };
 
-export const NoSmartStore: Story = {
+export const NoPhone: Story = {
   args: {
     shop: {
       ...defaultShop,
-      naverPlaceUrl: undefined,
+      phone: null,
     },
   },
 };
 
-export const ManyTags: Story = {
+export const NoBusinessHours: Story = {
   args: {
     shop: {
       ...defaultShop,
-      tags: [
-        "문구",
-        "캐릭터",
-        "키링",
-        "인형",
-        "엽서",
-        "스티커",
-        "다꾸",
-        "선물",
-      ],
+
+      businessHours: [],
+      businessHoursNote: null,
     },
   },
 };
@@ -140,7 +218,22 @@ export const SingleImage: Story = {
   args: {
     shop: {
       ...defaultShop,
-      imageUrls: ["/images/shops/shop_example.png"],
+
+      mainImageUrl: "/images/shops/shop_example.png",
+
+      images: [
+        {
+          imageUrl: "/images/shops/shop_example.png",
+
+          altText: "오브젝트 성수 매장",
+
+          sourceUrl: null,
+          sourceType: "official",
+
+          isMain: true,
+          order: 0,
+        },
+      ],
     },
   },
 };
@@ -149,50 +242,9 @@ export const NoImages: Story = {
   args: {
     shop: {
       ...defaultShop,
-      imageUrls: [],
-    },
-  },
-};
 
-const longReview: ShopReviewPreview = {
-  id: "review-long",
-  author: "성수소품탐방",
-  avatarUrl: "/images/profiles/user_default.webp",
-  date: "2026.08.12",
-  content:
-    "매장 내부에 정말 다양한 종류의 소품이 있어서 예상했던 것보다 훨씬 오래 구경했습니다. 문구류부터 캐릭터 상품, 키링, 인형까지 종류가 다양하고 진열도 깔끔해서 제품을 천천히 살펴보기 좋았어요. 성수에 방문한다면 한 번쯤 들러볼 만한 소품샵이라고 생각합니다.",
-  imageUrls: [
-    "/images/shops/shop_example.png",
-    "/images/shops/shop_example.png",
-  ],
-};
-
-const reviewImages = [
-  "/images/shops/shop_example.png",
-  "/images/profiles/shop_default.webp",
-  "/images/brand/mascot-v2.webp",
-  "/images/brand/mascot.webp",
-  "/images/profiles/user_default.webp",
-] as const;
-
-/** 사진 개수별 가로 스크롤 배치를 한 화면에서 비교합니다. */
-const imageCountReviews: ShopReviewPreview[] = [1, 2, 3, 4, 5].map(
-  (imageCount) => ({
-    id: `review-images-${imageCount}`,
-    author: `사진 ${imageCount}장 후기`,
-    avatarUrl: "/images/profiles/user_default.webp",
-    date: "2026.08.16",
-    content: `정사각형 사진이 ${imageCount}장 있을 때의 배치입니다.`,
-    imageUrls: reviewImages.slice(0, imageCount),
-  }),
-);
-
-export const ReviewImageCounts: Story = {
-  args: {
-    shop: {
-      ...defaultShop,
-      reviewCount: imageCountReviews.length,
-      reviews: imageCountReviews,
+      mainImageUrl: null,
+      images: [],
     },
   },
 };
@@ -201,13 +253,17 @@ export const LongContent: Story = {
   args: {
     shop: {
       ...defaultShop,
+
       name: "아주 길고 긴 이름을 가진 성수동 소품 편집샵",
+
       address:
         "서울특별시 성동구 성수이로 어딘가에 위치한 아주 긴 주소를 가진 소품샵",
-      hours: "평일 11:00 - 21:00 / 주말 및 공휴일 10:00 - 22:00",
-      tags: ["문구", "캐릭터", "인형", "키링", "스티커", "엽서"],
-      reviewCount: 1,
-      reviews: [longReview],
+
+      description:
+        "매장 내부에 다양한 종류의 문구와 캐릭터 상품, 키링, 인형, 엽서 등을 판매하고 있는 소품 편집샵입니다.",
+
+      businessHoursNote:
+        "공휴일 및 매장 사정에 따라 영업시간이 변경될 수 있습니다.",
     },
   },
 };
