@@ -14,6 +14,23 @@ const defaultShop: ShopDetailData = {
     {
       key: "cute",
       count: 3,
+      selectionLabel: "아기자기한 소품이 많아요",
+      shortLabel: "아기자기",
+      group: "mood",
+    },
+    {
+      key: "stationery",
+      count: 8,
+      selectionLabel: "문구 종류가 다양해요",
+      shortLabel: "문구 다양",
+      group: "product",
+    },
+    {
+      key: "good_for_browsing",
+      count: 5,
+      selectionLabel: "구경하는 재미가 있어요",
+      shortLabel: "구경맛집",
+      group: "shopping",
     },
   ],
 
@@ -187,7 +204,6 @@ export const NoExternalLinks: Story = {
   args: {
     shop: {
       ...defaultShop,
-
       instagramUrl: null,
       naverPlaceUrl: null,
     },
@@ -207,7 +223,6 @@ export const NoBusinessHours: Story = {
   args: {
     shop: {
       ...defaultShop,
-
       businessHours: [],
       businessHoursNote: null,
     },
@@ -224,12 +239,9 @@ export const SingleImage: Story = {
       images: [
         {
           imageUrl: "/images/shops/shop_example.png",
-
           altText: "오브젝트 성수 매장",
-
           sourceUrl: null,
           sourceType: "official",
-
           isMain: true,
           order: 0,
         },
@@ -242,7 +254,6 @@ export const NoImages: Story = {
   args: {
     shop: {
       ...defaultShop,
-
       mainImageUrl: null,
       images: [],
     },
@@ -264,6 +275,37 @@ export const LongContent: Story = {
 
       businessHoursNote:
         "공휴일 및 매장 사정에 따라 영업시간이 변경될 수 있습니다.",
+
+      tags: [
+        {
+          key: "japanese_anime",
+          count: 30,
+          selectionLabel: "일본 애니 캐릭터 상품이 많아요",
+          shortLabel: "일본 애니 굿즈",
+          group: "character",
+        },
+        {
+          key: "well_organized",
+          count: 21,
+          selectionLabel: "상품 구경하기 편하게 정리되어 있어요",
+          shortLabel: "구경하기 편한",
+          group: "experience",
+        },
+        {
+          key: "frequent_new_arrivals",
+          count: 17,
+          selectionLabel: "신상이 자주 들어와요",
+          shortLabel: "신상 많음",
+          group: "feature",
+        },
+        {
+          key: "good_for_browsing",
+          count: 13,
+          selectionLabel: "구경하는 재미가 있어요",
+          shortLabel: "구경맛집",
+          group: "shopping",
+        },
+      ],
     },
   },
 };
