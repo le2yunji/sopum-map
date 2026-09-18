@@ -5,9 +5,12 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 
-import type { MapSdkState, MapShop } from "../../_types/map.types";
-import { getMapMarkerIcon } from "../../_utils/mapMarker";
-import { NaverMapScript } from "./NaverMapScript";
+import {
+  type MapSdkState,
+  type MapShop,
+  NaverMapScript,
+  getMapMarkerIcon,
+} from "@/components/naver-map";
 
 type NaverMapCanvasProps = Readonly<{
   shops: MapShop[]; // 지도에 표시할 상점 목록

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button/Button";
-import type { MapShop } from "../_types/map.types";
+import type { MapShop } from "../../../../components/naver-map/naverMap.types";
 import { MapShopList } from "./MapShopList";
 import {
   EXPANDED_TOP_OFFSET,

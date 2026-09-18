@@ -7,7 +7,7 @@ import { HeartIcon, LocationIcon, MenuIcon } from "@/components/icons";
 import { PickAction } from "@/components/pick/PickAction";
 import { Button } from "@/components/ui/Button";
 
-import type { MapShop } from "../_types/map.types";
+import type { MapShop } from "../../../../components/naver-map/naverMap.types";
 
 type MapSelectedShopCardProps = Readonly<{
   shop: MapShop;

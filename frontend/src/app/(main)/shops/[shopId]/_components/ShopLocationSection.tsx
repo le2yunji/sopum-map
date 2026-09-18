@@ -1,5 +1,6 @@
 import { ShopDetailData } from "@sopum-map/shared";
 import { CopyAddressButton } from "./CopyAddressButton";
+import { NaverShopMapCanvas } from "./map-canvas/NaverShopMapCanvas";
 
 type Props = Readonly<{
   shop: Pick<
@@ -14,14 +15,11 @@ export function ShopLocationSection({ shop }: Props) {
       <h2 className="text-16 font-semibold">위치</h2>
 
       <div className="relative mt-3 aspect-[400/236] overflow-hidden rounded-xl bg-green-100">
-        {/* <Image
-          fill
-          loading="eager"
-          src={shop.mapImageUrl ?? DEFAULT_MAP_IMAGE}
-          alt={`${shop.name} 위치 지도`}
-          className="object-cover"
-          sizes="(max-width: 480px) calc(100vw - 40px), 440px"
-        /> */}
+        <NaverShopMapCanvas
+          name={shop.name}
+          latitude={shop.latitude}
+          longitude={shop.longitude}
+        />
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-3">

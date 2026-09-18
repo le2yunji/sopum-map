@@ -3,7 +3,7 @@ import type {
   GetShopsResponse,
 } from "@sopum-map/shared";
 
-import type { MapShop } from "../_types/map.types";
+import type { MapShop } from "../../../../components/naver-map/naverMap.types";
 import { DEFAULT_IMAGES } from "@/constants/image.constants";
 
 type ShopListItem = GetShopsResponse["data"]["items"][number];
