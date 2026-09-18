@@ -109,6 +109,7 @@ export function HomeCategorySection() {
                 {({ isPicked, isPending, onToggle }) => (
                   <ShopCard
                     {...shop}
+                    href={`/shops/${shop.id}`}
                     isLiked={isPicked}
                     isLikePending={isPending}
                     onLikeClick={onToggle}

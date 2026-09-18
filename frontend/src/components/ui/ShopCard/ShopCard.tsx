@@ -1,14 +1,16 @@
 import Image from "next/image";
+import Link from "next/link";
 
-import type { ShopCardProps, ShopCardVariant } from "./ShopCard.types";
 import { HeartIcon } from "@/components/icons/HeartIcon";
+
 import { Button } from "../Button";
+import type { ShopCardProps, ShopCardVariant } from "./ShopCard.types";
 
 const DEFAULT_SHOP_IMAGE = "/images/profiles/shop_default.webp";
 
 const cardClassNames: Record<ShopCardVariant, string> = {
-  default: "flex flex-col gap-3 max-w-40",
-  compact: "flex flex-col gap-2 max-w-40",
+  default: "relative flex max-w-40 flex-col gap-3",
+  compact: "relative flex max-w-40 flex-col gap-2",
 };
 
 const imageWrapperClassNames: Record<ShopCardVariant, string> = {
@@ -25,6 +27,7 @@ const titleClassNames: Record<ShopCardVariant, string> = {
 
 export const ShopCard = ({
   name,
+  href,
   imageUrl,
   region,
   tags,
@@ -37,6 +40,13 @@ export const ShopCard = ({
 
   return (
     <article className={cardClassNames[variant]}>
+      {/* 카드 전체 클릭 영역 */}
+      <Link
+        href={href}
+        aria-label={`${name} 상세 보기`}
+        className="absolute inset-0 z-10 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-2"
+      />
+
       <div className={imageWrapperClassNames[variant]}>
         <Image
           src={imageUrl || DEFAULT_SHOP_IMAGE}
@@ -55,7 +65,11 @@ export const ShopCard = ({
             aria-pressed={isLiked}
             disabled={isLikePending}
             onClick={onLikeClick}
-            className="absolute right-0 bottom-0 hover:bg-transparent! active:bg-black-100/0!"
+            className="
+              absolute right-0 bottom-0 z-20
+              hover:bg-transparent!
+              active:bg-black-100/0!
+            "
           >
             <HeartIcon
               filled={isLiked}
@@ -71,15 +85,15 @@ export const ShopCard = ({
 
       <div className="min-w-0">
         <h3 className={`${titleClassNames[variant]} truncate`}>{name}</h3>
+
         <div>
-          {tags.map((tag) => {
-            return (
-              <span className="mb-1 text-xs text-gray-500 mr-1" key={tag}>
-                #{tag}
-              </span>
-            );
-          })}
+          {tags.map((tag) => (
+            <span className="mr-1 mb-1 text-xs text-gray-500" key={tag}>
+              #{tag}
+            </span>
+          ))}
         </div>
+
         <p className="mt-1 truncate text-xs text-gray-700">{region}</p>
       </div>
     </article>
