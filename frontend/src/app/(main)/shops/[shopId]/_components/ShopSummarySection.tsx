@@ -4,6 +4,7 @@ import {
   CommentIcon,
   HeartIcon,
   LinkIcon,
+  LocationIcon,
   StoreIcon,
 } from "@/components/icons";
 import { Badge } from "@/components/ui/Badge/Badge";
@@ -37,26 +38,15 @@ export function ShopSummarySection({ shop }: Props) {
         </div>
       </div>
 
-      {/* <p className="mt-2 flex items-center gap-1 text-12 text-black-800">
-        <MetroIcon className="w-3.5 text-green-700/90" />
-        {shop.distance}
-      </p> */}
-
       <div className="mt-3 flex flex-wrap gap-2">
-        {shop.tags.map((tag, index) => (
-          <Badge
-            key={`${tag}-${index}`}
-            shape="square"
-            variant="pink"
-            size="medium"
-          >
-            # {tag.key}
+        {shop.tags.map((tag) => (
+          <Badge key={tag.key} variant="softGreen" shape="pill" size="medium">
+            #{tag.shortLabel}
           </Badge>
         ))}
       </div>
-
       <div className="mt-5 grid grid-cols-2 gap-2">
-        {/* {shop.naverMapUrl ? (
+        {shop.naverMapUrl ? (
           <Link
             href={shop.naverMapUrl}
             target="_blank"
@@ -73,7 +63,7 @@ export function ShopSummarySection({ shop }: Props) {
           <Button disabled className="flex items-center justify-center">
             길찾기 준비중
           </Button>
-        )} */}
+        )}
 
         {shop.naverPlaceUrl ? (
           <Link
@@ -84,13 +74,13 @@ export function ShopSummarySection({ shop }: Props) {
           >
             <span className="flex items-center gap-2 text-black-600">
               <StoreIcon aria-hidden="true" className="w-5" />
-              스마트 스토어
+              플레이스 링크
             </span>
             <LinkIcon aria-hidden="true" className="w-5 text-black-600" />
           </Link>
         ) : (
           <Button disabled className="flex items-center justify-center">
-            스마트 스토어 준비중
+            플레이스 준비중
           </Button>
         )}
       </div>

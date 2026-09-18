@@ -1,6 +1,6 @@
 // shop.api.types.ts
 import type { ApiSuccessResponse, Pagination } from "../api/api.types";
-import type { TagKey } from "../tag";
+import type { TagGroup, TagKey } from "../tag";
 import { SHOP_SORTS } from "./shop.constants";
 import type { VisitLogListItem } from "../visit-log";
 
@@ -28,10 +28,13 @@ export type GetShopsQuery = {
   sort?: ShopSort;
 };
 
-export type ShopTag = {
+export type ShopTag = Readonly<{
   key: TagKey;
   count: number;
-};
+  selectionLabel: string;
+  shortLabel: string;
+  group: TagGroup;
+}>;
 
 export type ShopImage = {
   imageUrl: string;

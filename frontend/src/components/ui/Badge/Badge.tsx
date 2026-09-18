@@ -1,14 +1,14 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
-type BadgeVariant = "green" | "pink";
+type BadgeVariant = "green" | "pink" | "softGreen";
 type BadgeShape = "pill" | "square";
-type BadgeSize = "small" | "medium";
+type BadgeSize = "small" | "medium" | "large";
 
 interface BadgeProps extends ComponentPropsWithoutRef<"span"> {
   children: ReactNode;
-  variant?: BadgeVariant;
-  shape?: BadgeShape;
-  size?: BadgeSize;
+  variant?: BadgeVariant | null;
+  shape?: BadgeShape | null;
+  size?: BadgeSize | null;
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
@@ -20,11 +20,14 @@ const variantStyles: Record<BadgeVariant, string> = {
     "border",
     "border-pink-300/35",
   ].join(" "),
+
+  softGreen: ["bg-green-50", "text-green-700"].join(" "),
 };
 
 const sizeStyles: Record<BadgeSize, string> = {
-  small: ["h-5", "px-2", "text-10"].join(" "),
-  medium: ["h-6", "px-3", "text-12"].join(" "),
+  small: ["px-2", "py-1", "text-10"].join(" "),
+  medium: ["px-3", "py-1.5", "text-12"].join(" "),
+  large: ["px-4", "py-2", "text-14"].join(" "),
 };
 
 const shapeStyles: Record<BadgeShape, string> = {
@@ -32,21 +35,6 @@ const shapeStyles: Record<BadgeShape, string> = {
   square: "rounded-md",
 };
 
-/**
- * 텍스트 길이에 따라 가로 너비가 자동으로 조절되는 배지 컴포넌트
- *
- * @example
- * ```tsx
- * <Badge
- *   variant="pink"
- *   shape="pill"
- *   size="medium"
- *   className="font-semibold"
- * >
- *   방문 완료
- * </Badge>
- * ```
- */
 export function Badge({
   children,
   variant = "green",
@@ -66,9 +54,9 @@ export function Badge({
         "whitespace-nowrap",
         "box-border",
         "font-medium",
-        variantStyles[variant],
-        sizeStyles[size],
-        shapeStyles[shape],
+        variant ? variantStyles[variant] : "",
+        size ? sizeStyles[size] : "",
+        shape ? shapeStyles[shape] : "",
         className,
       ].join(" ")}
       {...props}

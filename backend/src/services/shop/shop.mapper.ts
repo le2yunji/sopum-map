@@ -1,8 +1,9 @@
-import type {
-  ShopBusinessHour,
-  ShopDetailData,
-  ShopImage,
-  ShopListItem,
+import {
+  TAG_DEFINITION_BY_KEY,
+  type ShopBusinessHour,
+  type ShopDetailData,
+  type ShopImage,
+  type ShopListItem,
 } from "@sopum-map/shared";
 
 import type { ShopSchemaType } from "../../models/shop.model.js";
@@ -18,15 +19,21 @@ type MapShopListItemParams = {
   visitLogCount: number;
   isLiked: boolean;
 };
-
-/** 매장 태그 집계를 API 응답 형태로 복사합니다. */
+/** 매장 태그 집계를 API 응답 형태로 변환합니다. */
 const mapShopTags = (
   tagStats: ShopSchemaType["tagStats"],
 ): ShopListItem["tags"] => {
-  return tagStats.map(({ key, count }) => ({
-    key,
-    count,
-  }));
+  return tagStats.map(({ key, count }) => {
+    const tag = TAG_DEFINITION_BY_KEY[key];
+
+    return {
+      key,
+      count,
+      selectionLabel: tag.selectionLabel,
+      shortLabel: tag.shortLabel,
+      group: tag.group,
+    };
+  });
 };
 
 /** 매장 이미지를 노출 순서대로 정렬합니다. */

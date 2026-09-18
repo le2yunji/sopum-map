@@ -23,9 +23,9 @@ export function ShopDetailScreen({ shop }: Props) {
 
       <ShopSummarySection shop={shop} />
 
-      <ShopLocationSection shop={shop} />
-
       <ShopVisitInfoSection shop={shop} />
+
+      <ShopLocationSection shop={shop} />
 
       <ShopReviewSection shopId={shop.id} visitLogCount={shop.visitLogCount} />
     </main>
