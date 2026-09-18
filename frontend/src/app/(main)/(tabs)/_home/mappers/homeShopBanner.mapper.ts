@@ -1,6 +1,9 @@
 import type { HomeCuratedShop } from "@sopum-map/shared";
 
-import { SHOP_REGION_GROUP_LABELS, TAG_SHORT_LABELS } from "@sopum-map/shared";
+import {
+  SHOP_REGION_GROUP_LABELS,
+  TAG_DEFINITION_BY_KEY,
+} from "@sopum-map/shared";
 
 import type { ShopBannerItem } from "@/components/ui/ShopBannerCarousel/ShopBannerCarousel.types";
 
@@ -25,7 +28,7 @@ export const toShopBannerItem = (shop: HomeCuratedShop): ShopBannerItem => {
 
     tags: shop.tags.map((tag) => ({
       id: tag.key,
-      name: TAG_SHORT_LABELS[tag.key],
+      name: TAG_DEFINITION_BY_KEY[tag.key].shortLabel,
     })),
   };
 };

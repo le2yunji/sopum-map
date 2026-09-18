@@ -1,6 +1,6 @@
 import {
   SHOP_REGION_GROUP_LABELS,
-  TAG_SHORT_LABELS,
+  TAG_DEFINITION_BY_KEY,
   type ShopListItem,
 } from "@sopum-map/shared";
 
@@ -19,7 +19,9 @@ export const toHomeShopCardItem = (shop: ShopListItem) => {
 
     region: SHOP_REGION_GROUP_LABELS[shop.regionGroup],
 
-    tags: shop.tags.slice(0, 3).map((tag) => TAG_SHORT_LABELS[tag.key]),
+    tags: shop.tags
+      .slice(0, 3)
+      .map((tag) => TAG_DEFINITION_BY_KEY[tag.key].shortLabel),
 
     isLiked: shop.isLiked,
   };

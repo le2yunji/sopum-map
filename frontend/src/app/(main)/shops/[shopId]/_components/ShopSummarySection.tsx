@@ -4,19 +4,24 @@ import {
   CommentIcon,
   HeartIcon,
   LinkIcon,
-  LocationIcon,
   StoreIcon,
 } from "@/components/icons";
 import { Badge } from "@/components/ui/Badge/Badge";
-
 import { Button } from "@/components/ui/Button";
 
 import { ShopDetailData } from "@sopum-map/shared";
+import { NaverMapRouteLink } from "./NaverMapRouteLink";
 
 type Props = Readonly<{
   shop: Pick<
     ShopDetailData,
-    "name" | "visitLogCount" | "likeCount" | "tags" | "naverPlaceUrl"
+    | "name"
+    | "visitLogCount"
+    | "likeCount"
+    | "tags"
+    | "naverPlaceUrl"
+    | "latitude"
+    | "longitude"
   >;
 }>;
 
@@ -46,25 +51,12 @@ export function ShopSummarySection({ shop }: Props) {
         ))}
       </div>
       <div className="mt-5 grid grid-cols-2 gap-2">
-        {shop.naverMapUrl ? (
-          <Link
-            href={shop.naverMapUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-11 items-center justify-between rounded-xl border border-pink-300/30 text-14 px-4"
-          >
-            <span className="flex items-center gap-2 text-black-600 ">
-              <LocationIcon aria-hidden="true" className="w-5 " />
-              길찾기
-            </span>
-            <LinkIcon aria-hidden="true" className="w-5 text-black-600" />
-          </Link>
-        ) : (
-          <Button disabled className="flex items-center justify-center">
-            길찾기 준비중
-          </Button>
-        )}
-
+        <NaverMapRouteLink
+          name={shop.name}
+          latitude={shop.latitude}
+          longitude={shop.longitude}
+          naverPlaceUrl={shop.naverPlaceUrl}
+        />
         {shop.naverPlaceUrl ? (
           <Link
             href={shop.naverPlaceUrl}
