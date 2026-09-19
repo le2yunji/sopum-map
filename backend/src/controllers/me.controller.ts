@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import { getLikedShops } from "../services/shop-like.service.js";
 import { likedShopsQuerySchema } from "../validations/shop-like.validation.js";
 
-export async function getMyLikedShops(
+export async function getMyLikedShopsController(
   req: Request,
   res: Response,
   next: NextFunction,
