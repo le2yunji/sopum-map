@@ -3,6 +3,7 @@ import type { Types } from "mongoose";
 import type { HomeShopCurationSchemaType } from "../../models/home-shop-curation.model.js";
 import type { ShopSchemaType } from "../../models/shop.model.js";
 import { getMainShopImageUrl } from "../../utils/shop-image.js";
+import { mapShopTags } from "../../mappers/shop-tag.mapper.js";
 
 type HomeCurationItem = HomeShopCurationSchemaType["items"][number];
 
@@ -44,10 +45,7 @@ export const buildHomeCuratedShops = (
 
           mainImageUrl: getMainShopImageUrl(shop.images),
 
-          tags: shop.tagStats.map(({ key, count }) => ({
-            key,
-            count,
-          })),
+          tags: mapShopTags(shop.tagStats),
 
           description: shop.description ?? null,
 
