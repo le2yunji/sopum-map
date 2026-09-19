@@ -4,24 +4,24 @@ import {
   CommentIcon,
   HeartIcon,
   LinkIcon,
-  LocationIcon,
   StoreIcon,
 } from "@/components/icons";
 import { Badge } from "@/components/ui/Badge/Badge";
-import type { ShopDetailView } from "../_types/shop-detail.types";
 import { Button } from "@/components/ui/Button";
-import { MetroIcon } from "@/components/icons/MetroIcon";
+
+import { ShopDetailData } from "@sopum-map/shared";
+import { NaverMapRouteLink } from "./NaverMapRouteLink";
 
 type Props = Readonly<{
   shop: Pick<
-    ShopDetailView,
+    ShopDetailData,
     | "name"
-    | "reviewCount"
+    | "visitLogCount"
     | "likeCount"
-    | "distance"
     | "tags"
-    | "naverMapUrl"
-    | "smartStoreUrl"
+    | "naverPlaceUrl"
+    | "latitude"
+    | "longitude"
   >;
 }>;
 
@@ -38,60 +38,41 @@ export function ShopSummarySection({ shop }: Props) {
           </span>
           <span className="flex items-center gap-1 text-14 text-black-800">
             <CommentIcon className="w-5 text-black-400" />
-            {shop.reviewCount}
+            {shop.visitLogCount}
           </span>
         </div>
       </div>
 
-      <p className="mt-2 flex items-center gap-1 text-12 text-black-800">
-        <MetroIcon className="w-3.5 text-green-700/90" />
-        {shop.distance}
-      </p>
-
       <div className="mt-3 flex flex-wrap gap-2">
         {shop.tags.map((tag) => (
-          <Badge key={tag} shape="square" variant="pink" size="medium">
-            # {tag}
+          <Badge key={tag.key} variant="softGreen" shape="pill" size="medium">
+            #{tag.shortLabel}
           </Badge>
         ))}
       </div>
-
       <div className="mt-5 grid grid-cols-2 gap-2">
-        {shop.naverMapUrl ? (
+        <NaverMapRouteLink
+          name={shop.name}
+          latitude={shop.latitude}
+          longitude={shop.longitude}
+          naverPlaceUrl={shop.naverPlaceUrl}
+        />
+        {shop.naverPlaceUrl ? (
           <Link
-            href={shop.naverMapUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-11 items-center justify-between rounded-xl border border-pink-300/30 text-14 px-4"
-          >
-            <span className="flex items-center gap-2 text-black-600 ">
-              <LocationIcon aria-hidden="true" className="w-5 " />
-              길찾기
-            </span>
-            <LinkIcon aria-hidden="true" className="w-5 text-black-600" />
-          </Link>
-        ) : (
-          <Button disabled className="flex items-center justify-center">
-            길찾기 준비중
-          </Button>
-        )}
-
-        {shop.smartStoreUrl ? (
-          <Link
-            href={shop.smartStoreUrl}
+            href={shop.naverPlaceUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex min-h-11 items-center justify-between rounded-xl border border-pink-300/30 text-14 px-4"
           >
             <span className="flex items-center gap-2 text-black-600">
               <StoreIcon aria-hidden="true" className="w-5" />
-              스마트 스토어
+              플레이스 링크
             </span>
             <LinkIcon aria-hidden="true" className="w-5 text-black-600" />
           </Link>
         ) : (
           <Button disabled className="flex items-center justify-center">
-            스마트 스토어 준비중
+            플레이스 준비중
           </Button>
         )}
       </div>

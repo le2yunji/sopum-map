@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { SearchInput } from "@/components/ui/SearchInput/SearchInput";
 
-import type { MapShop } from "../_types/map.types";
+import type { MapShop } from "../../../../components/naver-map/naverMap.types";
 
 type MapSearchSheetProps = Readonly<{
   open: boolean;

@@ -7,12 +7,12 @@ import type { TagKey } from "@sopum-map/shared";
 import { getMapTagFilterValue } from "../_constants/map.constants";
 import { useMapScreenState } from "../_hooks/useMapScreenState";
 import { toMapShop } from "../_mappers/mapShop.mapper";
-import type { MapShop } from "../_types/map.types";
+import type { MapShop } from "@/components/naver-map";
 
 import { useInfiniteShops, useShopDetail } from "@/api/shops/shop.query";
 
-import { MapLocationControls } from "./canvas/MapLocationControls";
-import { NaverMapCanvas } from "./canvas/NaverMapCanvas";
+import { MapLocationControls } from "./map-canvas/MapLocationControls";
+import { NaverMapCanvas } from "./map-canvas/NaverMapCanvas";
 import { MapFilterSheet } from "./MapFilterSheet";
 import { MapSearchHeader } from "./MapSearchHeader";
 import { MapSearchSheet } from "./MapSearchSheet";

@@ -10,8 +10,7 @@ import {
   getShopDetailController,
   getShopsController,
 } from "../controllers/shop.controller.js";
-
-// import { optionalAuthMiddleware } from "../middlewares/optional-auth.middleware";
+import { getVisitLogsController } from "../controllers/visit-log.controller.js";
 
 export const shopRouter = Router();
 
@@ -24,6 +23,11 @@ shopRouter.get("/", optionalAuth, getShopsController);
  * GET /shops/:shopId
  */
 shopRouter.get("/:shopId", optionalAuth, getShopDetailController);
+
+/*
+ * GET /shops/:shopId/visit-logs
+ */
+shopRouter.get("/:shopId/visit-logs", optionalAuth, getVisitLogsController);
 
 /**
  * POST /:shopId/likes

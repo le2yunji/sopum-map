@@ -1,5 +1,5 @@
 import type { MapTagFilter } from "../_constants/map.constants";
-import type { MapShop } from "../_types/map.types";
+import type { MapShop } from "../../../../components/naver-map/naverMap.types";
 
 type FilterShopsParams = Readonly<{
   shops: MapShop[];

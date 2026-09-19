@@ -39,7 +39,13 @@ export function useShopDetail(shopId?: string) {
   return useQuery({
     queryKey: shopQueryKeys.detail(shopId ?? ""),
 
-    queryFn: () => getShopDetail(shopId!),
+    queryFn: () => {
+      if (!shopId) {
+        throw new Error("shopId가 필요합니다.");
+      }
+
+      return getShopDetail(shopId);
+    },
 
     enabled: Boolean(shopId),
   });

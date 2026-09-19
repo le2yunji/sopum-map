@@ -9,8 +9,7 @@ import {
   ProfileFlowerIcon,
 } from "@/components/icons";
 import { Button } from "@/components/ui/Button/Button";
-
-const DEFAULT_PROFILE_IMAGE = "/images/profiles/user_default.webp";
+import { DEFAULT_PROFILE_IMAGE } from "@/constants/image.constants";
 
 type MyPageProfileCardProps = Readonly<{
   nickname: string;

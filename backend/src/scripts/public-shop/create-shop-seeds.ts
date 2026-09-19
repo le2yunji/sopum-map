@@ -76,18 +76,12 @@ function createSeed(candidate: PublicShopCandidate): ShopSeed | null {
 
     description: null,
 
-    openingHours: null,
+    businessHours: [],
+    businessHoursNote: null,
 
     instagramUrl: null,
 
-    /**
-     * 네이버 정보는 DB 데이터로 복사하지 않는다.
-     */
-    naverPlaceId: null,
-
     naverPlaceUrl: null,
-
-    naverMapUrl: null,
 
     images: [],
 

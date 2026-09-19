@@ -3,16 +3,18 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 
-import { HeartIcon, PenIcon } from "@/components/icons";
+import { PenIcon } from "@/components/icons";
 import { BackButton } from "@/components/navigation/BackButton";
 import { Button } from "@/components/ui/Button/Button";
 import { Badge } from "@/components/ui/Badge/Badge";
+import { PickButton } from "@/components/pick/PickButton";
 
 type ShopImageCarouselProps = Readonly<{
   shopName: string;
   shopCategory: string;
   imageUrls: readonly string[];
   isLiked: boolean;
+  isLikePending: boolean;
   onToggleLike: () => void;
   onReport: () => void;
   fallbackImageUrl?: string;
@@ -37,6 +39,7 @@ export function ShopImageCarousel({
   shopName,
   shopCategory,
   imageUrls,
+  isLikePending,
   isLiked,
   onToggleLike,
   onReport,
@@ -138,20 +141,12 @@ export function ShopImageCarousel({
         />
 
         <div className="flex gap-2">
-          <Button
-            iconOnly
-            size="small"
-            variant="ghost"
-            aria-pressed={isLiked}
-            aria-label={isLiked ? "좋아요 취소" : "좋아요 추가"}
-            onClick={onToggleLike}
+          <PickButton
+            isLiked={isLiked}
+            isPending={isLikePending}
+            onToggleLike={onToggleLike}
             className="bg-white/90! active:bg-black-100!"
-          >
-            <HeartIcon
-              filled={isLiked}
-              className={isLiked ? "text-red-600" : "text-black-950"}
-            />
-          </Button>
+          />
 
           <Button
             iconOnly

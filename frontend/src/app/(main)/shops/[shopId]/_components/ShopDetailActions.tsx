@@ -12,7 +12,7 @@ type Props = Readonly<{
   shopName: string;
   shopCategory: string;
   imageUrls: readonly string[];
-  initialIsPicked?: boolean;
+  initialIsLiked?: boolean;
 }>;
 
 export function ShopDetailActions({
@@ -20,19 +20,20 @@ export function ShopDetailActions({
   shopName,
   shopCategory,
   imageUrls,
-  initialIsPicked = false,
+  initialIsLiked = false,
 }: Props) {
   const [isReportSheetOpen, setReportSheetOpen] = useState(false);
 
   return (
     <>
-      <PickAction shopId={shopId} initialIsPicked={initialIsPicked}>
-        {({ isPicked, onToggle }) => (
+      <PickAction shopId={shopId} initialIsLiked={initialIsLiked}>
+        {({ isLiked, isPending, onToggle }) => (
           <ShopImageCarousel
             shopName={shopName}
             shopCategory={shopCategory}
             imageUrls={imageUrls}
-            isLiked={isPicked}
+            isLikePending={isPending}
+            isLiked={isLiked}
             onToggleLike={onToggle}
             onReport={() => setReportSheetOpen(true)}
           />

@@ -1,9 +1,11 @@
 // shop.api.types.ts
 import type { ApiSuccessResponse, Pagination } from "../api/api.types";
-import type { TagKey } from "../tag";
+import type { TagGroup, TagKey } from "../tag";
 import { SHOP_SORTS } from "./shop.constants";
+import type { VisitLogListItem } from "../visit-log";
 
 import type {
+  ShopBusinessDay,
   ShopCategory,
   ShopImageSourceType,
   ShopRegionGroup,
@@ -26,10 +28,13 @@ export type GetShopsQuery = {
   sort?: ShopSort;
 };
 
-export type ShopTag = {
+export type ShopTag = Readonly<{
   key: TagKey;
   count: number;
-};
+  selectionLabel: string;
+  shortLabel: string;
+  group: TagGroup;
+}>;
 
 export type ShopImage = {
   imageUrl: string;
@@ -60,6 +65,7 @@ export type ShopBaseData = {
   status: ShopStatus;
   likeCount: number;
   visitLogCount: number;
+
   isLiked: boolean;
 };
 
@@ -72,14 +78,27 @@ export type ShopListData = {
   pagination: Pagination;
 };
 
+export type ShopBusinessPeriod = Readonly<{
+  open: string;
+  close: string;
+}>;
+
+export type ShopBusinessHour = Readonly<{
+  day: ShopBusinessDay;
+  isClosed: boolean;
+  periods: ShopBusinessPeriod[];
+}>;
+
 export type ShopDetailData = ShopBaseData & {
   phone: string | null;
   description: string | null;
-  openingHours: string | null;
+  businessHours: ShopBusinessHour[];
+  businessHoursNote: string | null;
   instagramUrl: string | null;
-  naverMapUrl: string | null;
+  naverPlaceUrl: string | null;
 
   images: ShopImage[];
+
   sourceType: ShopSourceType;
   createdAt: string;
   updatedAt: string;

@@ -1,10 +1,10 @@
-import type {
-  ShopDetailData,
-  ShopImage,
-  ShopListItem,
+import {
+  type ShopBusinessHour,
+  type ShopDetailData,
+  type ShopImage,
+  type ShopListItem,
 } from "@sopum-map/shared";
 
-import type { ShopSchemaType } from "../../models/shop.model.js";
 import { getMainShopImageUrl } from "../../utils/shop-image.js";
 
 import type {
@@ -12,20 +12,12 @@ import type {
   ShopQueryResult,
 } from "./shop.query.types.js";
 
+import { mapShopTags } from "../../mappers/shop-tag.mapper.js";
+
 type MapShopListItemParams = {
   shop: ShopListAggregateItem;
   visitLogCount: number;
   isLiked: boolean;
-};
-
-/** 매장 태그 집계를 API 응답 형태로 복사합니다. */
-const mapShopTags = (
-  tagStats: ShopSchemaType["tagStats"],
-): ShopListItem["tags"] => {
-  return tagStats.map(({ key, count }) => ({
-    key,
-    count,
-  }));
 };
 
 /** 매장 이미지를 노출 순서대로 정렬합니다. */
@@ -47,6 +39,20 @@ const mapShopImage = (image: ShopQueryResult["images"][number]): ShopImage => {
     isMain: image.isMain ?? false,
     order: image.order ?? 0,
   };
+};
+
+/** 매장 영업시간을 API 응답 형태로 변환합니다. */
+const mapShopBusinessHours = (
+  businessHours: ShopQueryResult["businessHours"],
+): ShopBusinessHour[] => {
+  return businessHours.map(({ day, isClosed, periods }) => ({
+    day,
+    isClosed,
+    periods: periods.map(({ open, close }) => ({
+      open,
+      close,
+    })),
+  }));
 };
 
 /**
@@ -125,9 +131,11 @@ export const mapShopDetail = ({
     longitude,
     phone: shop.phone ?? null,
     description: shop.description ?? null,
-    openingHours: shop.openingHours ?? null,
+    businessHours: mapShopBusinessHours(shop.businessHours),
+    businessHoursNote: shop.businessHoursNote ?? null,
     instagramUrl: shop.instagramUrl ?? null,
-    naverMapUrl: shop.naverMapUrl ?? null,
+
+    naverPlaceUrl: shop.naverPlaceUrl ?? null,
 
     mainImageUrl: getMainShopImageUrl(shop.images),
     images: sortedImages.map(mapShopImage),

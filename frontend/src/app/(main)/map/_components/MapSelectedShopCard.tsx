@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { HeartIcon, LocationIcon, MenuIcon } from "@/components/icons";
+import { LocationIcon, MenuIcon } from "@/components/icons";
 import { PickAction } from "@/components/pick/PickAction";
+import { PickButton } from "@/components/pick/PickButton";
 import { Button } from "@/components/ui/Button";
 
-import type { MapShop } from "../_types/map.types";
+import type { MapShop } from "@/components/naver-map";
 
 type MapSelectedShopCardProps = Readonly<{
   shop: MapShop;
@@ -75,28 +76,14 @@ export function MapSelectedShopCard({
           </span>
         </Link>
 
-        <PickAction shopId={shop.id} initialIsPicked={shop.isLiked}>
-          {({ isPicked, isPending, onToggle }) => (
-            <Button
-              type="button"
-              iconOnly
-              size="small"
-              variant="ghost"
-              aria-label={isPicked ? "내 픽에서 제거" : "내 픽에 추가"}
-              aria-pressed={isPicked}
-              disabled={isPending}
-              onClick={() => void onToggle()}
-              className="absolute right-1 top-1 hover:bg-transparent! active:bg-transparent!"
-            >
-              <HeartIcon
-                filled={isPicked}
-                className={
-                  isPicked
-                    ? "size-6! text-red-600 [&_path]:stroke-[2]"
-                    : "size-6! text-black-300 [&_path]:stroke-[1.5]"
-                }
-              />
-            </Button>
+        <PickAction shopId={shop.id} initialIsLiked={shop.isLiked}>
+          {({ isLiked, isPending, onToggle }) => (
+            <PickButton
+              isLiked={isLiked}
+              isPending={isPending}
+              onToggleLike={onToggle}
+              className="absolute right-1 top-1 z-20"
+            />
           )}
         </PickAction>
       </div>

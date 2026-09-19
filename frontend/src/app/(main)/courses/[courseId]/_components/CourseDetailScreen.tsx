@@ -14,7 +14,6 @@ type CourseShop = Readonly<{
   name: string;
   description: string;
   imageUrl: string;
-  naverMapUrl: string;
 }>;
 const DEFAULT_SHOPS: readonly CourseShop[] = [
   {
@@ -22,21 +21,18 @@ const DEFAULT_SHOPS: readonly CourseShop[] = [
     name: "온더데스크",
     description: "귀엽고 예쁜 엽서와 편지지가 가득한 곳입니다.",
     imageUrl: "/images/shops/shop_example.png",
-    naverMapUrl: "https://map.naver.com/p/search/온더데스크",
   },
   {
     id: "letter-for-you",
     name: "레터포유",
     description: "친구에게 선물할 편지와 문구를 고르기 좋은 곳입니다.",
     imageUrl: "/images/profiles/shop_default.webp",
-    naverMapUrl: "https://map.naver.com/p/search/레터포유",
   },
   {
     id: "sunshine",
     name: "선샤인",
     description: "서울숲 산책 끝에 들르기 좋은 소품샵입니다.",
     imageUrl: "/images/brand/mascot-v2.webp",
-    naverMapUrl: "https://map.naver.com/p/search/선샤인",
   },
 ];
 type Props = Readonly<{
@@ -221,14 +217,14 @@ function CourseTimeline({ shops }: { shops: readonly CourseShop[] }) {
                 >
                   상세보기 ›
                 </Link>
-                <a
-                  href={shop.naverMapUrl}
+                {/* <a
+                  href={}
                   target="_blank"
                   rel="noreferrer"
                   className="text-12 font-semibold text-green-700"
                 >
                   지도보기 ›
-                </a>
+                </a> */}
               </div>
             </div>
           </article>

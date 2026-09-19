@@ -1,3 +1,4 @@
+import type { ShopBusinessHour, ShopCategory } from "@sopum-map/shared";
 import type { PublicShopRegionGroup } from "./public-shop.config.js";
 
 export type PublicShopSelectionReason =
@@ -36,7 +37,7 @@ export type PublicShopCandidate = {
 
   name: string;
 
-  category: "소품샵" | "가챠샵";
+  category: ShopCategory;
 
   originalCategoryLarge?: string;
 
@@ -144,7 +145,7 @@ export type UnmatchedNaverReference = {
 export type ShopSeed = {
   name: string;
 
-  category: "소품샵" | "가챠샵";
+  category: ShopCategory;
 
   tagStats: [];
 
@@ -166,15 +167,12 @@ export type ShopSeed = {
 
   description: null;
 
-  openingHours: null;
+  businessHours: ShopBusinessHour[];
+  businessHoursNote: string | null;
 
   instagramUrl: null;
 
-  naverPlaceId: null;
-
   naverPlaceUrl: null;
-
-  naverMapUrl: null;
 
   images: [];
 
