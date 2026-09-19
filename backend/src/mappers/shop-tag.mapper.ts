@@ -1,10 +1,12 @@
-import { ShopSchemaType } from "../models/shop.model.js";
-import { ShopListItem, TAG_DEFINITION_BY_KEY } from "@sopum-map/shared";
+import { ShopTag, TAG_DEFINITION_BY_KEY, TagKey } from "@sopum-map/shared";
+
+type ShopTagStat = Readonly<{
+  key: TagKey;
+  count: number;
+}>;
 
 /** 매장 태그 집계를 API 응답 형태로 변환합니다. */
-export const mapShopTags = (
-  tagStats: ShopSchemaType["tagStats"],
-): ShopListItem["tags"] => {
+export const mapShopTags = (tagStats: readonly ShopTagStat[]): ShopTag[] => {
   return tagStats.map(({ key, count }) => {
     const tag = TAG_DEFINITION_BY_KEY[key];
 
