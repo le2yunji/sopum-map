@@ -3,6 +3,13 @@ import { Types } from "mongoose";
 import ShopLikeModel from "../models/shop-like.model.js";
 import ShopModel from "../models/shop.model.js";
 
+import PickFolderModel from "../models/pick-folder.model.js";
+import PickFolderItemModel from "../models/pick-folder-item.model.js";
+import { getShopMapByIds } from "./shop/shop-query.helper.js";
+
+/**
+ * 상점에 좋아요 추가
+ */
 export async function likeShop(userId: string, shopId: string) {
   const shop = await ShopModel.exists({
     _id: shopId,
@@ -39,14 +46,41 @@ export async function likeShop(userId: string, shopId: string) {
   };
 }
 
+/**
+ * 상점 좋아요를 취소하고 모든 내 픽 폴더에서도 제거
+ */
 export async function unlikeShop(userId: string, shopId: string) {
-  await ShopLikeModel.deleteOne({
-    userId: new Types.ObjectId(userId),
-    shopId: new Types.ObjectId(shopId),
-  });
+  const objectUserId = new Types.ObjectId(userId);
+  const objectShopId = new Types.ObjectId(shopId);
+
+  const folders = await PickFolderModel.find({
+    userId: objectUserId,
+  })
+    .select({
+      _id: 1,
+    })
+    .lean();
+
+  const folderIds = folders.map((folder) => folder._id);
+
+  await Promise.all([
+    ShopLikeModel.deleteOne({
+      userId: objectUserId,
+      shopId: objectShopId,
+    }),
+
+    folderIds.length > 0
+      ? PickFolderItemModel.deleteMany({
+          shopId: objectShopId,
+          folderId: {
+            $in: folderIds,
+          },
+        })
+      : Promise.resolve(),
+  ]);
 
   const likeCount = await ShopLikeModel.countDocuments({
-    shopId,
+    shopId: objectShopId,
   });
 
   return {
@@ -62,19 +96,23 @@ type GetLikedShopsParams = Readonly<{
   limit: number;
 }>;
 
+/**
+ * 내가 좋아요한 전체 상점 목록 조회
+ */
 export async function getLikedShops({
   userId,
   page,
   limit,
 }: GetLikedShopsParams) {
+  const objectUserId = new Types.ObjectId(userId);
   const skip = (page - 1) * limit;
 
   /**
    * 현재 사용자가 좋아요한 상점 ID를
-   * 최신 좋아요 순으로 조회합니다.
+   * 최신 좋아요 순으로 조회
    */
   const likes = await ShopLikeModel.find({
-    userId: new Types.ObjectId(userId),
+    userId: objectUserId,
   })
     .sort({
       createdAt: -1,
@@ -83,22 +121,12 @@ export async function getLikedShops({
     .limit(limit);
 
   const totalCount = await ShopLikeModel.countDocuments({
-    userId: new Types.ObjectId(userId),
+    userId: objectUserId,
   });
 
   const shopIds = likes.map((like) => like.shopId);
 
-  const shops = await ShopModel.find({
-    _id: {
-      $in: shopIds,
-    },
-  });
-
-  /**
-   * $in 조회는 likes의 정렬 순서를 보장하지 않으므로
-   * shopId 기준 Map을 만든 뒤 좋아요 순서대로 다시 정렬합니다.
-   */
-  const shopMap = new Map(shops.map((shop) => [shop._id.toString(), shop]));
+  const shopMap = await getShopMapByIds(shopIds);
 
   const items = likes
     .map((like) => {
@@ -113,13 +141,7 @@ export async function getLikedShops({
         name: shop.name,
         category: shop.category,
         address: shop.address,
-
-        /**
-         * 이 API에서 조회되는 상점은
-         * 당연히 현재 사용자가 좋아요한 상태입니다.
-         */
         isLiked: true,
-
         likedAt: like.createdAt,
       };
     })
