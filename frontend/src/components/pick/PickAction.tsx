@@ -13,7 +13,7 @@ import { PickSnackbar } from "./PickSnackbar";
 import type { PickFolder } from "./pick.types";
 
 type PickActionRenderProps = Readonly<{
-  isPicked: boolean;
+  isLiked: boolean;
   isPending: boolean;
   onToggle: () => void;
 }>;
@@ -22,7 +22,7 @@ type SnackbarType = "added" | "removed";
 
 type Props = Readonly<{
   shopId: string;
-  initialIsPicked?: boolean;
+  initialIsLiked?: boolean;
 
   children: (props: PickActionRenderProps) => ReactNode;
 
@@ -40,7 +40,7 @@ const PICK_SYNC_DELAY = 300;
 
 export function PickAction({
   shopId,
-  initialIsPicked = false,
+  initialIsLiked = false,
   children,
   onAdd,
   onRemove,
@@ -51,17 +51,17 @@ export function PickAction({
   /**
    * 현재 UI에 표시되는 픽 상태
    */
-  const [isPicked, setIsPicked] = useState(initialIsPicked);
+  const [isLiked, setIsLiked] = useState(initialIsLiked);
 
   /**
    * 서버에 마지막으로 정상 반영된 상태
    */
-  const [syncedIsPicked, setSyncedIsPicked] = useState(initialIsPicked);
+  const [syncedisPicked, setSyncedisPicked] = useState(initialIsLiked);
 
   /**
    * 사용자의 입력이 멈춘 뒤 최종 상태
    */
-  const debouncedIsPicked = useDebouncedValue(isPicked, PICK_SYNC_DELAY);
+  const debouncedisPicked = useDebouncedValue(isLiked, PICK_SYNC_DELAY);
 
   /**
    * 실제 API 요청 진행 여부
@@ -76,11 +76,11 @@ export function PickAction({
    * API 요청 도중에도 사용자가 다시 상태를 변경할 수 있으므로
    * 항상 최신 UI 상태를 보관합니다.
    */
-  const latestIsPickedRef = useRef(initialIsPicked);
+  const latestisPickedRef = useRef(initialIsLiked);
 
   useEffect(() => {
-    latestIsPickedRef.current = isPicked;
-  }, [isPicked]);
+    latestisPickedRef.current = isLiked;
+  }, [isLiked]);
 
   /**
    * Snackbar 자동 종료
@@ -106,7 +106,7 @@ export function PickAction({
     /**
      * 서버 상태와 같다면 API 호출이 필요 없습니다.
      */
-    if (debouncedIsPicked === syncedIsPicked) {
+    if (debouncedisPicked === syncedisPicked) {
       return;
     }
 
@@ -120,13 +120,13 @@ export function PickAction({
       return;
     }
 
-    const targetIsPicked = debouncedIsPicked;
+    const targetisPicked = debouncedisPicked;
 
     const syncPickState = async () => {
       setIsPending(true);
 
       try {
-        if (targetIsPicked) {
+        if (targetisPicked) {
           if (onAdd) {
             await onAdd(shopId);
           } else {
@@ -143,14 +143,14 @@ export function PickAction({
         /**
          * 서버에 정상 반영된 상태를 기록합니다.
          */
-        setSyncedIsPicked(targetIsPicked);
+        setSyncedisPicked(targetisPicked);
 
         /**
          * API 요청 도중 사용자가 다시 상태를 바꾸지 않았다면
          * 현재 요청이 최종 사용자 의도이므로 후처리합니다.
          */
-        if (latestIsPickedRef.current === targetIsPicked) {
-          setSnackbarType(targetIsPicked ? "added" : "removed");
+        if (latestisPickedRef.current === targetisPicked) {
+          setSnackbarType(targetisPicked ? "added" : "removed");
 
           void queryClient.invalidateQueries({
             queryKey: shopQueryKeys.all,
@@ -164,8 +164,8 @@ export function PickAction({
          * 요청 중 사용자가 다시 상태를 변경했다면
          * 최신 입력은 유지합니다.
          */
-        if (latestIsPickedRef.current === targetIsPicked) {
-          setIsPicked(syncedIsPicked);
+        if (latestisPickedRef.current === targetisPicked) {
+          setIsLiked(syncedisPicked);
         }
 
         console.error("상점 픽 상태 변경 실패:", error);
@@ -176,8 +176,8 @@ export function PickAction({
 
     void syncPickState();
   }, [
-    debouncedIsPicked,
-    syncedIsPicked,
+    debouncedisPicked,
+    syncedisPicked,
     isPending,
     shopId,
     onAdd,
@@ -192,7 +192,7 @@ export function PickAction({
   const handleToggle = () => {
     setSnackbarType(null);
 
-    setIsPicked((current) => !current);
+    setIsLiked((current) => !current);
   };
 
   const handleOpenFolderSheet = () => {
@@ -207,7 +207,7 @@ export function PickAction({
   return (
     <>
       {children({
-        isPicked,
+        isLiked,
         isPending,
         onToggle: handleToggle,
       })}

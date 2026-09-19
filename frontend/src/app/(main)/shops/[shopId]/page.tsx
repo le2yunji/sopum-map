@@ -1,7 +1,6 @@
 // (main)/shops/[shopId]/page.tsx
 
 import { ShopDetailScreen } from "./_components/ShopDetailScreen";
-import { getShopDetail } from "@/api/shops/shop.api";
 
 type Props = Readonly<{
   params: Promise<{
@@ -11,7 +10,6 @@ type Props = Readonly<{
 
 export default async function ShopDetailPage({ params }: Props) {
   const { shopId } = await params;
-  const shop = await getShopDetail(shopId);
 
-  return <ShopDetailScreen shop={shop} />;
+  return <ShopDetailScreen shopId={shopId} />;
 }

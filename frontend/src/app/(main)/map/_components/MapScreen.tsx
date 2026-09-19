@@ -7,7 +7,7 @@ import type { TagKey } from "@sopum-map/shared";
 import { getMapTagFilterValue } from "../_constants/map.constants";
 import { useMapScreenState } from "../_hooks/useMapScreenState";
 import { toMapShop } from "../_mappers/mapShop.mapper";
-import type { MapShop } from "../../../../components/naver-map/naverMap.types";
+import type { MapShop } from "@/components/naver-map";
 
 import { useInfiniteShops, useShopDetail } from "@/api/shops/shop.query";
 

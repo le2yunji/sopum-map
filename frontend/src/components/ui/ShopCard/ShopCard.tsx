@@ -1,9 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { HeartIcon } from "@/components/icons/HeartIcon";
-
-import { Button } from "../Button";
+import { PickButton } from "@/components/pick/PickButton";
 import type { ShopCardProps, ShopCardVariant } from "./ShopCard.types";
 
 const DEFAULT_SHOP_IMAGE = "/images/profiles/shop_default.webp";
@@ -57,29 +55,12 @@ export const ShopCard = ({
         />
 
         {!isCompact && (
-          <Button
-            iconOnly
-            size="small"
-            variant="ghost"
-            aria-label={isLiked ? "내 픽에서 제거" : "내 픽에 추가"}
-            aria-pressed={isLiked}
-            disabled={isLikePending}
-            onClick={onLikeClick}
-            className="
-              absolute right-0 bottom-0 z-20
-              hover:bg-transparent!
-              active:bg-black-100/0!
-            "
-          >
-            <HeartIcon
-              filled={isLiked}
-              className={
-                isLiked
-                  ? "size-7! text-red-600 [&_path]:stroke-[2]"
-                  : "size-7! text-white [&_path]:fill-white/10 [&_path]:stroke-white [&_path]:stroke-[1.5]"
-              }
-            />
-          </Button>
+          <PickButton
+            isLiked={isLiked}
+            isPending={isLikePending}
+            onToggleLike={onLikeClick}
+            className="absolute right-0 bottom-0 z-20"
+          />
         )}
       </div>
 

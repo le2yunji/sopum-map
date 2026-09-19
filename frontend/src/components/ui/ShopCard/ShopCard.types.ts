@@ -10,5 +10,5 @@ export interface ShopCardProps {
   isLiked?: boolean;
   isLikePending?: boolean;
   variant?: ShopCardVariant;
-  onLikeClick?: () => void;
+  onLikeClick: () => void;
 }

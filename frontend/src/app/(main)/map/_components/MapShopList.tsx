@@ -10,7 +10,7 @@ import { PickAction } from "@/components/pick/PickAction";
 import { Button } from "@/components/ui/Button/Button";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
-import type { MapShop } from "../../../../components/naver-map/naverMap.types";
+import type { MapShop } from "@/components/naver-map";
 import { SHOP_REGION_GROUP_LABELS } from "@sopum-map/shared";
 
 type MapShopListProps = Readonly<{
@@ -117,15 +117,15 @@ export function MapShopList({
             </div>
           </Link>
 
-          <PickAction shopId={shop.id} initialIsPicked={shop.isLiked}>
-            {({ isPicked, isPending, onToggle }) => (
+          <PickAction shopId={shop.id} initialIsLiked={shop.isLiked}>
+            {({ isLiked, isPending, onToggle }) => (
               <Button
                 type="button"
                 iconOnly
                 size="small"
                 variant="ghost"
-                aria-label={isPicked ? "내 픽에서 제거" : "내 픽에 추가"}
-                aria-pressed={isPicked}
+                aria-label={isLiked ? "내 픽에서 제거" : "내 픽에 추가"}
+                aria-pressed={isLiked}
                 onClick={() => void onToggle()}
                 disabled={isPending}
                 className="
@@ -137,9 +137,9 @@ export function MapShopList({
                   "
               >
                 <HeartIcon
-                  filled={isPicked}
+                  filled={isLiked}
                   className={
-                    isPicked
+                    isLiked
                       ? "size-6! text-red-600 [&_path]:stroke-[2]"
                       : "size-6! text-black-300 [&_path]:stroke-[1.5]"
                   }

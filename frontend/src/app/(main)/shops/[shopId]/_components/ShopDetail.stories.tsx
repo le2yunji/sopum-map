@@ -1,7 +1,10 @@
 import type { ShopDetailData } from "@sopum-map/shared";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { useState } from "react";
 import { expect, within } from "storybook/test";
 
+import { shopQueryKeys } from "@/api/shops/shop.query";
 import { ShopDetailScreen } from "./ShopDetailScreen";
 
 const defaultShop: ShopDetailData = {
@@ -50,7 +53,7 @@ const defaultShop: ShopDetailData = {
 
   likeCount: 128,
   visitLogCount: 2,
-  isLiked: false,
+  isLiked: true,
 
   phone: "0212345678",
 
@@ -154,12 +157,58 @@ const defaultShop: ShopDetailData = {
   updatedAt: "2026-08-02T00:00:00.000Z",
 };
 
+/** 각 스토리가 지정한 상세 데이터를 React Query 조회 결과로 제공합니다. */
+function ShopDetailStory({ shop }: Readonly<{ shop: ShopDetailData }>) {
+  const [queryClient] = useState(() => {
+    const client = new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: Number.POSITIVE_INFINITY,
+        },
+      },
+    });
+
+    client.setQueryData(shopQueryKeys.detail(shop.id), shop);
+
+    return client;
+  });
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ShopDetailScreen shopId={shop.id} />
+    </QueryClientProvider>
+  );
+}
+
 const meta = {
   title: "Shop/ShopDetailScreen",
-  component: ShopDetailScreen,
+  component: ShopDetailStory,
 
   parameters: {
     layout: "fullscreen",
+  },
+
+  beforeEach: () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = async () =>
+      Response.json({
+        success: true,
+        data: {
+          items: [],
+          pagination: {
+            page: 1,
+            limit: 10,
+            totalCount: 0,
+            totalPages: 0,
+            hasNext: false,
+          },
+        },
+      });
+
+    return () => {
+      globalThis.fetch = originalFetch;
+    };
   },
 
   decorators: [
@@ -169,7 +218,7 @@ const meta = {
       </div>
     ),
   ],
-} satisfies Meta<typeof ShopDetailScreen>;
+} satisfies Meta<typeof ShopDetailStory>;
 
 export default meta;
 
@@ -188,6 +237,10 @@ export const Default: Story = {
         name: "후기 작성하기",
       }),
     ).toHaveAttribute("href", "/shops/shop-1/reviews/new");
+
+    await expect(
+      canvas.getByRole("button", { name: "내 픽에서 제거" }),
+    ).toHaveAttribute("aria-pressed", "true");
   },
 };
 
