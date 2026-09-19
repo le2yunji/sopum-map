@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { fn } from "storybook/test";
 
 import { ShopCard } from "./ShopCard";
 
@@ -24,6 +25,11 @@ const meta = {
       description: "매장 이름",
     },
 
+    href: {
+      control: "text",
+      description: "매장 상세 페이지 URL",
+    },
+
     imageUrl: {
       control: "text",
       description: "매장 대표 이미지 URL",
@@ -35,29 +41,46 @@ const meta = {
     },
 
     tags: {
-      control: "text",
-      description: "매장 카테고리",
+      control: "object",
+      description: "매장 태그",
     },
 
     isLiked: {
       control: "boolean",
-      description: "찜 여부",
+      description: "좋아요 여부",
+    },
+
+    isLikePending: {
+      control: "boolean",
+      description: "좋아요 처리 중 여부",
     },
 
     onLikeClick: {
       action: "like-clicked",
-      description: "찜 버튼 클릭 이벤트",
+      description: "좋아요 버튼 클릭 이벤트",
     },
   },
 
   args: {
     id: "shop-1",
+
+    href: "/shops/shop-1",
+
     name: "모모 소품샵",
+
     imageUrl: "/images/profiles/shop_default.webp",
+
     region: "성수",
+
     tags: ["문구", "캐릭터", "다꾸"],
+
     isLiked: false,
+
+    isLikePending: false,
+
     variant: "default",
+
+    onLikeClick: fn(),
   },
 
   decorators: [
@@ -92,6 +115,12 @@ export const Compact: Story = {
 export const Liked: Story = {
   args: {
     isLiked: true,
+  },
+};
+
+export const LikePending: Story = {
+  args: {
+    isLikePending: true,
   },
 };
 
