@@ -1,22 +1,26 @@
 // src/services/pick-folder/pick-folder.service.ts
 
 import { Types } from "mongoose";
-
+import { createApiError } from "@sopum-map/shared";
 import type {
   CreatePickFolderRequest,
   PickFolder,
   PickFolderListData,
-  ShopPickFolderData,
+  ShopFolderIdsData,
   UpdatePickFolderOrderRequest,
   UpdatePickFolderRequest,
-  UpdateShopPickFoldersRequest,
+  UpdateShopFolderIdsRequest,
+  AddShopToFolderRequest,
+  PickFolderShopData,
 } from "@sopum-map/shared";
 
 import PickFolderModel from "../../models/pick-folder.model.js";
 import PickFolderItemModel from "../../models/pick-folder-item.model.js";
 import ShopLikeModel from "../../models/shop-like.model.js";
 import { getShopMapByIds } from "../shop/shop-query.helper.js";
+import ShopModel from "../../models/shop.model.js";
 
+// folders
 /**
  * PickFolder 문서를 API 응답 형태로 변환
  */
@@ -148,7 +152,11 @@ export async function updatePickFolder(
   );
 
   if (!folder) {
-    throw new Error("내 픽 폴더를 찾을 수 없습니다.");
+    throw createApiError({
+      status: 404,
+      code: "PICK_FOLDER_NOT_FOUND",
+      message: "내 픽 폴더를 찾을 수 없습니다.",
+    });
   }
 
   return mapPickFolder(folder);
@@ -173,9 +181,12 @@ export async function deletePickFolder(
     .lean();
 
   if (!folder) {
-    throw new Error("내 픽 폴더를 찾을 수 없습니다.");
+    throw createApiError({
+      status: 404,
+      code: "PICK_FOLDER_NOT_FOUND",
+      message: "내 픽 폴더를 찾을 수 없습니다.",
+    });
   }
-
   await Promise.all([
     PickFolderModel.deleteOne({
       _id: folderId,
@@ -216,7 +227,11 @@ export async function updatePickFolderOrder(
     .lean();
 
   if (ownedFolders.length !== folderIds.length) {
-    throw new Error("유효하지 않은 내 픽 폴더가 포함되어 있습니다.");
+    throw createApiError({
+      status: 400,
+      code: "INVALID_PICK_FOLDER",
+      message: "유효하지 않은 내 픽 폴더가 포함되어 있습니다.",
+    });
   }
 
   await PickFolderModel.bulkWrite(
@@ -237,13 +252,14 @@ export async function updatePickFolderOrder(
   );
 }
 
+// shops
 /**
  * 특정 상점이 현재 포함되어 있는 내 픽 폴더 ID 목록을 조회
  */
-export async function getShopPickFolders(
+export async function getFolderIdsByShop(
   userId: string,
   shopId: string,
-): Promise<ShopPickFolderData> {
+): Promise<ShopFolderIdsData> {
   const objectUserId = new Types.ObjectId(userId);
   const objectShopId = new Types.ObjectId(shopId);
 
@@ -282,11 +298,11 @@ export async function getShopPickFolders(
 /**
  * 특정 상점의 폴더 소속을 요청받은 folderIds 상태로 맞춤
  */
-export async function updateShopPickFolders(
+export async function updateFolderIdsByShop(
   userId: string,
   shopId: string,
-  input: UpdateShopPickFoldersRequest,
-): Promise<ShopPickFolderData> {
+  input: UpdateShopFolderIdsRequest,
+): Promise<ShopFolderIdsData> {
   const objectUserId = new Types.ObjectId(userId);
   const objectShopId = new Types.ObjectId(shopId);
 
@@ -308,7 +324,11 @@ export async function updateShopPickFolders(
   });
 
   if (!isLiked) {
-    throw new Error("좋아요한 상점만 내 픽 폴더에 저장할 수 있습니다.");
+    throw createApiError({
+      status: 409,
+      code: "SHOP_NOT_LIKED",
+      message: "좋아요한 상점만 내 픽 폴더에 저장할 수 있습니다.",
+    });
   }
 
   /**
@@ -325,8 +345,12 @@ export async function updateShopPickFolders(
     })
     .lean();
 
-  if (ownedFolders.length !== objectFolderIds.length) {
-    throw new Error("유효하지 않은 내 픽 폴더가 포함되어 있습니다.");
+  if (ownedFolders.length !== folderIds.length) {
+    throw createApiError({
+      status: 400,
+      code: "INVALID_PICK_FOLDER",
+      message: "유효하지 않은 내 픽 폴더가 포함되어 있습니다.",
+    });
   }
 
   /**
@@ -392,23 +416,9 @@ export async function updateShopPickFolders(
   for (const folderId of folderIdsToAdd) {
     const objectFolderId = new Types.ObjectId(folderId);
 
-    const lastItem = await PickFolderItemModel.findOne({
-      folderId: objectFolderId,
-    })
-      .sort({
-        order: -1,
-      })
-      .select({
-        order: 1,
-      })
-      .lean();
-
-    const nextOrder = (lastItem?.order ?? -1) + 1;
-
     await PickFolderItemModel.create({
       folderId: objectFolderId,
       shopId: objectShopId,
-      order: nextOrder,
     });
   }
 
@@ -417,7 +427,7 @@ export async function updateShopPickFolders(
   };
 }
 
-type GetPickFolderShopsParams = Readonly<{
+type GetShopsByFolderParams = Readonly<{
   userId: string;
   folderId: string;
   page: number;
@@ -427,12 +437,12 @@ type GetPickFolderShopsParams = Readonly<{
 /**
  * 특정 내 픽 폴더에 저장된 상점 목록을 조회
  */
-export async function getPickFolderShops({
+export async function getShopsByFolder({
   userId,
   folderId,
   page,
   limit,
-}: GetPickFolderShopsParams) {
+}: GetShopsByFolderParams) {
   const objectFolderId = new Types.ObjectId(folderId);
   const objectUserId = new Types.ObjectId(userId);
 
@@ -442,7 +452,11 @@ export async function getPickFolderShops({
   });
 
   if (!folder) {
-    throw new Error("내 픽 폴더를 찾을 수 없습니다.");
+    throw createApiError({
+      status: 404,
+      code: "PICK_FOLDER_NOT_FOUND",
+      message: "내 픽 폴더를 찾을 수 없습니다.",
+    });
   }
 
   const skip = (page - 1) * limit;
@@ -452,7 +466,6 @@ export async function getPickFolderShops({
       folderId: objectFolderId,
     })
       .sort({
-        order: 1,
         createdAt: 1,
       })
       .skip(skip)
@@ -499,4 +512,185 @@ export async function getPickFolderShops({
       hasNext,
     },
   };
+}
+
+/**
+ * 좋아요한 상점을 내 픽 폴더에 추가합니다.
+ */
+export async function addShopToFolder(
+  userId: string,
+  folderId: string,
+  input: AddShopToFolderRequest,
+): Promise<PickFolderShopData> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectFolderId = new Types.ObjectId(folderId);
+  const objectShopId = new Types.ObjectId(input.shopId);
+
+  /**
+   * 폴더 존재 여부를 먼저 확인합니다.
+   */
+  const folder = await PickFolderModel.findById(objectFolderId)
+    .select({
+      _id: 1,
+      userId: 1,
+    })
+    .lean();
+
+  if (!folder) {
+    throw createApiError({
+      status: 404,
+      code: "PICK_FOLDER_NOT_FOUND",
+      message: "내 픽 폴더를 찾을 수 없습니다.",
+    });
+  }
+
+  /**
+   * 다른 사용자의 폴더에는 상점을 추가할 수 없습니다.
+   */
+  if (folder.userId.toString() !== objectUserId.toString()) {
+    throw createApiError({
+      status: 403,
+      code: "PICK_FOLDER_FORBIDDEN",
+      message: "다른 사용자의 내 픽 폴더에는 접근할 수 없습니다.",
+    });
+  }
+
+  /**
+   * 실제 존재하는 상점인지 확인합니다.
+   */
+  const shopExists = await ShopModel.exists({
+    _id: objectShopId,
+  });
+
+  if (!shopExists) {
+    throw createApiError({
+      status: 404,
+      code: "SHOP_NOT_FOUND",
+      message: "상점을 찾을 수 없습니다.",
+    });
+  }
+
+  /**
+   * 현재 사용자가 좋아요한 상점인지 확인합니다.
+   */
+  const isLiked = await ShopLikeModel.exists({
+    userId: objectUserId,
+    shopId: objectShopId,
+  });
+
+  if (!isLiked) {
+    throw createApiError({
+      status: 409,
+      code: "SHOP_NOT_LIKED",
+      message: "좋아요한 상점만 내 픽 폴더에 저장할 수 있습니다.",
+    });
+  }
+
+  /**
+   * 동일한 폴더에 같은 상점이 이미 들어있는지 확인합니다.
+   */
+  const existingItem = await PickFolderItemModel.exists({
+    folderId: objectFolderId,
+    shopId: objectShopId,
+  });
+
+  if (existingItem) {
+    throw createApiError({
+      status: 409,
+      code: "SHOP_ALREADY_IN_FOLDER",
+      message: "이미 해당 내 픽 폴더에 추가된 상점입니다.",
+    });
+  }
+
+  await PickFolderItemModel.create({
+    folderId: objectFolderId,
+    shopId: objectShopId,
+  });
+
+  return {
+    folderId,
+    shopId: input.shopId,
+  };
+}
+
+/**
+ * 내 픽 폴더에서 상점을 제거합니다.
+ *
+ * 폴더에서만 제거하며 ShopLike는 유지합니다.
+ */
+export async function removeShopFromFolder(
+  userId: string,
+  folderId: string,
+  shopId: string,
+): Promise<void> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectFolderId = new Types.ObjectId(folderId);
+  const objectShopId = new Types.ObjectId(shopId);
+
+  /**
+   * 폴더 존재 여부를 먼저 확인합니다.
+   */
+  const folder = await PickFolderModel.findById(objectFolderId)
+    .select({
+      _id: 1,
+      userId: 1,
+    })
+    .lean();
+
+  if (!folder) {
+    throw createApiError({
+      status: 404,
+      code: "PICK_FOLDER_NOT_FOUND",
+      message: "내 픽 폴더를 찾을 수 없습니다.",
+    });
+  }
+  /**
+   * 다른 사용자의 폴더에는 접근할 수 없습니다.
+   */
+  if (folder.userId.toString() !== objectUserId.toString()) {
+    throw createApiError({
+      status: 403,
+      code: "PICK_FOLDER_FORBIDDEN",
+      message: "다른 사용자의 내 픽 폴더에는 접근할 수 없습니다.",
+    });
+  }
+  /**
+   * 실제 존재하는 상점인지 확인합니다.
+   */
+  const shopExists = await ShopModel.exists({
+    _id: objectShopId,
+  });
+
+  if (!shopExists) {
+    throw createApiError({
+      status: 404,
+      code: "SHOP_NOT_FOUND",
+      message: "상점을 찾을 수 없습니다.",
+    });
+  }
+
+  /**
+   * 해당 폴더에 상점이 실제로 들어있는지 확인합니다.
+   */
+  const item = await PickFolderItemModel.exists({
+    folderId: objectFolderId,
+    shopId: objectShopId,
+  });
+
+  if (!item) {
+    throw createApiError({
+      status: 404,
+      code: "FOLDER_SHOP_NOT_FOUND",
+      message: "해당 내 픽 폴더에 저장된 상점을 찾을 수 없습니다.",
+    });
+  }
+
+  await PickFolderItemModel.deleteOne({
+    folderId: objectFolderId,
+    shopId: objectShopId,
+  });
+
+  /**
+   * ShopLikeModel은 삭제하지 않습니다.
+   */
 }

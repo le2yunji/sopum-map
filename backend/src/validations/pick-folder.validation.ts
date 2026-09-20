@@ -79,7 +79,7 @@ export const getShopPickFoldersSchema = z.object({
  *
  * folderIds가 빈 배열이면 모든 폴더에서 제거합니다.
  */
-export const updateShopPickFoldersSchema = z.object({
+export const updateShopFolderIdsSchema = z.object({
   params: z.object({
     shopId: objectIdSchema,
   }),
@@ -105,5 +105,28 @@ export const getPickFolderShopsSchema = z.object({
     page: z.coerce.number().int().min(1).default(1),
 
     limit: z.coerce.number().int().min(1).max(50).default(10),
+  }),
+});
+
+/**
+ * 폴더에 상점을 추가하는 요청을 검증합니다.
+ */
+export const addShopToFolderSchema = z.object({
+  params: z.object({
+    folderId: objectIdSchema,
+  }),
+
+  body: z.object({
+    shopId: objectIdSchema,
+  }),
+});
+
+/**
+ * 폴더에서 상점을 제거하는 요청을 검증합니다.
+ */
+export const removeShopFromFolderSchema = z.object({
+  params: z.object({
+    folderId: objectIdSchema,
+    shopId: objectIdSchema,
   }),
 });

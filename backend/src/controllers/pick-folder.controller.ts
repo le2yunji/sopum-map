@@ -6,11 +6,13 @@ import {
   createPickFolder,
   deletePickFolder,
   getMyPickFolders,
-  getPickFolderShops,
-  getShopPickFolders,
+  getShopsByFolder,
+  getFolderIdsByShop,
   updatePickFolder,
   updatePickFolderOrder,
-  updateShopPickFolders,
+  updateFolderIdsByShop,
+  addShopToFolder,
+  removeShopFromFolder,
 } from "../services/pick-folder/pick-folder.service.js";
 
 import {
@@ -20,7 +22,9 @@ import {
   getShopPickFoldersSchema,
   updatePickFolderOrderSchema,
   updatePickFolderSchema,
-  updateShopPickFoldersSchema,
+  updateShopFolderIdsSchema,
+  addShopToFolderSchema,
+  removeShopFromFolderSchema,
 } from "../validations/pick-folder.validation.js";
 
 /**
@@ -146,7 +150,7 @@ export async function updatePickFolderOrderController(
  * 특정 상점이 현재 포함되어 있는
  * 내 픽 폴더 ID 목록을 조회합니다.
  */
-export async function getShopPickFoldersController(
+export async function getFolderIdsByShopController(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -158,7 +162,7 @@ export async function getShopPickFoldersController(
       params: { shopId },
     } = res.locals.validated as z.infer<typeof getShopPickFoldersSchema>;
 
-    const data = await getShopPickFolders(userId, shopId);
+    const data = await getFolderIdsByShop(userId, shopId);
 
     res.status(200).json({
       success: true,
@@ -172,7 +176,7 @@ export async function getShopPickFoldersController(
 /**
  * 특정 상점의 내 픽 폴더 소속을 변경합니다.
  */
-export async function updateShopPickFoldersController(
+export async function updateFolderIdsByShopController(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -183,9 +187,9 @@ export async function updateShopPickFoldersController(
     const {
       params: { shopId },
       body,
-    } = res.locals.validated as z.infer<typeof updateShopPickFoldersSchema>;
+    } = res.locals.validated as z.infer<typeof updateShopFolderIdsSchema>;
 
-    const data = await updateShopPickFolders(userId, shopId, body);
+    const data = await updateFolderIdsByShop(userId, shopId, body);
 
     res.status(200).json({
       success: true,
@@ -200,7 +204,7 @@ export async function updateShopPickFoldersController(
  * 특정 내 픽 폴더에 저장된
  * 상점 목록을 조회합니다.
  */
-export async function getPickFolderShopsController(
+export async function getShopsByFolderController(
   req: Request,
   res: Response,
   next: NextFunction,
@@ -213,7 +217,7 @@ export async function getPickFolderShopsController(
       query: { page, limit },
     } = res.locals.validated as z.infer<typeof getPickFolderShopsSchema>;
 
-    const data = await getPickFolderShops({
+    const data = await getShopsByFolder({
       userId,
       folderId,
       page,
@@ -224,6 +228,56 @@ export async function getPickFolderShopsController(
       success: true,
       data,
     });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * 좋아요한 상점을 특정 내 픽 폴더에 추가합니다.
+ */
+export async function addShopToFolderController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+
+    const {
+      params: { folderId },
+      body,
+    } = res.locals.validated as z.infer<typeof addShopToFolderSchema>;
+
+    const data = await addShopToFolder(userId, folderId, body);
+
+    res.status(201).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/**
+ * 특정 내 픽 폴더에서 상점을 제거합니다.
+ */
+export async function removeShopFromFolderController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+
+    const {
+      params: { folderId, shopId },
+    } = res.locals.validated as z.infer<typeof removeShopFromFolderSchema>;
+
+    await removeShopFromFolder(userId, folderId, shopId);
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }

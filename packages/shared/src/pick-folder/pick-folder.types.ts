@@ -31,13 +31,28 @@ export type UpdatePickFolderOrderRequest = Readonly<{
 /**
  * 특정 상점이 현재 포함된 폴더 목록
  */
-export type ShopPickFolderData = Readonly<{
+export type ShopFolderIdsData = Readonly<{
   folderIds: string[];
 }>;
 
 /**
  * 특정 상점의 폴더 구성을 한 번에 변경
  */
-export type UpdateShopPickFoldersRequest = Readonly<{
+export type UpdateShopFolderIdsRequest = Readonly<{
   folderIds: string[];
+}>;
+
+/**
+ * 특정 폴더에 상점을 추가하는 요청
+ */
+export type AddShopToFolderRequest = Readonly<{
+  shopId: string;
+}>;
+
+/**
+ * 폴더와 상점의 연결 정보
+ */
+export type PickFolderShopData = Readonly<{
+  folderId: string;
+  shopId: string;
 }>;

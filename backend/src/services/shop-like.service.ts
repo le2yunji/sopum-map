@@ -6,28 +6,36 @@ import ShopModel from "../models/shop.model.js";
 import PickFolderModel from "../models/pick-folder.model.js";
 import PickFolderItemModel from "../models/pick-folder-item.model.js";
 import { getShopMapByIds } from "./shop/shop-query.helper.js";
+import { createApiError } from "@sopum-map/shared";
 
 /**
  * 상점에 좋아요 추가
  */
 export async function likeShop(userId: string, shopId: string) {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectShopId = new Types.ObjectId(shopId);
+
   const shop = await ShopModel.exists({
     _id: shopId,
   });
 
   if (!shop) {
-    throw new Error("존재하지 않는 상점입니다.");
+    throw createApiError({
+      status: 404,
+      code: "SHOP_NOT_FOUND",
+      message: "상점을 찾을 수 없습니다.",
+    });
   }
 
   await ShopLikeModel.updateOne(
     {
-      userId: new Types.ObjectId(userId),
-      shopId: new Types.ObjectId(shopId),
+      userId: objectUserId,
+      shopId: objectShopId,
     },
     {
       $setOnInsert: {
-        userId: new Types.ObjectId(userId),
-        shopId: new Types.ObjectId(shopId),
+        userId: objectUserId,
+        shopId: objectShopId,
       },
     },
     {
@@ -52,6 +60,18 @@ export async function likeShop(userId: string, shopId: string) {
 export async function unlikeShop(userId: string, shopId: string) {
   const objectUserId = new Types.ObjectId(userId);
   const objectShopId = new Types.ObjectId(shopId);
+
+  const shopExists = await ShopModel.exists({
+    _id: objectShopId,
+  });
+
+  if (!shopExists) {
+    throw createApiError({
+      status: 404,
+      code: "SHOP_NOT_FOUND",
+      message: "상점을 찾을 수 없습니다.",
+    });
+  }
 
   const folders = await PickFolderModel.find({
     userId: objectUserId,
