@@ -1,10 +1,10 @@
 import type { Types } from "mongoose";
+import { createApiError } from "@sopum-map/shared";
 
 import AuthIdentityModel from "../../models/auth-identity.model.js";
 import UserModel from "../../models/user.model.js";
 
 import type { SocialIdentity } from "./auth.types.js";
-
 import type { OAuthProvider } from "../../providers/auth/oauth-provider.js";
 
 import {
@@ -13,13 +13,9 @@ import {
 } from "./oauth-transaction.service.js";
 
 import AuthSessionModel from "../../models/auth-session.model.js";
-
 import { createSecureToken, hashToken } from "../../utils/secure-token.js";
-
 import { AUTH_SESSION_TTL_MS } from "./auth.constants.js";
-
 import { NICKNAME_GENERATION_MAX_RETRIES } from "../../constants/nickname.constants.js";
-
 import { createRandomNickname } from "../../utils/random-nickname.js";
 
 export async function startOAuthLogin(
@@ -45,7 +41,11 @@ export async function completeOAuthLogin(
   const transaction = await consumeOAuthTransaction(provider.name, state);
 
   if (!transaction) {
-    throw new Error("유효하지 않은 OAuth 로그인 요청입니다.");
+    throw createApiError({
+      status: 400,
+      code: "INVALID_OAUTH_REQUEST",
+      message: "유효하지 않은 OAuth 로그인 요청입니다.",
+    });
   }
 
   /**
@@ -128,14 +128,21 @@ export async function findOrCreateAuthUser(socialIdentity: SocialIdentity) {
      * 정상적인 데이터 상태가 아닙니다.
      */
     if (!user) {
-      throw new Error("소셜 계정과 연결된 사용자를 찾을 수 없습니다.");
+      throw createApiError({
+        status: 500,
+        code: "AUTH_USER_NOT_FOUND",
+        message: "소셜 계정과 연결된 사용자를 찾을 수 없습니다.",
+      });
     }
-
     /**
      * 탈퇴 처리된 사용자는 로그인시키지 않습니다.
      */
     if (user.isDeleted) {
-      throw new Error("탈퇴한 사용자입니다.");
+      throw createApiError({
+        status: 403,
+        code: "USER_DELETED",
+        message: "탈퇴한 사용자입니다.",
+      });
     }
 
     return user;
@@ -334,5 +341,9 @@ async function createUserWithRandomNickname() {
    * 매우 드문 경우지만 계속 충돌한다면
    * 무한 루프에 빠지지 않고 실패 처리합니다.
    */
-  throw new Error("사용 가능한 랜덤 닉네임을 생성하지 못했습니다.");
+  throw createApiError({
+    status: 500,
+    code: "NICKNAME_GENERATION_FAILED",
+    message: "사용 가능한 랜덤 닉네임을 생성하지 못했습니다.",
+  });
 }
