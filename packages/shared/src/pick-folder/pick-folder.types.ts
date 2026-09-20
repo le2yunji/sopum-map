@@ -41,3 +41,18 @@ export type ShopFolderIdsData = Readonly<{
 export type UpdateShopFolderIdsRequest = Readonly<{
   folderIds: string[];
 }>;
+
+/**
+ * 특정 폴더에 상점을 추가하는 요청
+ */
+export type AddShopToFolderRequest = Readonly<{
+  shopId: string;
+}>;
+
+/**
+ * 폴더와 상점의 연결 정보
+ */
+export type PickFolderShopData = Readonly<{
+  folderId: string;
+  shopId: string;
+}>;

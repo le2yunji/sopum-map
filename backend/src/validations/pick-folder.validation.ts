@@ -107,3 +107,26 @@ export const getPickFolderShopsSchema = z.object({
     limit: z.coerce.number().int().min(1).max(50).default(10),
   }),
 });
+
+/**
+ * 폴더에 상점을 추가하는 요청을 검증합니다.
+ */
+export const addShopToFolderSchema = z.object({
+  params: z.object({
+    folderId: objectIdSchema,
+  }),
+
+  body: z.object({
+    shopId: objectIdSchema,
+  }),
+});
+
+/**
+ * 폴더에서 상점을 제거하는 요청을 검증합니다.
+ */
+export const removeShopFromFolderSchema = z.object({
+  params: z.object({
+    folderId: objectIdSchema,
+    shopId: objectIdSchema,
+  }),
+});

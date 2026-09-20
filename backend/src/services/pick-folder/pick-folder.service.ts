@@ -10,12 +10,15 @@ import type {
   UpdatePickFolderOrderRequest,
   UpdatePickFolderRequest,
   UpdateShopFolderIdsRequest,
+  AddShopToFolderRequest,
+  PickFolderShopData,
 } from "@sopum-map/shared";
 
 import PickFolderModel from "../../models/pick-folder.model.js";
 import PickFolderItemModel from "../../models/pick-folder-item.model.js";
 import ShopLikeModel from "../../models/shop-like.model.js";
 import { getShopMapByIds } from "../shop/shop-query.helper.js";
+import ShopModel from "../../models/shop.model.js";
 
 // folders
 /**
@@ -486,4 +489,151 @@ export async function getShopsByFolder({
       hasNext,
     },
   };
+}
+
+/**
+ * 좋아요한 상점을 내 픽 폴더에 추가합니다.
+ */
+export async function addShopToFolder(
+  userId: string,
+  folderId: string,
+  input: AddShopToFolderRequest,
+): Promise<PickFolderShopData> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectFolderId = new Types.ObjectId(folderId);
+  const objectShopId = new Types.ObjectId(input.shopId);
+
+  /**
+   * 폴더 존재 여부를 먼저 확인합니다.
+   */
+  const folder = await PickFolderModel.findById(objectFolderId)
+    .select({
+      _id: 1,
+      userId: 1,
+    })
+    .lean();
+
+  if (!folder) {
+    throw new Error("내 픽 폴더를 찾을 수 없습니다.");
+  }
+
+  /**
+   * 다른 사용자의 폴더에는 상점을 추가할 수 없습니다.
+   */
+  if (folder.userId.toString() !== objectUserId.toString()) {
+    throw new Error("다른 사용자의 내 픽 폴더에는 접근할 수 없습니다.");
+  }
+
+  /**
+   * 실제 존재하는 상점인지 확인합니다.
+   */
+  const shopExists = await ShopModel.exists({
+    _id: objectShopId,
+  });
+
+  if (!shopExists) {
+    throw new Error("존재하지 않는 상점입니다.");
+  }
+
+  /**
+   * 현재 사용자가 좋아요한 상점인지 확인합니다.
+   */
+  const isLiked = await ShopLikeModel.exists({
+    userId: objectUserId,
+    shopId: objectShopId,
+  });
+
+  if (!isLiked) {
+    throw new Error("좋아요한 상점만 내 픽 폴더에 추가할 수 있습니다.");
+  }
+
+  /**
+   * 동일한 폴더에 같은 상점이 이미 들어있는지 확인합니다.
+   */
+  const existingItem = await PickFolderItemModel.exists({
+    folderId: objectFolderId,
+    shopId: objectShopId,
+  });
+
+  if (existingItem) {
+    throw new Error("이미 해당 내 픽 폴더에 추가된 상점입니다.");
+  }
+
+  await PickFolderItemModel.create({
+    folderId: objectFolderId,
+    shopId: objectShopId,
+  });
+
+  return {
+    folderId,
+    shopId: input.shopId,
+  };
+}
+
+/**
+ * 내 픽 폴더에서 상점을 제거합니다.
+ *
+ * 폴더에서만 제거하며 ShopLike는 유지합니다.
+ */
+export async function removeShopFromFolder(
+  userId: string,
+  folderId: string,
+  shopId: string,
+): Promise<void> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectFolderId = new Types.ObjectId(folderId);
+  const objectShopId = new Types.ObjectId(shopId);
+
+  /**
+   * 폴더 존재 여부를 먼저 확인합니다.
+   */
+  const folder = await PickFolderModel.findById(objectFolderId)
+    .select({
+      _id: 1,
+      userId: 1,
+    })
+    .lean();
+
+  if (!folder) {
+    throw new Error("내 픽 폴더를 찾을 수 없습니다.");
+  }
+
+  /**
+   * 다른 사용자의 폴더에는 접근할 수 없습니다.
+   */
+  if (folder.userId.toString() !== objectUserId.toString()) {
+    throw new Error("다른 사용자의 내 픽 폴더에는 접근할 수 없습니다.");
+  }
+
+  /**
+   * 실제 존재하는 상점인지 확인합니다.
+   */
+  const shopExists = await ShopModel.exists({
+    _id: objectShopId,
+  });
+
+  if (!shopExists) {
+    throw new Error("존재하지 않는 상점입니다.");
+  }
+
+  /**
+   * 해당 폴더에 상점이 실제로 들어있는지 확인합니다.
+   */
+  const item = await PickFolderItemModel.exists({
+    folderId: objectFolderId,
+    shopId: objectShopId,
+  });
+
+  if (!item) {
+    throw new Error("해당 내 픽 폴더에 저장된 상점을 찾을 수 없습니다.");
+  }
+
+  await PickFolderItemModel.deleteOne({
+    folderId: objectFolderId,
+    shopId: objectShopId,
+  });
+
+  /**
+   * ShopLikeModel은 삭제하지 않습니다.
+   */
 }
