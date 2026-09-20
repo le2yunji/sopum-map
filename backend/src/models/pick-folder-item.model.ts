@@ -15,13 +15,6 @@ const pickFolderItemSchema = new Schema(
       ref: "Shop",
       required: true,
     },
-
-    // 폴더 내 매장 표시 순서
-    order: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
   },
   {
     timestamps: true,
@@ -38,12 +31,6 @@ pickFolderItemSchema.index(
     unique: true,
   },
 );
-
-// 폴더별 매장 목록을 순서대로 조회
-pickFolderItemSchema.index({
-  folderId: 1,
-  order: 1,
-});
 
 export type PickFolderItemSchemaType = InferSchemaType<
   typeof pickFolderItemSchema

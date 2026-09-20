@@ -6,10 +6,10 @@ import type {
   CreatePickFolderRequest,
   PickFolder,
   PickFolderListData,
-  ShopPickFolderData,
+  ShopFolderIdsData,
   UpdatePickFolderOrderRequest,
   UpdatePickFolderRequest,
-  UpdateShopPickFoldersRequest,
+  UpdateShopFolderIdsRequest,
 } from "@sopum-map/shared";
 
 import PickFolderModel from "../../models/pick-folder.model.js";
@@ -17,6 +17,7 @@ import PickFolderItemModel from "../../models/pick-folder-item.model.js";
 import ShopLikeModel from "../../models/shop-like.model.js";
 import { getShopMapByIds } from "../shop/shop-query.helper.js";
 
+// folders
 /**
  * PickFolder 문서를 API 응답 형태로 변환
  */
@@ -237,13 +238,14 @@ export async function updatePickFolderOrder(
   );
 }
 
+// shops
 /**
  * 특정 상점이 현재 포함되어 있는 내 픽 폴더 ID 목록을 조회
  */
-export async function getShopPickFolders(
+export async function getFolderIdsByShop(
   userId: string,
   shopId: string,
-): Promise<ShopPickFolderData> {
+): Promise<ShopFolderIdsData> {
   const objectUserId = new Types.ObjectId(userId);
   const objectShopId = new Types.ObjectId(shopId);
 
@@ -282,11 +284,11 @@ export async function getShopPickFolders(
 /**
  * 특정 상점의 폴더 소속을 요청받은 folderIds 상태로 맞춤
  */
-export async function updateShopPickFolders(
+export async function updateFolderIdsByShop(
   userId: string,
   shopId: string,
-  input: UpdateShopPickFoldersRequest,
-): Promise<ShopPickFolderData> {
+  input: UpdateShopFolderIdsRequest,
+): Promise<ShopFolderIdsData> {
   const objectUserId = new Types.ObjectId(userId);
   const objectShopId = new Types.ObjectId(shopId);
 
@@ -392,23 +394,9 @@ export async function updateShopPickFolders(
   for (const folderId of folderIdsToAdd) {
     const objectFolderId = new Types.ObjectId(folderId);
 
-    const lastItem = await PickFolderItemModel.findOne({
-      folderId: objectFolderId,
-    })
-      .sort({
-        order: -1,
-      })
-      .select({
-        order: 1,
-      })
-      .lean();
-
-    const nextOrder = (lastItem?.order ?? -1) + 1;
-
     await PickFolderItemModel.create({
       folderId: objectFolderId,
       shopId: objectShopId,
-      order: nextOrder,
     });
   }
 
@@ -417,7 +405,7 @@ export async function updateShopPickFolders(
   };
 }
 
-type GetPickFolderShopsParams = Readonly<{
+type GetShopsByFolderParams = Readonly<{
   userId: string;
   folderId: string;
   page: number;
@@ -427,12 +415,12 @@ type GetPickFolderShopsParams = Readonly<{
 /**
  * 특정 내 픽 폴더에 저장된 상점 목록을 조회
  */
-export async function getPickFolderShops({
+export async function getShopsByFolder({
   userId,
   folderId,
   page,
   limit,
-}: GetPickFolderShopsParams) {
+}: GetShopsByFolderParams) {
   const objectFolderId = new Types.ObjectId(folderId);
   const objectUserId = new Types.ObjectId(userId);
 
@@ -452,7 +440,6 @@ export async function getPickFolderShops({
       folderId: objectFolderId,
     })
       .sort({
-        order: 1,
         createdAt: 1,
       })
       .skip(skip)

@@ -23,7 +23,7 @@ import {
   getShopPickFoldersSchema,
   updatePickFolderOrderSchema,
   updatePickFolderSchema,
-  updateShopPickFoldersSchema,
+  updateShopFolderIdsSchema,
 } from "../validations/pick-folder.validation.js";
 
 const meRouter = Router();
@@ -55,7 +55,7 @@ meRouter.get(
 meRouter.put(
   "/liked-shops/:shopId/folders",
   requireAuth,
-  validateRequest(updateShopPickFoldersSchema),
+  validateRequest(updateShopFolderIdsSchema),
   updateShopPickFoldersController,
 );
 

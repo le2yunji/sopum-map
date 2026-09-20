@@ -79,7 +79,7 @@ export const getShopPickFoldersSchema = z.object({
  *
  * folderIds가 빈 배열이면 모든 폴더에서 제거합니다.
  */
-export const updateShopPickFoldersSchema = z.object({
+export const updateShopFolderIdsSchema = z.object({
   params: z.object({
     shopId: objectIdSchema,
   }),

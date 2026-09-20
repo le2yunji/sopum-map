@@ -6,11 +6,11 @@ import {
   createPickFolder,
   deletePickFolder,
   getMyPickFolders,
-  getPickFolderShops,
-  getShopPickFolders,
+  getShopsByFolder,
+  getFolderIdsByShop,
   updatePickFolder,
   updatePickFolderOrder,
-  updateShopPickFolders,
+  updateFolderIdsByShop,
 } from "../services/pick-folder/pick-folder.service.js";
 
 import {
@@ -20,7 +20,7 @@ import {
   getShopPickFoldersSchema,
   updatePickFolderOrderSchema,
   updatePickFolderSchema,
-  updateShopPickFoldersSchema,
+  updateShopFolderIdsSchema,
 } from "../validations/pick-folder.validation.js";
 
 /**
@@ -158,7 +158,7 @@ export async function getShopPickFoldersController(
       params: { shopId },
     } = res.locals.validated as z.infer<typeof getShopPickFoldersSchema>;
 
-    const data = await getShopPickFolders(userId, shopId);
+    const data = await getFolderIdsByShop(userId, shopId);
 
     res.status(200).json({
       success: true,
@@ -183,9 +183,9 @@ export async function updateShopPickFoldersController(
     const {
       params: { shopId },
       body,
-    } = res.locals.validated as z.infer<typeof updateShopPickFoldersSchema>;
+    } = res.locals.validated as z.infer<typeof updateShopFolderIdsSchema>;
 
-    const data = await updateShopPickFolders(userId, shopId, body);
+    const data = await updateFolderIdsByShop(userId, shopId, body);
 
     res.status(200).json({
       success: true,
@@ -213,7 +213,7 @@ export async function getPickFolderShopsController(
       query: { page, limit },
     } = res.locals.validated as z.infer<typeof getPickFolderShopsSchema>;
 
-    const data = await getPickFolderShops({
+    const data = await getShopsByFolder({
       userId,
       folderId,
       page,
