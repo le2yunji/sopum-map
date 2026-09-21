@@ -12,6 +12,7 @@ import type {
   UpdateShopFolderIdsRequest,
   AddShopToFolderRequest,
   PickFolderShopData,
+  PickFolderShopListData,
 } from "@sopum-map/shared";
 
 import PickFolderModel from "../../models/pick-folder.model.js";
@@ -442,7 +443,7 @@ export async function getShopsByFolder({
   folderId,
   page,
   limit,
-}: GetShopsByFolderParams) {
+}: GetShopsByFolderParams): Promise<PickFolderShopListData> {
   const objectFolderId = new Types.ObjectId(folderId);
   const objectUserId = new Types.ObjectId(userId);
 
