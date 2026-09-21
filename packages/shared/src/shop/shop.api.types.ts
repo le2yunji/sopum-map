@@ -2,7 +2,6 @@
 import type { ApiSuccessResponse, Pagination } from "../api/api.types";
 import type { TagGroup, TagKey } from "../tag";
 import { SHOP_SORTS } from "./shop.constants";
-import type { VisitLogListItem } from "../visit-log";
 
 import type {
   ShopBusinessDay,

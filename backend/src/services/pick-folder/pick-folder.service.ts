@@ -489,12 +489,21 @@ export async function getShopsByFolder({
         return null;
       }
 
+      const mainImage =
+        shop.images
+          ?.filter((image) => image.isMain)
+          .sort((a, b) => a.order - b.order)[0] ??
+        shop.images?.sort((a, b) => a.order - b.order)[0] ??
+        null;
+
       return {
         id: shop._id.toString(),
         name: shop.name,
         category: shop.category,
         address: shop.address,
         isLiked: true,
+        regionGroup: shop.regionGroup,
+        mainImageUrl: mainImage?.imageUrl ?? null,
       };
     })
     .filter((shop) => shop !== null);
