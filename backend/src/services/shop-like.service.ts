@@ -6,7 +6,8 @@ import ShopModel from "../models/shop.model.js";
 import PickFolderModel from "../models/pick-folder.model.js";
 import PickFolderItemModel from "../models/pick-folder-item.model.js";
 import { getShopMapByIds } from "./shop/shop-query.helper.js";
-import { createApiError } from "@sopum-map/shared";
+import { createApiError, LikedShopListData } from "@sopum-map/shared";
+import { mapShopListItem } from "./shop/shop.mapper.js";
 
 /**
  * 상점에 좋아요 추가
@@ -123,7 +124,7 @@ export async function getLikedShops({
   userId,
   page,
   limit,
-}: GetLikedShopsParams) {
+}: GetLikedShopsParams): Promise<LikedShopListData> {
   const objectUserId = new Types.ObjectId(userId);
   const skip = (page - 1) * limit;
 
@@ -157,12 +158,12 @@ export async function getLikedShops({
       }
 
       return {
-        id: shop._id.toString(),
-        name: shop.name,
-        category: shop.category,
-        address: shop.address,
-        isLiked: true,
-        likedAt: like.createdAt,
+        ...mapShopListItem({
+          shop,
+          visitLogCount: 0,
+          isLiked: true,
+        }),
+        likedAt: like.createdAt.toISOString(),
       };
     })
     .filter((shop) => shop !== null);

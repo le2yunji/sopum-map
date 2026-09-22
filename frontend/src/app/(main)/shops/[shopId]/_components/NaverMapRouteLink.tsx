@@ -29,15 +29,43 @@ export function NaverMapRouteLink({
     longitude,
   });
 
-  const desktopMapUrl = naverPlaceUrl ?? createNaverMapWebUrl(name);
+  const webUrl = naverPlaceUrl ?? createNaverMapWebUrl(name);
 
-  const routeUrl = isMobile ? mobileRouteUrl : desktopMapUrl;
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!isMobile) {
+      return;
+    }
 
+    event.preventDefault();
+
+    let appOpened = false;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        appOpened = true;
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange, {
+      once: true,
+    });
+
+    window.location.href = mobileRouteUrl;
+
+    window.setTimeout(() => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      if (!appOpened) {
+        window.location.href = webUrl;
+      }
+    }, 1500);
+  };
   return (
     <a
-      href={routeUrl}
+      href={isMobile ? mobileRouteUrl : webUrl}
       target={isMobile ? undefined : "_blank"}
       rel={isMobile ? undefined : "noopener noreferrer"}
+      onClick={handleClick}
       className="flex min-h-11 items-center justify-between rounded-xl border border-pink-300/30 px-4 text-14"
     >
       <span className="flex items-center gap-2 text-black-600">
