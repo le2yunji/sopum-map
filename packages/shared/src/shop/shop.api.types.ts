@@ -112,3 +112,12 @@ export type GetShopsResponse = ApiSuccessResponse<ShopListData>;
  * GET /api/shops/:shopId 성공 응답
  */
 export type GetShopDetailResponse = ApiSuccessResponse<ShopDetailData>;
+
+export type LikedShopListItem = ShopListItem & {
+  likedAt: string;
+};
+
+export type LikedShopListData = {
+  items: LikedShopListItem[];
+  pagination: Pagination;
+};

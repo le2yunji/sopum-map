@@ -17,7 +17,7 @@ export const FilterChipGroup = ({
       role="group"
       aria-label={ariaLabel}
       className={`
-        flex w-full gap-2 overflow-x-auto
+        flex gap-2 overflow-x-auto
         overscroll-x-contain scroll-smooth
         scrollbar-none
         [&::-webkit-scrollbar]:hidden

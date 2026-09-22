@@ -20,6 +20,7 @@ import PickFolderItemModel from "../../models/pick-folder-item.model.js";
 import ShopLikeModel from "../../models/shop-like.model.js";
 import { getShopMapByIds } from "../shop/shop-query.helper.js";
 import ShopModel from "../../models/shop.model.js";
+import { mapShopListItem } from "../shop/shop.mapper.js";
 
 // folders
 /**
@@ -496,15 +497,11 @@ export async function getShopsByFolder({
         shop.images?.sort((a, b) => a.order - b.order)[0] ??
         null;
 
-      return {
-        id: shop._id.toString(),
-        name: shop.name,
-        category: shop.category,
-        address: shop.address,
+      return mapShopListItem({
+        shop,
+        visitLogCount: 0,
         isLiked: true,
-        regionGroup: shop.regionGroup,
-        mainImageUrl: mainImage?.imageUrl ?? null,
-      };
+      });
     })
     .filter((shop) => shop !== null);
 
