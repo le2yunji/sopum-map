@@ -29,8 +29,7 @@ export function useDialogOverlay({
   const previousOverflowRef = useRef<string | null>(null);
   const closeTimerRef = useRef<number | undefined>(undefined);
   const openFrameRef = useRef<number | undefined>(undefined);
-  const [visualState, setVisualState] =
-    useState<DialogVisualState>("closed");
+  const [visualState, setVisualState] = useState<DialogVisualState>("closed");
 
   /** overlay가 바꾼 스크롤과 포커스를 원래 상태로 되돌립니다. */
   const restorePageState = useCallback(() => {
@@ -78,11 +77,7 @@ export function useDialogOverlay({
       return;
     }
 
-    if (
-      !open &&
-      dialog.open &&
-      closeTimerRef.current === undefined
-    ) {
+    if (!open && dialog.open && closeTimerRef.current === undefined) {
       if (openFrameRef.current !== undefined) {
         window.cancelAnimationFrame(openFrameRef.current);
         openFrameRef.current = undefined;

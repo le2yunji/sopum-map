@@ -52,7 +52,6 @@ export function PickFolderSheet({ open, shopId, onOpenChange }: Props) {
 
   return (
     <PickFolderSheetContent
-      key={shopId}
       shopId={shopId}
       folders={folderData?.items ?? []}
       initialFolderIds={shopFolderData?.folderIds ?? []}

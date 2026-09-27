@@ -15,6 +15,8 @@ import { PickFolderTabs } from "./PickFolderTabs";
 import { PickShopGrid } from "./PickShopGrid";
 import { PicksSkeleton } from "./PicksSkeleton";
 import { SettingIcon } from "@/components/icons";
+import { Button } from "@/components/ui/Button";
+import { PickFolderManageSheet } from "./PickFolderManageSheet";
 
 export const ALL_PICK_ID = "all";
 
@@ -25,6 +27,7 @@ type Props = Readonly<{
 export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
   const [activeFolderId, setActiveFolderId] = useState(ALL_PICK_ID);
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
+  const [manageFolderOpen, setManageFolderOpen] = useState(false);
 
   const {
     data: folderData,
@@ -70,7 +73,15 @@ export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
 
   return (
     <section className="min-h-full bg-white px-5 pb-24 pt-16">
-      <PicksHeader />
+      <PicksHeader
+        onOpenManage={() => {
+          setManageFolderOpen(true);
+        }}
+      />
+      <PickFolderManageSheet
+        open={manageFolderOpen}
+        onOpenChange={setManageFolderOpen}
+      />
 
       <PickFolderTabs
         folders={folders}
@@ -113,7 +124,11 @@ export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
   );
 }
 
-function PicksHeader() {
+function PicksHeader({
+  onOpenManage,
+}: Readonly<{
+  onOpenManage: () => void;
+}>) {
   return (
     <header className="flex items-end justify-between">
       <div>
@@ -121,7 +136,15 @@ function PicksHeader() {
         <h1 className="mt-1 text-24 font-semibold">내 픽</h1>
       </div>
 
-      <SettingIcon className="size-7 text-black-800" />
+      <Button
+        iconOnly
+        variant="ghost"
+        size="small"
+        aria-label="내 픽 폴더 관리"
+        onClick={onOpenManage}
+      >
+        <SettingIcon className="size-7 text-black-800" />
+      </Button>
     </header>
   );
 }

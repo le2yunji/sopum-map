@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 import { useUpdateFolderIdsByShop } from "@/api/pick-folder/pick-folder.query";
-import { SettingIcon } from "@/components/icons";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button";
 
@@ -20,8 +19,6 @@ type Props = Readonly<{
   onOpenChange: (open: boolean) => void;
 }>;
 
-type PickFolderSheetMode = "select" | "manage";
-
 export function PickFolderSheetContent({
   shopId,
   folders,
@@ -29,8 +26,6 @@ export function PickFolderSheetContent({
   onOpenChange,
 }: Props) {
   const [selectedFolderIds, setSelectedFolderIds] = useState(initialFolderIds);
-
-  const [mode, setMode] = useState<PickFolderSheetMode>("select");
 
   const updateFolderMutation = useUpdateFolderIdsByShop(shopId);
 
@@ -65,20 +60,8 @@ export function PickFolderSheetContent({
 
       <BottomSheet.Header>
         <BottomSheet.Title id="pick-folder-title">
-          {mode === "select" ? "내 픽 폴더 선택" : "내 픽 폴더 관리"}
+          내 픽 폴더 선택
         </BottomSheet.Title>
-
-        <Button
-          iconOnly
-          variant="ghost"
-          size="small"
-          aria-label="내 픽 폴더 관리"
-          onClick={() => {
-            setMode("manage");
-          }}
-        >
-          <SettingIcon />
-        </Button>
       </BottomSheet.Header>
 
       <BottomSheet.Body>

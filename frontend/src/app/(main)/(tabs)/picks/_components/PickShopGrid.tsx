@@ -64,7 +64,8 @@ export function PickShopGrid({
             ? "아직 픽한 상점이 없어요"
             : "아직 이 폴더에 담긴 상점이 없어요"
         }
-        action=""
+        action="상점 픽하러 가기"
+        actionHref="/map"
       />
     );
   }
