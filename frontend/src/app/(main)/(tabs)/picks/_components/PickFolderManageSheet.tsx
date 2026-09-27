@@ -2,21 +2,37 @@
 
 import { useState } from "react";
 
-import {
-  useDeletePickFolder,
-  usePickFolders,
-  useUpdatePickFolder,
-} from "@/api/pick-folder/pick-folder.query";
+import { usePickFolders } from "@/api/pick-folder/pick-folder.query";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button";
+
+import { PickFolderEditView } from "./PickFolderEditView";
+import { PickFolderManageItem } from "./PickFolderManageItem";
 
 type Props = Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }>;
 
+type EditingFolder = Readonly<{
+  id: string;
+  title: string;
+}>;
+
 export function PickFolderManageSheet({ open, onOpenChange }: Props) {
+  const [editingFolder, setEditingFolder] = useState<EditingFolder | null>(
+    null,
+  );
+
   const { data: folderData, isPending, isError, refetch } = usePickFolders();
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen) {
+      setEditingFolder(null);
+    }
+
+    onOpenChange(nextOpen);
+  };
 
   if (!open) {
     return null;
@@ -27,19 +43,27 @@ export function PickFolderManageSheet({ open, onOpenChange }: Props) {
   return (
     <BottomSheet
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       ariaLabelledBy="pick-folder-manage-title"
     >
       <BottomSheet.Handle />
 
       <BottomSheet.Header>
         <BottomSheet.Title id="pick-folder-manage-title">
-          내 픽 폴더 관리
+          {editingFolder ? "내 픽 폴더 수정" : "내 픽 폴더 관리"}
         </BottomSheet.Title>
       </BottomSheet.Header>
 
       <BottomSheet.Body>
-        {isPending ? (
+        {editingFolder ? (
+          <PickFolderEditView
+            folderId={editingFolder.id}
+            title={editingFolder.title}
+            onBack={() => {
+              setEditingFolder(null);
+            }}
+          />
+        ) : isPending ? (
           <p className="px-3 py-4 text-14 text-black-500">
             폴더를 불러오는 중입니다.
           </p>
@@ -70,141 +94,17 @@ export function PickFolderManageSheet({ open, onOpenChange }: Props) {
                 folderId={folder.id}
                 title={folder.title}
                 shopCount={folder.shopCount}
+                onEdit={() => {
+                  setEditingFolder({
+                    id: folder.id,
+                    title: folder.title,
+                  });
+                }}
               />
             ))}
           </div>
         )}
       </BottomSheet.Body>
     </BottomSheet>
-  );
-}
-
-type PickFolderManageItemProps = Readonly<{
-  folderId: string;
-  title: string;
-  shopCount: number;
-}>;
-
-function PickFolderManageItem({
-  folderId,
-  title,
-  shopCount,
-}: PickFolderManageItemProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [draftTitle, setDraftTitle] = useState(title);
-
-  const updateFolderMutation = useUpdatePickFolder(folderId);
-
-  const deleteFolderMutation = useDeletePickFolder();
-
-  const normalizedTitle = draftTitle.trim();
-
-  const isChanged = normalizedTitle.length > 0 && normalizedTitle !== title;
-
-  const handleCancelEdit = () => {
-    setDraftTitle(title);
-    setIsEditing(false);
-  };
-
-  const handleUpdate = () => {
-    if (!isChanged || updateFolderMutation.isPending) {
-      return;
-    }
-
-    updateFolderMutation.mutate(
-      {
-        title: normalizedTitle,
-      },
-      {
-        onSuccess: () => {
-          setIsEditing(false);
-        },
-      },
-    );
-  };
-
-  const handleDelete = () => {
-    if (deleteFolderMutation.isPending) {
-      return;
-    }
-
-    deleteFolderMutation.mutate(folderId);
-  };
-
-  return (
-    <div className="rounded-xl border border-black-100 px-3 py-1">
-      {isEditing ? (
-        <div>
-          <label htmlFor={`pick-folder-title-${folderId}`} className="sr-only">
-            폴더 이름
-          </label>
-
-          <input
-            id={`pick-folder-title-${folderId}`}
-            value={draftTitle}
-            maxLength={50}
-            autoFocus
-            onChange={(event) => {
-              setDraftTitle(event.target.value);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") {
-                handleCancelEdit();
-              }
-            }}
-            className="
-              min-h-11 w-full rounded-lg
-              border border-black-300 px-3
-              text-14 outline-none
-              focus:border-green-500
-              focus:ring-2 focus:ring-green-500/20
-            "
-          />
-
-          <div className="mt-2 flex justify-end gap-2">
-            <Button variant="ghost" size="small" onClick={handleCancelEdit}>
-              취소
-            </Button>
-
-            <Button
-              size="small"
-              isLoading={updateFolderMutation.isPending}
-              disabled={!isChanged}
-              onClick={handleUpdate}
-            >
-              저장
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center gap-3">
-          <div className="flex min-w-0 flex-1 items-center gap-2">
-            <div className="truncate text-14 font-medium">{title}</div>
-
-            <div className="shrink-0 text-12 text-black-500">{shopCount}</div>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="small"
-            onClick={() => {
-              setIsEditing(true);
-            }}
-          >
-            수정
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="small"
-            isLoading={deleteFolderMutation.isPending}
-            onClick={handleDelete}
-            className="text-red-600"
-          >
-            삭제
-          </Button>
-        </div>
-      )}
-    </div>
   );
 }

@@ -84,7 +84,7 @@ export function PickFolderActions({
             }}
             className="justify-start !font-normal"
           >
-            이 폴더 속 샵으로 코스 만들기
+            폴더 속 샵으로 코스 만들기
           </Button>
 
           <Button
