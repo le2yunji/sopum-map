@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 
 import { LogoutIcon } from "@/components/icons";
@@ -11,6 +10,7 @@ import { useLogout } from "@/hooks/useLogout";
 
 import { MyPageActivityMenu, MyPageSupportMenu } from "./MyPageMenu";
 import { MyPageProfileCard } from "./MyPageProfileCard";
+import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 
 type Props = Readonly<{
   isEmpty?: boolean;
@@ -151,37 +151,6 @@ function MyPageSkeleton() {
       <Skeleton announce={false} className="mt-4 h-15 rounded-2xl" />
 
       <Skeleton announce={false} className="mt-2 h-15 rounded-2xl" />
-    </main>
-  );
-}
-
-type StatePanelProps = Readonly<{
-  title: string;
-  action: string;
-  actionHref?: string;
-  onAction?: () => void;
-}>;
-
-/** 로그인 안내와 오류 복구를 같은 화면 밀도로 제공합니다. */
-function StatePanel({ title, action, actionHref, onAction }: StatePanelProps) {
-  return (
-    <main className="grid min-h-[70dvh] place-items-center px-6 text-center">
-      <div>
-        <p className="text-16 text-black-500">{title}</p>
-
-        {actionHref ? (
-          <Link
-            href={actionHref}
-            className="mt-5 inline-flex min-h-11 items-center rounded-xl bg-green-500 px-5 text-14 font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
-          >
-            {action}
-          </Link>
-        ) : (
-          <Button className="mt-5" onClick={onAction}>
-            {action}
-          </Button>
-        )}
-      </div>
     </main>
   );
 }

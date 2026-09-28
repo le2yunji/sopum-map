@@ -1,3 +1,6 @@
+import { Pagination } from "../api/api.types";
+import type { ShopCategory, ShopRegionGroup } from "../shop/shop.types";
+
 export type PickFolder = Readonly<{
   id: string;
   title: string;
@@ -55,4 +58,19 @@ export type AddShopToFolderRequest = Readonly<{
 export type PickFolderShopData = Readonly<{
   folderId: string;
   shopId: string;
+}>;
+
+export type PickFolderShopListItem = Readonly<{
+  id: string;
+  name: string;
+  category: ShopCategory;
+  address: string;
+  isLiked: boolean;
+  regionGroup: ShopRegionGroup;
+  mainImageUrl: string | null;
+}>;
+
+export type PickFolderShopListData = Readonly<{
+  items: PickFolderShopListItem[];
+  pagination: Pagination;
 }>;

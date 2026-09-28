@@ -2,7 +2,6 @@
 import type { ApiSuccessResponse, Pagination } from "../api/api.types";
 import type { TagGroup, TagKey } from "../tag";
 import { SHOP_SORTS } from "./shop.constants";
-import type { VisitLogListItem } from "../visit-log";
 
 import type {
   ShopBusinessDay,
@@ -113,3 +112,12 @@ export type GetShopsResponse = ApiSuccessResponse<ShopListData>;
  * GET /api/shops/:shopId 성공 응답
  */
 export type GetShopDetailResponse = ApiSuccessResponse<ShopDetailData>;
+
+export type LikedShopListItem = ShopListItem & {
+  likedAt: string;
+};
+
+export type LikedShopListData = {
+  items: LikedShopListItem[];
+  pagination: Pagination;
+};

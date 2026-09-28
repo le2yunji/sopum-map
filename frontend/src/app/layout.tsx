@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import "./globals.css";
 import { pretendard } from "./font";
 import { QueryProvider } from "@/providers/QueryProvider";
@@ -26,6 +27,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <AuthInitializer>
             <div id="mobile-app">{children}</div>
           </AuthInitializer>
+
+          {process.env.NODE_ENV === "development" ? (
+            <ReactQueryDevtools initialIsOpen={false} />
+          ) : null}
         </QueryProvider>
       </body>
     </html>

@@ -36,7 +36,7 @@ function BottomSheetRoot({
     visualState,
     handleCancel,
     handleKeyDown,
-    handleBackdropPointerDown,
+    handleBackdropClick,
   } = useDialogOverlay({ open, onOpenChange, closeOnBackdrop });
 
   return (
@@ -48,7 +48,7 @@ function BottomSheetRoot({
       data-state={visualState}
       onCancel={handleCancel}
       onKeyDown={handleKeyDown}
-      onPointerDown={handleBackdropPointerDown}
+      onClick={handleBackdropClick}
       className="mx-auto mt-auto mb-0 max-h-[calc(100dvh-1.25rem)] w-full max-w-[480px] overflow-visible bg-transparent p-0 text-black-950 backdrop:bg-black-950/45"
     >
       <div

@@ -2,8 +2,8 @@
 
 import type {
   GetLikedShopsQuery,
+  LikedShopListData,
   ShopLikeData,
-  ShopListData,
 } from "@sopum-map/shared";
 
 import { apiClient } from "../client";
@@ -22,7 +22,7 @@ export function unlikeShop(shopId: string): Promise<ShopLikeData> {
 
 export function getLikedShops(
   query: GetLikedShopsQuery = {},
-): Promise<ShopListData> {
+): Promise<LikedShopListData> {
   const searchParams = new URLSearchParams();
 
   if (query.page !== undefined) {
@@ -35,7 +35,7 @@ export function getLikedShops(
 
   const queryString = searchParams.toString();
 
-  return apiClient<ShopListData>(
+  return apiClient<LikedShopListData>(
     queryString ? `/me/liked-shops?${queryString}` : "/me/liked-shops",
   );
 }

@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import {
   ChevronRightIcon,
-  SettingsIcon,
+  SettingIcon,
   StarIcon,
   StoreIcon,
   VisitLogIcon,
@@ -23,7 +23,9 @@ type MenuLinkProps = Readonly<{
 }>;
 
 /** 방문 기록과 찜한 코스를 하나의 활동 카드로 표시합니다. */
-export function MyPageActivityMenu({ isEmpty }: Readonly<{ isEmpty: boolean }>) {
+export function MyPageActivityMenu({
+  isEmpty,
+}: Readonly<{ isEmpty: boolean }>) {
   const items: readonly ActivityItem[] = [
     {
       label: "방문 기록",
@@ -40,7 +42,10 @@ export function MyPageActivityMenu({ isEmpty }: Readonly<{ isEmpty: boolean }>) 
   ];
 
   return (
-    <nav aria-label="내 활동" className="mt-4 overflow-hidden rounded-2xl border border-black-200">
+    <nav
+      aria-label="내 활동"
+      className="mt-4 overflow-hidden rounded-2xl border border-black-200"
+    >
       {items.map((item) => (
         <Link
           key={item.href}
@@ -51,11 +56,16 @@ export function MyPageActivityMenu({ isEmpty }: Readonly<{ isEmpty: boolean }>) 
           <span className="text-green-400" aria-hidden="true">
             {item.icon}
           </span>
-          <span className="flex-1 text-14 font-medium text-black-950">{item.label}</span>
+          <span className="flex-1 text-14 font-medium text-black-950">
+            {item.label}
+          </span>
           <span className="min-w-7 rounded-full bg-green-100 px-2 py-0.5 text-center text-12 font-semibold text-green-700">
             {item.count}
           </span>
-          <ChevronRightIcon className="size-4 text-green-200" aria-hidden="true" />
+          <ChevronRightIcon
+            className="size-4 text-green-200"
+            aria-hidden="true"
+          />
         </Link>
       ))}
     </nav>
@@ -74,7 +84,7 @@ export function MyPageSupportMenu() {
       <MyPageMenuLink
         href="/me/settings"
         label="계정 설정"
-        icon={<SettingsIcon className="size-5" />}
+        icon={<SettingIcon className="size-5" />}
       />
     </nav>
   );
