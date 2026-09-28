@@ -68,7 +68,6 @@ export function PickFolderActions({
             if (event.key !== "Escape") {
               return;
             }
-
             closeMenuAndFocusTrigger();
           }}
           className="w-56 rounded-2xl bg-white p-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"

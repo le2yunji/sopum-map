@@ -3,7 +3,7 @@ import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 import { PickShopCard, type PickShop } from "./PickShopCard";
-import { PicksSkeleton } from "./PicksSkeleton";
+import { PicksSkeleton } from "../PicksSkeleton";
 
 type Props = Readonly<{
   shops: PickShop[];

@@ -9,14 +9,15 @@ import {
 } from "@/api/pick-folder/pick-folder.query";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 
-import { CreatePickFolderSheet } from "./CreatePickFolderSheet";
-import { PickFolderActions } from "./PickFolderActions";
-import { PickFolderTabs } from "./PickFolderTabs";
-import { PickShopGrid } from "./PickShopGrid";
+import { CreatePickFolderSheet } from "./folder/CreatePickFolderSheet";
+import { PickFolderActions } from "./folder/PickFolderActions";
+import { PickFolderTabs } from "./folder/PickFolderTabs";
+
 import { PicksSkeleton } from "./PicksSkeleton";
 import { SettingIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
-import { PickFolderManageSheet } from "./PickFolderManageSheet";
+import { PickFolderManageSheet } from "./folder/manage/PickFolderManageSheet";
+import { PickShopGrid } from "./shop/PickShopGrid";
 
 export const ALL_PICK_ID = "all";
 

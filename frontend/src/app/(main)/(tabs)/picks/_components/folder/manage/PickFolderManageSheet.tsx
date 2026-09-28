@@ -5,7 +5,6 @@ import { useState } from "react";
 import { usePickFolders } from "@/api/pick-folder/pick-folder.query";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button";
-
 import { PickFolderEditView } from "./PickFolderEditView";
 import { PickFolderManageItem } from "./PickFolderManageItem";
 

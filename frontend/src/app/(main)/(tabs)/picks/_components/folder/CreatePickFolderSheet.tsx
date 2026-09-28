@@ -25,9 +25,7 @@ export function CreatePickFolderSheet({
   onCreated,
 }: Props) {
   const [folderName, setFolderName] = useState("");
-
   const createFolderMutation = useCreatePickFolder();
-
   const normalizedFolderName = folderName.trim();
 
   const isDuplicateFolder = folders.some(

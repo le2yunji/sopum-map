@@ -87,6 +87,30 @@ function CloseButtonBottomSheetExample() {
   );
 }
 
+/** backdrop 터치가 뒤쪽 버튼 동작으로 이어지지 않는지 검증합니다. */
+function BackdropInteractionSafetyExample() {
+  const [open, setOpen] = useState(true);
+  const [backgroundClickCount, setBackgroundClickCount] = useState(0);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setBackgroundClickCount((count) => count + 1)}
+      >
+        뒤쪽 버튼 {backgroundClickCount}
+      </button>
+      <BottomSheet
+        open={open}
+        onOpenChange={setOpen}
+        ariaLabel="터치 안전성 예시"
+      >
+        <p>바텀시트 내용</p>
+      </BottomSheet>
+    </>
+  );
+}
+
 const meta = {
   title: "Components/BottomSheet",
   component: BottomSheet,
@@ -119,6 +143,8 @@ export const Controlled: Story = {
       expect(dialog).toHaveAttribute("data-state", "open"),
     );
     await expect(document.body.style.overflow).toBe("hidden");
+    await expect(document.body.style.position).toBe("fixed");
+    await expect(document.documentElement.style.overflow).toBe("hidden");
 
     await userEvent.keyboard("{Escape}");
     await expect(dialog).toHaveAttribute("data-state", "closing");
@@ -127,6 +153,8 @@ export const Controlled: Story = {
       expect(dialog).not.toBeVisible();
       expect(trigger).toHaveFocus();
       expect(document.body.style.overflow).toBe("");
+      expect(document.body.style.position).toBe("");
+      expect(document.documentElement.style.overflow).toBe("");
     });
   },
 };
@@ -208,6 +236,22 @@ export const PersistentBackdrop: Story = {
 
     await userEvent.click(dialog);
     await expect(dialog).toBeVisible();
+  },
+};
+
+export const BackdropInteractionSafety: Story = {
+  render: () => <BackdropInteractionSafetyExample />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = canvas.getByRole("dialog", { name: "터치 안전성 예시" });
+    const backgroundButton = canvas.getByRole("button", {
+      name: "뒤쪽 버튼 0",
+    });
+
+    await userEvent.click(dialog);
+
+    await expect(backgroundButton).toHaveTextContent("뒤쪽 버튼 0");
+    await waitFor(() => expect(dialog).not.toBeVisible());
   },
 };
 

@@ -1,6 +1,6 @@
 import { FilterChipGroup } from "@/components/ui/FilterChipGroup/FilterChipGroup";
 
-import { ALL_PICK_ID } from "./PicksScreen";
+import { ALL_PICK_ID } from "../PicksScreen";
 
 type PickFolder = Readonly<{
   id: string;

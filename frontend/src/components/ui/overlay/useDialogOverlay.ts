@@ -4,13 +4,72 @@ import {
   useRef,
   useState,
   type KeyboardEvent,
-  type PointerEvent,
+  type MouseEvent,
   type SyntheticEvent,
 } from "react";
 
 export type DialogVisualState = "closed" | "opening" | "open" | "closing";
 
 const DIALOG_TRANSITION_DURATION = 250;
+
+type PageOverflowState = Readonly<{
+  bodyOverflow: string;
+  bodyPosition: string;
+  bodyTop: string;
+  bodyWidth: string;
+  documentElementOverflow: string;
+  scrollX: number;
+  scrollY: number;
+}>;
+
+let pageScrollLockCount = 0;
+let pageOverflowState: PageOverflowState | null = null;
+
+/** 첫 overlay가 열릴 때 문서 전체의 스크롤 상태를 저장하고 잠급니다. */
+function lockPageScroll() {
+  if (pageScrollLockCount === 0) {
+    pageOverflowState = {
+      bodyOverflow: document.body.style.overflow,
+      bodyPosition: document.body.style.position,
+      bodyTop: document.body.style.top,
+      bodyWidth: document.body.style.width,
+      documentElementOverflow: document.documentElement.style.overflow,
+      scrollX: window.scrollX,
+      scrollY: window.scrollY,
+    };
+  }
+
+  pageScrollLockCount += 1;
+  document.body.style.overflow = "hidden";
+  document.body.style.position = "fixed";
+  document.body.style.top = `-${pageOverflowState?.scrollY ?? 0}px`;
+  document.body.style.width = "100%";
+  document.documentElement.style.overflow = "hidden";
+}
+
+/** 마지막 overlay가 닫힐 때만 원래 스크롤 상태를 복원합니다. */
+function unlockPageScroll() {
+  if (pageScrollLockCount === 0) {
+    return;
+  }
+
+  pageScrollLockCount -= 1;
+
+  if (pageScrollLockCount > 0 || !pageOverflowState) {
+    return;
+  }
+
+  const previousState = pageOverflowState;
+
+  document.body.style.overflow = previousState.bodyOverflow;
+  document.body.style.position = previousState.bodyPosition;
+  document.body.style.top = previousState.bodyTop;
+  document.body.style.width = previousState.bodyWidth;
+  document.documentElement.style.overflow =
+    previousState.documentElementOverflow;
+  pageOverflowState = null;
+  window.scrollTo(previousState.scrollX, previousState.scrollY);
+}
 
 type UseDialogOverlayOptions = Readonly<{
   open: boolean;
@@ -26,16 +85,16 @@ export function useDialogOverlay({
 }: UseDialogOverlayOptions) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
-  const previousOverflowRef = useRef<string | null>(null);
+  const hasScrollLockRef = useRef(false);
   const closeTimerRef = useRef<number | undefined>(undefined);
   const openFrameRef = useRef<number | undefined>(undefined);
   const [visualState, setVisualState] = useState<DialogVisualState>("closed");
 
   /** overlay가 바꾼 스크롤과 포커스를 원래 상태로 되돌립니다. */
   const restorePageState = useCallback(() => {
-    if (previousOverflowRef.current !== null) {
-      document.body.style.overflow = previousOverflowRef.current;
-      previousOverflowRef.current = null;
+    if (hasScrollLockRef.current) {
+      unlockPageScroll();
+      hasScrollLockRef.current = false;
     }
 
     const previousFocus = previousFocusRef.current;
@@ -58,8 +117,8 @@ export function useDialogOverlay({
         document.activeElement instanceof HTMLElement
           ? document.activeElement
           : null;
-      previousOverflowRef.current = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
+      lockPageScroll();
+      hasScrollLockRef.current = true;
       dialog.showModal();
       setVisualState("opening");
       openFrameRef.current = window.requestAnimationFrame(() => {
@@ -125,10 +184,8 @@ export function useDialogOverlay({
     }
   };
 
-  /** 패널 바깥의 실제 backdrop을 누른 경우에만 닫기를 요청합니다. */
-  const handleBackdropPointerDown = (
-    event: PointerEvent<HTMLDialogElement>,
-  ) => {
+  /** 완료된 backdrop 클릭만 닫아 같은 터치가 뒤쪽 요소로 전달되지 않게 합니다. */
+  const handleBackdropClick = (event: MouseEvent<HTMLDialogElement>) => {
     if (closeOnBackdrop && event.target === event.currentTarget) {
       onOpenChange(false);
     }
@@ -139,6 +196,6 @@ export function useDialogOverlay({
     visualState,
     handleCancel,
     handleKeyDown,
-    handleBackdropPointerDown,
+    handleBackdropClick,
   };
 }

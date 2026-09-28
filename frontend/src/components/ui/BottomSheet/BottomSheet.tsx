@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ComponentPropsWithoutRef } from "react";
+import type { ComponentPropsWithoutRef } from "react";
 
 import { useDialogOverlay } from "../overlay/useDialogOverlay";
 import type { BottomSheetProps } from "./BottomSheet.types";
@@ -36,26 +36,8 @@ function BottomSheetRoot({
     visualState,
     handleCancel,
     handleKeyDown,
-    handleBackdropPointerDown,
+    handleBackdropClick,
   } = useDialogOverlay({ open, onOpenChange, closeOnBackdrop });
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [open]);
-
-  if (!open) {
-    return null;
-  }
 
   return (
     <dialog
@@ -66,7 +48,7 @@ function BottomSheetRoot({
       data-state={visualState}
       onCancel={handleCancel}
       onKeyDown={handleKeyDown}
-      onPointerDown={handleBackdropPointerDown}
+      onClick={handleBackdropClick}
       className="mx-auto mt-auto mb-0 max-h-[calc(100dvh-1.25rem)] w-full max-w-[480px] overflow-visible bg-transparent p-0 text-black-950 backdrop:bg-black-950/45"
     >
       <div
