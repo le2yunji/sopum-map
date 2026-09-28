@@ -1,7 +1,17 @@
 "use client";
 
+import type {
+  ShopDetailData,
+  ShopLikeData,
+  ShopListData,
+} from "@sopum-map/shared";
+import {
+  type InfiniteData,
+  type QueryClient,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+
 import {
   likedShopQueryKeys,
   pickFolderQueryKeys,
@@ -36,6 +46,49 @@ type Props = Readonly<{
 
 const SNACKBAR_DURATION = 3000;
 const PICK_SYNC_DELAY = 300;
+
+/** 좋아요 API 결과를 상점 목록과 상세 캐시에 즉시 반영합니다. */
+function updateShopLikeCache(
+  queryClient: QueryClient,
+  shopLike: ShopLikeData,
+) {
+  queryClient.setQueriesData<InfiniteData<ShopListData>>(
+    { queryKey: shopQueryKeys.lists() },
+    (current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        pages: current.pages.map((page) => ({
+          ...page,
+          items: page.items.map((shop) =>
+            shop.id === shopLike.shopId
+              ? {
+                  ...shop,
+                  isLiked: shopLike.isLiked,
+                  likeCount: shopLike.likeCount,
+                }
+              : shop,
+          ),
+        })),
+      };
+    },
+  );
+
+  queryClient.setQueryData<ShopDetailData>(
+    shopQueryKeys.detail(shopLike.shopId),
+    (current) =>
+      current
+        ? {
+            ...current,
+            isLiked: shopLike.isLiked,
+            likeCount: shopLike.likeCount,
+          }
+        : current,
+  );
+}
 
 export function PickAction({
   shopId,
@@ -121,17 +174,19 @@ export function PickAction({
       setIsPending(true);
 
       try {
+        let shopLike: ShopLikeData | undefined;
+
         if (targetIsLiked) {
           if (onAdd) {
             await onAdd(shopId);
           } else {
-            await likeShop(shopId);
+            shopLike = await likeShop(shopId);
           }
         } else {
           if (onRemove) {
             await onRemove(shopId);
           } else {
-            await unlikeShop(shopId);
+            shopLike = await unlikeShop(shopId);
           }
         }
 
@@ -147,9 +202,13 @@ export function PickAction({
         if (latestIsLikedRef.current === targetIsLiked) {
           setSnackbarType(targetIsLiked ? "added" : "removed");
 
-          void queryClient.invalidateQueries({
-            queryKey: shopQueryKeys.all,
-          });
+          if (shopLike) {
+            updateShopLikeCache(queryClient, shopLike);
+          } else {
+            void queryClient.invalidateQueries({
+              queryKey: shopQueryKeys.all,
+            });
+          }
 
           void queryClient.invalidateQueries({
             queryKey: likedShopQueryKeys.all,
@@ -219,11 +278,13 @@ export function PickAction({
         onChangeFolder={handleOpenFolderSheet}
       />
 
-      <PickFolderSheet
-        open={isFolderSheetOpen}
-        shopId={shopId}
-        onOpenChange={setFolderSheetOpen}
-      />
+      {isFolderSheetOpen ? (
+        <PickFolderSheet
+          open
+          shopId={shopId}
+          onOpenChange={setFolderSheetOpen}
+        />
+      ) : null}
     </>
   );
 }
