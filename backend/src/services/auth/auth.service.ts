@@ -17,6 +17,7 @@ import { createSecureToken, hashToken } from "../../utils/secure-token.js";
 import { AUTH_SESSION_TTL_MS } from "./auth.constants.js";
 import { NICKNAME_GENERATION_MAX_RETRIES } from "../../constants/nickname.constants.js";
 import { createRandomNickname } from "../../utils/random-nickname.js";
+import { isMongoDuplicateKeyError } from "../../utils/mongo-error.js";
 
 export async function startOAuthLogin(
   provider: OAuthProvider,
@@ -288,21 +289,6 @@ export async function deleteAuthSession(sessionToken: string) {
 }
 
 /**
- * MongoDB duplicate key error인지 확인합니다.
- *
- * MongoDB unique index가 충돌하면
- * error.code === 11000이 발생합니다.
- */
-function isDuplicateKeyError(error: unknown): error is { code: number } {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === 11000
-  );
-}
-
-/**
  * 신규 사용자를 랜덤 닉네임으로 생성합니다.
  */
 async function createUserWithRandomNickname() {
@@ -331,7 +317,7 @@ async function createUserWithRandomNickname() {
        * nickname unique 충돌이 아닌 DB 오류는
        * 재시도하지 않고 그대로 전달합니다.
        */
-      if (!isDuplicateKeyError(error)) {
+      if (isMongoDuplicateKeyError(error)) {
         throw error;
       }
     }
