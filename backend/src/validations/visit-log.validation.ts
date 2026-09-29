@@ -1,10 +1,7 @@
 // backend/src/validations/visit-log.validation.ts
 
 import { z } from "zod";
-
-const objectIdSchema = z
-  .string()
-  .regex(/^[0-9a-fA-F]{24}$/, "올바른 ObjectId 형식이 아닙니다.");
+import { objectIdSchema } from "./common.validation.js";
 
 export const getVisitLogsParamsSchema = z.object({
   shopId: objectIdSchema,

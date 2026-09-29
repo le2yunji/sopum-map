@@ -1,14 +1,5 @@
 import { z } from "zod";
-
-/**
- * MongoDB ObjectId 문자열을 검증합니다.
- */
-const objectIdSchema = z
-  .string()
-  .refine(
-    (value) => /^[0-9a-fA-F]{24}$/.test(value),
-    "유효한 ObjectId 형식이 아닙니다.",
-  );
+import { objectIdSchema } from "./common.validation.js";
 
 /**
  * 내 픽 폴더 생성 요청
