@@ -1,4 +1,5 @@
-import type { AuthUser, GetMeResponse } from "@sopum-map/shared";
+import { isApiError, type AuthUser } from "@sopum-map/shared";
+import { apiClient } from "../client";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
@@ -34,41 +35,22 @@ export function startKakaoLogin(returnTo = "/") {
  * credentials: "include"를 사용합니다.
  */
 export async function getMe(): Promise<AuthUser | null> {
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
-    credentials: "include",
-  });
+  try {
+    return await apiClient<AuthUser>("/auth/me");
+  } catch (error) {
+    if (isApiError(error) && error.status === 401) {
+      return null;
+    }
 
-  /**
-   * 로그인하지 않은 상태는
-   * 예외 상황이 아니라 정상적인 상태로 봅니다.
-   */
-  if (response.status === 401) {
-    return null;
+    throw error;
   }
-
-  if (!response.ok) {
-    throw new Error("사용자 정보를 불러오지 못했습니다.");
-  }
-
-  const result = (await response.json()) as GetMeResponse;
-
-  if (!result.success) {
-    throw new Error(result.error.message);
-  }
-
-  return result.data;
 }
 
 /**
  * 현재 로그인 세션을 종료합니다.
  */
 export async function logout() {
-  const response = await fetch(`${API_BASE_URL}/auth/logout`, {
+  return apiClient<void>("/auth/logout", {
     method: "POST",
-    credentials: "include",
   });
-
-  if (!response.ok) {
-    throw new Error("로그아웃에 실패했습니다.");
-  }
 }
