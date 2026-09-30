@@ -60,7 +60,7 @@ export function usePickFolders() {
 /**
  * 특정 상점이 들어있는 폴더 목록
  */
-export function useFolderIdsByShop(shopId?: string) {
+export function useFolderIdsByShop(shopId?: string, enabled = true) {
   return useQuery({
     queryKey: pickFolderQueryKeys.shopFolders(shopId ?? ""),
 
@@ -72,7 +72,7 @@ export function useFolderIdsByShop(shopId?: string) {
       return getFolderIdsByShop(shopId);
     },
 
-    enabled: Boolean(shopId),
+    enabled: enabled && Boolean(shopId),
   });
 }
 
