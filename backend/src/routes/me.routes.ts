@@ -29,6 +29,7 @@ import {
   addShopToFolderSchema,
   removeShopFromFolderSchema,
 } from "../validations/pick-folder.validation.js";
+import { getMyCoursesController } from "@/controllers/course.controller.js";
 
 const meRouter = Router();
 
@@ -153,5 +154,12 @@ meRouter.delete(
   validateRequest(removeShopFromFolderSchema),
   removeShopFromFolderController,
 );
+
+/**
+ * 내가 만든 코스 목록
+ *
+ * GET /api/me/courses
+ */
+meRouter.get("/courses", requireAuth, getMyCoursesController);
 
 export { meRouter };

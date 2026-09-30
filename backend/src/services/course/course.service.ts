@@ -1,18 +1,25 @@
 import { Types } from "mongoose";
 
 import {
+  CourseListData,
   SHOP_REGION_GROUPS,
   createApiError,
+  type CourseDetailData,
   type CreateCourseData,
   type CreateCourseRequest,
   type ShopRegionGroup,
+  type UpdateCourseData,
+  type UpdateCourseRequest,
 } from "@sopum-map/shared";
 
+import ShopLikeModel from "../../models/shop-like.model.js";
 import CourseModel from "../../models/course.model.js";
 import PickFolderItemModel from "../../models/pick-folder-item.model.js";
 import PickFolderModel from "../../models/pick-folder.model.js";
 import ShopModel from "../../models/shop.model.js";
 import { isMongoDuplicateKeyError } from "../../utils/mongo-error.js";
+import { getMainShopImageUrl } from "@/utils/shop-image.js";
+import { isCourseShopUnavailable } from "./course.helper.js";
 
 type CourseShopInput = CreateCourseRequest["shops"][number];
 
@@ -322,5 +329,541 @@ export async function createCourse(
     }
 
     throw error;
+  }
+}
+
+/**
+ * 코스 상세 정보를 조회합니다.
+ */
+export async function getCourseDetail(
+  userId: string,
+  courseId: string,
+): Promise<CourseDetailData> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectCourseId = new Types.ObjectId(courseId);
+
+  /**
+   * 코스를 먼저 조회합니다.
+   */
+  const course = await CourseModel.findById(objectCourseId).lean();
+
+  if (!course) {
+    throw createApiError({
+      status: 404,
+      code: "COURSE_NOT_FOUND",
+      message: "코스를 찾을 수 없습니다.",
+    });
+  }
+
+  /**
+   * 비공개 코스는 작성자만 조회할 수 있습니다.
+   *
+   * 현재 1차 구현의 사용자 코스는 모두 비공개지만,
+   * 추후 공개 기능을 고려해 isPublic 기준으로 검사합니다.
+   */
+  if (!course.isPublic) {
+    const isOwner = course.userId?.toString() === objectUserId.toString();
+
+    if (!isOwner) {
+      throw createApiError({
+        status: 403,
+        code: "COURSE_FORBIDDEN",
+        message: "해당 코스에 접근할 수 없습니다.",
+      });
+    }
+  }
+
+  /**
+   * Course 자체에 저장된 방문 순서를 기준으로
+   * 상점 ID를 정렬합니다.
+   */
+  const orderedCourseShops = [...course.shops].sort(
+    (a, b) => a.order - b.order,
+  );
+
+  const shopIds = orderedCourseShops.map((courseShop) => courseShop.shopId);
+
+  /**
+   * 상점의 현재 정보를 조회합니다.
+   *
+   * status 조건을 걸지 않습니다.
+   * hidden / temporarily_closed / closed 상태도
+   * 코스에서는 계속 조회되어야 합니다.
+   */
+  const shops = await ShopModel.find({
+    _id: {
+      $in: shopIds,
+    },
+  })
+    .select({
+      _id: 1,
+
+      name: 1,
+      address: 1,
+
+      images: 1,
+
+      regionGroup: 1,
+      location: 1,
+
+      status: 1,
+    })
+    .lean();
+
+  const shopMap = new Map(shops.map((shop) => [shop._id.toString(), shop]));
+
+  /**
+   * Course에 포함된 Shop 문서가 물리적으로 삭제된 경우
+   * 현재 모델만으로는 이름/주소 등을 복구할 수 없습니다.
+   *
+   * 폐점은 Shop 삭제가 아니라 status=closed로
+   * 관리하는 것을 전제로 합니다.
+   */
+  if (shops.length !== orderedCourseShops.length) {
+    throw createApiError({
+      status: 500,
+      code: "COURSE_SHOP_DATA_MISSING",
+      message: "코스에 포함된 일부 상점 정보를 찾을 수 없습니다.",
+    });
+  }
+
+  const detailShops = orderedCourseShops.map((courseShop) => {
+    const shop = shopMap.get(courseShop.shopId.toString());
+
+    if (!shop) {
+      throw createApiError({
+        status: 500,
+        code: "COURSE_SHOP_DATA_MISSING",
+        message: "코스에 포함된 일부 상점 정보를 찾을 수 없습니다.",
+      });
+    }
+
+    const [longitude, latitude] = shop.location.coordinates;
+
+    return {
+      id: shop._id.toString(),
+
+      name: shop.name,
+      address: shop.address,
+
+      mainImageUrl: getMainShopImageUrl(shop.images ?? []),
+
+      regionGroup: shop.regionGroup,
+
+      latitude,
+      longitude,
+
+      status: shop.status,
+
+      isUnavailable: isCourseShopUnavailable(shop.status),
+
+      order: courseShop.order,
+
+      memo: courseShop.memo ?? null,
+    };
+  });
+
+  return {
+    id: course._id.toString(),
+
+    courseType: course.courseType,
+
+    sourceFolderId: course.sourceFolderId?.toString() ?? null,
+
+    title: course.title,
+
+    description: course.description ?? null,
+
+    regionGroup: course.regionGroup,
+
+    isPublic: course.isPublic,
+
+    shops: detailShops,
+
+    createdAt: course.createdAt.toISOString(),
+
+    updatedAt: course.updatedAt.toISOString(),
+  };
+}
+
+/**
+ * 내가 만든 사용자 코스 목록을 조회합니다.
+ */
+export async function getMyCourses(userId: string): Promise<CourseListData> {
+  const objectUserId = new Types.ObjectId(userId);
+
+  const courses = await CourseModel.find({
+    userId: objectUserId,
+    courseType: "user_created",
+  })
+    .sort({
+      createdAt: -1,
+    })
+    .select({
+      _id: 1,
+
+      sourceFolderId: 1,
+
+      title: 1,
+      description: 1,
+
+      regionGroup: 1,
+
+      shops: 1,
+
+      createdAt: 1,
+      updatedAt: 1,
+    })
+    .lean();
+
+  if (courses.length === 0) {
+    return {
+      items: [],
+    };
+  }
+
+  /**
+   * 각 코스의 첫 번째 방문 상점을 대표 이미지 후보로 사용합니다.
+   */
+  const firstShopIds = courses
+    .map((course) => {
+      const firstCourseShop = [...course.shops].sort(
+        (a, b) => a.order - b.order,
+      )[0];
+
+      return firstCourseShop?.shopId ?? null;
+    })
+    .filter(
+      (shopId): shopId is Types.ObjectId => shopId instanceof Types.ObjectId,
+    );
+
+  const shops =
+    firstShopIds.length > 0
+      ? await ShopModel.find({
+          _id: {
+            $in: firstShopIds,
+          },
+        })
+          .select({
+            _id: 1,
+            images: 1,
+          })
+          .lean()
+      : [];
+
+  const shopMap = new Map(shops.map((shop) => [shop._id.toString(), shop]));
+
+  return {
+    items: courses.map((course) => {
+      const orderedShops = [...course.shops].sort((a, b) => a.order - b.order);
+
+      const firstShop = orderedShops[0];
+
+      const shop = firstShop
+        ? shopMap.get(firstShop.shopId.toString())
+        : undefined;
+
+      return {
+        id: course._id.toString(),
+
+        title: course.title,
+
+        description: course.description ?? null,
+
+        regionGroup: course.regionGroup,
+
+        sourceFolderId: course.sourceFolderId?.toString() ?? null,
+
+        shopCount: course.shops.length,
+
+        mainImageUrl: shop ? getMainShopImageUrl(shop.images ?? []) : null,
+
+        createdAt: course.createdAt.toISOString(),
+
+        updatedAt: course.updatedAt.toISOString(),
+      };
+    }),
+  };
+}
+
+/**
+ * 사용자 코스를 수정합니다.
+ */
+export async function updateCourse(
+  userId: string,
+  courseId: string,
+  input: UpdateCourseRequest,
+): Promise<UpdateCourseData> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectCourseId = new Types.ObjectId(courseId);
+
+  /**
+   * 코스 존재 여부를 먼저 확인합니다.
+   *
+   * 존재 여부와 소유권을 분리해야
+   * 다른 사용자의 코스에 403을 반환할 수 있습니다.
+   */
+  const course = await CourseModel.findById(objectCourseId)
+    .select({
+      _id: 1,
+      userId: 1,
+      courseType: 1,
+      shops: 1,
+    })
+    .lean();
+
+  if (!course) {
+    throw createApiError({
+      status: 404,
+      code: "COURSE_NOT_FOUND",
+      message: "코스를 찾을 수 없습니다.",
+    });
+  }
+
+  /**
+   * 사용자 생성 코스의 작성자만 수정할 수 있습니다.
+   */
+  if (
+    course.courseType !== "user_created" ||
+    !course.userId ||
+    course.userId.toString() !== objectUserId.toString()
+  ) {
+    throw createApiError({
+      status: 403,
+      code: "COURSE_FORBIDDEN",
+      message: "해당 코스를 수정할 권한이 없습니다.",
+    });
+  }
+
+  const update: {
+    title?: string;
+    description?: string | null;
+    shops?: Array<{
+      shopId: Types.ObjectId;
+      order: number;
+      memo: string | null;
+    }>;
+    regionGroup?: ShopRegionGroup;
+  } = {};
+
+  if (input.title !== undefined) {
+    update.title = input.title;
+  }
+
+  if (input.description !== undefined) {
+    update.description = input.description;
+  }
+
+  /**
+   * 상점 구성이 변경되는 경우에만
+   * 상점 관련 비즈니스 규칙을 검증합니다.
+   */
+  if (input.shops !== undefined) {
+    validateCourseShops(input.shops);
+
+    const orderedCourseShops = [...input.shops].sort(
+      (first, second) => first.order - second.order,
+    );
+
+    const objectShopIds = orderedCourseShops.map(
+      (shop) => new Types.ObjectId(shop.shopId),
+    );
+
+    /**
+     * 수정 요청에 포함된 모든 상점이 실제로 존재하는지 확인합니다.
+     *
+     * 수정 시에는 sourceFolderId의 상점으로 제한하지 않습니다.
+     */
+    const shops = await ShopModel.find({
+      _id: {
+        $in: objectShopIds,
+      },
+    })
+      .select({
+        _id: 1,
+        regionGroup: 1,
+      })
+      .lean();
+
+    if (shops.length !== orderedCourseShops.length) {
+      throw createApiError({
+        status: 400,
+        code: "INVALID_COURSE_SHOP",
+        message: "존재하지 않는 상점이 포함되어 있습니다.",
+      });
+    }
+
+    /**
+     * 기존 코스에 없던 상점만 찾아냅니다.
+     */
+    const currentShopIds = new Set(
+      course.shops.map((shop) => shop.shopId.toString()),
+    );
+
+    const addedShopIds = orderedCourseShops
+      .filter((shop) => !currentShopIds.has(shop.shopId))
+      .map((shop) => new Types.ObjectId(shop.shopId));
+
+    /**
+     * 새로 추가되는 상점은 현재 사용자가
+     * 좋아요한 상점이어야 합니다.
+     *
+     * 기존 코스에 이미 들어 있던 상점은
+     * 좋아요가 해제되어 있어도 유지할 수 있습니다.
+     */
+    if (addedShopIds.length > 0) {
+      const likedShopCount = await ShopLikeModel.countDocuments({
+        userId: objectUserId,
+
+        shopId: {
+          $in: addedShopIds,
+        },
+      });
+
+      if (likedShopCount !== addedShopIds.length) {
+        throw createApiError({
+          status: 400,
+          code: "COURSE_SHOP_NOT_LIKED",
+          message: "새로 추가하는 상점은 현재 좋아요한 상점이어야 합니다.",
+        });
+      }
+    }
+
+    const shopMap = new Map(shops.map((shop) => [shop._id.toString(), shop]));
+
+    /**
+     * 방문 순서대로 regionGroup을 구성합니다.
+     */
+    const orderedRegionShops: CourseRegionShop[] = orderedCourseShops.map(
+      (courseShop) => {
+        const shop = shopMap.get(courseShop.shopId);
+
+        if (!shop) {
+          throw createApiError({
+            status: 400,
+            code: "INVALID_COURSE_SHOP",
+            message: "존재하지 않는 상점이 포함되어 있습니다.",
+          });
+        }
+
+        if (!isShopRegionGroup(shop.regionGroup)) {
+          throw createApiError({
+            status: 400,
+            code: "COURSE_SHOP_REGION_REQUIRED",
+            message: "지역 정보가 없는 상점은 코스에 추가할 수 없습니다.",
+          });
+        }
+
+        return {
+          regionGroup: shop.regionGroup,
+        };
+      },
+    );
+
+    /**
+     * 상점 구성이 수정되면 대표 지역도 다시 계산합니다.
+     */
+    update.regionGroup = calculateCourseRegionGroup(orderedRegionShops);
+
+    update.shops = orderedCourseShops.map((shop) => ({
+      shopId: new Types.ObjectId(shop.shopId),
+
+      order: shop.order,
+
+      memo: shop.memo ?? null,
+    }));
+  }
+
+  const updatedCourse = await CourseModel.findByIdAndUpdate(
+    objectCourseId,
+    {
+      $set: update,
+    },
+    {
+      new: true,
+      runValidators: true,
+    },
+  )
+    .select({
+      _id: 1,
+    })
+    .lean();
+
+  /**
+   * 조회 이후 삭제되는 경쟁 상황까지 방어합니다.
+   */
+  if (!updatedCourse) {
+    throw createApiError({
+      status: 404,
+      code: "COURSE_NOT_FOUND",
+      message: "코스를 찾을 수 없습니다.",
+    });
+  }
+
+  return {
+    courseId: updatedCourse._id.toString(),
+  };
+}
+
+/**
+ * 사용자 코스를 삭제합니다.
+ */
+export async function deleteCourse(
+  userId: string,
+  courseId: string,
+): Promise<void> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectCourseId = new Types.ObjectId(courseId);
+
+  /**
+   * 존재 여부와 소유권을 구분하기 위해
+   * 먼저 코스를 조회합니다.
+   */
+  const course = await CourseModel.findById(objectCourseId)
+    .select({
+      _id: 1,
+      userId: 1,
+      courseType: 1,
+    })
+    .lean();
+
+  if (!course) {
+    throw createApiError({
+      status: 404,
+      code: "COURSE_NOT_FOUND",
+      message: "코스를 찾을 수 없습니다.",
+    });
+  }
+
+  /**
+   * 사용자 생성 코스의 작성자만 삭제할 수 있습니다.
+   */
+  if (
+    course.courseType !== "user_created" ||
+    !course.userId ||
+    course.userId.toString() !== objectUserId.toString()
+  ) {
+    throw createApiError({
+      status: 403,
+      code: "COURSE_FORBIDDEN",
+      message: "해당 코스를 삭제할 권한이 없습니다.",
+    });
+  }
+
+  const result = await CourseModel.deleteOne({
+    _id: objectCourseId,
+    userId: objectUserId,
+    courseType: "user_created",
+  });
+
+  /**
+   * 조회 직후 다른 요청에서 삭제된 경우까지 방어합니다.
+   */
+  if (result.deletedCount === 0) {
+    throw createApiError({
+      status: 404,
+      code: "COURSE_NOT_FOUND",
+      message: "코스를 찾을 수 없습니다.",
+    });
   }
 }
