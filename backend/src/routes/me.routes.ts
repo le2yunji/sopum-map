@@ -29,7 +29,7 @@ import {
   addShopToFolderSchema,
   removeShopFromFolderSchema,
 } from "../validations/pick-folder.validation.js";
-import { getMyCoursesController } from "@/controllers/course.controller.js";
+import { getMyCoursesController } from "../controllers/course.controller.js";
 
 const meRouter = Router();
 
