@@ -18,8 +18,10 @@ import type {
 import PickFolderModel from "../../models/pick-folder.model.js";
 import PickFolderItemModel from "../../models/pick-folder-item.model.js";
 import ShopLikeModel from "../../models/shop-like.model.js";
-import { getShopMapByIds } from "../shop/shop-query.helper.js";
 import ShopModel from "../../models/shop.model.js";
+import CourseModel from "../../models/course.model.js";
+
+import { getShopMapByIds } from "../shop/shop-query.helper.js";
 import { mapShopListItem } from "../shop/shop.mapper.js";
 
 // folders
@@ -57,43 +59,82 @@ export async function getMyPickFolders(
     .lean();
 
   const folderIds = folders.map((folder) => folder._id);
+  if (folderIds.length === 0) {
+    return {
+      items: [],
+    };
+  }
 
   /**
    * 각 폴더의 상점 수를 한 번에 집계
    */
-  const counts =
-    folderIds.length > 0
-      ? await PickFolderItemModel.aggregate<{
-          _id: Types.ObjectId;
-          count: number;
-        }>([
-          {
-            $match: {
-              folderId: {
-                $in: folderIds,
-              },
-            },
+  const [counts, courses] = await Promise.all([
+    PickFolderItemModel.aggregate<{
+      _id: Types.ObjectId;
+      count: number;
+    }>([
+      {
+        $match: {
+          folderId: {
+            $in: folderIds,
           },
-          {
-            $group: {
-              _id: "$folderId",
-              count: {
-                $sum: 1,
-              },
-            },
+        },
+      },
+      {
+        $group: {
+          _id: "$folderId",
+
+          count: {
+            $sum: 1,
           },
-        ])
-      : [];
+        },
+      },
+    ]),
+
+    CourseModel.find({
+      userId: objectUserId,
+
+      courseType: "user_created",
+
+      sourceFolderId: {
+        $in: folderIds,
+      },
+    })
+      .select({
+        _id: 1,
+        sourceFolderId: 1,
+      })
+      .lean(),
+  ]);
 
   const countByFolderId = new Map(
     counts.map(({ _id, count }) => [_id.toString(), count]),
   );
 
+  const courseIdByFolderId = new Map(
+    courses
+      .filter(
+        (course) =>
+          course.sourceFolderId !== null && course.sourceFolderId !== undefined,
+      )
+      .map((course) => [
+        course.sourceFolderId!.toString(),
+        course._id.toString(),
+      ]),
+  );
+
   return {
-    items: folders.map((folder) => ({
-      ...mapPickFolder(folder),
-      shopCount: countByFolderId.get(folder._id.toString()) ?? 0,
-    })),
+    items: folders.map((folder) => {
+      const folderId = folder._id.toString();
+
+      return {
+        ...mapPickFolder(folder),
+
+        shopCount: countByFolderId.get(folderId) ?? 0,
+
+        courseId: courseIdByFolderId.get(folderId) ?? null,
+      };
+    }),
   };
 }
 
@@ -197,6 +238,22 @@ export async function deletePickFolder(
     PickFolderItemModel.deleteMany({
       folderId,
     }),
+
+    // 폴더 삭제 시 Course는 삭제하지 않고 sourceFolderId만 null
+    CourseModel.updateMany(
+      {
+        userId: objectUserId,
+
+        sourceFolderId: folderId,
+
+        courseType: "user_created",
+      },
+      {
+        $set: {
+          sourceFolderId: null,
+        },
+      },
+    ),
   ]);
 }
 

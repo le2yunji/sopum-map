@@ -32,6 +32,7 @@ const FOLDERS = {
       description: null,
       order: 0,
       shopCount: 1,
+      courseId: null,
     },
     {
       id: "folder-gacha",
@@ -39,6 +40,7 @@ const FOLDERS = {
       description: null,
       order: 1,
       shopCount: 1,
+      courseId: null,
     },
   ],
 } satisfies PickFolderListData;
@@ -205,6 +207,7 @@ export const AddFolder: Story = {
               description: null,
               order: 2,
               shopCount: 0,
+              courseId: null,
             },
           ],
         });

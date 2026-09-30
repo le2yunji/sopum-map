@@ -1,4 +1,8 @@
-import { COURSE_TYPES } from "@sopum-map/shared";
+import {
+  COURSE_TYPES,
+  SHOP_REGION_GROUPS,
+  type CourseType,
+} from "@sopum-map/shared";
 import { Schema, model, type InferSchemaType } from "mongoose";
 
 const courseShopSchema = new Schema(
@@ -35,7 +39,7 @@ const courseSchema = new Schema(
     courseType: {
       type: String,
       enum: COURSE_TYPES,
-      default: "user",
+      default: "user_created",
       required: true,
     },
 
@@ -44,8 +48,8 @@ const courseSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       default: null,
-      required(this: { courseType: string }) {
-        return this.courseType === "user";
+      required(this: { courseType: CourseType }) {
+        return this.courseType === "user_created";
       },
     },
 
@@ -73,18 +77,17 @@ const courseSchema = new Schema(
       maxlength: 1000,
     },
 
-    // 코스 대표 지역
-    region: {
+    regionGroup: {
       type: String,
+      enum: SHOP_REGION_GROUPS,
       required: true,
-      trim: true,
-      maxlength: 50,
     },
 
     // 다른 사용자에게 코스를 공개할지 여부
     isPublic: {
       type: Boolean,
       default: false,
+      required: true,
     },
 
     // 코스에 포함된 매장과 방문 순서
@@ -97,6 +100,12 @@ const courseSchema = new Schema(
             return value.length >= 2;
           },
           message: "코스에는 최소 2개의 매장이 필요합니다.",
+        },
+        {
+          validator(value: unknown[]) {
+            return value.length <= 10;
+          },
+          message: "코스에는 최대 10개의 매장만 포함할 수 있습니다.",
         },
       ],
     },
@@ -111,26 +120,22 @@ courseSchema.index({
   userId: 1,
   createdAt: -1,
 });
-
-// 공개된 코스 목록 조회
-courseSchema.index({
-  isPublic: 1,
-  createdAt: -1,
-});
-
-// 추천 코스 조회
-courseSchema.index({
-  courseType: 1,
-  createdAt: -1,
-});
-
-// 지역별 공개 코스 조회
-courseSchema.index({
-  region: 1,
-  isPublic: 1,
-  createdAt: -1,
-});
-
+// 폴더당 사용자 코스 1개
+courseSchema.index(
+  {
+    userId: 1,
+    sourceFolderId: 1,
+  },
+  {
+    unique: true,
+    partialFilterExpression: {
+      courseType: "user_created",
+      sourceFolderId: {
+        $type: "objectId",
+      },
+    },
+  },
+);
 export type CourseSchemaType = InferSchemaType<typeof courseSchema>;
 
 const CourseModel = model("Course", courseSchema);

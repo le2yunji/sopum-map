@@ -1,6 +1,9 @@
-import { Pagination } from "../api/api.types";
+import type { Pagination } from "../api/api.types";
 import type { ShopCategory, ShopRegionGroup } from "../shop/shop.types";
 
+/**
+ * 내 픽 폴더 기본 데이터
+ */
 export type PickFolder = Readonly<{
   id: string;
   title: string;
@@ -8,48 +11,27 @@ export type PickFolder = Readonly<{
   order: number;
 }>;
 
+/**
+ * 내 픽 폴더 목록의 개별 항목
+ */
 export type PickFolderListItem = PickFolder &
   Readonly<{
     shopCount: number;
+    courseId: string | null;
   }>;
 
+/**
+ * 내 픽 폴더 목록 데이터
+ */
 export type PickFolderListData = Readonly<{
   items: PickFolderListItem[];
 }>;
 
-export type CreatePickFolderRequest = Readonly<{
-  title: string;
-  description?: string | null;
-}>;
-
-export type UpdatePickFolderRequest = Readonly<{
-  title?: string;
-  description?: string | null;
-}>;
-
-export type UpdatePickFolderOrderRequest = Readonly<{
-  folderIds: string[];
-}>;
-
 /**
- * 특정 상점이 현재 포함된 폴더 목록
+ * 특정 상점이 현재 포함된 폴더 ID 목록
  */
 export type ShopFolderIdsData = Readonly<{
   folderIds: string[];
-}>;
-
-/**
- * 특정 상점의 폴더 구성을 한 번에 변경
- */
-export type UpdateShopFolderIdsRequest = Readonly<{
-  folderIds: string[];
-}>;
-
-/**
- * 특정 폴더에 상점을 추가하는 요청
- */
-export type AddShopToFolderRequest = Readonly<{
-  shopId: string;
 }>;
 
 /**
@@ -60,6 +42,9 @@ export type PickFolderShopData = Readonly<{
   shopId: string;
 }>;
 
+/**
+ * 특정 폴더에 포함된 상점 목록의 개별 항목
+ */
 export type PickFolderShopListItem = Readonly<{
   id: string;
   name: string;
@@ -70,6 +55,9 @@ export type PickFolderShopListItem = Readonly<{
   mainImageUrl: string | null;
 }>;
 
+/**
+ * 특정 폴더에 포함된 상점 목록 데이터
+ */
 export type PickFolderShopListData = Readonly<{
   items: PickFolderShopListItem[];
   pagination: Pagination;

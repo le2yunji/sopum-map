@@ -5,6 +5,7 @@ import {
 } from "@sopum-map/shared";
 import { z } from "zod";
 import { createPaginationQuerySchema } from "./pagination.validation.js";
+import { objectIdSchema } from "./common.validation.js";
 
 /**
  * 빈 문자열을 undefined로 변환한다.
@@ -105,14 +106,6 @@ export const getShopsQuerySchema = z
   });
 
 /**
- * MongoDB ObjectId는
- * 24자리 16진수 문자열이다.
- */
-const mongoObjectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, {
-  message: "유효하지 않은 shopId입니다.",
-});
-
-/**
  * Shop ID를 Path Parameter로 받는 API에서 공통 사용
  *
  * GET    /api/shops/:shopId
@@ -120,7 +113,7 @@ const mongoObjectIdSchema = z.string().regex(/^[0-9a-fA-F]{24}$/, {
  * DELETE /api/shops/:shopId/likes
  */
 export const shopIdParamsSchema = z.object({
-  shopId: mongoObjectIdSchema,
+  shopId: objectIdSchema,
 });
 
 export const getShopDetailParamsSchema = shopIdParamsSchema;
