@@ -18,7 +18,7 @@ import PickFolderItemModel from "../../models/pick-folder-item.model.js";
 import PickFolderModel from "../../models/pick-folder.model.js";
 import ShopModel from "../../models/shop.model.js";
 import { isMongoDuplicateKeyError } from "../../utils/mongo-error.js";
-import { getMainShopImageUrl } from "@/utils/shop-image.js";
+import { getMainShopImageUrl } from "../../utils/shop-image.js";
 import { isCourseShopUnavailable } from "./course.helper.js";
 
 type CourseShopInput = CreateCourseRequest["shops"][number];
