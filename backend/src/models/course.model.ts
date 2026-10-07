@@ -120,11 +120,13 @@ courseSchema.index({
   userId: 1,
   createdAt: -1,
 });
+
 // 폴더당 사용자 코스 1개
 courseSchema.index(
   {
     userId: 1,
     sourceFolderId: 1,
+    regionGroup: 1,
   },
   {
     unique: true,
