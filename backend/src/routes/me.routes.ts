@@ -13,6 +13,7 @@ import {
   updatePickFolderOrderController,
   addShopToFolderController,
   removeShopFromFolderController,
+  getPickFolderCourseRegionsController,
 } from "../controllers/pick-folder.controller.js";
 
 import { requireAuth } from "../middlewares/require-auth.middleware.js";
@@ -21,6 +22,7 @@ import { validateRequest } from "../middlewares/validate-request.middleware.js";
 import {
   createPickFolderSchema,
   deletePickFolderSchema,
+  getPickFolderCourseRegionsSchema,
   getPickFolderShopsSchema,
   getShopPickFoldersSchema,
   updatePickFolderOrderSchema,
@@ -30,6 +32,10 @@ import {
   removeShopFromFolderSchema,
 } from "../validations/pick-folder.validation.js";
 import { getMyCoursesController } from "../controllers/course.controller.js";
+
+import { optimizeCourseRouteController } from "../controllers/course-route.controller.js";
+
+import { optimizeCourseRouteSchema } from "../validations/course-route.validation.js";
 
 const meRouter = Router();
 
@@ -120,6 +126,18 @@ meRouter.delete(
 );
 
 /**
+ * 특정 내 픽 폴더의 지역별 코스 생성 가능 현황 조회
+ *
+ * GET /api/me/pick-folders/:folderId/course-regions
+ */
+meRouter.get(
+  "/pick-folders/:folderId/course-regions",
+  requireAuth,
+  validateRequest(getPickFolderCourseRegionsSchema),
+  getPickFolderCourseRegionsController,
+);
+
+/**
  * 좋아요한 상점을 특정 내 픽 폴더에 추가
  *
  * POST /api/me/pick-folders/:folderId/shops
@@ -161,5 +179,17 @@ meRouter.delete(
  * GET /api/me/courses
  */
 meRouter.get("/courses", requireAuth, getMyCoursesController);
+
+/**
+ * 선택한 상점의 추천 방문 순서 계산
+ *
+ * POST /api/me/course-routes/optimize
+ */
+meRouter.post(
+  "/course-routes/optimize",
+  requireAuth,
+  validateRequest(optimizeCourseRouteSchema),
+  optimizeCourseRouteController,
+);
 
 export { meRouter };

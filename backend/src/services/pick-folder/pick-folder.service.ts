@@ -13,6 +13,8 @@ import type {
   AddShopToFolderRequest,
   PickFolderShopData,
   PickFolderShopListData,
+  ShopRegionGroup,
+  PickFolderCourseRegionsData,
 } from "@sopum-map/shared";
 
 import PickFolderModel from "../../models/pick-folder.model.js";
@@ -49,6 +51,7 @@ export async function getMyPickFolders(
   userId: string,
 ): Promise<PickFolderListData> {
   const objectUserId = new Types.ObjectId(userId);
+
   const folders = await PickFolderModel.find({
     userId: objectUserId,
   })
@@ -59,15 +62,13 @@ export async function getMyPickFolders(
     .lean();
 
   const folderIds = folders.map((folder) => folder._id);
+
   if (folderIds.length === 0) {
     return {
       items: [],
     };
   }
 
-  /**
-   * 각 폴더의 상점 수를 한 번에 집계
-   */
   const [counts, courses] = await Promise.all([
     PickFolderItemModel.aggregate<{
       _id: Types.ObjectId;
@@ -83,7 +84,6 @@ export async function getMyPickFolders(
       {
         $group: {
           _id: "$folderId",
-
           count: {
             $sum: 1,
           },
@@ -93,7 +93,6 @@ export async function getMyPickFolders(
 
     CourseModel.find({
       userId: objectUserId,
-
       courseType: "user_created",
 
       sourceFolderId: {
@@ -103,6 +102,7 @@ export async function getMyPickFolders(
       .select({
         _id: 1,
         sourceFolderId: 1,
+        regionGroup: 1,
       })
       .lean(),
   ]);
@@ -111,17 +111,31 @@ export async function getMyPickFolders(
     counts.map(({ _id, count }) => [_id.toString(), count]),
   );
 
-  const courseIdByFolderId = new Map(
-    courses
-      .filter(
-        (course) =>
-          course.sourceFolderId !== null && course.sourceFolderId !== undefined,
-      )
-      .map((course) => [
-        course.sourceFolderId!.toString(),
-        course._id.toString(),
-      ]),
-  );
+  const coursesByFolderId = new Map<
+    string,
+    Array<{
+      courseId: string;
+      regionGroup: ShopRegionGroup;
+    }>
+  >();
+
+  for (const course of courses) {
+    if (!course.sourceFolderId) {
+      continue;
+    }
+
+    const folderId = course.sourceFolderId.toString();
+
+    const folderCourses = coursesByFolderId.get(folderId) ?? [];
+
+    folderCourses.push({
+      courseId: course._id.toString(),
+
+      regionGroup: course.regionGroup,
+    });
+
+    coursesByFolderId.set(folderId, folderCourses);
+  }
 
   return {
     items: folders.map((folder) => {
@@ -132,9 +146,158 @@ export async function getMyPickFolders(
 
         shopCount: countByFolderId.get(folderId) ?? 0,
 
-        courseId: courseIdByFolderId.get(folderId) ?? null,
+        courses: coursesByFolderId.get(folderId) ?? [],
       };
     }),
+  };
+}
+
+/**
+ * 특정 내 픽 폴더에서 코스를 만들 수 있는
+ * 지역별 상점 현황과 기존 코스를 조회합니다.
+ */
+export async function getPickFolderCourseRegions(
+  userId: string,
+  folderId: string,
+): Promise<PickFolderCourseRegionsData> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectFolderId = new Types.ObjectId(folderId);
+
+  /**
+   * 현재 사용자의 폴더인지 확인합니다.
+   */
+  const folder = await PickFolderModel.exists({
+    _id: objectFolderId,
+    userId: objectUserId,
+  });
+
+  if (!folder) {
+    throw createApiError({
+      status: 404,
+      code: "PICK_FOLDER_NOT_FOUND",
+      message: "내 픽 폴더를 찾을 수 없습니다.",
+    });
+  }
+
+  /**
+   * 폴더에 저장된 모든 상점 관계와
+   * 이 폴더에서 만든 기존 지역별 코스를 함께 조회합니다.
+   */
+  const [folderItems, courses] = await Promise.all([
+    PickFolderItemModel.find({
+      folderId: objectFolderId,
+    })
+      .select({
+        shopId: 1,
+      })
+      .lean(),
+
+    CourseModel.find({
+      userId: objectUserId,
+      sourceFolderId: objectFolderId,
+      courseType: "user_created",
+    })
+      .select({
+        _id: 1,
+        regionGroup: 1,
+      })
+      .lean(),
+  ]);
+
+  const shopIds = folderItems.map((item) => item.shopId);
+
+  const shops =
+    shopIds.length > 0
+      ? await ShopModel.find({
+          _id: {
+            $in: shopIds,
+          },
+        })
+          .select({
+            _id: 1,
+            regionGroup: 1,
+            status: 1,
+            location: 1,
+          })
+          .lean()
+      : [];
+
+  /**
+   * 지역별 기존 코스를 빠르게 찾기 위한 Map
+   */
+  const courseIdByRegionGroup = new Map<ShopRegionGroup, string>();
+
+  for (const course of courses) {
+    courseIdByRegionGroup.set(course.regionGroup, course._id.toString());
+  }
+
+  type RegionSummary = {
+    shopCount: number;
+    availableShopCount: number;
+    temporarilyClosedShopCount: number;
+  };
+
+  const regionSummaryMap = new Map<ShopRegionGroup, RegionSummary>();
+
+  for (const shop of shops) {
+    const regionGroup = shop.regionGroup;
+
+    const current = regionSummaryMap.get(regionGroup) ?? {
+      shopCount: 0,
+      availableShopCount: 0,
+      temporarilyClosedShopCount: 0,
+    };
+
+    current.shopCount += 1;
+
+    const coordinates = shop.location?.coordinates;
+
+    const hasLocation =
+      Array.isArray(coordinates) &&
+      coordinates.length >= 2 &&
+      Number.isFinite(coordinates[0]) &&
+      Number.isFinite(coordinates[1]);
+
+    const isAvailableStatus =
+      shop.status === "active" || shop.status === "temporarily_closed";
+
+    if (hasLocation && isAvailableStatus) {
+      current.availableShopCount += 1;
+
+      if (shop.status === "temporarily_closed") {
+        current.temporarilyClosedShopCount += 1;
+      }
+    }
+
+    regionSummaryMap.set(regionGroup, current);
+  }
+
+  /**
+   * 기존 코스는 있지만 현재 폴더에서
+   * 신규 추가 가능한 상점이 없는 경우도 표시해야 합니다.
+   */
+  for (const course of courses) {
+    if (!regionSummaryMap.has(course.regionGroup)) {
+      regionSummaryMap.set(course.regionGroup, {
+        shopCount: 0,
+        availableShopCount: 0,
+        temporarilyClosedShopCount: 0,
+      });
+    }
+  }
+
+  return {
+    items: [...regionSummaryMap.entries()].map(([regionGroup, summary]) => ({
+      regionGroup,
+
+      shopCount: summary.shopCount,
+
+      availableShopCount: summary.availableShopCount,
+
+      temporarilyClosedShopCount: summary.temporarilyClosedShopCount,
+
+      courseId: courseIdByRegionGroup.get(regionGroup) ?? null,
+    })),
   };
 }
 
@@ -243,9 +406,7 @@ export async function deletePickFolder(
     CourseModel.updateMany(
       {
         userId: objectUserId,
-
         sourceFolderId: folderId,
-
         courseType: "user_created",
       },
       {
@@ -491,8 +652,14 @@ type GetShopsByFolderParams = Readonly<{
   folderId: string;
   page: number;
   limit: number;
+
+  regionGroup?: ShopRegionGroup;
+  courseEligibleOnly?: boolean;
 }>;
 
+/**
+ * 특정 내 픽 폴더에 저장된 상점 목록을 조회
+ */
 /**
  * 특정 내 픽 폴더에 저장된 상점 목록을 조회
  */
@@ -501,6 +668,8 @@ export async function getShopsByFolder({
   folderId,
   page,
   limit,
+  regionGroup,
+  courseEligibleOnly,
 }: GetShopsByFolderParams): Promise<PickFolderShopListData> {
   const objectFolderId = new Types.ObjectId(folderId);
   const objectUserId = new Types.ObjectId(userId);
@@ -518,21 +687,121 @@ export async function getShopsByFolder({
     });
   }
 
-  const skip = (page - 1) * limit;
+  /**
+   * 지역/코스 생성 조건이 있는 경우,
+   * 먼저 해당 폴더에 포함된 상점 중 조건에 맞는 상점 ID를 찾습니다.
+   */
+  let filteredShopIds: Types.ObjectId[] | null = null;
 
-  const [folderItems, totalCount] = await Promise.all([
-    PickFolderItemModel.find({
+  if (regionGroup || courseEligibleOnly) {
+    const folderItems = await PickFolderItemModel.find({
       folderId: objectFolderId,
     })
+      .select({
+        shopId: 1,
+      })
+      .lean();
+
+    const folderShopIds = folderItems.map((item) => item.shopId);
+
+    if (folderShopIds.length === 0) {
+      return {
+        items: [],
+
+        pagination: {
+          totalCount: 0,
+          page,
+          limit,
+          totalPages: 0,
+          hasNext: false,
+        },
+      };
+    }
+
+    const shops = await ShopModel.find({
+      _id: {
+        $in: folderShopIds,
+      },
+
+      ...(regionGroup
+        ? {
+            regionGroup,
+          }
+        : {}),
+
+      ...(courseEligibleOnly
+        ? {
+            status: {
+              $in: ["active", "temporarily_closed"],
+            },
+
+            /**
+             * 코스는 위치 좌표가 있는 상점만
+             * 새로 추가할 수 있습니다.
+             */
+            "location.coordinates.0": {
+              $type: "number",
+            },
+
+            "location.coordinates.1": {
+              $type: "number",
+            },
+          }
+        : {}),
+    })
+      .select({
+        _id: 1,
+      })
+      .lean();
+
+    filteredShopIds = shops.map((shop) => shop._id);
+
+    if (filteredShopIds.length === 0) {
+      return {
+        items: [],
+
+        pagination: {
+          totalCount: 0,
+          page,
+          limit,
+          totalPages: 0,
+          hasNext: false,
+        },
+      };
+    }
+  }
+
+  const skip = (page - 1) * limit;
+
+  /**
+   * 필터링된 상점 ID를 기준으로
+   * 페이지네이션합니다.
+   *
+   * 일반 내 픽 조회에서는 filteredShopIds가 null이므로
+   * 기존과 동일하게 폴더 전체 상점을 조회합니다.
+   */
+  const folderItemFilter = {
+    folderId: objectFolderId,
+
+    ...(filteredShopIds
+      ? {
+          shopId: {
+            $in: filteredShopIds,
+          },
+        }
+      : {}),
+  };
+
+  const [folderItems, totalCount] = await Promise.all([
+    PickFolderItemModel.find(folderItemFilter)
       .sort({
         createdAt: 1,
       })
       .skip(skip)
-      .limit(limit),
+      .limit(limit)
+      .lean(),
 
-    PickFolderItemModel.countDocuments({
-      folderId: objectFolderId,
-    }),
+    PickFolderItemModel.countDocuments(folderItemFilter),
   ]);
 
   const shopIds = folderItems.map((item) => item.shopId);
@@ -547,13 +816,6 @@ export async function getShopsByFolder({
         return null;
       }
 
-      const mainImage =
-        shop.images
-          ?.filter((image) => image.isMain)
-          .sort((a, b) => a.order - b.order)[0] ??
-        shop.images?.sort((a, b) => a.order - b.order)[0] ??
-        null;
-
       return mapShopListItem({
         shop,
         visitLogCount: 0,
@@ -563,6 +825,7 @@ export async function getShopsByFolder({
     .filter((shop) => shop !== null);
 
   const totalPages = Math.ceil(totalCount / limit);
+
   const hasNext = page < totalPages;
 
   return {
@@ -577,7 +840,6 @@ export async function getShopsByFolder({
     },
   };
 }
-
 /**
  * 좋아요한 상점을 내 픽 폴더에 추가합니다.
  */

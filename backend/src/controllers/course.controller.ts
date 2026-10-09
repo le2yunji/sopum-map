@@ -3,19 +3,18 @@ import type { NextFunction, Request, Response } from "express";
 import { z } from "zod";
 
 import {
-  createCourse,
-  deleteCourse,
-  getCourseDetail,
-  getMyCourses,
-  updateCourse,
-} from "../services/course/course.service.js";
-
-import {
   createCourseSchema,
   deleteCourseSchema,
   getCourseDetailSchema,
   updateCourseSchema,
 } from "../validations/course.validation.js";
+import { createCourse } from "../services/course/course.create.service.js";
+import {
+  getCourseDetail,
+  getMyCourses,
+} from "../services/course/course.read.service.js";
+import { updateCourse } from "../services/course/course.update.service.js";
+import { deleteCourse } from "../services/course/course.delete.service.js";
 
 /**
  * 내 픽 폴더를 기반으로 사용자 코스를 생성합니다.

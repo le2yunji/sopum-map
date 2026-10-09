@@ -1,11 +1,11 @@
 import type { ApiSuccessResponse } from "../api/api.types";
 import type { ShopRegionGroup } from "../shop/shop.types";
-import { CourseDetailData } from "./course.types";
+import type { CourseDetailData } from "./course.types";
 
 /**
  * 코스 생성/수정 요청에서 사용하는 상점 입력값
  */
-export type CreateCourseShopInput = Readonly<{
+export type CourseShopInput = Readonly<{
   shopId: string;
   order: number;
   memo?: string | null;
@@ -16,11 +16,11 @@ export type CreateCourseShopInput = Readonly<{
  */
 export type CreateCourseRequest = Readonly<{
   sourceFolderId: string;
-
+  regionGroup: ShopRegionGroup;
   title: string;
   description?: string | null;
 
-  shops: readonly CreateCourseShopInput[];
+  shops: readonly CourseShopInput[];
 }>;
 
 /**
@@ -36,7 +36,7 @@ export type CreateCourseData = Readonly<{
 export type UpdateCourseRequest = Readonly<{
   title?: string;
   description?: string | null;
-  shops?: readonly CreateCourseShopInput[];
+  shops?: readonly CourseShopInput[];
 }>;
 /**
  * PATCH /api/courses/:courseId 성공 응답 데이터
