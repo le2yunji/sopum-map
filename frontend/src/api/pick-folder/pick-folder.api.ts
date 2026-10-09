@@ -1,6 +1,7 @@
 import type {
   AddShopToFolderRequest,
   CreatePickFolderRequest,
+  PickFolderCourseRegionsData,
   PickFolder,
   PickFolderListData,
   PickFolderShopData,
@@ -9,6 +10,7 @@ import type {
   UpdatePickFolderOrderRequest,
   UpdatePickFolderRequest,
   UpdateShopFolderIdsRequest,
+  ShopRegionGroup,
 } from "@sopum-map/shared";
 
 import { apiClient } from "../client";
@@ -17,6 +19,8 @@ type GetShopsByFolderParams = Readonly<{
   folderId: string;
   page: number;
   limit: number;
+  regionGroup?: ShopRegionGroup;
+  courseEligibleOnly?: boolean;
 }>;
 
 /**
@@ -24,6 +28,17 @@ type GetShopsByFolderParams = Readonly<{
  */
 export function getPickFolders() {
   return apiClient<PickFolderListData>("/me/pick-folders");
+}
+
+/**
+ * 특정 내 픽 폴더의 지역별 코스 생성 가능 현황을 조회합니다.
+ */
+export async function getPickFolderCourseRegions(
+  folderId: string,
+): Promise<PickFolderCourseRegionsData> {
+  return apiClient<PickFolderCourseRegionsData>(
+    `/me/pick-folders/${folderId}/course-regions`,
+  );
 }
 
 /**
@@ -95,11 +110,21 @@ export function getShopsByFolder({
   folderId,
   page,
   limit,
+  regionGroup,
+  courseEligibleOnly,
 }: GetShopsByFolderParams) {
   const searchParams = new URLSearchParams({
     page: String(page),
     limit: String(limit),
   });
+
+  if (regionGroup) {
+    searchParams.set("regionGroup", regionGroup);
+  }
+
+  if (courseEligibleOnly) {
+    searchParams.set("courseEligibleOnly", "true");
+  }
 
   return apiClient<PickFolderShopListData>(
     `/me/pick-folders/${folderId}/shops?${searchParams.toString()}`,
