@@ -94,10 +94,10 @@ export type CourseDetailData = Readonly<{
 
   isPublic: boolean;
 
-  author?: CourseAuthor;
-  isOwner?: boolean;
-  likeCount?: number;
-  isLiked?: boolean;
+  author: CourseAuthor;
+  isOwner: boolean;
+  likeCount: number;
+  isLiked: boolean;
 
   shops: readonly CourseDetailShop[];
 

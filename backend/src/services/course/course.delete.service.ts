@@ -3,6 +3,7 @@ import { Types } from "mongoose";
 import { createApiError } from "@sopum-map/shared";
 
 import CourseModel from "../../models/course.model.js";
+import CourseLikeModel from "../../models/course-like.model.js";
 
 /**
  * 사용자 코스 삭제
@@ -65,4 +66,8 @@ export async function deleteCourse(
       message: "코스를 찾을 수 없습니다.",
     });
   }
+
+  await CourseLikeModel.deleteMany({
+    courseId: objectCourseId,
+  });
 }

@@ -6,9 +6,15 @@ import {
   type CourseListData,
 } from "@sopum-map/shared";
 import CourseModel from "../../models/course.model.js";
+import CourseLikeModel from "../../models/course-like.model.js";
 import ShopModel from "../../models/shop.model.js";
+import UserModel from "../../models/user.model.js";
 import { getMainShopImageUrl } from "../../utils/shop-image.js";
 import { isCourseShopUnavailable } from "./course.helper.js";
+import {
+  assertCourseVisibleToViewer,
+  createCourseViewerData,
+} from "./course-detail.mapper.js";
 
 /**
  * 코스 상세 정보를 조회
@@ -33,23 +39,39 @@ export async function getCourseDetail(
     });
   }
 
-  /**
-   * 비공개 코스는 작성자만 조회할 수 있음
-   *
-   * 현재 1차 구현의 사용자 코스는 모두 비공개지만,
-   * 추후 공개 기능을 고려해 isPublic 기준으로 검사
-   */
-  if (!course.isPublic) {
-    const isOwner = course.userId?.toString() === objectUserId.toString();
+  assertCourseVisibleToViewer(
+    {
+      courseType: course.courseType,
+      userId: course.userId ?? null,
+      isPublic: course.isPublic,
+    },
+    userId,
+  );
 
-    if (!isOwner) {
-      throw createApiError({
-        status: 403,
-        code: "COURSE_FORBIDDEN",
-        message: "해당 코스에 접근할 수 없습니다.",
-      });
-    }
-  }
+  const [author, likeCount, currentUserLike] = await Promise.all([
+    course.userId
+      ? UserModel.findById(course.userId)
+          .select({ _id: 1, nickname: 1, profileImage: 1 })
+          .lean()
+      : Promise.resolve(null),
+    CourseLikeModel.countDocuments({ courseId: objectCourseId }),
+    CourseLikeModel.exists({
+      courseId: objectCourseId,
+      userId: objectUserId,
+    }),
+  ]);
+
+  const viewerData = createCourseViewerData({
+    course: {
+      courseType: course.courseType,
+      userId: course.userId ?? null,
+      isPublic: course.isPublic,
+    },
+    viewerId: userId,
+    author,
+    likeCount,
+    isLiked: currentUserLike !== null,
+  });
 
   /**
    * Course 자체에 저장된 방문 순서를 기준으로
@@ -160,7 +182,9 @@ export async function getCourseDetail(
 
     regionGroup: course.regionGroup,
 
-    isPublic: course.isPublic,
+    isPublic: course.courseType === "recommended" ? true : course.isPublic,
+
+    ...viewerData,
 
     shops: detailShops,
 
