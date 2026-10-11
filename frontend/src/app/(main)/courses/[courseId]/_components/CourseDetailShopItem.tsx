@@ -3,10 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-import type {
-  CourseDetailShop,
-  CourseWalkingRouteSegment,
-} from "@sopum-map/shared";
+import type { CourseDetailShop } from "@sopum-map/shared";
 
 import { Button } from "@/components/ui/Button";
 import {
@@ -14,18 +11,14 @@ import {
   createNaverMapWalkRouteUrl,
 } from "@/utils/naver-map";
 
-import { formatWalkingSegment } from "./course-route-display";
-
 type Props = Readonly<{
   shop: CourseDetailShop;
   previousShop: CourseDetailShop | null;
-  walkingSegment?: CourseWalkingRouteSegment;
 }>;
 
 export function CourseDetailShopItem({
   shop,
   previousShop,
-  walkingSegment,
 }: Props) {
   const router = useRouter();
 
@@ -57,20 +50,7 @@ export function CourseDetailShopItem({
   };
 
   return (
-    <div>
-      {previousShop && walkingSegment ? (
-        <div className="mb-4 flex items-center gap-3 px-2 text-black-500">
-          <span className="h-px flex-1 bg-black-100" aria-hidden="true" />
-
-          <span className="text-12">
-            {formatWalkingSegment(walkingSegment)}
-          </span>
-
-          <span className="h-px flex-1 bg-black-100" aria-hidden="true" />
-        </div>
-      ) : null}
-
-      <article className="rounded-xl border border-black-100 p-4">
+    <article className="rounded-xl border border-black-100 p-4">
         <div className="flex gap-3">
           <div
             className="
@@ -169,7 +149,6 @@ export function CourseDetailShopItem({
             </div>
           </div>
         </div>
-      </article>
-    </div>
+    </article>
   );
 }

@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useCourseDetail, useDeleteCourse } from "@/api/course/course.query";
-import { useCourseWalkingRoute } from "@/api/course-route/course-route.query";
 import { Button } from "@/components/ui/Button";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
@@ -27,9 +26,6 @@ export function CourseDetailScreen({ courseId }: Props) {
     isError,
     refetch,
   } = useCourseDetail(courseId);
-
-  const { data: walkingRoute, isError: isWalkingRouteError } =
-    useCourseWalkingRoute(course?.id);
 
   const deleteCourseMutation = useDeleteCourse();
 
@@ -125,10 +121,7 @@ export function CourseDetailScreen({ courseId }: Props) {
         </div>
 
         <div className="mt-4">
-          <CourseMap
-            shops={orderedShops}
-            walkingRoute={isWalkingRouteError ? undefined : walkingRoute}
-          />
+          <CourseMap shops={orderedShops} />
         </div>
       </section>
 
@@ -152,11 +145,6 @@ export function CourseDetailScreen({ courseId }: Props) {
                 key={shop.id}
                 shop={shop}
                 previousShop={index > 0 ? orderedShops[index - 1] : null}
-                walkingSegment={walkingRoute?.segments.find(
-                  (segment) =>
-                    segment.fromShopId === orderedShops[index - 1]?.id &&
-                    segment.toShopId === shop.id,
-                )}
               />
             ))}
           </div>

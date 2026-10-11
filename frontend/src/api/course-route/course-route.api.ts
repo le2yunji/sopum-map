@@ -1,7 +1,6 @@
 import type {
   OptimizeCourseRouteData,
   OptimizeCourseRouteRequest,
-  CourseWalkingRouteData,
 } from "@sopum-map/shared";
 import { apiClient } from "../client";
 
@@ -15,12 +14,4 @@ export function optimizeCourseRoute(
     method: "POST",
     body: input,
   });
-}
-
-export function getCourseWalkingRoute(
-  courseId: string,
-): Promise<CourseWalkingRouteData> {
-  return apiClient<CourseWalkingRouteData>(
-    `/courses/${courseId}/walking-route`,
-  );
 }

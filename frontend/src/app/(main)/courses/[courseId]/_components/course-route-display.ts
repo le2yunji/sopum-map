@@ -1,46 +1,19 @@
-import type { CourseWalkingRouteSegment } from "@sopum-map/shared";
-
-type WalkingSegmentSummary = Readonly<{
-  distanceMeters: number;
-  durationSeconds: number;
-}>;
-
-/** 도보 구간을 사용자가 빠르게 읽을 수 있는 거리와 시간으로 표시합니다. */
-export function formatWalkingSegment({
-  distanceMeters,
-  durationSeconds,
-}: WalkingSegmentSummary): string {
-  const durationMinutes = Math.ceil(durationSeconds / 60);
-  const distance =
-    distanceMeters < 1000
-      ? `${Math.round(distanceMeters)}m`
-      : `${(distanceMeters / 1000).toFixed(1)}km`;
-
-  return `도보 ${durationMinutes}분 · ${distance}`;
-}
-
-type CourseRouteStop = Readonly<{
-  id: string;
+type CoursePathShop = Readonly<{
   order: number;
+  latitude: number;
+  longitude: number;
 }>;
 
-/** 방문 순서상 서로 이웃한 상점을 잇는 도보 구간만 순서대로 고릅니다. */
-export function getOrderedWalkingRouteSegments(
-  shops: readonly CourseRouteStop[],
-  segments: readonly CourseWalkingRouteSegment[],
-): CourseWalkingRouteSegment[] {
-  const orderedShops = [...shops].sort(
-    (first, second) => first.order - second.order,
-  );
+export type CoursePathCoordinate = Readonly<{
+  latitude: number;
+  longitude: number;
+}>;
 
-  return orderedShops.slice(1).flatMap((shop, index) => {
-    const previousShop = orderedShops[index];
-    const segment = segments.find(
-      (candidate) =>
-        candidate.fromShopId === previousShop.id &&
-        candidate.toShopId === shop.id,
-    );
-
-    return segment ? [segment] : [];
-  });
+/** 상점 좌표를 방문 순서대로 정렬해 지도 미리보기용 직선 경로를 만듭니다. */
+export function getStraightCoursePath(
+  shops: readonly CoursePathShop[],
+): CoursePathCoordinate[] {
+  return [...shops]
+    .sort((first, second) => first.order - second.order)
+    .map(({ latitude, longitude }) => ({ latitude, longitude }));
 }

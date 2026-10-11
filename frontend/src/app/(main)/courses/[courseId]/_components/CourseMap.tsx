@@ -2,10 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import type {
-  CourseDetailShop,
-  CourseWalkingRouteData,
-} from "@sopum-map/shared";
+import type { CourseDetailShop } from "@sopum-map/shared";
 
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
@@ -14,25 +11,24 @@ import {
   NaverMapScript,
 } from "@/components/naver-map";
 
-import { getOrderedWalkingRouteSegments } from "./course-route-display";
+import { getStraightCoursePath } from "./course-route-display";
 
 type Props = Readonly<{
   shops: readonly CourseDetailShop[];
-  walkingRoute?: CourseWalkingRouteData;
 }>;
 
-export function CourseMap({ shops, walkingRoute }: Props) {
+export function CourseMap({ shops }: Props) {
   const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
   const mapElementRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<naver.maps.Map | null>(null);
   const markersRef = useRef<naver.maps.Marker[]>([]);
-  const polylinesRef = useRef<naver.maps.Polyline[]>([]);
+  const polylineRef = useRef<naver.maps.Polyline | null>(null);
   const [sdkState, setSdkState] = useState<MapSdkState>(
     clientId ? "loading" : "missing-key",
   );
   const [retryCount, setRetryCount] = useState(0);
 
-  /** SDK 준비 후 지도 객체를 한 번만 만들어 사용자의 확대 상태를 보존합니다. */
+  /** SDK 준비 후 움직이지 않는 코스 미리보기 지도를 한 번만 만듭니다. */
   useEffect(() => {
     if (sdkState !== "ready" || !mapElementRef.current) {
       return;
@@ -51,14 +47,16 @@ export function CourseMap({ shops, walkingRoute }: Props) {
     mapInstanceRef.current = new naver.maps.Map(mapElementRef.current, {
       center: new naver.maps.LatLng(firstShop.latitude, firstShop.longitude),
       zoom: 14,
-      maxZoom: 21,
-      draggable: true,
-      scrollWheel: true,
-      pinchZoom: true,
+      draggable: false,
+      scrollWheel: false,
+      pinchZoom: false,
+      keyboardShortcuts: false,
+      disableDoubleClickZoom: true,
+      zoomControl: false,
     });
   }, [sdkState, shops]);
 
-  /** 상점이나 경로가 바뀔 때 지도는 유지하고 지도 위 요소만 갱신합니다. */
+  /** 상점이 바뀔 때 지도는 유지하고 마커와 직선 경로만 갱신합니다. */
   useEffect(() => {
     const map = mapInstanceRef.current;
 
@@ -69,8 +67,8 @@ export function CourseMap({ shops, walkingRoute }: Props) {
     markersRef.current.forEach((marker) => marker.setMap(null));
     markersRef.current = [];
 
-    polylinesRef.current.forEach((polyline) => polyline.setMap(null));
-    polylinesRef.current = [];
+    polylineRef.current?.setMap(null);
+    polylineRef.current = null;
 
     const orderedShops = [...shops].sort((a, b) => a.order - b.order);
 
@@ -78,8 +76,9 @@ export function CourseMap({ shops, walkingRoute }: Props) {
       return;
     }
 
-    const shopPositions = orderedShops.map(
-      (shop) => new naver.maps.LatLng(shop.latitude, shop.longitude),
+    const shopPositions = getStraightCoursePath(orderedShops).map(
+      (coordinate) =>
+        new naver.maps.LatLng(coordinate.latitude, coordinate.longitude),
     );
 
     markersRef.current = orderedShops.map(
@@ -115,54 +114,33 @@ export function CourseMap({ shops, walkingRoute }: Props) {
         }),
     );
 
-    const orderedSegments = getOrderedWalkingRouteSegments(
-      orderedShops,
-      walkingRoute?.segments ?? [],
-    );
+    polylineRef.current =
+      shopPositions.length >= 2
+        ? new naver.maps.Polyline({
+            map,
+            path: shopPositions,
+            strokeColor: "#16a34a",
+            strokeWeight: 5,
+            strokeOpacity: 0.9,
+            strokeLineCap: "round",
+            strokeLineJoin: "round",
+          })
+        : null;
 
-    /** 각 도보 구간을 따로 그려 누락된 구간을 임의의 직선으로 잇지 않습니다. */
-    const routePositionGroups = orderedSegments
-      .map((segment) =>
-        segment.coordinates.map(
-          (coordinate) =>
-            new naver.maps.LatLng(coordinate.latitude, coordinate.longitude),
-        ),
-      )
-      .filter((positions) => positions.length >= 2);
-
-    polylinesRef.current = routePositionGroups.map(
-      (positions) =>
-        new naver.maps.Polyline({
-          map,
-          path: positions,
-          strokeWeight: 4,
-          strokeOpacity: 0.8,
-          strokeLineCap: "round",
-          strokeLineJoin: "round",
-        }),
-    );
-
-    /**
-     * 실제 경로 전체를 기준으로 bounds를 잡습니다.
-     * 경로가 없으면 상점 좌표를 기준으로 합니다.
-     */
-    const routePositions = routePositionGroups.flat();
-    const boundsPositions =
-      routePositions.length > 0 ? routePositions : shopPositions;
-
-    if (boundsPositions.length > 1) {
+    /** 모든 상점이 고정 미리보기 안에 보이도록 화면 범위를 맞춥니다. */
+    if (shopPositions.length > 1) {
       const bounds = new naver.maps.LatLngBounds(
-        boundsPositions[0],
-        boundsPositions[0],
+        shopPositions[0],
+        shopPositions[0],
       );
 
-      for (const position of boundsPositions.slice(1)) {
+      for (const position of shopPositions.slice(1)) {
         bounds.extend(position);
       }
 
       map.fitBounds(bounds);
     }
-  }, [sdkState, shops, walkingRoute]);
+  }, [sdkState, shops]);
 
   /** 화면을 벗어날 때 지도와 지도 위 요소를 함께 정리합니다. */
   useEffect(
@@ -170,8 +148,8 @@ export function CourseMap({ shops, walkingRoute }: Props) {
       markersRef.current.forEach((marker) => marker.setMap(null));
       markersRef.current = [];
 
-      polylinesRef.current.forEach((polyline) => polyline.setMap(null));
-      polylinesRef.current = [];
+      polylineRef.current?.setMap(null);
+      polylineRef.current = null;
 
       mapInstanceRef.current?.destroy();
       mapInstanceRef.current = null;
@@ -195,7 +173,7 @@ export function CourseMap({ shops, walkingRoute }: Props) {
 
       <div
         ref={mapElementRef}
-        className="size-full"
+        className="pointer-events-none size-full"
         aria-label="코스 지도"
       />
 

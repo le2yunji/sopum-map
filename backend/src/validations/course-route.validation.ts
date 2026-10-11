@@ -17,9 +17,3 @@ export const optimizeCourseRouteSchema = z.object({
       }),
   }),
 });
-
-export const getCourseWalkingRouteSchema = z.object({
-  params: z.object({
-    courseId: objectIdSchema,
-  }),
-});
