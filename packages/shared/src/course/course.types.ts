@@ -8,6 +8,8 @@ export type CourseShop = Readonly<{
   shopId: string;
   order: number;
   memo: string | null;
+  walkingDistanceFromPreviousMeters: number | null;
+  walkingDurationFromPreviousSeconds: number | null;
 }>;
 
 /**
@@ -62,6 +64,9 @@ export type CourseDetailShop = Readonly<{
   order: number;
 
   memo: string | null;
+
+  walkingDistanceFromPreviousMeters: number | null;
+  walkingDurationFromPreviousSeconds: number | null;
 }>;
 
 /**

@@ -13,6 +13,7 @@ import CourseModel from "../../models/course.model.js";
 import ShopModel from "../../models/shop.model.js";
 
 import { validateCourseShops, validateNewCourseShop } from "./course.helper.js";
+import { createCourseShopsWithWalkingMetrics } from "./course-walking-metrics.service.js";
 
 /**
  * 사용자 코스 수정
@@ -71,6 +72,8 @@ export async function updateCourse(
       shopId: Types.ObjectId;
       order: number;
       memo: string | null;
+      walkingDistanceFromPreviousMeters: number | null;
+      walkingDurationFromPreviousSeconds: number | null;
     }>;
   } = {};
 
@@ -185,11 +188,14 @@ export async function updateCourse(
       }
     }
 
-    update.shops = orderedCourseShops.map((shop) => ({
-      shopId: new Types.ObjectId(shop.shopId),
-      order: shop.order,
-      memo: shop.memo ?? null,
-    }));
+    update.shops = await createCourseShopsWithWalkingMetrics(
+      orderedCourseShops.map((shop) => ({
+        shopId: new Types.ObjectId(shop.shopId),
+        order: shop.order,
+        memo: shop.memo ?? null,
+      })),
+      shops,
+    );
   }
 
   const updatedCourse = await CourseModel.findByIdAndUpdate(

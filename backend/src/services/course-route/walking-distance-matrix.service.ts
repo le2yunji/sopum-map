@@ -1,6 +1,6 @@
 /**
  * TMAP Matrix API
- * 상점 간 도보 거리 행렬 생성
+ * 상점 간 도보 거리·시간 행렬 생성
  */
 
 type WalkingRoutePoint = Readonly<{
@@ -8,6 +8,13 @@ type WalkingRoutePoint = Readonly<{
   latitude: number;
   longitude: number;
 }>;
+
+export type WalkingRouteMetric = Readonly<{
+  distanceMeters: number;
+  durationSeconds: number;
+}>;
+
+export type WalkingRouteMatrix = readonly (readonly WalkingRouteMetric[])[];
 
 export type WalkingDistanceMatrix = readonly (readonly number[])[];
 
@@ -28,15 +35,12 @@ type TmapMatrixResponse = Readonly<{
 
 const TMAP_MATRIX_URL = "https://apis.openapi.sk.com/tmap/matrix?version=1";
 /**
- * TMAP 보행 경로 매트릭스를 조회합니다.
- *
- * 반환값 matrix[from][to]는
- * from 상점에서 to 상점까지의 도보 거리(m)입니다.
+ * TMAP 보행 경로 매트릭스의 거리와 예상 소요 시간을 조회합니다.
  */
 
-export async function getWalkingDistanceMatrix(
+export async function getWalkingRouteMatrix(
   points: readonly WalkingRoutePoint[],
-): Promise<WalkingDistanceMatrix> {
+): Promise<WalkingRouteMatrix> {
   if (points.length === 0) {
     return [];
   }
@@ -89,16 +93,24 @@ export async function getWalkingDistanceMatrix(
 
   const data = (await response.json()) as TmapMatrixResponse;
 
+  const unreachableMetric = {
+    distanceMeters: Number.POSITIVE_INFINITY,
+    durationSeconds: Number.POSITIVE_INFINITY,
+  };
+
   const matrix = Array.from({ length: points.length }, () =>
-    Array<number>(points.length).fill(Number.POSITIVE_INFINITY),
+    Array<WalkingRouteMetric>(points.length).fill(unreachableMetric),
   );
 
   for (let index = 0; index < points.length; index += 1) {
-    matrix[index][index] = 0;
+    matrix[index][index] = {
+      distanceMeters: 0,
+      durationSeconds: 0,
+    };
   }
 
   for (const route of data.matrixRoutes) {
-    const { originIndex, destinationIndex, distance } = route;
+    const { originIndex, destinationIndex, distance, duration } = route;
 
     if (
       originIndex < 0 ||
@@ -109,12 +121,24 @@ export async function getWalkingDistanceMatrix(
       continue;
     }
 
-    if (!Number.isFinite(distance)) {
+    if (!Number.isFinite(distance) || !Number.isFinite(duration)) {
       continue;
     }
 
-    matrix[originIndex][destinationIndex] = distance;
+    matrix[originIndex][destinationIndex] = {
+      distanceMeters: distance,
+      durationSeconds: duration,
+    };
   }
 
   return matrix;
+}
+
+/** 방문 순서 최적화에 필요한 거리값만 행렬에서 분리합니다. */
+export async function getWalkingDistanceMatrix(
+  points: readonly WalkingRoutePoint[],
+): Promise<WalkingDistanceMatrix> {
+  const routeMatrix = await getWalkingRouteMatrix(points);
+
+  return routeMatrix.map((row) => row.map((metric) => metric.distanceMeters));
 }

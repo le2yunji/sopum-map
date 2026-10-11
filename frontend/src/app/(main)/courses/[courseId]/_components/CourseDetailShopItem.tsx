@@ -11,6 +11,8 @@ import {
   createNaverMapWalkRouteUrl,
 } from "@/utils/naver-map";
 
+import { formatWalkingSegment } from "./course-route-display";
+
 type Props = Readonly<{
   shop: CourseDetailShop;
   previousShop: CourseDetailShop | null;
@@ -21,6 +23,15 @@ export function CourseDetailShopItem({
   previousShop,
 }: Props) {
   const router = useRouter();
+  const walkingSegment =
+    previousShop !== null &&
+    typeof shop.walkingDistanceFromPreviousMeters === "number" &&
+    typeof shop.walkingDurationFromPreviousSeconds === "number"
+      ? {
+          distanceMeters: shop.walkingDistanceFromPreviousMeters,
+          durationSeconds: shop.walkingDurationFromPreviousSeconds,
+        }
+      : null;
 
   /**
    * 첫 번째 상점은 현재 위치에서,
@@ -50,7 +61,20 @@ export function CourseDetailShopItem({
   };
 
   return (
-    <article className="rounded-xl border border-black-100 p-4">
+    <div>
+      {walkingSegment ? (
+        <div className="mb-4 flex items-center gap-3 px-2 text-black-500">
+          <span className="h-px flex-1 bg-black-100" aria-hidden="true" />
+
+          <span className="text-12">
+            {formatWalkingSegment(walkingSegment)}
+          </span>
+
+          <span className="h-px flex-1 bg-black-100" aria-hidden="true" />
+        </div>
+      ) : null}
+
+      <article className="rounded-xl border border-black-100 p-4">
         <div className="flex gap-3">
           <div
             className="
@@ -149,6 +173,7 @@ export function CourseDetailShopItem({
             </div>
           </div>
         </div>
-    </article>
+      </article>
+    </div>
   );
 }

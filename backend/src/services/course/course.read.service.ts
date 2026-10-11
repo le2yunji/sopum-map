@@ -138,6 +138,12 @@ export async function getCourseDetail(
       order: courseShop.order,
 
       memo: courseShop.memo ?? null,
+
+      walkingDistanceFromPreviousMeters:
+        courseShop.walkingDistanceFromPreviousMeters ?? null,
+
+      walkingDurationFromPreviousSeconds:
+        courseShop.walkingDurationFromPreviousSeconds ?? null,
     };
   });
 

@@ -15,6 +15,7 @@ import {
   validateNewCourseShop,
 } from "./course.helper.js";
 import CourseModel from "../../models/course.model.js";
+import { createCourseShopsWithWalkingMetrics } from "./course-walking-metrics.service.js";
 
 /**
  * 동일한 폴더 + 지역으로 이미 만들어진 코스를 조회
@@ -155,6 +156,15 @@ export async function createCourse(
     validateNewCourseShop(shop, input.regionGroup);
   }
 
+  const courseShops = await createCourseShopsWithWalkingMetrics(
+    orderedCourseShops.map((shop) => ({
+      shopId: new Types.ObjectId(shop.shopId),
+      order: shop.order,
+      memo: shop.memo ?? null,
+    })),
+    shops,
+  );
+
   try {
     const course = await CourseModel.create({
       courseType: "user_created",
@@ -171,13 +181,7 @@ export async function createCourse(
 
       isPublic: false,
 
-      shops: orderedCourseShops.map((shop) => ({
-        shopId: new Types.ObjectId(shop.shopId),
-
-        order: shop.order,
-
-        memo: shop.memo ?? null,
-      })),
+      shops: courseShops,
     });
 
     return {
