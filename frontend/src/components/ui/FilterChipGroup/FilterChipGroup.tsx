@@ -35,16 +35,16 @@ export const FilterChipGroup = ({
             onClick={() => onValueChange(item.value)}
             className={`
               shrink-0 whitespace-nowrap rounded-full
-              flex items-center gap-1.5 border px-4 py-2
+              flex items-center gap-1.5 border px-4 py-2 max-h-9
               text-14 transition-colors       
               focus-visible:outline-none
               focus-visible:ring-2
-              focus-visible:ring-black-950
+              focus-visible:ring-green-950
               focus-visible:ring-offset-2
               ${
                 isSelected
                   ? `
-                    border-black-950 bg-black-950
+                    border-green-950 bg-green-950
                     font-bold text-white
                   `
                   : `

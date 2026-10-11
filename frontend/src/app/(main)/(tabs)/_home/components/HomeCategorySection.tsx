@@ -106,6 +106,8 @@ export function HomeCategorySection() {
               <PickAction shopId={shop.id} initialIsLiked={shop.isLiked}>
                 {({ isLiked, isPending, onToggle }) => (
                   <ShopCard
+                    likeCount={23}
+                    reviewCount={12}
                     {...shop}
                     href={`/shops/${shop.id}`}
                     isLiked={isLiked}

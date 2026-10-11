@@ -23,12 +23,26 @@ export function CourseListCard({ course }: Props) {
       }}
       className="
         flex w-full gap-4
-        rounded-xl border border-black-100
+        rounded-card
+        border border-stroke-subtle
+        bg-surface-primary
         p-4 text-left
+        transition-colors
+        hover:bg-surface-secondary
+        focus-visible:outline-none
+        focus-visible:ring-2
+        focus-visible:ring-brand
+        focus-visible:ring-offset-2
       "
     >
       {course.mainImageUrl ? (
-        <div className="relative size-24 shrink-0 overflow-hidden rounded-lg">
+        <div
+          className="
+              relative size-24 shrink-0
+              overflow-hidden rounded-control
+              bg-surface-muted
+            "
+        >
           <Image
             src={course.mainImageUrl}
             alt={course.title}
@@ -38,25 +52,27 @@ export function CourseListCard({ course }: Props) {
           />
         </div>
       ) : (
-        <div className="size-24 shrink-0 rounded-lg bg-black-100" />
+        <div className="size-24 shrink-0 rounded-control bg-surface-muted" />
       )}
 
       <div className="min-w-0 flex-1">
         <div className="flex items-start justify-between gap-3">
-          <h2 className="truncate text-16 font-semibold">{course.title}</h2>
+          <h2 className="truncate text-16 font-semibold text-fg-primary">
+            {course.title}
+          </h2>
 
-          <span className="shrink-0 text-12 text-black-500">
+          <span className="shrink-0 text-12 text-fg-tertiary">
             {course.shopCount}곳
           </span>
         </div>
 
         {course.description ? (
-          <p className="mt-2 line-clamp-2 text-13 text-black-600">
+          <p className="mt-2 line-clamp-2 text-13 text-fg-secondary">
             {course.description}
           </p>
         ) : null}
 
-        <p className="mt-3 text-12 text-black-400">
+        <p className="mt-3 text-12 text-fg-tertiary">
           {SHOP_REGION_GROUP_LABELS[course.regionGroup]}
         </p>
       </div>

@@ -7,6 +7,8 @@ export interface ShopCardProps {
   imageUrl?: string | null;
   region: string;
   tags: string[];
+  likeCount: number;
+  reviewCount: number;
   isLiked?: boolean;
   isLikePending?: boolean;
   variant?: ShopCardVariant;

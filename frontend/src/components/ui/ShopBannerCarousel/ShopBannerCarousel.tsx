@@ -26,7 +26,7 @@ export const ShopBannerCarousel = ({
         {items.map((item, index) => {
           return (
             <li
-              key={index}
+              key={item.id}
               className="
                 w-[calc(100vw-48px)] max-w-[298px]
                 shrink-0 snap-center
@@ -39,10 +39,10 @@ export const ShopBannerCarousel = ({
                   group relative block
                   aspect-[149/168] w-full
                   overflow-hidden rounded-3xl
-                  bg-black-100
+                  bg-surface-muted
                   focus-visible:outline-2
                   focus-visible:outline-offset-4
-                  focus-visible:outline-green-500
+                  focus-visible:outline-brand-accent
                 "
               >
                 <Image
@@ -58,12 +58,16 @@ export const ShopBannerCarousel = ({
                   "
                 />
 
+                {/* 하단 이미지 대비용 그라데이션 */}
                 <div
                   aria-hidden="true"
                   className="
+                    pointer-events-none
                     absolute inset-0
                     bg-linear-to-t
-                    from-black-950/10 via-transparent to-transparent
+                    from-black-950/10
+                    via-transparent
+                    to-transparent
                   "
                 />
 
@@ -76,15 +80,15 @@ export const ShopBannerCarousel = ({
                     shadow-lg backdrop-blur-sm
                   "
                 >
-                  <p className="mt-0.5 truncate text-14 text-black-800">
+                  <p className="mt-0.5 truncate text-14 text-fg-secondary">
                     {item.curatorText && ` · ${item.curatorText}`}
                   </p>
 
-                  <p className="line-clamp-1 text-18 font-semibold text-black-950">
+                  <p className="line-clamp-1 text-18 font-semibold text-fg-primary">
                     {item.name}
                   </p>
 
-                  <p className="mt-0.5 truncate text-14 text-black-800">
+                  <p className="mt-0.5 truncate text-14 text-fg-secondary">
                     {item.region} · {item.description}
                   </p>
 
@@ -96,7 +100,8 @@ export const ShopBannerCarousel = ({
                             key={tag.id}
                             className="
                               rounded-full
-                              bg-green-100/80 px-2 py-1
+                              bg-brand-soft-strong/80
+                              px-2 py-1
                               text-12 font-medium text-green-900
                             "
                           >
