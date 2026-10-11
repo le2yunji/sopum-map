@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 
 import {
   SHOP_REGION_GROUP_LABELS,
-  type CourseListItem,
+  type MyCourseListItem,
 } from "@sopum-map/shared";
 
 type Props = Readonly<{
-  course: CourseListItem;
+  course: MyCourseListItem;
 }>;
 
 export function CourseListCard({ course }: Props) {
@@ -72,9 +72,13 @@ export function CourseListCard({ course }: Props) {
           </p>
         ) : null}
 
-        <p className="mt-3 text-12 text-fg-tertiary">
-          {SHOP_REGION_GROUP_LABELS[course.regionGroup]}
-        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-12 text-fg-tertiary">
+          <span>{SHOP_REGION_GROUP_LABELS[course.regionGroup]}</span>
+          <span aria-hidden="true">·</span>
+          <span>{course.isPublic ? "공개" : "비공개"}</span>
+          <span aria-hidden="true">·</span>
+          <span>좋아요 {course.likeCount}</span>
+        </div>
       </div>
     </button>
   );

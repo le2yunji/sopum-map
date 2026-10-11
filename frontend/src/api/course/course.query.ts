@@ -138,24 +138,26 @@ export function useCourseDetail(courseId: string) {
 /**
  * 내 코스 목록 조회
  */
-export function useInfiniteMyCourses() {
+export function useInfiniteMyCourses(enabled = true) {
   return useInfiniteQuery({
     queryKey: courseKeys.myCourses(),
     queryFn: ({ pageParam }) => getMyCourses(pageParam),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: getNextCourseCursor,
+    enabled,
   });
 }
 
 /**
  * 내가 좋아요한 코스 무한 목록 조회
  */
-export function useInfiniteLikedCourses() {
+export function useInfiniteLikedCourses(enabled = true) {
   return useInfiniteQuery({
     queryKey: courseKeys.likedCourses(),
     queryFn: ({ pageParam }) => getMyLikedCourses(pageParam),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: getNextCourseCursor,
+    enabled,
   });
 }
 
