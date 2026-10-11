@@ -16,6 +16,8 @@ import {
   getCourseDetailSchema,
   updateCourseSchema,
 } from "../validations/course.validation.js";
+import { getCourseWalkingRouteSchema } from "../validations/course-route.validation.js";
+import { getCourseWalkingRouteController } from "../controllers/course-route.controller.js";
 
 const courseRouter = Router();
 
@@ -65,6 +67,18 @@ courseRouter.delete(
   requireAuth,
   validateRequest(deleteCourseSchema),
   deleteCourseController,
+);
+
+/**
+ * 저장된 코스의 실제 도보 경로 조회
+ *
+ * GET /api/courses/:courseId/walking-route
+ */
+courseRouter.get(
+  "/:courseId/walking-route",
+  requireAuth,
+  validateRequest(getCourseWalkingRouteSchema),
+  getCourseWalkingRouteController,
 );
 
 export { courseRouter };

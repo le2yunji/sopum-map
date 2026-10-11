@@ -42,6 +42,12 @@ type Props = Readonly<{
 
   onLoadMore: () => void;
   onSubmit: (data: CourseEditorSubmitData) => Promise<void>;
+
+  isOptimizing?: boolean;
+
+  onOptimize?: (
+    selectedShopIds: readonly string[],
+  ) => Promise<readonly string[]>;
 }>;
 
 export function CourseEditor({
@@ -56,6 +62,8 @@ export function CourseEditor({
   submitLabel,
   onLoadMore,
   onSubmit,
+  isOptimizing = false,
+  onOptimize,
 }: Props) {
   const [title, setTitle] = useState(initialTitle);
 
@@ -80,6 +88,47 @@ export function CourseEditor({
       window.clearTimeout(timer);
     };
   }, [snackbarMessage]);
+
+  const handleOptimize = async () => {
+    if (!onOptimize || selectedShops.length < MIN_COURSE_SHOPS) {
+      return;
+    }
+
+    try {
+      const orderedShopIds = await onOptimize(
+        selectedShops.map((shop) => shop.shopId),
+      );
+
+      const selectedShopById = new Map(
+        selectedShops.map((shop) => [shop.shopId, shop]),
+      );
+
+      const reorderedShops = orderedShopIds
+        .map((shopId, index) => {
+          const shop = selectedShopById.get(shopId);
+
+          if (!shop) {
+            return null;
+          }
+
+          return {
+            ...shop,
+            order: index + 1,
+          };
+        })
+        .filter((shop) => shop !== null);
+
+      setSelectedShops(reorderedShops);
+
+      setSnackbarMessage("추천 방문 순서로 정렬했어요.");
+    } catch (error) {
+      setSnackbarMessage(
+        error instanceof Error
+          ? error.message
+          : "추천 순서를 계산하지 못했어요.",
+      );
+    }
+  };
 
   /**
    * 상점을 코스에 추가하거나 제거합니다.
@@ -268,6 +317,22 @@ export function CourseEditor({
         <p className="mt-1 text-12 text-black-500">
           방문할 상점을 선택하고 순서를 정해주세요.
         </p>
+
+        {onOptimize ? (
+          <Button
+            type="button"
+            variant="outline"
+            fullWidth
+            isLoading={isOptimizing}
+            disabled={isOptimizing || selectedShops.length < MIN_COURSE_SHOPS}
+            onClick={() => {
+              void handleOptimize();
+            }}
+            className="mt-4"
+          >
+            추천 순서로 정렬
+          </Button>
+        ) : null}
 
         <div className="mt-4 space-y-3">
           {shops.map((shop) => {

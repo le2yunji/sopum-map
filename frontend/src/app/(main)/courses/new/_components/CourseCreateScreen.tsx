@@ -14,7 +14,7 @@ import {
   usePickFolders,
 } from "@/api/pick-folder/pick-folder.query";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
-
+import { useOptimizeCourseRoute } from "@/api/course-route/course-route.query";
 import { CourseEditor } from "../../_components/CourseEditor";
 
 function isShopRegionGroup(value: string | null): value is ShopRegionGroup {
@@ -27,7 +27,7 @@ function isShopRegionGroup(value: string | null): value is ShopRegionGroup {
 export function CourseCreateScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  const optimizeRouteMutation = useOptimizeCourseRoute();
   const folderId = searchParams.get("folderId");
   const regionGroupParam = searchParams.get("regionGroup");
 
@@ -152,15 +152,21 @@ export function CourseCreateScreen() {
       heading={`${SHOP_REGION_GROUP_LABELS[regionGroup]} 코스 만들기`}
       initialTitle={folder.title}
       initialDescription=""
-      initialSelectedShops={shops.slice(0, 10).map((shop, index) => ({
-        shopId: shop.id,
-        order: index + 1,
-        memo: null,
-      }))}
+      initialSelectedShops={[]}
       shops={shops}
       hasNextPage={Boolean(shopsQuery.hasNextPage)}
       isFetchingNextPage={shopsQuery.isFetchingNextPage}
       isSubmitting={createCourseMutation.isPending}
+      isOptimizing={optimizeRouteMutation.isPending}
+      onOptimize={async (selectedShopIds) => {
+        const result = await optimizeRouteMutation.mutateAsync({
+          sourceFolderId: folder.id,
+          regionGroup,
+          shopIds: selectedShopIds,
+        });
+
+        return result.shopIds;
+      }}
       submitLabel="코스 만들기"
       onLoadMore={() => {
         if (!shopsQuery.hasNextPage || shopsQuery.isFetchingNextPage) {

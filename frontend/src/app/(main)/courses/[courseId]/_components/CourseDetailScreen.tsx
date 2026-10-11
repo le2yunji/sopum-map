@@ -1,15 +1,17 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useCourseDetail, useDeleteCourse } from "@/api/course/course.query";
-import { CourseMap } from "./CourseMap";
-import { DeleteCourseSheet } from "./DeleteCourseSheet";
+import { useCourseWalkingRoute } from "@/api/course-route/course-route.query";
 import { Button } from "@/components/ui/Button";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
+
 import { CourseDetailShopItem } from "./CourseDetailShopItem";
-import { useEffect, useState } from "react";
+import { CourseMap } from "./CourseMap";
+import { DeleteCourseSheet } from "./DeleteCourseSheet";
 
 type Props = Readonly<{
   courseId: string;
@@ -26,6 +28,13 @@ export function CourseDetailScreen({ courseId }: Props) {
     refetch,
   } = useCourseDetail(courseId);
 
+  const { data: walkingRoute, isError: isWalkingRouteError } =
+    useCourseWalkingRoute(course?.id);
+
+  const deleteCourseMutation = useDeleteCourse();
+
+  const [deleteSheetOpen, setDeleteSheetOpen] = useState(false);
+
   const isCreated = searchParams.get("created") === "true";
 
   const isUpdated = searchParams.get("updated") === "true";
@@ -35,20 +44,6 @@ export function CourseDetailScreen({ courseId }: Props) {
     : isUpdated
       ? "코스가 수정되었어요."
       : null;
-
-  const deleteCourseMutation = useDeleteCourse();
-  const [deleteSheetOpen, setDeleteSheetOpen] = useState(false);
-
-  const handleDeleteCourse = async () => {
-    try {
-      await deleteCourseMutation.mutateAsync(courseId);
-
-      router.replace("/picks?courseDeleted=true");
-    } catch {
-      // 여기서는 삭제 Sheet를 유지하고,
-      // 추후 공통 Snackbar로 에러 노출 가능
-    }
-  };
 
   useEffect(() => {
     if (!isCreated && !isUpdated) {
@@ -66,9 +61,34 @@ export function CourseDetailScreen({ courseId }: Props) {
     };
   }, [courseId, isCreated, isUpdated, router]);
 
+  const orderedShops = useMemo(
+    () =>
+      course
+        ? [...course.shops].sort(
+            (first, second) => first.order - second.order,
+          )
+        : [],
+    [course],
+  );
+
+  const handleDeleteCourse = async () => {
+    try {
+      await deleteCourseMutation.mutateAsync(courseId);
+
+      router.replace("/picks?courseDeleted=true");
+    } catch {
+      // 삭제 실패 시 Sheet 유지
+    }
+  };
+
   if (isPending) {
-    return <div className="px-5 pt-16">코스 정보를 불러오는 중...</div>;
+    return (
+      <div role="status" aria-label="코스를 불러오는 중" className="px-5 pt-16">
+        코스 정보를 불러오는 중...
+      </div>
+    );
   }
+
   if (isError || !course) {
     return (
       <StatePanel
@@ -80,10 +100,6 @@ export function CourseDetailScreen({ courseId }: Props) {
       />
     );
   }
-
-  const orderedShops = [...course.shops].sort(
-    (first, second) => first.order - second.order,
-  );
 
   return (
     <section className="min-h-full bg-white px-5 pb-28 pt-16">
@@ -98,6 +114,7 @@ export function CourseDetailScreen({ courseId }: Props) {
           </p>
         ) : null}
       </header>
+
       <section className="mt-8">
         <div className="flex items-center justify-between">
           <h2 className="text-16 font-semibold">코스 지도</h2>
@@ -108,9 +125,13 @@ export function CourseDetailScreen({ courseId }: Props) {
         </div>
 
         <div className="mt-4">
-          <CourseMap shops={orderedShops} />
+          <CourseMap
+            shops={orderedShops}
+            walkingRoute={isWalkingRouteError ? undefined : walkingRoute}
+          />
         </div>
       </section>
+
       <section className="mt-8">
         <div className="flex items-center justify-between">
           <h2 className="text-16 font-semibold">방문 순서</h2>
@@ -120,19 +141,30 @@ export function CourseDetailScreen({ courseId }: Props) {
           </span>
         </div>
 
-        <div className="mt-4 space-y-4">
-          {orderedShops.map((shop, index) => (
-            <CourseDetailShopItem
-              key={shop.id}
-              shop={shop}
-              previousShop={index > 0 ? orderedShops[index - 1] : null}
-            />
-          ))}
-        </div>
+        {orderedShops.length === 0 ? (
+          <p className="mt-4 text-14 text-black-500">
+            아직 코스에 담긴 상점이 없습니다.
+          </p>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {orderedShops.map((shop, index) => (
+              <CourseDetailShopItem
+                key={shop.id}
+                shop={shop}
+                previousShop={index > 0 ? orderedShops[index - 1] : null}
+                walkingSegment={walkingRoute?.segments.find(
+                  (segment) =>
+                    segment.fromShopId === orderedShops[index - 1]?.id &&
+                    segment.toShopId === shop.id,
+                )}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <div className="fixed inset-x-0 bottom-0 z-40 bg-white px-5 py-4">
-        <div className="mx-auto max-w-[440px]">
+        <div className="mx-auto flex max-w-[440px] gap-2">
           <Button
             type="button"
             variant="outline"
@@ -143,6 +175,7 @@ export function CourseDetailScreen({ courseId }: Props) {
           >
             삭제
           </Button>
+
           <Button
             type="button"
             fullWidth
@@ -159,6 +192,7 @@ export function CourseDetailScreen({ courseId }: Props) {
         open={snackbarMessage !== null}
         message={snackbarMessage ?? ""}
       />
+
       <DeleteCourseSheet
         open={deleteSheetOpen}
         isPending={deleteCourseMutation.isPending}
