@@ -139,7 +139,7 @@ export type LikedCourseListData = CourseCursorPage<LikedCourseListItem>;
 /**
  * GET /api/me/courses 성공 응답
  */
-export type GetMyCoursesResponse = ApiSuccessResponse<CourseListData>;
+export type GetMyCoursesResponse = ApiSuccessResponse<MyCourseListData>;
 
 export type GetMyLikedCoursesResponse =
   ApiSuccessResponse<LikedCourseListData>;

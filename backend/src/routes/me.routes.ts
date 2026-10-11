@@ -31,7 +31,11 @@ import {
   addShopToFolderSchema,
   removeShopFromFolderSchema,
 } from "../validations/pick-folder.validation.js";
-import { getMyCoursesController } from "../controllers/course.controller.js";
+import {
+  getMyCoursesController,
+  getMyLikedCoursesController,
+} from "../controllers/course.controller.js";
+import { getCourseListSchema } from "../validations/course.validation.js";
 
 import { optimizeCourseRouteController } from "../controllers/course-route.controller.js";
 
@@ -178,7 +182,24 @@ meRouter.delete(
  *
  * GET /api/me/courses
  */
-meRouter.get("/courses", requireAuth, getMyCoursesController);
+meRouter.get(
+  "/courses",
+  requireAuth,
+  validateRequest(getCourseListSchema),
+  getMyCoursesController,
+);
+
+/**
+ * 내가 좋아요한 코스 목록
+ *
+ * GET /api/me/liked-courses
+ */
+meRouter.get(
+  "/liked-courses",
+  requireAuth,
+  validateRequest(getCourseListSchema),
+  getMyLikedCoursesController,
+);
 
 /**
  * 선택한 상점의 추천 방문 순서 계산

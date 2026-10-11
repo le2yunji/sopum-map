@@ -6,14 +6,16 @@ import {
   createCourseSchema,
   deleteCourseSchema,
   getCourseDetailSchema,
+  getCourseListSchema,
   updateCourseSchema,
   updateCourseVisibilitySchema,
 } from "../validations/course.validation.js";
 import { createCourse } from "../services/course/course.create.service.js";
+import { getCourseDetail } from "../services/course/course.read.service.js";
 import {
-  getCourseDetail,
-  getMyCourses,
-} from "../services/course/course.read.service.js";
+  getMyCourseList,
+  getMyLikedCourseList,
+} from "../services/course/course-list.service.js";
 import { updateCourse } from "../services/course/course.update.service.js";
 import { deleteCourse } from "../services/course/course.delete.service.js";
 import {
@@ -83,12 +85,36 @@ export async function getMyCoursesController(
   try {
     const userId = req.auth!.userId;
 
-    const data = await getMyCourses(userId);
+    const { query } = res.locals.validated as z.infer<
+      typeof getCourseListSchema
+    >;
+
+    const data = await getMyCourseList(userId, query);
 
     res.status(200).json({
       success: true,
       data,
     });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 내가 좋아요한 코스 목록을 커서 기반으로 조회합니다. */
+export async function getMyLikedCoursesController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+    const { query } = res.locals.validated as z.infer<
+      typeof getCourseListSchema
+    >;
+
+    const data = await getMyLikedCourseList(userId, query);
+
+    res.status(200).json({ success: true, data });
   } catch (error) {
     next(error);
   }
