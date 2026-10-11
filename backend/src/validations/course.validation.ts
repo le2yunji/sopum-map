@@ -34,6 +34,9 @@ export const getCourseDetailSchema = z.object({
   }),
 });
 
+/** 코스 좋아요와 좋아요 해제 요청 */
+export const courseLikeSchema = getCourseDetailSchema;
+
 /**
  * 사용자 코스 수정 요청
  */

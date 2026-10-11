@@ -7,6 +7,7 @@ import {
   deleteCourseSchema,
   getCourseDetailSchema,
   updateCourseSchema,
+  updateCourseVisibilitySchema,
 } from "../validations/course.validation.js";
 import { createCourse } from "../services/course/course.create.service.js";
 import {
@@ -15,6 +16,11 @@ import {
 } from "../services/course/course.read.service.js";
 import { updateCourse } from "../services/course/course.update.service.js";
 import { deleteCourse } from "../services/course/course.delete.service.js";
+import {
+  likeCourse,
+  unlikeCourse,
+} from "../services/course/course-like.service.js";
+import { updateCourseVisibility } from "../services/course/course-visibility.service.js";
 
 /**
  * 내 픽 폴더를 기반으로 사용자 코스를 생성합니다.
@@ -133,6 +139,67 @@ export async function deleteCourseController(
     await deleteCourse(userId, courseId);
 
     res.status(204).send();
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 공개된 다른 사용자의 코스를 좋아요합니다. */
+export async function likeCourseController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+    const {
+      params: { courseId },
+    } = res.locals.validated as z.infer<typeof getCourseDetailSchema>;
+
+    const data = await likeCourse(userId, courseId);
+
+    res.status(201).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 현재 사용자의 코스 좋아요를 해제합니다. */
+export async function unlikeCourseController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+    const {
+      params: { courseId },
+    } = res.locals.validated as z.infer<typeof getCourseDetailSchema>;
+
+    const data = await unlikeCourse(userId, courseId);
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 작성자가 사용자 코스의 공개 여부를 변경합니다. */
+export async function updateCourseVisibilityController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+    const {
+      params: { courseId },
+      body: { isPublic },
+    } = res.locals.validated as z.infer<typeof updateCourseVisibilitySchema>;
+
+    const data = await updateCourseVisibility(userId, courseId, isPublic);
+
+    res.status(200).json({ success: true, data });
   } catch (error) {
     next(error);
   }

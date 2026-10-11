@@ -4,7 +4,10 @@ import {
   createCourseController,
   deleteCourseController,
   getCourseDetailController,
+  likeCourseController,
+  unlikeCourseController,
   updateCourseController,
+  updateCourseVisibilityController,
 } from "../controllers/course.controller.js";
 
 import { requireAuth } from "../middlewares/require-auth.middleware.js";
@@ -12,9 +15,11 @@ import { validateRequest } from "../middlewares/validate-request.middleware.js";
 
 import {
   createCourseSchema,
+  courseLikeSchema,
   deleteCourseSchema,
   getCourseDetailSchema,
   updateCourseSchema,
+  updateCourseVisibilitySchema,
 } from "../validations/course.validation.js";
 
 const courseRouter = Router();
@@ -29,6 +34,42 @@ courseRouter.post(
   requireAuth,
   validateRequest(createCourseSchema),
   createCourseController,
+);
+
+/**
+ * 코스 좋아요
+ *
+ * POST /api/courses/:courseId/likes
+ */
+courseRouter.post(
+  "/:courseId/likes",
+  requireAuth,
+  validateRequest(courseLikeSchema),
+  likeCourseController,
+);
+
+/**
+ * 코스 좋아요 해제
+ *
+ * DELETE /api/courses/:courseId/likes
+ */
+courseRouter.delete(
+  "/:courseId/likes",
+  requireAuth,
+  validateRequest(courseLikeSchema),
+  unlikeCourseController,
+);
+
+/**
+ * 사용자 코스 공개 여부 변경
+ *
+ * PATCH /api/courses/:courseId/visibility
+ */
+courseRouter.patch(
+  "/:courseId/visibility",
+  requireAuth,
+  validateRequest(updateCourseVisibilitySchema),
+  updateCourseVisibilityController,
 );
 
 /**
