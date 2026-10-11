@@ -73,3 +73,21 @@ export const deleteCourseSchema = z.object({
     courseId: objectIdSchema,
   }),
 });
+
+/** 코스 공개 여부 변경 요청 */
+export const updateCourseVisibilitySchema = z.object({
+  params: z.object({
+    courseId: objectIdSchema,
+  }),
+  body: z.object({
+    isPublic: z.boolean(),
+  }),
+});
+
+/** 내 코스와 찜한 코스가 공유하는 커서 목록 요청 */
+export const getCourseListSchema = z.object({
+  query: z.object({
+    cursor: z.string().min(1).max(512).optional(),
+    limit: z.coerce.number().int().min(1).max(20).default(20),
+  }),
+});
