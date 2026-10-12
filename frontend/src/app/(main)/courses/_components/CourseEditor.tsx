@@ -33,6 +33,7 @@ type Props = Readonly<{
   initialTitle: string;
   initialDescription: string;
   initialIsPublic?: boolean;
+  initialStartShopId?: string;
   initialSelectedShops: readonly CourseShopInput[];
 
   shops: readonly CourseEditorShopOption[];
@@ -61,6 +62,7 @@ export function CourseEditor({
   initialTitle,
   initialDescription,
   initialIsPublic = false,
+  initialStartShopId,
   initialSelectedShops,
   shops,
   hasNextPage,
@@ -82,7 +84,9 @@ export function CourseEditor({
   const [selectedShops, setSelectedShops] = useState<CourseShopInput[]>(() => [
     ...initialSelectedShops,
   ]);
-  const [startShopId, setStartShopId] = useState<string | undefined>();
+  const [startShopId, setStartShopId] = useState<string | undefined>(
+    initialStartShopId,
+  );
 
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
@@ -257,7 +261,7 @@ export function CourseEditor({
             {onExit ? (
               <button
                 type="button"
-                aria-label="코스 만들기 나가기"
+                aria-label={`${heading} 나가기`}
                 onClick={onExit}
                 className="grid size-11 place-items-center rounded-full text-black-700 focus-visible:outline-2 focus-visible:outline-green-700"
               >

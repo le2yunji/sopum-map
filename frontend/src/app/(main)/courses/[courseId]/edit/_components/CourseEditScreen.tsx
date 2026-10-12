@@ -3,7 +3,12 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 
-import { useCourseDetail, useUpdateCourse } from "@/api/course/course.query";
+import {
+  useCourseDetail,
+  useUpdateCourse,
+  useUpdateCourseVisibility,
+} from "@/api/course/course.query";
+import { useOptimizeCourseRoute } from "@/api/course-route/course-route.query";
 import { useInfiniteShopsByFolder } from "@/api/pick-folder/pick-folder.query";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 
@@ -11,6 +16,7 @@ import {
   CourseEditor,
   type CourseEditorShopOption,
 } from "../../../_components/CourseEditor";
+import { saveCourseEdit } from "./course-edit-submit";
 
 type Props = Readonly<{
   courseId: string;
@@ -36,6 +42,8 @@ export function CourseEditScreen({ courseId }: Props) {
   );
 
   const updateCourseMutation = useUpdateCourse();
+  const visibilityMutation = useUpdateCourseVisibility();
+  const optimizeRouteMutation = useOptimizeCourseRoute();
 
   /**
    * 기존 코스 상점과 출처 폴더의 같은 지역 상점을 합칩니다.
@@ -112,11 +120,17 @@ export function CourseEditScreen({ courseId }: Props) {
     );
   }
 
+  const sourceFolderId = course.sourceFolderId;
+
   return (
     <CourseEditor
       heading="코스 수정"
       initialTitle={course.title}
       initialDescription={course.description ?? ""}
+      initialIsPublic={course.isPublic}
+      initialStartShopId={
+        course.shops.find((shop) => shop.order === 1)?.id
+      }
       initialSelectedShops={course.shops
         .slice()
         .sort((first, second) => first.order - second.order)
@@ -128,19 +142,52 @@ export function CourseEditScreen({ courseId }: Props) {
       shops={shopOptions}
       hasNextPage={Boolean(folderShopsQuery.hasNextPage)}
       isFetchingNextPage={folderShopsQuery.isFetchingNextPage}
-      isSubmitting={updateCourseMutation.isPending}
+      isSubmitting={
+        updateCourseMutation.isPending || visibilityMutation.isPending
+      }
+      isOptimizing={optimizeRouteMutation.isPending}
+      onOptimize={
+        sourceFolderId
+          ? async (selectedShopIds, startShopId) => {
+              const result = await optimizeRouteMutation.mutateAsync({
+                sourceFolderId,
+                regionGroup: course.regionGroup,
+                shopIds: selectedShopIds,
+                startShopId,
+              });
+
+              return result.shopIds;
+            }
+          : undefined
+      }
       submitLabel="코스 수정하기"
+      showVisibilityControl
+      onExit={() => router.replace(`/courses/${courseId}`)}
       onLoadMore={() => {
+        if (
+          !folderShopsQuery.hasNextPage ||
+          folderShopsQuery.isFetchingNextPage
+        ) {
+          return;
+        }
+
         void folderShopsQuery.fetchNextPage();
       }}
       onSubmit={async (input) => {
-        await updateCourseMutation.mutateAsync({
+        await saveCourseEdit({
           courseId,
-          input: {
-            title: input.title,
-            description: input.description,
-            shops: input.shops,
-          },
+          previousIsPublic: course.isPublic,
+          input,
+          updateCourse: async (targetCourseId, updateInput) =>
+            updateCourseMutation.mutateAsync({
+              courseId: targetCourseId,
+              input: updateInput,
+            }),
+          updateVisibility: async (targetCourseId, isPublic) =>
+            visibilityMutation.mutateAsync({
+              courseId: targetCourseId,
+              isPublic,
+            }),
         });
 
         router.replace(`/courses/${courseId}?updated=true`);
