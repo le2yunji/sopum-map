@@ -1,15 +1,10 @@
 import { FilterChipGroup } from "@/components/ui/FilterChipGroup/FilterChipGroup";
+import type { PickFolderListItem } from "@sopum-map/shared";
 
 import { ALL_PICK_ID } from "../PicksScreen";
 
-type PickFolder = Readonly<{
-  id: string;
-  title: string;
-  shopCount: number;
-}>;
-
 type Props = Readonly<{
-  folders: PickFolder[];
+  folders: readonly PickFolderListItem[];
   activeFolderId: string;
   onChange: (folderId: string) => void;
 }>;

@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { isApiError } from "@sopum-map/shared";
 
 import {
   useInfiniteLikedShops,
   useInfiniteShopsByFolder,
+  usePickFolderCourseRegions,
   usePickFolders,
 } from "@/api/pick-folder/pick-folder.query";
 import { CourseRegionSelectSheet } from "@/app/(main)/courses/_components/CourseRegionSelectSheet";
@@ -19,6 +21,10 @@ import { PickFolderTabs } from "./folder/PickFolderTabs";
 import { PickFolderManageSheet } from "./folder/manage/PickFolderManageSheet";
 import { PicksSkeleton } from "./PicksSkeleton";
 import { PickShopGrid } from "./shop/PickShopGrid";
+import {
+  getCourseRegionDestination,
+  getPickFolderErrorMessage,
+} from "./picks-ui";
 
 export const ALL_PICK_ID = "all";
 
@@ -37,6 +43,7 @@ export function PicksScreen() {
     data: folderData,
     isPending: isFolderPending,
     isError: isFolderError,
+    error: folderError,
     refetch: refetchFolders,
   } = usePickFolders();
 
@@ -59,6 +66,10 @@ export function PicksScreen() {
       ? null
       : (folders.find((folder) => folder.id === activeFolderId) ?? null);
 
+  const courseRegionsQuery = usePickFolderCourseRegions(
+    activeFolder?.id,
+  );
+
   /**
    * 전체 탭에서는 좋아요한 모든 상점을,
    * 폴더 탭에서는 해당 폴더의 상점을 표시합니다.
@@ -77,17 +88,30 @@ export function PicksScreen() {
       return;
     }
 
+    const destination = courseRegionsQuery.data
+      ? getCourseRegionDestination(
+          activeFolder.id,
+          courseRegionsQuery.data.items,
+        )
+      : null;
+
+    if (destination) {
+      router.push(destination);
+      return;
+    }
+
     setCourseRegionSheetOpen(true);
   };
 
   if (isFolderError) {
+    const isUnauthorized = isApiError(folderError) && folderError.status === 401;
+
     return (
       <StatePanel
-        title="내 픽 폴더를 불러오지 못했어요"
-        action="다시 시도"
-        onAction={() => {
-          void refetchFolders();
-        }}
+        title={getPickFolderErrorMessage(folderError)}
+        action={isUnauthorized ? "로그인" : "다시 시도"}
+        actionHref={isUnauthorized ? "/login" : undefined}
+        onAction={isUnauthorized ? undefined : () => void refetchFolders()}
       />
     );
   }

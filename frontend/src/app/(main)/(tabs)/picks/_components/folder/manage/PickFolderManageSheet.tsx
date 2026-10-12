@@ -2,11 +2,15 @@
 
 import { useState } from "react";
 
-import { usePickFolders } from "@/api/pick-folder/pick-folder.query";
+import {
+  usePickFolders,
+  useUpdatePickFolderOrder,
+} from "@/api/pick-folder/pick-folder.query";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button";
 import { PickFolderEditView } from "./PickFolderEditView";
 import { PickFolderManageItem } from "./PickFolderManageItem";
+import { getPickFolderErrorMessage, moveFolderId } from "../../picks-ui";
 
 type Props = Readonly<{
   open: boolean;
@@ -16,6 +20,7 @@ type Props = Readonly<{
 type EditingFolder = Readonly<{
   id: string;
   title: string;
+  description: string | null;
 }>;
 
 export function PickFolderManageSheet({ open, onOpenChange }: Props) {
@@ -24,6 +29,7 @@ export function PickFolderManageSheet({ open, onOpenChange }: Props) {
   );
 
   const { data: folderData, isPending, isError, refetch } = usePickFolders();
+  const orderMutation = useUpdatePickFolderOrder();
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
@@ -54,10 +60,16 @@ export function PickFolderManageSheet({ open, onOpenChange }: Props) {
       </BottomSheet.Header>
 
       <BottomSheet.Body>
+        {orderMutation.error ? (
+          <p role="alert" className="mb-3 text-13 text-red-600">
+            {getPickFolderErrorMessage(orderMutation.error)}
+          </p>
+        ) : null}
         {editingFolder ? (
           <PickFolderEditView
             folderId={editingFolder.id}
             title={editingFolder.title}
+            description={editingFolder.description}
             onBack={() => {
               setEditingFolder(null);
             }}
@@ -87,16 +99,29 @@ export function PickFolderManageSheet({ open, onOpenChange }: Props) {
           </p>
         ) : (
           <div className="space-y-2">
-            {folders.map((folder) => (
+            {folders.map((folder, index) => (
               <PickFolderManageItem
                 key={folder.id}
                 folderId={folder.id}
                 title={folder.title}
                 shopCount={folder.shopCount}
+                canMoveUp={index > 0}
+                canMoveDown={index < folders.length - 1}
+                isOrdering={orderMutation.isPending}
+                onMove={(direction) => {
+                  orderMutation.mutate({
+                    folderIds: moveFolderId(
+                      folders.map((item) => item.id),
+                      folder.id,
+                      direction,
+                    ),
+                  });
+                }}
                 onEdit={() => {
                   setEditingFolder({
                     id: folder.id,
                     title: folder.title,
+                    description: folder.description,
                   });
                 }}
               />
