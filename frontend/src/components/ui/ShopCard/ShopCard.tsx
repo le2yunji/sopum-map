@@ -27,6 +27,7 @@ export const ShopCard = ({
   name,
   href,
   imageUrl,
+  imageLoading = "lazy",
   region,
   tags,
   likeCount,
@@ -58,6 +59,7 @@ export const ShopCard = ({
           alt={`${name} 매장 이미지`}
           fill
           sizes="160px"
+          loading={imageLoading}
           className="
             object-cover
             transition-transform duration-300
