@@ -12,6 +12,7 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 import type { MapShop } from "@/components/naver-map";
 import { SHOP_REGION_GROUP_LABELS } from "@sopum-map/shared";
+import { getMapTagShortLabel } from "../_constants/map.constants";
 
 type MapShopListProps = Readonly<{
   shops: MapShop[];
@@ -110,7 +111,7 @@ export function MapShopList({
                           text-green-900
                         "
                   >
-                    #{tag}
+                    #{getMapTagShortLabel(tag)}
                   </span>
                 ))}
               </div>

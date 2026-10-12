@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button/Button";
 
 import {
   getMapTagFilterValue,
-  MAP_TAG_FILTERS,
+  MAP_TAG_FILTER_GROUPS,
   type MapTagFilter,
 } from "../_constants/map.constants";
 
@@ -42,35 +42,48 @@ export function MapFilterSheet({
       </BottomSheet.Header>
 
       <BottomSheet.Body>
-        <div className="mt-5 flex flex-wrap gap-2">
-          {MAP_TAG_FILTERS.map((filter) => {
-            const filterValue = getMapTagFilterValue(filter);
-            const isSelected = selectedFilters.some(
-              (selectedFilter) =>
-                getMapTagFilterValue(selectedFilter) === filterValue,
-            );
-
-            return (
-              <Button
-                key={filterValue}
-                type="button"
-                variant="outline"
-                size="small"
-                aria-pressed={isSelected}
-                onClick={() => onToggleFilter(filter)}
-                className={`
-                  rounded-full
-                  ${
-                    isSelected
-                      ? "border-green-700 bg-green-100 text-black-950"
-                      : ""
-                  }
-                `}
+        <div className="space-y-7 py-5">
+          {MAP_TAG_FILTER_GROUPS.map((group) => (
+            <section key={group.value} aria-labelledby={`tag-group-${group.value}`}>
+              <h3
+                id={`tag-group-${group.value}`}
+                className="text-14 font-semibold text-black-700"
               >
-                # {filter.label}
-              </Button>
-            );
-          })}
+                {group.label}
+              </h3>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {group.filters.map((filter) => {
+                  const filterValue = getMapTagFilterValue(filter);
+                  const isSelected = selectedFilters.some(
+                    (selectedFilter) =>
+                      getMapTagFilterValue(selectedFilter) === filterValue,
+                  );
+
+                  return (
+                    <Button
+                      key={filterValue}
+                      type="button"
+                      variant="outline"
+                      size="small"
+                      aria-pressed={isSelected}
+                      onClick={() => onToggleFilter(filter)}
+                      className={`
+                        rounded-full
+                        ${
+                          isSelected
+                            ? "border-green-700 bg-green-100 text-black-950"
+                            : ""
+                        }
+                      `}
+                    >
+                      #{filter.label}
+                    </Button>
+                  );
+                })}
+              </div>
+            </section>
+          ))}
         </div>
       </BottomSheet.Body>
 

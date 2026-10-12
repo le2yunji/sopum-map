@@ -2,9 +2,7 @@
 
 import { useMemo, type ReactNode } from "react";
 
-import type { TagKey } from "@sopum-map/shared";
-
-import { getMapTagFilterValue } from "../_constants/map.constants";
+import { getMapSelectedTagKeys } from "../_constants/map.constants";
 import { useMapScreenState } from "../_hooks/useMapScreenState";
 import { toMapShop } from "../_mappers/mapShop.mapper";
 import type { MapShop } from "@/components/naver-map";
@@ -57,17 +55,8 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
     resetFilters,
   } = useMapScreenState();
 
-  /**
-   * 현재 MapTagFilter 값이 실제 TagKey라는 전제입니다.
-   *
-   * MapTagFilter에 group 필터도 포함되어 있다면
-   * group → tagKeys 변환 로직을 별도로 두어야 합니다.
-   */
   const selectedTagKeys = useMemo(
-    () =>
-      selectedDetailedFilters.map(
-        (filter) => getMapTagFilterValue(filter) as TagKey,
-      ),
+    () => getMapSelectedTagKeys(selectedDetailedFilters),
     [selectedDetailedFilters],
   );
 

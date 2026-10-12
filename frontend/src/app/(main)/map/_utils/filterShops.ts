@@ -8,13 +8,9 @@ type FilterShopsParams = Readonly<{
   pickedOnly: boolean;
 }>;
 
-/** 상점이 개별 태그 또는 태그 그룹 필터 하나와 일치하는지 확인합니다. */
+/** 상점이 선택한 상세 태그 하나와 일치하는지 확인합니다. */
 function matchesTagFilter(shop: MapShop, filter: MapTagFilter) {
-  if (filter.type === "tag") {
-    return shop.tags.includes(filter.value);
-  }
-
-  return filter.tags.some((tag) => shop.tags.includes(tag));
+  return shop.tags.includes(filter.value);
 }
 
 /** 검색어와 선택한 모든 태그 조건에 맞는 지도 상점만 반환합니다. */
