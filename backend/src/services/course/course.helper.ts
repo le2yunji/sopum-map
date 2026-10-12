@@ -9,7 +9,7 @@ import { Types } from "mongoose";
 type CourseShopInput = CreateCourseRequest["shops"][number];
 
 type CourseShopForValidation = Readonly<{
-  _id: Types.ObjectId;
+  _id?: Types.ObjectId;
   regionGroup?: unknown;
   status?: unknown;
   location?: {
@@ -32,14 +32,43 @@ export function isCourseShopUnavailable(status: ShopStatus): boolean {
  * 상점에 코스 계산에 사용할 수 있는 좌표가 있는지 확인
  */
 export function hasCourseShopLocation(shop: CourseShopForValidation): boolean {
+  const { latitude, longitude } = getCourseShopCoordinates(shop);
+
+  return latitude !== null && longitude !== null;
+}
+
+/** 현재 위치가 없는 기존 상점도 상세 화면에서 안전하게 표현합니다. */
+export function getCourseShopCoordinates(shop: CourseShopForValidation): {
+  latitude: number | null;
+  longitude: number | null;
+} {
   const coordinates = shop.location?.coordinates;
 
-  return (
-    Array.isArray(coordinates) &&
-    coordinates.length >= 2 &&
-    Number.isFinite(coordinates[0]) &&
-    Number.isFinite(coordinates[1])
-  );
+  if (!Array.isArray(coordinates) || coordinates.length < 2) {
+    return {
+      latitude: null,
+      longitude: null,
+    };
+  }
+
+  const [longitude, latitude] = coordinates;
+
+  if (
+    typeof latitude !== "number" ||
+    !Number.isFinite(latitude) ||
+    typeof longitude !== "number" ||
+    !Number.isFinite(longitude)
+  ) {
+    return {
+      latitude: null,
+      longitude: null,
+    };
+  }
+
+  return {
+    latitude,
+    longitude,
+  };
 }
 
 /**

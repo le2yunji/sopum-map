@@ -38,11 +38,18 @@ export function CourseMap({ shops }: Props) {
       return;
     }
 
-    if (mapInstanceRef.current || shops.length === 0) {
+    const firstShop = [...shops]
+      .sort((a, b) => a.order - b.order)
+      .find(
+        (shop): shop is CourseDetailShop & {
+          latitude: number;
+          longitude: number;
+        } => shop.latitude !== null && shop.longitude !== null,
+      );
+
+    if (mapInstanceRef.current || !firstShop) {
       return;
     }
-
-    const firstShop = [...shops].sort((a, b) => a.order - b.order)[0];
 
     mapInstanceRef.current = new naver.maps.Map(mapElementRef.current, {
       center: new naver.maps.LatLng(firstShop.latitude, firstShop.longitude),
@@ -70,7 +77,14 @@ export function CourseMap({ shops }: Props) {
     polylineRef.current?.setMap(null);
     polylineRef.current = null;
 
-    const orderedShops = [...shops].sort((a, b) => a.order - b.order);
+    const orderedShops = [...shops]
+      .sort((a, b) => a.order - b.order)
+      .filter(
+        (shop): shop is CourseDetailShop & {
+          latitude: number;
+          longitude: number;
+        } => shop.latitude !== null && shop.longitude !== null,
+      );
 
     if (orderedShops.length === 0) {
       return;

@@ -9,7 +9,10 @@ import CourseLikeModel from "../../models/course-like.model.js";
 import ShopModel from "../../models/shop.model.js";
 import UserModel from "../../models/user.model.js";
 import { getMainShopImageUrl } from "../../utils/shop-image.js";
-import { isCourseShopUnavailable } from "./course.helper.js";
+import {
+  getCourseShopCoordinates,
+  isCourseShopUnavailable,
+} from "./course.helper.js";
 import {
   assertCourseVisibleToViewer,
   createCourseViewerData,
@@ -137,7 +140,7 @@ export async function getCourseDetail(
       });
     }
 
-    const [longitude, latitude] = shop.location.coordinates;
+    const { latitude, longitude } = getCourseShopCoordinates(shop);
 
     return {
       id: shop._id.toString(),

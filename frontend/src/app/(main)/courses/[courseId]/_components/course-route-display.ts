@@ -1,7 +1,7 @@
 type CoursePathShop = Readonly<{
   order: number;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
 }>;
 
 export type CoursePathCoordinate = Readonly<{
@@ -34,5 +34,11 @@ export function getStraightCoursePath(
 ): CoursePathCoordinate[] {
   return [...shops]
     .sort((first, second) => first.order - second.order)
+    .filter(
+      (shop): shop is CoursePathShop & {
+        latitude: number;
+        longitude: number;
+      } => shop.latitude !== null && shop.longitude !== null,
+    )
     .map(({ latitude, longitude }) => ({ latitude, longitude }));
 }

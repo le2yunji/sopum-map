@@ -12,7 +12,11 @@ import CourseModel from "../../models/course.model.js";
 
 import ShopModel from "../../models/shop.model.js";
 
-import { validateCourseShops, validateNewCourseShop } from "./course.helper.js";
+import {
+  hasCourseShopLocation,
+  validateCourseShops,
+  validateNewCourseShop,
+} from "./course.helper.js";
 import { createCourseShopsWithWalkingMetrics } from "./course-walking-metrics.service.js";
 
 /**
@@ -168,34 +172,31 @@ export async function updateCourse(
     /**
      * Course의 regionGroup은 생성 이후 변경하지 않습니다.
      *
-     * 모든 상점은 기존 course.regionGroup과 같아야 합니다.
-     * hidden / closed / 위치정보 제한은 새로 추가되는 상점에만 적용합니다.
+     * 지역 / 상태 / 위치 제한은 새로 추가되는 상점에만 적용합니다.
      *
      * 기존 상점이 이후 비활성 상태가 되어도
      * 수정 과정에서 자동으로 제거하지 않습니다.
      */
     for (const shop of shops) {
-      if (shop.regionGroup !== course.regionGroup) {
-        throw createApiError({
-          status: 400,
-          code: "COURSE_REGION_MISMATCH",
-          message: "코스에는 같은 지역의 상점만 포함할 수 있습니다.",
-        });
-      }
-
       if (addedShopIdSet.has(shop._id.toString())) {
         validateNewCourseShop(shop, course.regionGroup);
       }
     }
 
-    update.shops = await createCourseShopsWithWalkingMetrics(
-      orderedCourseShops.map((shop) => ({
-        shopId: new Types.ObjectId(shop.shopId),
-        order: shop.order,
-        memo: shop.memo ?? null,
-      })),
-      shops,
-    );
+    const courseShops = orderedCourseShops.map((shop) => ({
+      shopId: new Types.ObjectId(shop.shopId),
+      order: shop.order,
+      memo: shop.memo ?? null,
+    }));
+
+    /** 기존 상점의 좌표가 없어졌다면 코스는 유지하고 도보 수치만 비웁니다. */
+    update.shops = shops.every(hasCourseShopLocation)
+      ? await createCourseShopsWithWalkingMetrics(courseShops, shops)
+      : courseShops.map((shop) => ({
+          ...shop,
+          walkingDistanceFromPreviousMeters: null,
+          walkingDurationFromPreviousSeconds: null,
+        }));
   }
 
   const updatedCourse = await CourseModel.findByIdAndUpdate(

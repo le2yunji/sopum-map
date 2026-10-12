@@ -56,8 +56,9 @@ export type CourseDetailShop = Readonly<{
 
   regionGroup: ShopRegionGroup;
 
-  latitude: number;
-  longitude: number;
+  /** 현재 위치 정보가 없어진 기존 상점은 null입니다. */
+  latitude: number | null;
+  longitude: number | null;
 
   status: ShopStatus;
 
