@@ -51,19 +51,7 @@ export function PickFolderSheetContent({
   };
 
   return (
-    <BottomSheet
-      open
-      onOpenChange={onOpenChange}
-      ariaLabelledBy="pick-folder-title"
-    >
-      <BottomSheet.Handle />
-
-      <BottomSheet.Header>
-        <BottomSheet.Title id="pick-folder-title">
-          내 픽 폴더 선택
-        </BottomSheet.Title>
-      </BottomSheet.Header>
-
+    <>
       <BottomSheet.Body>
         {folders.length === 0 ? (
           <p className="px-3 py-4 text-14 text-black-500">
@@ -115,6 +103,6 @@ export function PickFolderSheetContent({
           저장
         </Button>
       </BottomSheet.Footer>
-    </BottomSheet>
+    </>
   );
 }

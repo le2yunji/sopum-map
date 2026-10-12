@@ -34,7 +34,7 @@ type Props = Readonly<{
   onRemove?: (shopId: string) => void | Promise<void>;
 }>;
 
-const SNACKBAR_DURATION = 3000;
+const SNACKBAR_DURATION = 2500;
 const PICK_SYNC_DELAY = 300;
 
 export function PickAction({

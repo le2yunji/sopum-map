@@ -8,6 +8,7 @@ import {
 import type {
   AddShopToFolderRequest,
   CreatePickFolderRequest,
+  ShopRegionGroup,
   UpdatePickFolderOrderRequest,
   UpdatePickFolderRequest,
   UpdateShopFolderIdsRequest,
@@ -18,6 +19,7 @@ import {
   createPickFolder,
   deletePickFolder,
   getFolderIdsByShop,
+  getPickFolderCourseRegions,
   getPickFolders,
   getShopsByFolder,
   removeShopFromFolder,
@@ -27,6 +29,11 @@ import {
 } from "./pick-folder.api";
 
 import { getLikedShops } from "../shops/shop-like.api";
+
+type ShopsByFolderOptions = Readonly<{
+  regionGroup?: ShopRegionGroup;
+  courseEligibleOnly?: boolean;
+}>;
 
 /**
  * Pick Folder 관련 React Query key
@@ -40,8 +47,17 @@ export const pickFolderQueryKeys = {
 
   details: () => [...pickFolderQueryKeys.all, "detail"] as const,
 
-  shops: (folderId: string) =>
-    [...pickFolderQueryKeys.details(), folderId, "shops"] as const,
+  shops: (folderId: string, options?: ShopsByFolderOptions) =>
+    [
+      ...pickFolderQueryKeys.details(),
+      folderId,
+      "shops",
+      options?.regionGroup ?? null,
+      options?.courseEligibleOnly ?? false,
+    ] as const,
+
+  courseRegions: (folderId: string) =>
+    [...pickFolderQueryKeys.details(), folderId, "course-regions"] as const,
 
   shopFolders: (shopId: string) =>
     [...pickFolderQueryKeys.all, "shop", shopId, "folders"] as const,
@@ -60,7 +76,7 @@ export function usePickFolders() {
 /**
  * 특정 상점이 들어있는 폴더 목록
  */
-export function useFolderIdsByShop(shopId?: string) {
+export function useFolderIdsByShop(shopId?: string, enabled = true) {
   return useQuery({
     queryKey: pickFolderQueryKeys.shopFolders(shopId ?? ""),
 
@@ -72,16 +88,20 @@ export function useFolderIdsByShop(shopId?: string) {
       return getFolderIdsByShop(shopId);
     },
 
-    enabled: Boolean(shopId),
+    enabled: enabled && Boolean(shopId),
   });
 }
 
 /**
  * 특정 폴더의 상점 목록
  */
-export function useInfiniteShopsByFolder(folderId?: string, limit = 10) {
+export function useInfiniteShopsByFolder(
+  folderId?: string,
+  limit = 10,
+  options?: ShopsByFolderOptions,
+) {
   return useInfiniteQuery({
-    queryKey: pickFolderQueryKeys.shops(folderId ?? ""),
+    queryKey: pickFolderQueryKeys.shops(folderId ?? "", options),
 
     queryFn: ({ pageParam }) => {
       if (!folderId) {
@@ -92,6 +112,8 @@ export function useInfiniteShopsByFolder(folderId?: string, limit = 10) {
         folderId,
         page: pageParam,
         limit,
+        regionGroup: options?.regionGroup,
+        courseEligibleOnly: options?.courseEligibleOnly,
       });
     },
 
@@ -99,6 +121,25 @@ export function useInfiniteShopsByFolder(folderId?: string, limit = 10) {
 
     getNextPageParam: (lastPage) =>
       lastPage.pagination.hasNext ? lastPage.pagination.page + 1 : undefined,
+
+    enabled: Boolean(folderId),
+  });
+}
+
+/**
+ * 특정 폴더의 지역별 코스 생성 가능 현황
+ */
+export function usePickFolderCourseRegions(folderId?: string) {
+  return useQuery({
+    queryKey: pickFolderQueryKeys.courseRegions(folderId ?? ""),
+
+    queryFn: () => {
+      if (!folderId) {
+        throw new Error("folderId가 필요합니다.");
+      }
+
+      return getPickFolderCourseRegions(folderId);
+    },
 
     enabled: Boolean(folderId),
   });
@@ -220,6 +261,10 @@ export function useAddShopToFolder(folderId: string) {
       void queryClient.invalidateQueries({
         queryKey: pickFolderQueryKeys.list(),
       });
+
+      void queryClient.invalidateQueries({
+        queryKey: pickFolderQueryKeys.courseRegions(folderId),
+      });
     },
   });
 }
@@ -244,6 +289,10 @@ export function useRemoveShopFromFolder(folderId: string) {
 
       void queryClient.invalidateQueries({
         queryKey: pickFolderQueryKeys.list(),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: pickFolderQueryKeys.courseRegions(folderId),
       });
     },
   });

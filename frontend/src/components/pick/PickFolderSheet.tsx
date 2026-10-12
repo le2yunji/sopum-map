@@ -18,7 +18,7 @@ export function PickFolderSheet({ open, shopId, onOpenChange }: Props) {
   const { data: folderData, isPending: isFolderPending } = usePickFolders();
 
   const { data: shopFolderData, isPending: isShopFolderPending } =
-    useFolderIdsByShop(shopId);
+    useFolderIdsByShop(shopId, open);
 
   if (!open) {
     return null;
@@ -26,36 +26,34 @@ export function PickFolderSheet({ open, shopId, onOpenChange }: Props) {
 
   const isPending = isFolderPending || isShopFolderPending;
 
-  if (isPending) {
-    return (
-      <BottomSheet
-        open={open}
-        onOpenChange={onOpenChange}
-        ariaLabelledBy="pick-folder-title"
-      >
-        <BottomSheet.Handle />
+  return (
+    <BottomSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      ariaLabelledBy="pick-folder-title"
+    >
+      <BottomSheet.Handle />
 
-        <BottomSheet.Header>
-          <BottomSheet.Title id="pick-folder-title">
-            내 픽 폴더 선택
-          </BottomSheet.Title>
-        </BottomSheet.Header>
+      <BottomSheet.Header>
+        <BottomSheet.Title id="pick-folder-title">
+          내 픽 폴더 선택
+        </BottomSheet.Title>
+      </BottomSheet.Header>
 
+      {isPending ? (
         <BottomSheet.Body>
           <p className="px-3 py-4 text-14 text-black-500">
             폴더를 불러오는 중입니다.
           </p>
         </BottomSheet.Body>
-      </BottomSheet>
-    );
-  }
-
-  return (
-    <PickFolderSheetContent
-      shopId={shopId}
-      folders={folderData?.items ?? []}
-      initialFolderIds={shopFolderData?.folderIds ?? []}
-      onOpenChange={onOpenChange}
-    />
+      ) : (
+        <PickFolderSheetContent
+          shopId={shopId}
+          folders={folderData?.items ?? []}
+          initialFolderIds={shopFolderData?.folderIds ?? []}
+          onOpenChange={onOpenChange}
+        />
+      )}
+    </BottomSheet>
   );
 }

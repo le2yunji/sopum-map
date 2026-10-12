@@ -13,6 +13,7 @@ import {
   updateFolderIdsByShop,
   addShopToFolder,
   removeShopFromFolder,
+  getPickFolderCourseRegions,
 } from "../services/pick-folder/pick-folder.service.js";
 
 import {
@@ -20,6 +21,7 @@ import {
   deletePickFolderSchema,
   getPickFolderShopsSchema,
   getShopPickFoldersSchema,
+  getPickFolderCourseRegionsSchema,
   updatePickFolderOrderSchema,
   updatePickFolderSchema,
   updateShopFolderIdsSchema,
@@ -48,6 +50,34 @@ export async function getMyPickFoldersController(
   }
 }
 
+/**
+ * 특정 내 픽 폴더의 지역별
+ * 코스 생성 가능 현황을 조회합니다.
+ */
+export async function getPickFolderCourseRegionsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+
+    const {
+      params: { folderId },
+    } = res.locals.validated as z.infer<
+      typeof getPickFolderCourseRegionsSchema
+    >;
+
+    const data = await getPickFolderCourseRegions(userId, folderId);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 /**
  * 새 내 픽 폴더를 생성합니다.
  */
@@ -214,14 +244,15 @@ export async function getShopsByFolderController(
 
     const {
       params: { folderId },
-      query: { page, limit },
+      query: { page, limit, regionGroup, courseEligibleOnly },
     } = res.locals.validated as z.infer<typeof getPickFolderShopsSchema>;
-
     const data = await getShopsByFolder({
       userId,
       folderId,
       page,
       limit,
+      regionGroup,
+      courseEligibleOnly,
     });
 
     res.status(200).json({

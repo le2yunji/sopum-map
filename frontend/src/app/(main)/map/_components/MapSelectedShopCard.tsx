@@ -32,16 +32,32 @@ export function MapSelectedShopCard({
           size="small"
           leftIcon={<MenuIcon />}
           onClick={onShowList}
-          className="rounded-full! border-black-100! bg-white! shadow-md"
+          className="
+              rounded-full!
+              border-stroke-subtle!
+              bg-surface-primary!
+              shadow-card
+            "
         >
           목록보기
         </Button>
       </div>
 
-      <div className="relative rounded-2xl bg-white p-3 shadow-lg">
+      <div
+        className="
+          relative rounded-card
+          bg-surface-primary p-3
+          shadow-floating
+        "
+      >
         <Link
           href={`/shops/${shop.id}`}
-          className="flex gap-3 rounded-xl pr-9 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+          className="
+              flex gap-3 rounded-card pr-9
+              focus-visible:outline-2
+              focus-visible:outline-offset-2
+              focus-visible:outline-brand
+            "
         >
           <Image
             src={shop.imageUrl}
@@ -49,17 +65,19 @@ export function MapSelectedShopCard({
             width={112}
             height={112}
             loading="eager"
-            className="size-28 shrink-0 rounded-xl object-cover"
+            className="size-28 shrink-0 rounded-control object-cover"
           />
 
           <span className="min-w-0 flex-1 py-1">
-            <span className="block truncate text-17 font-semibold">
+            <span className="block truncate text-17 font-semibold text-fg-primary">
               {shop.name}
             </span>
-            <span className="mt-3 block truncate text-12 text-black-500">
+
+            <span className="mt-3 block truncate text-12 text-fg-tertiary">
               {shop.address}
             </span>
-            <span className="mt-1 flex items-center gap-1 text-12 text-green-700">
+
+            <span className="mt-1 flex items-center gap-1 text-12 text-fg-brand">
               <LocationIcon className="size-3.5" />
               {shop.regionGroup}
             </span>
@@ -67,7 +85,12 @@ export function MapSelectedShopCard({
               {shop.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="shrink-0 rounded-full bg-green-100 px-2 py-1 text-10 text-green-900"
+                  className="
+                    shrink-0 rounded-full
+                    bg-brand-soft-strong
+                    px-2 py-1
+                    text-10 text-green-900
+                  "
                 >
                   #{tag}
                 </span>

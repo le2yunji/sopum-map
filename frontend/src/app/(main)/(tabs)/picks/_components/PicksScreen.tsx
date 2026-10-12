@@ -1,34 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   useInfiniteLikedShops,
   useInfiniteShopsByFolder,
   usePickFolders,
 } from "@/api/pick-folder/pick-folder.query";
+import { CourseRegionSelectSheet } from "@/app/(main)/courses/_components/CourseRegionSelectSheet";
+import { SettingIcon } from "@/components/icons";
+import { Button } from "@/components/ui/Button";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 
 import { CreatePickFolderSheet } from "./folder/CreatePickFolderSheet";
 import { PickFolderActions } from "./folder/PickFolderActions";
 import { PickFolderTabs } from "./folder/PickFolderTabs";
-
-import { PicksSkeleton } from "./PicksSkeleton";
-import { SettingIcon } from "@/components/icons";
-import { Button } from "@/components/ui/Button";
 import { PickFolderManageSheet } from "./folder/manage/PickFolderManageSheet";
+import { PicksSkeleton } from "./PicksSkeleton";
 import { PickShopGrid } from "./shop/PickShopGrid";
 
 export const ALL_PICK_ID = "all";
 
-type Props = Readonly<{
-  onCreateCourse?: (folderId: string | null) => void;
-}>;
+export function PicksScreen() {
+  const router = useRouter();
 
-export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
   const [activeFolderId, setActiveFolderId] = useState(ALL_PICK_ID);
+
   const [createFolderOpen, setCreateFolderOpen] = useState(false);
+
   const [manageFolderOpen, setManageFolderOpen] = useState(false);
+
+  const [courseRegionSheetOpen, setCourseRegionSheetOpen] = useState(false);
 
   const {
     data: folderData,
@@ -47,6 +50,16 @@ export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
   const folders = folderData?.items ?? [];
 
   /**
+   * 현재 선택된 특정 폴더입니다.
+   *
+   * 전체 탭에서는 null입니다.
+   */
+  const activeFolder =
+    activeFolderId === ALL_PICK_ID
+      ? null
+      : (folders.find((folder) => folder.id === activeFolderId) ?? null);
+
+  /**
    * 전체 탭에서는 좋아요한 모든 상점을,
    * 폴더 탭에서는 해당 폴더의 상점을 표시합니다.
    */
@@ -55,6 +68,17 @@ export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
 
   const shops =
     activeShopsQuery.data?.pages.flatMap((page) => page.items) ?? [];
+
+  /**
+   * 현재 폴더의 지역별 코스 선택 Sheet를 엽니다.
+   */
+  const handleCreateCourse = () => {
+    if (!activeFolder) {
+      return;
+    }
+
+    setCourseRegionSheetOpen(true);
+  };
 
   if (isFolderError) {
     return (
@@ -79,6 +103,7 @@ export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
           setManageFolderOpen(true);
         }}
       />
+
       <PickFolderManageSheet
         open={manageFolderOpen}
         onOpenChange={setManageFolderOpen}
@@ -87,7 +112,10 @@ export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
       <PickFolderTabs
         folders={folders}
         activeFolderId={activeFolderId}
-        onChange={setActiveFolderId}
+        onChange={(folderId) => {
+          setActiveFolderId(folderId);
+          setCourseRegionSheetOpen(false);
+        }}
       />
 
       <PickShopGrid
@@ -101,13 +129,20 @@ export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
           void activeShopsQuery.refetch();
         }}
         onLoadMore={() => {
+          if (
+            !activeShopsQuery.hasNextPage ||
+            activeShopsQuery.isFetchingNextPage
+          ) {
+            return;
+          }
+
           void activeShopsQuery.fetchNextPage();
         }}
       />
 
       <PickFolderActions
-        activeFolderId={activeFolderId === ALL_PICK_ID ? null : activeFolderId}
-        onCreateCourse={onCreateCourse}
+        activeFolderId={activeFolder?.id ?? null}
+        onCreateCourse={handleCreateCourse}
         onCreateFolder={() => {
           setCreateFolderOpen(true);
         }}
@@ -121,6 +156,27 @@ export function PicksScreen({ onCreateCourse = () => undefined }: Props) {
           setActiveFolderId(folderId);
         }}
       />
+
+      {activeFolder ? (
+        <CourseRegionSelectSheet
+          open={courseRegionSheetOpen}
+          folderId={activeFolder.id}
+          onOpenChange={setCourseRegionSheetOpen}
+          onSelect={(region) => {
+            setCourseRegionSheetOpen(false);
+
+            if (region.courseId) {
+              router.push(`/courses/${region.courseId}/edit`);
+
+              return;
+            }
+
+            router.push(
+              `/courses/new?folderId=${activeFolder.id}&regionGroup=${region.regionGroup}`,
+            );
+          }}
+        />
+      ) : null}
     </section>
   );
 }
@@ -134,6 +190,7 @@ function PicksHeader({
     <header className="flex items-end justify-between">
       <div>
         <p className="text-12 text-green-700">픽한 상점</p>
+
         <h1 className="mt-1 text-24 font-semibold">내 픽</h1>
       </div>
 

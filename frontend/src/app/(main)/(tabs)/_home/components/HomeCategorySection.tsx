@@ -67,8 +67,6 @@ export function HomeCategorySection() {
         <h2 id="home-category-title" className="text-16 font-semibold">
           카테고리
         </h2>
-
-        <span className="text-12 text-black-500">더 보기</span>
       </div>
 
       <FilterChipGroup
@@ -108,6 +106,8 @@ export function HomeCategorySection() {
               <PickAction shopId={shop.id} initialIsLiked={shop.isLiked}>
                 {({ isLiked, isPending, onToggle }) => (
                   <ShopCard
+                    likeCount={23}
+                    reviewCount={12}
                     {...shop}
                     href={`/shops/${shop.id}`}
                     isLiked={isLiked}

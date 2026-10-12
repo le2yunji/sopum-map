@@ -34,7 +34,7 @@ export function MyPageActivityMenu({
       icon: <VisitLogIcon className="size-5" />,
     },
     {
-      label: "찜한 산책 코스",
+      label: "내 산책 코스",
       count: isEmpty ? 0 : 3,
       href: "/me/courses",
       icon: <StarIcon className="size-5" />,

@@ -12,14 +12,21 @@ export type PickFolder = Readonly<{
 }>;
 
 /**
+ * 코스용 항목
+ */
+export type PickFolderCourse = Readonly<{
+  courseId: string;
+  regionGroup: ShopRegionGroup;
+}>;
+
+/**
  * 내 픽 폴더 목록의 개별 항목
  */
 export type PickFolderListItem = PickFolder &
   Readonly<{
     shopCount: number;
-    courseId: string | null;
+    courses: readonly PickFolderCourse[];
   }>;
-
 /**
  * 내 픽 폴더 목록 데이터
  */
@@ -61,4 +68,35 @@ export type PickFolderShopListItem = Readonly<{
 export type PickFolderShopListData = Readonly<{
   items: PickFolderShopListItem[];
   pagination: Pagination;
+}>;
+
+export type PickFolderCourseRegion = Readonly<{
+  regionGroup: ShopRegionGroup;
+
+  /**
+   * 해당 지역에 폴더가 가지고 있는 전체 상점 수
+   */
+  shopCount: number;
+
+  /**
+   * 새 코스에 추가할 수 있는 상점 수
+   *
+   * active / temporarily_closed만 포함하며
+   * 위치 정보가 있는 상점만 계산합니다.
+   */
+  availableShopCount: number;
+
+  /**
+   * 생성 가능한 상점 중 임시 휴무 상태인 상점 수
+   */
+  temporarilyClosedShopCount: number;
+
+  /**
+   * 해당 폴더 + 지역에 이미 만들어진 코스
+   */
+  courseId: string | null;
+}>;
+
+export type PickFolderCourseRegionsData = Readonly<{
+  items: readonly PickFolderCourseRegion[];
 }>;

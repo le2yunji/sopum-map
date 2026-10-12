@@ -1,13 +1,14 @@
 import { z } from "zod";
 import { objectIdSchema } from "./common.validation.js";
 
+import { SHOP_REGION_GROUPS } from "@sopum-map/shared";
+
 /**
  * 내 픽 폴더 생성 요청
  */
 export const createPickFolderSchema = z.object({
   body: z.object({
     title: z.string().trim().min(1).max(50),
-
     description: z.string().trim().max(300).nullable().optional(),
   }),
 });
@@ -66,6 +67,15 @@ export const getShopPickFoldersSchema = z.object({
 });
 
 /**
+ * 코스를 만들 수 있는 지역별 상점 현황 요청
+ */
+export const getPickFolderCourseRegionsSchema = z.object({
+  params: z.object({
+    folderId: objectIdSchema,
+  }),
+});
+
+/**
  * 특정 상점의 내 픽 폴더 소속 변경 요청
  *
  * folderIds가 빈 배열이면 모든 폴더에서 제거합니다.
@@ -96,6 +106,13 @@ export const getPickFolderShopsSchema = z.object({
     page: z.coerce.number().int().min(1).default(1),
 
     limit: z.coerce.number().int().min(1).max(50).default(10),
+
+    regionGroup: z.enum(SHOP_REGION_GROUPS).optional(),
+
+    courseEligibleOnly: z
+      .enum(["true", "false"])
+      .transform((value) => value === "true")
+      .optional(),
   }),
 });
 

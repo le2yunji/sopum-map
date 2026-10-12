@@ -1,6 +1,14 @@
 import type { CourseType } from "./course.constants";
 import type { ShopRegionGroup, ShopStatus } from "../shop/shop.types";
 
+/** 코스 상세와 목록에 표시하는 작성자 정보 */
+export type CourseAuthor = Readonly<{
+  id: string | null;
+  displayName: string;
+  profileImageUrl: string | null;
+  isService: boolean;
+}>;
+
 /**
  * 코스에 포함된 상점 정보
  */
@@ -8,6 +16,8 @@ export type CourseShop = Readonly<{
   shopId: string;
   order: number;
   memo: string | null;
+  walkingDistanceFromPreviousMeters: number | null;
+  walkingDurationFromPreviousSeconds: number | null;
 }>;
 
 /**
@@ -62,6 +72,9 @@ export type CourseDetailShop = Readonly<{
   order: number;
 
   memo: string | null;
+
+  walkingDistanceFromPreviousMeters: number | null;
+  walkingDurationFromPreviousSeconds: number | null;
 }>;
 
 /**
@@ -80,6 +93,11 @@ export type CourseDetailData = Readonly<{
   regionGroup: ShopRegionGroup;
 
   isPublic: boolean;
+
+  author: CourseAuthor;
+  isOwner: boolean;
+  likeCount: number;
+  isLiked: boolean;
 
   shops: readonly CourseDetailShop[];
 

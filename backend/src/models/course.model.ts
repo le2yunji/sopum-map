@@ -26,6 +26,18 @@ const courseShopSchema = new Schema(
       trim: true,
       maxlength: 300,
     },
+    // 직전 방문 상점에서 이 상점까지의 도보 거리(m)
+    walkingDistanceFromPreviousMeters: {
+      type: Number,
+      default: null,
+      min: 0,
+    },
+    // 직전 방문 상점에서 이 상점까지의 예상 도보 시간(초)
+    walkingDurationFromPreviousSeconds: {
+      type: Number,
+      default: null,
+      min: 0,
+    },
   },
   {
     // 각 매장 요소에 별도 _id를 생성하지 않음
@@ -120,11 +132,13 @@ courseSchema.index({
   userId: 1,
   createdAt: -1,
 });
+
 // 폴더당 사용자 코스 1개
 courseSchema.index(
   {
     userId: 1,
     sourceFolderId: 1,
+    regionGroup: 1,
   },
   {
     unique: true,

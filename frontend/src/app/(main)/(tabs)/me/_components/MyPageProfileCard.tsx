@@ -78,7 +78,7 @@ export function MyPageProfileCard({
     return (
       <section
         aria-label="프로필 편집"
-        className="mt-5 rounded-2xl border border-green-100 bg-green-75 p-4"
+        className="mt-5 rounded-card-lg bg-surface-brand-strong p-4"
       >
         <form
           onSubmit={(event) => {
@@ -88,7 +88,14 @@ export function MyPageProfileCard({
         >
           <label
             htmlFor="profile-image"
-            className="inline-flex min-h-11 cursor-pointer items-center rounded-xl border border-green-200 bg-white px-3 text-13 font-semibold"
+            className="
+              inline-flex min-h-11 cursor-pointer items-center
+              rounded-control
+              border border-stroke-brand
+              bg-surface-primary
+              px-3
+              text-13 font-semibold
+            "
           >
             프로필 이미지 변경
           </label>
@@ -113,7 +120,15 @@ export function MyPageProfileCard({
             value={draftNickname}
             maxLength={12}
             onChange={(event) => setDraftNickname(event.target.value)}
-            className="mt-2 min-h-11 w-full rounded-xl border border-green-200 bg-white px-3 outline-none focus:ring-2 focus:ring-green-500"
+            className="
+              mt-2 min-h-11 w-full
+              rounded-control
+              border border-stroke-brand
+              bg-surface-primary
+              px-3 outline-none
+              focus:ring-2
+              focus:ring-brand-accent
+            "
           />
 
           <div className="mt-3 flex gap-2">
@@ -140,9 +155,27 @@ export function MyPageProfileCard({
         type="button"
         aria-label="프로필 수정"
         onClick={startEditing}
-        className="mt-5 flex min-h-24 w-full items-center rounded-2xl border border-green-100 bg-green-75 px-4 text-left transition-colors hover:bg-green-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+        className="
+            mt-5 flex min-h-24 w-full items-center
+            rounded-card-lg
+            bg-surface-brand-strong
+            px-4 text-left
+            transition-colors
+            hover:bg-brand-soft-strong
+            focus-visible:outline-none
+            focus-visible:ring-2
+            focus-visible:ring-brand
+            focus-visible:ring-offset-2
+          "
       >
-        <span className="relative grid size-16 shrink-0 place-items-center rounded-full border-2 border-green-400 bg-white">
+        <span
+          className="
+              relative grid size-16 shrink-0 place-items-center
+              rounded-full
+              border-2 border-stroke-brand
+              bg-surface-primary
+            "
+        >
           {profileImageUrl === DEFAULT_PROFILE_IMAGE ? (
             <ProfileFlowerIcon className="size-11" aria-hidden="true" />
           ) : (
@@ -157,25 +190,29 @@ export function MyPageProfileCard({
             />
           )}
 
-          <span className="absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-full bg-green-700 text-white">
+          <span
+            className="
+              absolute -right-1 -bottom-1
+              grid size-5 place-items-center
+              rounded-full
+              bg-brand text-white
+            "
+          >
             <PenIcon className="size-3" aria-hidden="true" />
           </span>
         </span>
 
         <span className="ml-4 min-w-0 flex-1">
-          <strong className="block truncate text-16 font-semibold text-black-950">
+          <strong className="block truncate text-16 font-semibold text-fg-primary">
             {nickname}
           </strong>
 
-          <span className="mt-0.5 block text-12 text-black-500">
+          <span className="mt-0.5 block text-12 text-fg-tertiary">
             소품샵 탐색가
           </span>
         </span>
 
-        <ChevronRightIcon
-          className="size-5 text-green-700"
-          aria-hidden="true"
-        />
+        <ChevronRightIcon className="size-5 text-fg-brand" aria-hidden="true" />
       </button>
 
       {isSaved ? (
