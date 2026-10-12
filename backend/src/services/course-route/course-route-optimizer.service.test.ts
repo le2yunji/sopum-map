@@ -25,4 +25,14 @@ describe("optimizeCourseRoute", () => {
       "시작점 인덱스가 올바르지 않습니다.",
     );
   });
+
+  it("상점이 7개인 코스는 거부한다", () => {
+    const sevenShopDistances = Array.from({ length: 7 }, () =>
+      Array<number>(7).fill(0),
+    );
+
+    expect(() => optimizeCourseRoute(sevenShopDistances)).toThrow(
+      "코스 최적화는 최대 6개 상점까지 지원합니다.",
+    );
+  });
 });

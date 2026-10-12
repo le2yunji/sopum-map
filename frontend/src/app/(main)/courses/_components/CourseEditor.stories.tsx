@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { expect, fn, userEvent, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
 import { CourseEditor } from "./CourseEditor";
 
@@ -69,6 +69,13 @@ export const EditCourse: Story = {
       ["shop-1", "shop-2"],
       "shop-1",
     );
+    await waitFor(() => {
+      expect(
+        canvas
+          .getAllByText(/번째 상점/)
+          .map((shopName) => shopName.textContent),
+      ).toEqual(["두 번째 상점", "첫 번째 상점"]);
+    });
 
     await userEvent.click(visibilitySwitch);
     await expect(visibilitySwitch).not.toBeChecked();

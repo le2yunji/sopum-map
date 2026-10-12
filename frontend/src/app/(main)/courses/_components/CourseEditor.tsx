@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import type { CourseShopInput } from "@sopum-map/shared";
+import {
+  MAX_COURSE_SHOPS,
+  MIN_COURSE_SHOPS,
+  type CourseShopInput,
+} from "@sopum-map/shared";
 
 import { ChevronLeftIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Snackbar } from "@/components/ui/Snackbar";
 
 import { CourseShopItem } from "./CourseShopItem";
-
-const MAX_COURSE_SHOPS = 10;
-const MIN_COURSE_SHOPS = 2;
+import { orderCourseShopOptions } from "./course-editor-shops";
 
 export type CourseEditorSubmitData = Readonly<{
   title: string;
@@ -89,6 +91,10 @@ export function CourseEditor({
   );
 
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
+  const orderedShops = useMemo(
+    () => orderCourseShopOptions(shops, selectedShops),
+    [selectedShops, shops],
+  );
 
   useEffect(() => {
     if (!snackbarMessage) {
@@ -169,7 +175,9 @@ export function CourseEditor({
     }
 
     if (selectedShops.length >= MAX_COURSE_SHOPS) {
-      setSnackbarMessage("코스에는 최대 10개의 상점만 담을 수 있어요.");
+      setSnackbarMessage(
+        `코스에는 최대 ${MAX_COURSE_SHOPS}개의 상점만 담을 수 있어요.`,
+      );
 
       return;
     }
@@ -232,6 +240,14 @@ export function CourseEditor({
 
     if (selectedShops.length < MIN_COURSE_SHOPS) {
       setSnackbarMessage("코스에는 최소 2개의 상점이 필요해요.");
+
+      return;
+    }
+
+    if (selectedShops.length > MAX_COURSE_SHOPS) {
+      setSnackbarMessage(
+        `코스에는 최대 ${MAX_COURSE_SHOPS}개의 상점만 담을 수 있어요.`,
+      );
 
       return;
     }
@@ -369,7 +385,11 @@ export function CourseEditor({
             variant="outline"
             fullWidth
             isLoading={isOptimizing}
-            disabled={isOptimizing || selectedShops.length < MIN_COURSE_SHOPS}
+            disabled={
+              isOptimizing ||
+              selectedShops.length < MIN_COURSE_SHOPS ||
+              selectedShops.length > MAX_COURSE_SHOPS
+            }
             onClick={() => {
               void handleOptimize();
             }}
@@ -380,7 +400,7 @@ export function CourseEditor({
         ) : null}
 
         <div className="mt-4 space-y-3">
-          {shops.map((shop) => {
+          {orderedShops.map((shop) => {
             const selectedShop =
               selectedShops.find((item) => item.shopId === shop.id) ?? null;
 
@@ -439,7 +459,8 @@ export function CourseEditor({
             disabled={
               isSubmitting ||
               title.trim().length === 0 ||
-              selectedShops.length < MIN_COURSE_SHOPS
+              selectedShops.length < MIN_COURSE_SHOPS ||
+              selectedShops.length > MAX_COURSE_SHOPS
             }
             onClick={() => {
               void handleSubmit();

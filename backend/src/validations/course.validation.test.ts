@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   createCourseSchema,
   getCourseListSchema,
+  updateCourseSchema,
   updateCourseVisibilitySchema,
 } from "./course.validation.js";
 
@@ -37,7 +38,7 @@ describe("createCourseSchema", () => {
     ).toThrow();
   });
 
-  it.each([1, 11])("상점이 %i개인 생성 요청을 거부합니다", (shopCount) => {
+  it.each([1, 7])("상점이 %i개인 생성 요청을 거부합니다", (shopCount) => {
     const shops = Array.from({ length: shopCount }, (_, index) => ({
       shopId: new Types.ObjectId().toString(),
       order: index + 1,
@@ -54,6 +55,19 @@ describe("createCourseSchema", () => {
     });
 
     expect(result.body.isPublic).toBe(true);
+  });
+});
+
+describe("updateCourseSchema", () => {
+  it("상점이 7개인 수정 요청을 거부합니다", () => {
+    const shops = Array.from({ length: 7 }, (_, index) => ({
+      shopId: new Types.ObjectId().toString(),
+      order: index + 1,
+    }));
+
+    expect(() =>
+      updateCourseSchema.parse({ params: { courseId }, body: { shops } }),
+    ).toThrow();
   });
 });
 

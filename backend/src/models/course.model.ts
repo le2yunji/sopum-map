@@ -1,5 +1,7 @@
 import {
   COURSE_TYPES,
+  MAX_COURSE_SHOPS,
+  MIN_COURSE_SHOPS,
   SHOP_REGION_GROUPS,
   type CourseType,
 } from "@sopum-map/shared";
@@ -109,15 +111,15 @@ const courseSchema = new Schema(
       validate: [
         {
           validator(value: unknown[]) {
-            return value.length >= 2;
+            return value.length >= MIN_COURSE_SHOPS;
           },
           message: "코스에는 최소 2개의 매장이 필요합니다.",
         },
         {
           validator(value: unknown[]) {
-            return value.length <= 10;
+            return value.length <= MAX_COURSE_SHOPS;
           },
-          message: "코스에는 최대 10개의 매장만 포함할 수 있습니다.",
+          message: "코스에는 최대 6개의 매장만 포함할 수 있습니다.",
         },
       ],
     },
