@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 import { useCourseDetail, useUpdateCourse } from "@/api/course/course.query";
-import { useInfiniteLikedShops } from "@/api/pick-folder/pick-folder.query";
+import { useInfiniteShopsByFolder } from "@/api/pick-folder/pick-folder.query";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 
 import {
@@ -26,19 +26,19 @@ export function CourseEditScreen({ courseId }: Props) {
     refetch: refetchCourse,
   } = useCourseDetail(courseId);
 
-  const likedShopsQuery = useInfiniteLikedShops(10);
+  const folderShopsQuery = useInfiniteShopsByFolder(
+    course?.sourceFolderId ?? undefined,
+    10,
+    {
+      regionGroup: course?.regionGroup,
+      courseEligibleOnly: true,
+    },
+  );
 
   const updateCourseMutation = useUpdateCourse();
 
   /**
-   * 현재 좋아요한 모든 상점 중
-   * 지금까지 불러온 페이지를 하나의 배열로 합칩니다.
-   */
-  const likedShops =
-    likedShopsQuery.data?.pages.flatMap((page) => page.items) ?? [];
-
-  /**
-   * 기존 코스 상점과 현재 좋아요 상점을 합칩니다.
+   * 기존 코스 상점과 출처 폴더의 같은 지역 상점을 합칩니다.
    *
    * 기존 코스 상점은 이후 좋아요를 해제했더라도
    * 수정 화면에서 사라지면 안 됩니다.
@@ -65,13 +65,11 @@ export function CourseEditScreen({ courseId }: Props) {
       });
     }
 
-    /**
-     * 현재 좋아요 상점을 추가합니다.
-     *
-     * 같은 상점은 Map key가 같기 때문에
-     * 중복으로 표시되지 않습니다.
-     */
-    for (const shop of likedShops) {
+    /** 출처 폴더에서 조회한 같은 지역 상점을 중복 없이 추가합니다. */
+    const folderShops =
+      folderShopsQuery.data?.pages.flatMap((page) => page.items) ?? [];
+
+    for (const shop of folderShops) {
       options.set(shop.id, {
         id: shop.id,
         name: shop.name,
@@ -81,9 +79,12 @@ export function CourseEditScreen({ courseId }: Props) {
     }
 
     return [...options.values()];
-  }, [course, likedShops]);
+  }, [course, folderShopsQuery.data]);
 
-  if (isCoursePending || likedShopsQuery.isPending) {
+  const isFolderShopsPending =
+    Boolean(course?.sourceFolderId) && folderShopsQuery.isPending;
+
+  if (isCoursePending || isFolderShopsPending) {
     return <div className="px-5 pt-16">코스 정보를 불러오는 중...</div>;
   }
 
@@ -99,13 +100,13 @@ export function CourseEditScreen({ courseId }: Props) {
     );
   }
 
-  if (likedShopsQuery.isError) {
+  if (folderShopsQuery.isError) {
     return (
       <StatePanel
         title="상점 목록을 불러오지 못했어요"
         action="다시 시도"
         onAction={() => {
-          void likedShopsQuery.refetch();
+          void folderShopsQuery.refetch();
         }}
       />
     );
@@ -125,12 +126,12 @@ export function CourseEditScreen({ courseId }: Props) {
           memo: shop.memo,
         }))}
       shops={shopOptions}
-      hasNextPage={Boolean(likedShopsQuery.hasNextPage)}
-      isFetchingNextPage={likedShopsQuery.isFetchingNextPage}
+      hasNextPage={Boolean(folderShopsQuery.hasNextPage)}
+      isFetchingNextPage={folderShopsQuery.isFetchingNextPage}
       isSubmitting={updateCourseMutation.isPending}
       submitLabel="코스 수정하기"
       onLoadMore={() => {
-        void likedShopsQuery.fetchNextPage();
+        void folderShopsQuery.fetchNextPage();
       }}
       onSubmit={async (input) => {
         await updateCourseMutation.mutateAsync({
