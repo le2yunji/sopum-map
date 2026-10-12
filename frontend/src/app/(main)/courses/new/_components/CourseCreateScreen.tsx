@@ -152,6 +152,7 @@ export function CourseCreateScreen() {
       heading={`${SHOP_REGION_GROUP_LABELS[regionGroup]} 코스 만들기`}
       initialTitle={folder.title}
       initialDescription=""
+      initialIsPublic={false}
       initialSelectedShops={[]}
       shops={shops}
       hasNextPage={Boolean(shopsQuery.hasNextPage)}
@@ -169,6 +170,8 @@ export function CourseCreateScreen() {
         return result.shopIds;
       }}
       submitLabel="코스 만들기"
+      showVisibilityControl
+      onExit={() => router.replace("/picks")}
       onLoadMore={() => {
         if (!shopsQuery.hasNextPage || shopsQuery.isFetchingNextPage) {
           return;

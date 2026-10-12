@@ -14,6 +14,7 @@ import {
 } from "@/api/course/course.query";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   createNaverMapWalkRouteBetweenUrl,
   createNaverMapWalkRouteUrl,
@@ -38,6 +39,7 @@ export function CourseDetailScreen({ courseId }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: course, isPending, isError, refetch } = useCourseDetail(courseId);
+  const { data: currentUser } = useCurrentUser();
   const deleteCourseMutation = useDeleteCourse();
   const likeMutation = useLikeCourse();
   const unlikeMutation = useUnlikeCourse();
@@ -151,6 +153,7 @@ export function CourseDetailScreen({ courseId }: Props) {
           course={course}
           likePending={likeMutation.isPending || unlikeMutation.isPending}
           visibilityPending={visibilityMutation.isPending}
+          currentUserNickname={currentUser?.nickname}
           onBack={() => router.back()}
           onShare={() => void handleShare()}
           onMore={() => setMoreSheetOpen(true)}

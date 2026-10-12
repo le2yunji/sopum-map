@@ -316,7 +316,7 @@ type PickFolderCourse = Readonly<{
 - 상점별 방문 순서
 - 상점별 선택 메모
 
-서버는 클라이언트가 보낸 `regionGroup`과 실제 상점 지역이 모두 같은지 검증한다. `courseType`과 `isPublic`은 서버에서 각각 `user_created`, `false`로 저장한다.
+서버는 클라이언트가 보낸 `regionGroup`과 실제 상점 지역이 모두 같은지 검증한다. `courseType`은 `user_created`로 고정하고, `isPublic`은 생성 화면의 사용자 선택값을 저장한다. 생성 화면의 기본값은 `false`다.
 
 ## 12. 오류 처리
 

@@ -136,7 +136,11 @@ export function CourseEditScreen({ courseId }: Props) {
       onSubmit={async (input) => {
         await updateCourseMutation.mutateAsync({
           courseId,
-          input,
+          input: {
+            title: input.title,
+            description: input.description,
+            shops: input.shops,
+          },
         });
 
         router.replace(`/courses/${courseId}?updated=true`);

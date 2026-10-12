@@ -15,6 +15,7 @@ const MIN_COURSE_SHOPS = 2;
 export type CourseEditorSubmitData = Readonly<{
   title: string;
   description: string | null;
+  isPublic: boolean;
   shops: readonly CourseShopInput[];
 }>;
 
@@ -30,6 +31,7 @@ type Props = Readonly<{
 
   initialTitle: string;
   initialDescription: string;
+  initialIsPublic?: boolean;
   initialSelectedShops: readonly CourseShopInput[];
 
   shops: readonly CourseEditorShopOption[];
@@ -39,6 +41,8 @@ type Props = Readonly<{
   isSubmitting: boolean;
 
   submitLabel: string;
+  showVisibilityControl?: boolean;
+  onExit?: () => void;
 
   onLoadMore: () => void;
   onSubmit: (data: CourseEditorSubmitData) => Promise<void>;
@@ -55,12 +59,15 @@ export function CourseEditor({
   heading,
   initialTitle,
   initialDescription,
+  initialIsPublic = false,
   initialSelectedShops,
   shops,
   hasNextPage,
   isFetchingNextPage,
   isSubmitting,
   submitLabel,
+  showVisibilityControl = false,
+  onExit,
   onLoadMore,
   onSubmit,
   isOptimizing = false,
@@ -69,6 +76,7 @@ export function CourseEditor({
   const [title, setTitle] = useState(initialTitle);
 
   const [description, setDescription] = useState(initialDescription);
+  const [isPublic, setIsPublic] = useState(initialIsPublic);
 
   const [selectedShops, setSelectedShops] = useState<CourseShopInput[]>(() => [
     ...initialSelectedShops,
@@ -229,6 +237,8 @@ export function CourseEditor({
 
         description: trimmedDescription.length > 0 ? trimmedDescription : null,
 
+        isPublic,
+
         shops: selectedShops,
       });
     } catch (error) {
@@ -241,6 +251,42 @@ export function CourseEditor({
   return (
     <section className="min-h-full bg-white px-5 pb-32 pt-16">
       <header>
+        {onExit || showVisibilityControl ? (
+          <div className="mb-6 flex items-center justify-between">
+            {onExit ? (
+              <button
+                type="button"
+                onClick={onExit}
+                className="min-h-11 rounded-lg px-2 text-14 font-semibold text-black-700 focus-visible:outline-2 focus-visible:outline-green-700"
+              >
+                나가기
+              </button>
+            ) : (
+              <span />
+            )}
+
+            {showVisibilityControl ? (
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isPublic}
+                onClick={() => setIsPublic((current) => !current)}
+                className="flex min-h-11 items-center gap-2 rounded-lg px-2 text-13 font-semibold focus-visible:outline-2 focus-visible:outline-green-700"
+              >
+                <span>{isPublic ? "공개" : "비공개"}</span>
+                <span
+                  aria-hidden="true"
+                  className={`relative h-6 w-11 rounded-full transition-colors ${isPublic ? "bg-green-600" : "bg-black-300"}`}
+                >
+                  <span
+                    className={`absolute top-1 size-4 rounded-full bg-white transition-transform ${isPublic ? "translate-x-6" : "translate-x-1"}`}
+                  />
+                </span>
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
         <h1 className="text-24 font-semibold">{heading}</h1>
       </header>
 

@@ -19,6 +19,7 @@ export type CreateCourseRequest = Readonly<{
   regionGroup: ShopRegionGroup;
   title: string;
   description?: string | null;
+  isPublic: boolean;
 
   shops: readonly CourseShopInput[];
 }>;

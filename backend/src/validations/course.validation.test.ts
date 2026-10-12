@@ -1,11 +1,31 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  createCourseSchema,
   getCourseListSchema,
   updateCourseVisibilitySchema,
 } from "./course.validation.js";
 
 const courseId = "6a8a68e15e2aa43be6a6549d";
+
+describe("createCourseSchema", () => {
+  it("생성할 코스의 공개 여부를 요청 값으로 유지합니다", () => {
+    const result = createCourseSchema.parse({
+      body: {
+        sourceFolderId: courseId,
+        regionGroup: "seongsu-seoulforest",
+        title: "성수 산책",
+        isPublic: true,
+        shops: [
+          { shopId: "6a8a68e15e2aa43be6a65491", order: 1 },
+          { shopId: "6a8a68e15e2aa43be6a65492", order: 2 },
+        ],
+      },
+    });
+
+    expect(result.body.isPublic).toBe(true);
+  });
+});
 
 describe("updateCourseVisibilitySchema", () => {
   it("공개 여부는 boolean만 허용합니다", () => {
