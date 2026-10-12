@@ -2,11 +2,16 @@
 
 import { useDeletePickFolder } from "@/api/pick-folder/pick-folder.query";
 import { Button } from "@/components/ui/Button";
+import { getPickFolderErrorMessage } from "../../picks-ui";
 
 type Props = Readonly<{
   folderId: string;
   title: string;
   shopCount: number;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  isOrdering: boolean;
+  onMove: (direction: -1 | 1) => void;
   onEdit: () => void;
 }>;
 
@@ -14,6 +19,10 @@ export function PickFolderManageItem({
   folderId,
   title,
   shopCount,
+  canMoveUp,
+  canMoveDown,
+  isOrdering,
+  onMove,
   onEdit,
 }: Props) {
   const deleteFolderMutation = useDeletePickFolder();
@@ -38,6 +47,28 @@ export function PickFolderManageItem({
         <Button
           variant="ghost"
           size="small"
+          aria-label={`${title} 폴더 위로 이동`}
+          disabled={!canMoveUp || isOrdering}
+          onClick={() => onMove(-1)}
+          className="min-h-10 px-2"
+        >
+          위
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="small"
+          aria-label={`${title} 폴더 아래로 이동`}
+          disabled={!canMoveDown || isOrdering}
+          onClick={() => onMove(1)}
+          className="min-h-10 px-2"
+        >
+          아래
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="small"
           onClick={onEdit}
           className="min-h-10 px-2.5"
         >
@@ -54,6 +85,11 @@ export function PickFolderManageItem({
           삭제
         </Button>
       </div>
+      {deleteFolderMutation.error ? (
+        <p role="alert" className="pb-2 text-12 text-red-600">
+          {getPickFolderErrorMessage(deleteFolderMutation.error)}
+        </p>
+      ) : null}
     </div>
   );
 }

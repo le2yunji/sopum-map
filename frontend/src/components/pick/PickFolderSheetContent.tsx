@@ -1,20 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import type { PickFolderListItem } from "@sopum-map/shared";
 
 import { useUpdateFolderIdsByShop } from "@/api/pick-folder/pick-folder.query";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button";
-
-type PickFolder = Readonly<{
-  id: string;
-  title: string;
-  shopCount: number;
-}>;
+import { getPickFolderErrorMessage } from "@/app/(main)/(tabs)/picks/_components/picks-ui";
 
 type Props = Readonly<{
   shopId: string;
-  folders: PickFolder[];
+  folders: readonly Pick<PickFolderListItem, "id" | "title" | "shopCount">[];
   initialFolderIds: string[];
   onOpenChange: (open: boolean) => void;
 }>;
@@ -95,6 +91,11 @@ export function PickFolderSheetContent({
       </BottomSheet.Body>
 
       <BottomSheet.Footer>
+        {updateFolderMutation.error ? (
+          <p role="alert" className="mb-2 text-13 text-red-600">
+            {getPickFolderErrorMessage(updateFolderMutation.error)}
+          </p>
+        ) : null}
         <Button
           fullWidth
           isLoading={updateFolderMutation.isPending}
