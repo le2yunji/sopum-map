@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { LocationIcon } from "@/components/icons";
 import { PickButton } from "@/components/pick/PickButton";
 import type { ShopCardProps, ShopCardVariant } from "./ShopCard.types";
 
@@ -24,11 +23,6 @@ const linkRadiusClassNames: Record<ShopCardVariant, string> = {
   compact: "rounded-control",
 };
 
-const titleClassNames: Record<ShopCardVariant, string> = {
-  default: "text-16 font-semibold",
-  compact: "text-14 font-semibold",
-};
-
 export const ShopCard = ({
   name,
   href,
@@ -43,9 +37,6 @@ export const ShopCard = ({
   onLikeClick,
 }: ShopCardProps) => {
   const isCompact = variant === "compact";
-
-  const visibleTags = tags.slice(0, 2);
-  const hiddenTagCount = Math.max(tags.length - visibleTags.length, 0);
 
   return (
     <article className={cardClassNames[variant]}>
