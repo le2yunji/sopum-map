@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { CourseIcon } from "@/components/icons";
+import {
+  CourseIcon,
+  HomeIcon,
+  MapIcon,
+  PickIcon,
+  ProfileIcon,
+} from "@/components/icons";
 
 type BottomNavigationProps = Readonly<{
   currentPath?: string;
@@ -41,70 +47,22 @@ function NavigationIcon({ name, active }: NavigationIconProps) {
   const className = active ? "size-5 text-brand" : "size-5";
 
   if (name === "home") {
-    return (
-      <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-        <path
-          d="M4 10.5 12 4l8 6.5V20h-5v-6H9v6H4z"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
+    return <HomeIcon className={className} aria-hidden="true" />;
   }
 
   if (name === "map") {
-    return (
-      <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-        <path
-          d="m3.5 6 5-2 7 2 5-2v14l-5 2-7-2-5 2zM8.5 4v14m7-12v14"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
+    return <MapIcon className={className} aria-hidden="true" />;
   }
 
   if (name === "pick") {
-    return (
-      <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-        <path
-          d="M6 4.5h12v16L12 17l-6 3.5z"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
+    return <PickIcon className={className} aria-hidden="true" />;
   }
 
   if (name === "course") {
     return <CourseIcon className={className} aria-hidden="true" />;
   }
 
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-      <circle
-        cx="12"
-        cy="8"
-        r="3.5"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.7"
-      />
-      <path
-        d="M5.5 20c.7-4 2.8-6 6.5-6s5.8 2 6.5 6"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  return <ProfileIcon className={className} aria-hidden="true" />;
 }
 
 /** 주요 네 화면으로 이동하고 현재 위치를 함께 알려주는 하단 메뉴입니다. */
