@@ -3,7 +3,6 @@ import { Types } from "mongoose";
 import {
   createApiError,
   type CourseDetailData,
-  type CourseListData,
 } from "@sopum-map/shared";
 import CourseModel from "../../models/course.model.js";
 import CourseLikeModel from "../../models/course-like.model.js";
@@ -191,105 +190,5 @@ export async function getCourseDetail(
     createdAt: course.createdAt.toISOString(),
 
     updatedAt: course.updatedAt.toISOString(),
-  };
-}
-
-/**
- * 내가 만든 사용자 코스 목록을 조회합니다.
- */
-export async function getMyCourses(userId: string): Promise<CourseListData> {
-  const objectUserId = new Types.ObjectId(userId);
-
-  const courses = await CourseModel.find({
-    userId: objectUserId,
-    courseType: "user_created",
-  })
-    .sort({
-      createdAt: -1,
-    })
-    .select({
-      _id: 1,
-
-      sourceFolderId: 1,
-
-      title: 1,
-      description: 1,
-
-      regionGroup: 1,
-
-      shops: 1,
-
-      createdAt: 1,
-      updatedAt: 1,
-    })
-    .lean();
-
-  if (courses.length === 0) {
-    return {
-      items: [],
-    };
-  }
-
-  /**
-   * 각 코스의 첫 번째 방문 상점을 대표 이미지 후보로 사용합니다.
-   */
-  const firstShopIds = courses
-    .map((course) => {
-      const firstCourseShop = [...course.shops].sort(
-        (a, b) => a.order - b.order,
-      )[0];
-
-      return firstCourseShop?.shopId ?? null;
-    })
-    .filter(
-      (shopId): shopId is Types.ObjectId => shopId instanceof Types.ObjectId,
-    );
-
-  const shops =
-    firstShopIds.length > 0
-      ? await ShopModel.find({
-          _id: {
-            $in: firstShopIds,
-          },
-        })
-          .select({
-            _id: 1,
-            images: 1,
-          })
-          .lean()
-      : [];
-
-  const shopMap = new Map(shops.map((shop) => [shop._id.toString(), shop]));
-
-  return {
-    items: courses.map((course) => {
-      const orderedShops = [...course.shops].sort((a, b) => a.order - b.order);
-
-      const firstShop = orderedShops[0];
-
-      const shop = firstShop
-        ? shopMap.get(firstShop.shopId.toString())
-        : undefined;
-
-      return {
-        id: course._id.toString(),
-
-        title: course.title,
-
-        description: course.description ?? null,
-
-        regionGroup: course.regionGroup,
-
-        sourceFolderId: course.sourceFolderId?.toString() ?? null,
-
-        shopCount: course.shops.length,
-
-        mainImageUrl: shop ? getMainShopImageUrl(shop.images ?? []) : null,
-
-        createdAt: course.createdAt.toISOString(),
-
-        updatedAt: course.updatedAt.toISOString(),
-      };
-    }),
   };
 }

@@ -161,14 +161,6 @@ export function useInfiniteLikedCourses(enabled = true) {
   });
 }
 
-/** 기존 목록 화면이 무한 스크롤로 전환되기 전까지 첫 페이지만 제공합니다. */
-export function useMyCourses() {
-  return useQuery({
-    queryKey: [...courseKeys.myCourses(), "first-page"],
-    queryFn: () => getMyCourses(),
-  });
-}
-
 /** 좋아요 변경 전에 관련 캐시를 멈추고 복구용 스냅샷을 만듭니다. */
 async function createLikeMutationContext(
   queryClient: ReturnType<typeof useQueryClient>,
