@@ -158,11 +158,12 @@ export function CourseCreateScreen() {
       isFetchingNextPage={shopsQuery.isFetchingNextPage}
       isSubmitting={createCourseMutation.isPending}
       isOptimizing={optimizeRouteMutation.isPending}
-      onOptimize={async (selectedShopIds) => {
+      onOptimize={async (selectedShopIds, startShopId) => {
         const result = await optimizeRouteMutation.mutateAsync({
           sourceFolderId: folder.id,
           regionGroup,
           shopIds: selectedShopIds,
+          startShopId,
         });
 
         return result.shopIds;

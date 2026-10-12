@@ -15,5 +15,14 @@ export const optimizeCourseRouteSchema = z.object({
       .refine((shopIds) => new Set(shopIds).size === shopIds.length, {
         message: "중복된 상점이 포함되어 있습니다.",
       }),
+    startShopId: objectIdSchema.optional(),
   }),
+}).superRefine(({ body }, context) => {
+  if (body.startShopId && !body.shopIds.includes(body.startShopId)) {
+    context.addIssue({
+      code: "custom",
+      path: ["body", "startShopId"],
+      message: "첫 방문 상점은 선택한 상점에 포함되어야 합니다.",
+    });
+  }
 });

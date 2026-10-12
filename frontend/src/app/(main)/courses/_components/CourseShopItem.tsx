@@ -13,10 +13,13 @@ type Props = Readonly<{
   order: number | null;
   memo: string | null;
 
+  isStartShop: boolean;
+  canChooseStartShop: boolean;
   isFirst: boolean;
   isLast: boolean;
 
   onToggle: () => void;
+  onSetStartShop: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onMemoChange: (memo: string) => void;
@@ -27,9 +30,12 @@ export function CourseShopItem({
   selected,
   order,
   memo,
+  isStartShop,
+  canChooseStartShop,
   isFirst,
   isLast,
   onToggle,
+  onSetStartShop,
   onMoveUp,
   onMoveDown,
   onMemoChange,
@@ -102,25 +108,22 @@ export function CourseShopItem({
           </div>
         </button>
 
-        {selected ? (
+        {selected && canChooseStartShop ? (
+          <Button
+            type="button"
+            variant={isStartShop ? "primary" : "outline"}
+            size="small"
+            aria-pressed={isStartShop}
+            onClick={onSetStartShop}
+          >
+            {isStartShop ? "첫 방문" : "첫 방문으로"}
+          </Button>
+        ) : selected ? (
           <div className="flex shrink-0 flex-col gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="small"
-              disabled={isFirst}
-              onClick={onMoveUp}
-            >
+            <Button type="button" variant="ghost" size="small" disabled={isFirst} onClick={onMoveUp}>
               위
             </Button>
-
-            <Button
-              type="button"
-              variant="ghost"
-              size="small"
-              disabled={isLast}
-              onClick={onMoveDown}
-            >
+            <Button type="button" variant="ghost" size="small" disabled={isLast} onClick={onMoveDown}>
               아래
             </Button>
           </div>

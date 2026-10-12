@@ -47,6 +47,7 @@ type Props = Readonly<{
 
   onOptimize?: (
     selectedShopIds: readonly string[],
+    startShopId?: string,
   ) => Promise<readonly string[]>;
 }>;
 
@@ -72,6 +73,7 @@ export function CourseEditor({
   const [selectedShops, setSelectedShops] = useState<CourseShopInput[]>(() => [
     ...initialSelectedShops,
   ]);
+  const [startShopId, setStartShopId] = useState<string | undefined>();
 
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
@@ -97,6 +99,7 @@ export function CourseEditor({
     try {
       const orderedShopIds = await onOptimize(
         selectedShops.map((shop) => shop.shopId),
+        startShopId,
       );
 
       const selectedShopById = new Map(
@@ -137,6 +140,9 @@ export function CourseEditor({
     const isSelected = selectedShops.some((shop) => shop.shopId === shopId);
 
     if (isSelected) {
+      if (startShopId === shopId) {
+        setStartShopId(undefined);
+      }
       setSelectedShops((current) =>
         current
           .filter((shop) => shop.shopId !== shopId)
@@ -165,35 +171,20 @@ export function CourseEditor({
     ]);
   };
 
-  /**
-   * 선택된 상점의 방문 순서를 변경합니다.
-   */
+  /** 기존 코스 수정 화면에서는 저장된 방문 순서를 직접 조정합니다. */
   const handleMoveShop = (shopId: string, direction: "up" | "down") => {
     setSelectedShops((current) => {
       const currentIndex = current.findIndex((shop) => shop.shopId === shopId);
+      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
-      if (currentIndex === -1) {
-        return current;
-      }
-
-      const targetIndex =
-        direction === "up" ? currentIndex - 1 : currentIndex + 1;
-
-      if (targetIndex < 0 || targetIndex >= current.length) {
+      if (currentIndex === -1 || targetIndex < 0 || targetIndex >= current.length) {
         return current;
       }
 
       const next = [...current];
+      [next[currentIndex], next[targetIndex]] = [next[targetIndex], next[currentIndex]];
 
-      [next[currentIndex], next[targetIndex]] = [
-        next[targetIndex],
-        next[currentIndex],
-      ];
-
-      return next.map((shop, index) => ({
-        ...shop,
-        order: index + 1,
-      }));
+      return next.map((shop, index) => ({ ...shop, order: index + 1 }));
     });
   };
 
@@ -315,7 +306,9 @@ export function CourseEditor({
         </div>
 
         <p className="mt-1 text-12 text-black-500">
-          방문할 상점을 선택하고 순서를 정해주세요.
+          {onOptimize
+            ? "방문할 상점과 첫 방문 상점을 선택해주세요. 나머지는 최적 순서로 정렬해요."
+            : "방문할 상점을 선택하고 순서를 정해주세요."}
         </p>
 
         {onOptimize ? (
@@ -348,17 +341,20 @@ export function CourseEditor({
                 selected={selected}
                 order={selectedShop?.order ?? null}
                 memo={selectedShop?.memo ?? null}
+                isStartShop={startShopId === shop.id}
+                canChooseStartShop={Boolean(onOptimize)}
                 isFirst={selectedShop?.order === 1}
                 isLast={selectedShop?.order === selectedShops.length}
                 onToggle={() => {
                   handleToggleShop(shop.id);
                 }}
-                onMoveUp={() => {
-                  handleMoveShop(shop.id, "up");
+                onSetStartShop={() => {
+                  setStartShopId((current) =>
+                    current === shop.id ? undefined : shop.id,
+                  );
                 }}
-                onMoveDown={() => {
-                  handleMoveShop(shop.id, "down");
-                }}
+                onMoveUp={() => handleMoveShop(shop.id, "up")}
+                onMoveDown={() => handleMoveShop(shop.id, "down")}
                 onMemoChange={(memo) => {
                   handleMemoChange(shop.id, memo);
                 }}
