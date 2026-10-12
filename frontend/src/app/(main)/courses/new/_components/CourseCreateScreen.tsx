@@ -16,6 +16,7 @@ import {
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 import { useOptimizeCourseRoute } from "@/api/course-route/course-route.query";
 import { CourseEditor } from "../../_components/CourseEditor";
+import { createInitialCourseShopInputs } from "../../_components/course-editor-shops";
 
 function isShopRegionGroup(value: string | null): value is ShopRegionGroup {
   return (
@@ -153,7 +154,7 @@ export function CourseCreateScreen() {
       initialTitle={folder.title}
       initialDescription=""
       initialIsPublic={false}
-      initialSelectedShops={[]}
+      initialSelectedShops={createInitialCourseShopInputs(shops)}
       shops={shops}
       hasNextPage={Boolean(shopsQuery.hasNextPage)}
       isFetchingNextPage={shopsQuery.isFetchingNextPage}

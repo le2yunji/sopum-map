@@ -1,7 +1,11 @@
 import { z } from "zod";
 
 import { objectIdSchema } from "./common.validation.js";
-import { SHOP_REGION_GROUPS } from "@sopum-map/shared";
+import {
+  MAX_COURSE_SHOPS,
+  MIN_COURSE_SHOPS,
+  SHOP_REGION_GROUPS,
+} from "@sopum-map/shared";
 
 const courseShopSchema = z.object({
   shopId: objectIdSchema,
@@ -21,8 +25,8 @@ export const createCourseSchema = z.object({
     isPublic: z.boolean().default(false),
     shops: z
       .array(courseShopSchema)
-      .min(2, "코스에는 최소 2개의 상점이 필요합니다.")
-      .max(10, "코스에는 최대 10개의 상점만 포함할 수 있습니다."),
+      .min(MIN_COURSE_SHOPS, "코스에는 최소 2개의 상점이 필요합니다.")
+      .max(MAX_COURSE_SHOPS, "코스에는 최대 6개의 상점만 포함할 수 있습니다."),
   }),
 });
 
@@ -54,8 +58,8 @@ export const updateCourseSchema = z.object({
 
       shops: z
         .array(courseShopSchema)
-        .min(2, "코스에는 최소 2개의 상점이 필요합니다.")
-        .max(10, "코스에는 최대 10개의 상점만 포함할 수 있습니다.")
+        .min(MIN_COURSE_SHOPS, "코스에는 최소 2개의 상점이 필요합니다.")
+        .max(MAX_COURSE_SHOPS, "코스에는 최대 6개의 상점만 포함할 수 있습니다.")
         .optional(),
     })
     .refine(

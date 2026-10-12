@@ -1,3 +1,5 @@
+import { MAX_COURSE_SHOPS } from "@sopum-map/shared";
+
 /**
  * 거리 행렬을 받아 Held-Karp 최적 shopId 순서 반환
  */
@@ -32,8 +34,8 @@ export function optimizeCourseRoute(
     };
   }
 
-  if (shopCount > 10) {
-    throw new Error("코스 최적화는 최대 10개 상점까지 지원합니다.");
+  if (shopCount > MAX_COURSE_SHOPS) {
+    throw new Error("코스 최적화는 최대 6개 상점까지 지원합니다.");
   }
 
   for (const row of distanceMatrix) {
