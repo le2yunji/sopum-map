@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import type { CourseShopInput } from "@sopum-map/shared";
 
+import { ChevronLeftIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Snackbar } from "@/components/ui/Snackbar";
 
@@ -256,10 +257,11 @@ export function CourseEditor({
             {onExit ? (
               <button
                 type="button"
+                aria-label="코스 만들기 나가기"
                 onClick={onExit}
-                className="min-h-11 rounded-lg px-2 text-14 font-semibold text-black-700 focus-visible:outline-2 focus-visible:outline-green-700"
+                className="grid size-11 place-items-center rounded-full text-black-700 focus-visible:outline-2 focus-visible:outline-green-700"
               >
-                나가기
+                <ChevronLeftIcon className="size-6" aria-hidden="true" />
               </button>
             ) : (
               <span />
