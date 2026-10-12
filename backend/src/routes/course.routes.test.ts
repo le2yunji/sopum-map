@@ -29,6 +29,7 @@ const validBody = {
   sourceFolderId: folderId,
   regionGroup: "seongsu-seoulforest",
   title: "성수 소품 산책",
+  isPublic: false,
   shops: [
     { shopId: "6a8a68e15e2aa43be6a654a0", order: 1 },
     { shopId: "6a8a68e15e2aa43be6a654a1", order: 2 },

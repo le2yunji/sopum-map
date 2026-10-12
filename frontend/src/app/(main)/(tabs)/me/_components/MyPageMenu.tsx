@@ -3,8 +3,8 @@ import type { ReactNode } from "react";
 
 import {
   ChevronRightIcon,
+  CourseIcon,
   SettingIcon,
-  StarIcon,
   StoreIcon,
   VisitLogIcon,
 } from "@/components/icons";
@@ -37,7 +37,7 @@ export function MyPageActivityMenu({
       label: "내 산책 코스",
       count: isEmpty ? 0 : 3,
       href: "/me/courses",
-      icon: <StarIcon className="size-5" />,
+      icon: <CourseIcon className="size-5" />,
     },
   ];
 

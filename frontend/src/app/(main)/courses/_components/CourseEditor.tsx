@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 import type { CourseShopInput } from "@sopum-map/shared";
 
+import { ChevronLeftIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { Snackbar } from "@/components/ui/Snackbar";
 
@@ -15,6 +16,7 @@ const MIN_COURSE_SHOPS = 2;
 export type CourseEditorSubmitData = Readonly<{
   title: string;
   description: string | null;
+  isPublic: boolean;
   shops: readonly CourseShopInput[];
 }>;
 
@@ -30,6 +32,7 @@ type Props = Readonly<{
 
   initialTitle: string;
   initialDescription: string;
+  initialIsPublic?: boolean;
   initialSelectedShops: readonly CourseShopInput[];
 
   shops: readonly CourseEditorShopOption[];
@@ -39,6 +42,8 @@ type Props = Readonly<{
   isSubmitting: boolean;
 
   submitLabel: string;
+  showVisibilityControl?: boolean;
+  onExit?: () => void;
 
   onLoadMore: () => void;
   onSubmit: (data: CourseEditorSubmitData) => Promise<void>;
@@ -47,6 +52,7 @@ type Props = Readonly<{
 
   onOptimize?: (
     selectedShopIds: readonly string[],
+    startShopId?: string,
   ) => Promise<readonly string[]>;
 }>;
 
@@ -54,12 +60,15 @@ export function CourseEditor({
   heading,
   initialTitle,
   initialDescription,
+  initialIsPublic = false,
   initialSelectedShops,
   shops,
   hasNextPage,
   isFetchingNextPage,
   isSubmitting,
   submitLabel,
+  showVisibilityControl = false,
+  onExit,
   onLoadMore,
   onSubmit,
   isOptimizing = false,
@@ -68,10 +77,12 @@ export function CourseEditor({
   const [title, setTitle] = useState(initialTitle);
 
   const [description, setDescription] = useState(initialDescription);
+  const [isPublic, setIsPublic] = useState(initialIsPublic);
 
   const [selectedShops, setSelectedShops] = useState<CourseShopInput[]>(() => [
     ...initialSelectedShops,
   ]);
+  const [startShopId, setStartShopId] = useState<string | undefined>();
 
   const [snackbarMessage, setSnackbarMessage] = useState<string | null>(null);
 
@@ -97,6 +108,7 @@ export function CourseEditor({
     try {
       const orderedShopIds = await onOptimize(
         selectedShops.map((shop) => shop.shopId),
+        startShopId,
       );
 
       const selectedShopById = new Map(
@@ -137,6 +149,9 @@ export function CourseEditor({
     const isSelected = selectedShops.some((shop) => shop.shopId === shopId);
 
     if (isSelected) {
+      if (startShopId === shopId) {
+        setStartShopId(undefined);
+      }
       setSelectedShops((current) =>
         current
           .filter((shop) => shop.shopId !== shopId)
@@ -165,35 +180,20 @@ export function CourseEditor({
     ]);
   };
 
-  /**
-   * 선택된 상점의 방문 순서를 변경합니다.
-   */
+  /** 기존 코스 수정 화면에서는 저장된 방문 순서를 직접 조정합니다. */
   const handleMoveShop = (shopId: string, direction: "up" | "down") => {
     setSelectedShops((current) => {
       const currentIndex = current.findIndex((shop) => shop.shopId === shopId);
+      const targetIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
 
-      if (currentIndex === -1) {
-        return current;
-      }
-
-      const targetIndex =
-        direction === "up" ? currentIndex - 1 : currentIndex + 1;
-
-      if (targetIndex < 0 || targetIndex >= current.length) {
+      if (currentIndex === -1 || targetIndex < 0 || targetIndex >= current.length) {
         return current;
       }
 
       const next = [...current];
+      [next[currentIndex], next[targetIndex]] = [next[targetIndex], next[currentIndex]];
 
-      [next[currentIndex], next[targetIndex]] = [
-        next[targetIndex],
-        next[currentIndex],
-      ];
-
-      return next.map((shop, index) => ({
-        ...shop,
-        order: index + 1,
-      }));
+      return next.map((shop, index) => ({ ...shop, order: index + 1 }));
     });
   };
 
@@ -238,6 +238,8 @@ export function CourseEditor({
 
         description: trimmedDescription.length > 0 ? trimmedDescription : null,
 
+        isPublic,
+
         shops: selectedShops,
       });
     } catch (error) {
@@ -250,6 +252,43 @@ export function CourseEditor({
   return (
     <section className="min-h-full bg-white px-5 pb-32 pt-16">
       <header>
+        {onExit || showVisibilityControl ? (
+          <div className="mb-6 flex items-center justify-between">
+            {onExit ? (
+              <button
+                type="button"
+                aria-label="코스 만들기 나가기"
+                onClick={onExit}
+                className="grid size-11 place-items-center rounded-full text-black-700 focus-visible:outline-2 focus-visible:outline-green-700"
+              >
+                <ChevronLeftIcon className="size-6" aria-hidden="true" />
+              </button>
+            ) : (
+              <span />
+            )}
+
+            {showVisibilityControl ? (
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isPublic}
+                onClick={() => setIsPublic((current) => !current)}
+                className="flex min-h-11 items-center gap-2 rounded-lg px-2 text-13 font-semibold focus-visible:outline-2 focus-visible:outline-green-700"
+              >
+                <span>{isPublic ? "공개" : "비공개"}</span>
+                <span
+                  aria-hidden="true"
+                  className={`relative h-6 w-11 rounded-full transition-colors ${isPublic ? "bg-green-600" : "bg-black-300"}`}
+                >
+                  <span
+                    className={`absolute top-1 size-4 rounded-full bg-white transition-transform ${isPublic ? "translate-x-6" : "translate-x-1"}`}
+                  />
+                </span>
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+
         <h1 className="text-24 font-semibold">{heading}</h1>
       </header>
 
@@ -315,7 +354,9 @@ export function CourseEditor({
         </div>
 
         <p className="mt-1 text-12 text-black-500">
-          방문할 상점을 선택하고 순서를 정해주세요.
+          {onOptimize
+            ? "방문할 상점과 첫 방문 상점을 선택해주세요. 나머지는 최적 순서로 정렬해요."
+            : "방문할 상점을 선택하고 순서를 정해주세요."}
         </p>
 
         {onOptimize ? (
@@ -348,17 +389,20 @@ export function CourseEditor({
                 selected={selected}
                 order={selectedShop?.order ?? null}
                 memo={selectedShop?.memo ?? null}
+                isStartShop={startShopId === shop.id}
+                canChooseStartShop={Boolean(onOptimize)}
                 isFirst={selectedShop?.order === 1}
                 isLast={selectedShop?.order === selectedShops.length}
                 onToggle={() => {
                   handleToggleShop(shop.id);
                 }}
-                onMoveUp={() => {
-                  handleMoveShop(shop.id, "up");
+                onSetStartShop={() => {
+                  setStartShopId((current) =>
+                    current === shop.id ? undefined : shop.id,
+                  );
                 }}
-                onMoveDown={() => {
-                  handleMoveShop(shop.id, "down");
-                }}
+                onMoveUp={() => handleMoveShop(shop.id, "up")}
+                onMoveDown={() => handleMoveShop(shop.id, "down")}
                 onMemoChange={(memo) => {
                   handleMemoChange(shop.id, memo);
                 }}

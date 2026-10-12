@@ -52,6 +52,7 @@ const input = {
   regionGroup,
   title: "성수 소품 산책",
   description: "천천히 둘러보는 코스",
+  isPublic: false,
   shops: [
     { shopId: shopIds[0], order: 1, memo: null },
     { shopId: shopIds[1], order: 2, memo: "두 번째 방문" },

@@ -25,3 +25,8 @@ export { FilterIcon } from "./FilterIcon";
 export { TagIcon } from "./TagIcon";
 export { AddIcon } from "./AddIcon";
 export { AddFolderIcon } from "./AddFolderIcon";
+export { CourseIcon } from "./CourseIcon";
+export { HomeIcon } from "./HomeIcon";
+export { MapIcon } from "./MapIcon";
+export { PickIcon } from "./PickIcon";
+export { ProfileIcon } from "./ProfileIcon";

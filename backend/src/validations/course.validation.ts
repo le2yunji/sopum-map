@@ -18,6 +18,7 @@ export const createCourseSchema = z.object({
     regionGroup: z.enum(SHOP_REGION_GROUPS),
     title: z.string().trim().min(1).max(100),
     description: z.string().trim().max(1000).nullable().optional(),
+    isPublic: z.boolean().default(false),
     shops: z
       .array(courseShopSchema)
       .min(2, "코스에는 최소 2개의 상점이 필요합니다.")

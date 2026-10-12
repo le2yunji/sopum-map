@@ -3,11 +3,13 @@
 import type { CourseDetailData } from "@sopum-map/shared";
 
 import { ChevronLeftIcon, HeartIcon } from "@/components/icons";
+import { getCourseAuthorDisplayName } from "./course-author";
 
 type Props = Readonly<{
   course: CourseDetailData;
   likePending: boolean;
   visibilityPending: boolean;
+  currentUserNickname?: string;
   onBack: () => void;
   onShare: () => void;
   onMore: () => void;
@@ -20,12 +22,21 @@ export function CourseDetailHeader({
   course,
   likePending,
   visibilityPending,
+  currentUserNickname,
   onBack,
   onShare,
   onMore,
   onLikeToggle,
   onVisibilityClick,
 }: Props) {
+  /** 이전 API 응답이 캐시에 남아 있어도 상세 화면 전체가 중단되지 않게 합니다. */
+  const authorDisplayName = getCourseAuthorDisplayName({
+    authorDisplayName: course.author?.displayName,
+    courseType: course.courseType,
+    isOwner: course.isOwner,
+    currentUserNickname,
+  });
+
   const createdDate = new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
     month: "numeric",
@@ -99,7 +110,7 @@ export function CourseDetailHeader({
         </div>
 
         <div className="mt-3 flex items-center gap-2 text-14 text-black-500">
-          <span>by {course.author.displayName}</span>
+          <span>by {authorDisplayName}</span>
           <span aria-hidden="true">·</span>
           <time dateTime={course.createdAt}>{createdDate}</time>
           {course.isOwner ? (

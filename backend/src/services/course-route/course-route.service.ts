@@ -26,7 +26,7 @@ export async function optimizeUserCourseRoute({
   userId,
   input,
 }: OptimizeUserCourseRouteParams): Promise<OptimizeCourseRouteData> {
-  const { sourceFolderId, regionGroup, shopIds } = input;
+  const { sourceFolderId, regionGroup, shopIds, startShopId } = input;
 
   const objectUserId = new Types.ObjectId(userId);
 
@@ -157,8 +157,11 @@ export async function optimizeUserCourseRoute({
 
   const distanceMatrix = await getWalkingDistanceMatrix(routePoints);
 
-  const { orderedIndexes, totalDistanceMeters } =
-    optimizeCourseRoute(distanceMatrix);
+  const startIndex = startShopId ? shopIds.indexOf(startShopId) : undefined;
+  const { orderedIndexes, totalDistanceMeters } = optimizeCourseRoute(
+    distanceMatrix,
+    startIndex,
+  );
 
   return {
     shopIds: orderedIndexes.map((index) => routePoints[index].shopId),

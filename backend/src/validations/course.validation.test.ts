@@ -47,6 +47,14 @@ describe("createCourseSchema", () => {
       createCourseSchema.parse({ body: { ...validCreateCourseBody, shops } }),
     ).toThrow();
   });
+
+  it("생성할 코스의 공개 여부를 요청 값으로 유지합니다", () => {
+    const result = createCourseSchema.parse({
+      body: { ...validCreateCourseBody, isPublic: true },
+    });
+
+    expect(result.body.isPublic).toBe(true);
+  });
 });
 
 describe("updateCourseVisibilitySchema", () => {

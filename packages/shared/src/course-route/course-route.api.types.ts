@@ -4,6 +4,7 @@ export type OptimizeCourseRouteRequest = Readonly<{
   sourceFolderId: string;
   regionGroup: ShopRegionGroup;
   shopIds: readonly string[];
+  startShopId?: string;
 }>;
 
 export type OptimizeCourseRouteData = Readonly<{

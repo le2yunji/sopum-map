@@ -14,6 +14,7 @@ type OptimizeCourseRouteResult = Readonly<{
  */
 export function optimizeCourseRoute(
   distanceMatrix: readonly (readonly number[])[],
+  startIndex?: number,
 ): OptimizeCourseRouteResult {
   const shopCount = distanceMatrix.length;
 
@@ -60,8 +61,16 @@ export function optimizeCourseRoute(
   /**
    * 출발점은 고정하지 않습니다.
    */
-  for (let start = 0; start < shopCount; start += 1) {
-    dp[1 << start][start] = 0;
+  if (startIndex !== undefined) {
+    if (startIndex < 0 || startIndex >= shopCount) {
+      throw new Error("시작점 인덱스가 올바르지 않습니다.");
+    }
+
+    dp[1 << startIndex][startIndex] = 0;
+  } else {
+    for (let start = 0; start < shopCount; start += 1) {
+      dp[1 << start][start] = 0;
+    }
   }
 
   for (let mask = 1; mask < stateCount; mask += 1) {

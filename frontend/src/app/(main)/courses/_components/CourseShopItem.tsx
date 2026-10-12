@@ -13,23 +13,69 @@ type Props = Readonly<{
   order: number | null;
   memo: string | null;
 
+  isStartShop: boolean;
+  canChooseStartShop: boolean;
   isFirst: boolean;
   isLast: boolean;
 
   onToggle: () => void;
+  onSetStartShop: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   onMemoChange: (memo: string) => void;
 }>;
+
+type SelectionMarkProps = Readonly<{
+  selected: boolean;
+  canChooseStartShop: boolean;
+  isStartShop: boolean;
+  order: number | null;
+}>;
+
+/** 생성 화면에서는 선택과 첫 방문을 구분하고 수정 화면에서는 저장 순서를 표시합니다. */
+function CourseShopSelectionMark({
+  selected,
+  canChooseStartShop,
+  isStartShop,
+  order,
+}: SelectionMarkProps) {
+  if (!selected || !canChooseStartShop) {
+    return order ?? "";
+  }
+
+  if (isStartShop) {
+    return "1";
+  }
+
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      className="size-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path
+        d="m4 10 4 4 8-8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export function CourseShopItem({
   shop,
   selected,
   order,
   memo,
+  isStartShop,
+  canChooseStartShop,
   isFirst,
   isLast,
   onToggle,
+  onSetStartShop,
   onMoveUp,
   onMoveDown,
   onMemoChange,
@@ -65,7 +111,12 @@ export function CourseShopItem({
               }
             `}
           >
-            {order ?? ""}
+            <CourseShopSelectionMark
+              selected={selected}
+              canChooseStartShop={canChooseStartShop}
+              isStartShop={isStartShop}
+              order={order}
+            />
           </span>
 
           {shop.mainImageUrl ? (
@@ -102,25 +153,22 @@ export function CourseShopItem({
           </div>
         </button>
 
-        {selected ? (
+        {selected && canChooseStartShop ? (
+          <Button
+            type="button"
+            variant={isStartShop ? "primary" : "outline"}
+            size="small"
+            aria-pressed={isStartShop}
+            onClick={onSetStartShop}
+          >
+            {isStartShop ? "첫 방문" : "첫 방문으로"}
+          </Button>
+        ) : selected ? (
           <div className="flex shrink-0 flex-col gap-1">
-            <Button
-              type="button"
-              variant="ghost"
-              size="small"
-              disabled={isFirst}
-              onClick={onMoveUp}
-            >
+            <Button type="button" variant="ghost" size="small" disabled={isFirst} onClick={onMoveUp}>
               위
             </Button>
-
-            <Button
-              type="button"
-              variant="ghost"
-              size="small"
-              disabled={isLast}
-              onClick={onMoveDown}
-            >
+            <Button type="button" variant="ghost" size="small" disabled={isLast} onClick={onMoveDown}>
               아래
             </Button>
           </div>
