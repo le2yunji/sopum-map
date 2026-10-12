@@ -174,7 +174,8 @@ export const LargeMobile: Story = {
   globals: { viewport: { value: "sopumLarge", isRotated: false } },
 };
 
-const fetchNextPage = fn(async (_input: RequestInfo | URL) =>
+const fetchNextPage = fn<(input: RequestInfo | URL) => Promise<Response>>(
+  async () =>
   Response.json({
     success: true,
     data: {

@@ -74,6 +74,10 @@ const meta = {
 
     tags: ["문구", "캐릭터", "다꾸"],
 
+    likeCount: 12,
+
+    reviewCount: 3,
+
     isLiked: false,
 
     isLikePending: false,
