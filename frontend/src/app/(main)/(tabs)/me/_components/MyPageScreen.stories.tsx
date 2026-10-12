@@ -64,7 +64,7 @@ export const Success: Story = {
       canvas.getByRole("link", { name: "방문 기록 5개 보기" }),
     ).toHaveAttribute("href", "/me/visit-logs");
     await expect(
-      canvas.getByRole("link", { name: "찜한 산책 코스 3개 보기" }),
+      canvas.getByRole("link", { name: "내 산책 코스 3개 보기" }),
     ).toHaveAttribute("href", "/me/courses");
     await expect(
       canvas.getByRole("link", { name: "소품샵 제보하기" }),
@@ -136,7 +136,7 @@ export const Empty: Story = {
       canvas.getByRole("link", { name: "방문 기록 0개 보기" }),
     ).toBeVisible();
     await expect(
-      canvas.getByRole("link", { name: "찜한 산책 코스 0개 보기" }),
+      canvas.getByRole("link", { name: "내 산책 코스 0개 보기" }),
     ).toBeVisible();
   },
 };
