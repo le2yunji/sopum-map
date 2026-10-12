@@ -1,6 +1,7 @@
 // ShopBannerCarousel.stories.tsx
 
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, within } from "storybook/test";
 
 import { ShopBannerCarousel } from "./ShopBannerCarousel";
 import type { ShopBannerItem } from "./ShopBannerCarousel.types";
@@ -113,7 +114,16 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** 기본 캐러셀 */
-export const Default: Story = {};
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const images = canvas.getAllByRole("img");
+
+    await expect(images[0]).toHaveAttribute("loading", "eager");
+    await expect(images[1]).toHaveAttribute("loading", "eager");
+    await expect(images[2]).toHaveAttribute("loading", "eager");
+  },
+};
 
 /** 매장이 하나만 있는 경우 */
 export const SingleItem: Story = {
@@ -147,6 +157,15 @@ export const ManyItems: Story = {
         ],
       },
     ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const images = canvas.getAllByRole("img");
+
+    await expect(images[0]).toHaveAttribute("loading", "eager");
+    await expect(images[1]).toHaveAttribute("loading", "eager");
+    await expect(images[2]).toHaveAttribute("loading", "eager");
+    await expect(images[3]).toHaveAttribute("loading", "lazy");
   },
 };
 

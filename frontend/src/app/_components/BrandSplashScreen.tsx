@@ -23,6 +23,7 @@ export function BrandSplashScreen() {
             src="/images/brand/mascot.webp"
             alt="소품지도 심볼"
             fill
+            loading="eager"
             sizes="160px"
             className="object-contain"
           />

@@ -24,7 +24,7 @@ export const Default: Story = {
     ).toBeInTheDocument();
     await expect(
       canvas.getByRole("img", { name: "소품지도 심볼" }),
-    ).toBeInTheDocument();
+    ).toHaveAttribute("loading", "eager");
     await expect(canvas.getByText("행운을 찾는 소품산책")).toBeInTheDocument();
     await expect(canvas.queryByRole("button")).not.toBeInTheDocument();
   },

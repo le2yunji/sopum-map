@@ -3,6 +3,8 @@ import Link from "next/link";
 
 import type { ShopBannerCarouselProps } from "./ShopBannerCarousel.types";
 
+const EAGER_IMAGE_COUNT = 2;
+
 export const ShopBannerCarousel = ({
   items,
   ariaLabel = "추천 소품샵",
@@ -11,6 +13,10 @@ export const ShopBannerCarousel = ({
   if (items.length === 0) {
     return null;
   }
+
+  const eagerImageUrls = new Set(
+    items.slice(0, EAGER_IMAGE_COUNT).map((item) => item.imageUrl),
+  );
 
   return (
     <section aria-label={ariaLabel} className={className}>
@@ -23,7 +29,7 @@ export const ShopBannerCarousel = ({
           [&::-webkit-scrollbar]:hidden
         "
       >
-        {items.map((item, index) => {
+        {items.map((item) => {
           return (
             <li
               key={item.id}
@@ -47,7 +53,9 @@ export const ShopBannerCarousel = ({
               >
                 <Image
                   fill
-                  loading={index === 0 ? "eager" : "lazy"}
+                  loading={
+                    eagerImageUrls.has(item.imageUrl) ? "eager" : "lazy"
+                  }
                   src={item.imageUrl}
                   alt={`${item.name} 매장 이미지`}
                   sizes="(max-width: 480px) calc(100vw - 48px), 298px"
