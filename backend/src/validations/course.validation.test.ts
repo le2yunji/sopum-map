@@ -1,11 +1,53 @@
+import { Types } from "mongoose";
 import { describe, expect, it } from "vitest";
 
 import {
+  createCourseSchema,
   getCourseListSchema,
   updateCourseVisibilitySchema,
 } from "./course.validation.js";
 
 const courseId = "6a8a68e15e2aa43be6a6549d";
+
+const validCreateCourseBody = {
+  sourceFolderId: "6a8a68e15e2aa43be6a6549e",
+  regionGroup: "seongsu-seoulforest",
+  title: "성수 소품 산책",
+  shops: [
+    { shopId: "6a8a68e15e2aa43be6a6549f", order: 1 },
+    { shopId: "6a8a68e15e2aa43be6a654a0", order: 2 },
+  ],
+};
+
+describe("createCourseSchema", () => {
+  it("regionGroup을 필수로 받습니다", () => {
+    const { regionGroup: _regionGroup, ...bodyWithoutRegionGroup } =
+      validCreateCourseBody;
+
+    expect(() =>
+      createCourseSchema.parse({ body: bodyWithoutRegionGroup }),
+    ).toThrow();
+  });
+
+  it("정의된 regionGroup만 허용합니다", () => {
+    expect(() =>
+      createCourseSchema.parse({
+        body: { ...validCreateCourseBody, regionGroup: "busan" },
+      }),
+    ).toThrow();
+  });
+
+  it.each([1, 11])("상점이 %i개인 생성 요청을 거부합니다", (shopCount) => {
+    const shops = Array.from({ length: shopCount }, (_, index) => ({
+      shopId: new Types.ObjectId().toString(),
+      order: index + 1,
+    }));
+
+    expect(() =>
+      createCourseSchema.parse({ body: { ...validCreateCourseBody, shops } }),
+    ).toThrow();
+  });
+});
 
 describe("updateCourseVisibilitySchema", () => {
   it("공개 여부는 boolean만 허용합니다", () => {
