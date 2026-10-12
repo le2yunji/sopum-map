@@ -37,6 +37,7 @@ export function DeleteCourseSheet({
       <BottomSheet.Footer className="gap-2">
         <Button
           type="button"
+          className="min-w-0 flex-1 shrink"
           variant="outline"
           fullWidth
           disabled={isPending}
@@ -46,6 +47,7 @@ export function DeleteCourseSheet({
         </Button>
         <Button
           type="button"
+          className="min-w-0 flex-1 shrink"
           fullWidth
           isLoading={isPending}
           disabled={isPending}
