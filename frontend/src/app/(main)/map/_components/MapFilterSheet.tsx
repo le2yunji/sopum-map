@@ -34,12 +34,18 @@ export function MapFilterSheet({
       open={open}
       onOpenChange={handleOpenChange}
       ariaLabelledBy="map-filter-title"
-      showCloseButton
-      closeButtonLabel="필터 닫기"
     >
-      <BottomSheet.Header>
-        <BottomSheet.Title id="map-filter-title">태그 필터</BottomSheet.Title>
-      </BottomSheet.Header>
+      <div className="sticky top-0 z-10 -mx-6 flex items-center justify-between gap-4 border-b border-black-100 bg-white px-6 py-4">
+        <BottomSheet.Header className="mt-0!">
+          <BottomSheet.Title id="map-filter-title">태그 필터</BottomSheet.Title>
+        </BottomSheet.Header>
+
+        <Button type="button" variant="primary" size="small" onClick={onClose}>
+          {selectedFilters.length
+            ? `${selectedFilters.length}개 태그 적용`
+            : "태그 적용"}
+        </Button>
+      </div>
 
       <BottomSheet.Body>
         <div className="space-y-7 py-5">
@@ -64,18 +70,11 @@ export function MapFilterSheet({
                     <Button
                       key={filterValue}
                       type="button"
-                      variant="outline"
+                      variant={isSelected ? "primary" : "outline"}
                       size="small"
                       aria-pressed={isSelected}
                       onClick={() => onToggleFilter(filter)}
-                      className={`
-                        rounded-full
-                        ${
-                          isSelected
-                            ? "border-green-700 bg-green-100 text-black-950"
-                            : ""
-                        }
-                      `}
+                      className="rounded-full"
                     >
                       #{filter.label}
                     </Button>
@@ -86,20 +85,6 @@ export function MapFilterSheet({
           ))}
         </div>
       </BottomSheet.Body>
-
-      <BottomSheet.Footer>
-        <Button
-          type="button"
-          variant="primary"
-          size="large"
-          fullWidth
-          onClick={onClose}
-        >
-          {selectedFilters.length
-            ? `${selectedFilters.length}개 태그 적용`
-            : "전체 상점 보기"}
-        </Button>
-      </BottomSheet.Footer>
     </BottomSheet>
   );
 }

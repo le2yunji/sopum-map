@@ -53,6 +53,10 @@ export const GroupedTags: Story = {
     await expect(cuteFilter).not.toBePressed();
     await userEvent.click(cuteFilter);
     await expect(cuteFilter).toBePressed();
+    await expect(cuteFilter).toHaveClass("bg-green-500");
+    await expect(
+      canvas.getByRole("button", { name: "1개 태그 적용" }).parentElement,
+    ).toHaveClass("sticky");
     await expect(stationeryFilter).toBeVisible();
   },
 };
