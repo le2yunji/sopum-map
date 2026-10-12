@@ -5,6 +5,7 @@ export interface ShopCardProps {
   name: string;
   href: string;
   imageUrl?: string | null;
+  imageLoading?: "eager" | "lazy";
   region: string;
   tags: string[];
   likeCount: number;

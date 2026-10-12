@@ -39,4 +39,17 @@ describe("getStraightCoursePath", () => {
       { latitude: 37.3, longitude: 127.3 },
     ]);
   });
+
+  it("위치 정보가 없는 기존 상점은 지도 경로에서 제외합니다", () => {
+    expect(
+      getStraightCoursePath([
+        { order: 2, latitude: null, longitude: null },
+        { order: 1, latitude: 37.1, longitude: 127.1 },
+        { order: 3, latitude: 37.3, longitude: 127.3 },
+      ]),
+    ).toEqual([
+      { latitude: 37.1, longitude: 127.1 },
+      { latitude: 37.3, longitude: 127.3 },
+    ]);
+  });
 });

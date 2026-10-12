@@ -106,7 +106,15 @@ export function CourseDetailScreen({ courseId }: Props) {
     }
 
     const { shop, previousShop } = selectedShop;
-    const routeUrl = previousShop
+    if (shop.latitude === null || shop.longitude === null) {
+      setNotice("이 상점은 위치 정보가 없어 길찾기를 열 수 없어요.");
+      return;
+    }
+
+    const routeUrl =
+      previousShop &&
+      previousShop.latitude !== null &&
+      previousShop.longitude !== null
       ? createNaverMapWalkRouteBetweenUrl({
           start: {
             name: previousShop.name,

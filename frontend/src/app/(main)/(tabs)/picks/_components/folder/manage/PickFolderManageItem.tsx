@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { getPickFolderErrorMessage } from "../../picks-ui";
 
 type Props = Readonly<{
+  mode: "manage" | "reorder";
   folderId: string;
   title: string;
   shopCount: number;
@@ -16,6 +17,7 @@ type Props = Readonly<{
 }>;
 
 export function PickFolderManageItem({
+  mode,
   folderId,
   title,
   shopCount,
@@ -44,46 +46,52 @@ export function PickFolderManageItem({
           <div className="shrink-0 text-12 text-black-500">{shopCount}</div>
         </div>
 
-        <Button
-          variant="ghost"
-          size="small"
-          aria-label={`${title} 폴더 위로 이동`}
-          disabled={!canMoveUp || isOrdering}
-          onClick={() => onMove(-1)}
-          className="min-h-10 px-2"
-        >
-          위
-        </Button>
+        {mode === "reorder" ? (
+          <>
+            <Button
+              variant="ghost"
+              size="small"
+              aria-label={`${title} 폴더 위로 이동`}
+              disabled={!canMoveUp || isOrdering}
+              onClick={() => onMove(-1)}
+              className="min-h-10 px-2"
+            >
+              위
+            </Button>
 
-        <Button
-          variant="ghost"
-          size="small"
-          aria-label={`${title} 폴더 아래로 이동`}
-          disabled={!canMoveDown || isOrdering}
-          onClick={() => onMove(1)}
-          className="min-h-10 px-2"
-        >
-          아래
-        </Button>
+            <Button
+              variant="ghost"
+              size="small"
+              aria-label={`${title} 폴더 아래로 이동`}
+              disabled={!canMoveDown || isOrdering}
+              onClick={() => onMove(1)}
+              className="min-h-10 px-2"
+            >
+              아래
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              variant="ghost"
+              size="small"
+              onClick={onEdit}
+              className="min-h-10 px-2.5"
+            >
+              수정
+            </Button>
 
-        <Button
-          variant="ghost"
-          size="small"
-          onClick={onEdit}
-          className="min-h-10 px-2.5"
-        >
-          수정
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="small"
-          isLoading={deleteFolderMutation.isPending}
-          onClick={handleDelete}
-          className="min-h-10 px-2.5 text-red-600"
-        >
-          삭제
-        </Button>
+            <Button
+              variant="ghost"
+              size="small"
+              isLoading={deleteFolderMutation.isPending}
+              onClick={handleDelete}
+              className="min-h-10 px-2.5 text-red-600"
+            >
+              삭제
+            </Button>
+          </>
+        )}
       </div>
       {deleteFolderMutation.error ? (
         <p role="alert" className="pb-2 text-12 text-red-600">

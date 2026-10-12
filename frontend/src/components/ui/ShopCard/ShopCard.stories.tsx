@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { fn } from "storybook/test";
+import { expect, fn, within } from "storybook/test";
 
 import { ShopCard } from "./ShopCard";
 
@@ -70,6 +70,8 @@ const meta = {
 
     imageUrl: "/images/profiles/shop_default.webp",
 
+    imageLoading: "eager",
+
     region: "성수",
 
     tags: ["문구", "캐릭터", "다꾸"],
@@ -100,7 +102,13 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole("img")).toHaveAttribute("loading", "eager");
+  },
+};
 
 export const Compact: Story = {
   args: {

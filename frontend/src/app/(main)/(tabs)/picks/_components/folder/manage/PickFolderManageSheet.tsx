@@ -23,7 +23,24 @@ type EditingFolder = Readonly<{
   description: string | null;
 }>;
 
+/** 현재 작업 단계가 드러나는 바텀시트 제목을 반환합니다. */
+function getManageSheetTitle(
+  editingFolder: EditingFolder | null,
+  isReordering: boolean,
+) {
+  if (editingFolder) {
+    return "내 픽 폴더 수정";
+  }
+
+  if (isReordering) {
+    return "내 픽 폴더 순서 변경";
+  }
+
+  return "내 픽 폴더 관리";
+}
+
 export function PickFolderManageSheet({ open, onOpenChange }: Props) {
+  const [isReordering, setIsReordering] = useState(false);
   const [editingFolder, setEditingFolder] = useState<EditingFolder | null>(
     null,
   );
@@ -34,6 +51,7 @@ export function PickFolderManageSheet({ open, onOpenChange }: Props) {
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       setEditingFolder(null);
+      setIsReordering(false);
     }
 
     onOpenChange(nextOpen);
@@ -55,7 +73,7 @@ export function PickFolderManageSheet({ open, onOpenChange }: Props) {
 
       <BottomSheet.Header>
         <BottomSheet.Title id="pick-folder-manage-title">
-          {editingFolder ? "내 픽 폴더 수정" : "내 픽 폴더 관리"}
+          {getManageSheetTitle(editingFolder, isReordering)}
         </BottomSheet.Title>
       </BottomSheet.Header>
 
@@ -98,34 +116,60 @@ export function PickFolderManageSheet({ open, onOpenChange }: Props) {
             생성된 내 픽 폴더가 없습니다.
           </p>
         ) : (
-          <div className="space-y-2">
-            {folders.map((folder, index) => (
-              <PickFolderManageItem
-                key={folder.id}
-                folderId={folder.id}
-                title={folder.title}
-                shopCount={folder.shopCount}
-                canMoveUp={index > 0}
-                canMoveDown={index < folders.length - 1}
-                isOrdering={orderMutation.isPending}
-                onMove={(direction) => {
-                  orderMutation.mutate({
-                    folderIds: moveFolderId(
-                      folders.map((item) => item.id),
-                      folder.id,
-                      direction,
-                    ),
-                  });
-                }}
-                onEdit={() => {
-                  setEditingFolder({
-                    id: folder.id,
-                    title: folder.title,
-                    description: folder.description,
-                  });
-                }}
-              />
-            ))}
+          <div>
+            {!isReordering ? (
+              <Button
+                variant="secondary"
+                fullWidth
+                disabled={folders.length < 2}
+                onClick={() => setIsReordering(true)}
+              >
+                순서 변경
+              </Button>
+            ) : null}
+
+            <div className="mt-3 space-y-2">
+              {folders.map((folder, index) => (
+                <PickFolderManageItem
+                  key={folder.id}
+                  mode={isReordering ? "reorder" : "manage"}
+                  folderId={folder.id}
+                  title={folder.title}
+                  shopCount={folder.shopCount}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < folders.length - 1}
+                  isOrdering={orderMutation.isPending}
+                  onMove={(direction) => {
+                    orderMutation.mutate({
+                      folderIds: moveFolderId(
+                        folders.map((item) => item.id),
+                        folder.id,
+                        direction,
+                      ),
+                    });
+                  }}
+                  onEdit={() => {
+                    setEditingFolder({
+                      id: folder.id,
+                      title: folder.title,
+                      description: folder.description,
+                    });
+                  }}
+                />
+              ))}
+            </div>
+
+            {isReordering ? (
+              <Button
+                variant="secondary"
+                fullWidth
+                className="mt-4"
+                disabled={orderMutation.isPending}
+                onClick={() => setIsReordering(false)}
+              >
+                완료
+              </Button>
+            ) : null}
           </div>
         )}
       </BottomSheet.Body>
