@@ -90,8 +90,22 @@ function NavigationIcon({ name, active }: NavigationIconProps) {
           strokeWidth="1.7"
           strokeLinecap="round"
         />
-        <circle cx="6" cy="7" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
-        <circle cx="18" cy="7" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+        <circle
+          cx="6"
+          cy="7"
+          r="2.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+        />
+        <circle
+          cx="18"
+          cy="7"
+          r="2.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+        />
       </svg>
     );
   }
@@ -147,12 +161,14 @@ export function BottomNavigation({ currentPath }: BottomNavigationProps) {
                   "flex min-h-14 flex-col items-center justify-center gap-1 px-1 text-10 font-medium transition-colors",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-green-700",
                   isActive
-                    ? "text-green-700"
+                    ? "text-brand"
                     : "text-black-400 hover:text-black-800",
                 ].join(" ")}
               >
                 <NavigationIcon name={item.icon} active={isActive} />
-                <span>{item.label}</span>
+                <span className={isActive ? "text-brand" : undefined}>
+                  {item.label}
+                </span>
               </Link>
             </li>
           );

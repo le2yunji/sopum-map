@@ -53,6 +53,7 @@ export const CoursesActive: Story = {
 
     await expect(courseLink).toHaveAttribute("aria-current", "page");
     await expect(courseLink.querySelector("svg")).toHaveClass("text-brand");
+    await expect(courseLink.querySelector("span")).toHaveClass("text-brand");
     await expect(
       within(navigation).getByRole("link", { name: "마이페이지" }),
     ).not.toHaveAttribute("aria-current");
