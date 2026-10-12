@@ -26,6 +26,11 @@ export function CourseDetailHeader({
   onLikeToggle,
   onVisibilityClick,
 }: Props) {
+  /** 이전 API 응답이 캐시에 남아 있어도 상세 화면 전체가 중단되지 않게 합니다. */
+  const authorDisplayName =
+    course.author?.displayName ??
+    (course.courseType === "recommended" ? "소품지도" : "알 수 없는 사용자");
+
   const createdDate = new Intl.DateTimeFormat("ko-KR", {
     year: "numeric",
     month: "numeric",
@@ -99,7 +104,7 @@ export function CourseDetailHeader({
         </div>
 
         <div className="mt-3 flex items-center gap-2 text-14 text-black-500">
-          <span>by {course.author.displayName}</span>
+          <span>by {authorDisplayName}</span>
           <span aria-hidden="true">·</span>
           <time dateTime={course.createdAt}>{createdDate}</time>
           {course.isOwner ? (
