@@ -25,3 +25,4 @@ export { FilterIcon } from "./FilterIcon";
 export { TagIcon } from "./TagIcon";
 export { AddIcon } from "./AddIcon";
 export { AddFolderIcon } from "./AddFolderIcon";
+export { CourseIcon } from "./CourseIcon";

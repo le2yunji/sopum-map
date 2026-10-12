@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { CourseIcon } from "@/components/icons";
+
 type BottomNavigationProps = Readonly<{
   currentPath?: string;
 }>;
@@ -81,33 +83,7 @@ function NavigationIcon({ name, active }: NavigationIconProps) {
   }
 
   if (name === "course") {
-    return (
-      <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-        <path
-          d="M6 18.5c2.5-1 2.5-3 5-4s3.5.5 6-1.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-          strokeLinecap="round"
-        />
-        <circle
-          cx="6"
-          cy="7"
-          r="2.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-        />
-        <circle
-          cx="18"
-          cy="7"
-          r="2.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="1.7"
-        />
-      </svg>
-    );
+    return <CourseIcon className={className} aria-hidden="true" />;
   }
 
   return (
