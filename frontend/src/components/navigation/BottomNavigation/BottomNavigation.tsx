@@ -8,13 +8,14 @@ type BottomNavigationProps = Readonly<{
 }>;
 
 type NavigationIconProps = Readonly<{
-  name: "home" | "map" | "pick" | "me";
+  name: "home" | "map" | "pick" | "course" | "me";
 }>;
 
 const NAVIGATION_ITEMS = [
   { href: "/", label: "홈", icon: "home" },
   { href: "/map", label: "지도", icon: "map" },
   { href: "/picks", label: "내 픽", icon: "pick" },
+  { href: "/me/courses", label: "코스", icon: "course" },
   { href: "/me", label: "마이페이지", icon: "me" },
 ] as const;
 
@@ -23,6 +24,13 @@ function isNavigationItemActive(currentPath: string, href: string) {
   return href === "/"
     ? currentPath === href
     : currentPath === href || currentPath.startsWith(`${href}/`);
+}
+
+/** 겹치는 경로 중 가장 구체적인 메뉴 하나만 활성화합니다. */
+function getActiveNavigationHref(currentPath: string) {
+  return [...NAVIGATION_ITEMS]
+    .sort((first, second) => second.href.length - first.href.length)
+    .find((item) => isNavigationItemActive(currentPath, item.href))?.href;
 }
 
 /** 하단 내비게이션에서 의미를 보조하는 선형 아이콘을 표시합니다. */
@@ -69,6 +77,22 @@ function NavigationIcon({ name }: NavigationIconProps) {
     );
   }
 
+  if (name === "course") {
+    return (
+      <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+        <path
+          d="M6 18.5c2.5-1 2.5-3 5-4s3.5.5 6-1.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.7"
+          strokeLinecap="round"
+        />
+        <circle cx="6" cy="7" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+        <circle cx="18" cy="7" r="2.5" fill="none" stroke="currentColor" strokeWidth="1.7" />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
       <circle
@@ -94,6 +118,7 @@ function NavigationIcon({ name }: NavigationIconProps) {
 export function BottomNavigation({ currentPath }: BottomNavigationProps) {
   const pathname = usePathname();
   const activePath = currentPath ?? pathname;
+  const activeHref = getActiveNavigationHref(activePath);
 
   return (
     <nav
@@ -106,9 +131,9 @@ export function BottomNavigation({ currentPath }: BottomNavigationProps) {
         backdrop-blur
       "
     >
-      <ul className="grid grid-cols-4">
+      <ul className="grid grid-cols-5">
         {NAVIGATION_ITEMS.map((item) => {
-          const isActive = isNavigationItemActive(activePath, item.href);
+          const isActive = item.href === activeHref;
 
           return (
             <li key={item.href}>

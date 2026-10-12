@@ -33,7 +33,27 @@ export const HomeActive: Story = {
       within(navigation).getByRole("link", { name: "내 픽" }),
     ).toHaveAttribute("href", "/picks");
     await expect(
+      within(navigation).getByRole("link", { name: "코스" }),
+    ).toHaveAttribute("href", "/me/courses");
+    await expect(
       within(navigation).getByRole("link", { name: "마이페이지" }),
     ).toHaveAttribute("href", "/me");
+  },
+};
+
+export const CoursesActive: Story = {
+  args: {
+    currentPath: "/me/courses",
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const navigation = canvas.getByRole("navigation", { name: "주요 메뉴" });
+
+    await expect(
+      within(navigation).getByRole("link", { name: "코스" }),
+    ).toHaveAttribute("aria-current", "page");
+    await expect(
+      within(navigation).getByRole("link", { name: "마이페이지" }),
+    ).not.toHaveAttribute("aria-current");
   },
 };
