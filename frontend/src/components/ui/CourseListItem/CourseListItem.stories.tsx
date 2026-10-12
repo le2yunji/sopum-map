@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import { expect, within } from "storybook/test";
 
 import { DEFAULT_IMAGES } from "@/constants/image.constants";
 
@@ -62,6 +63,7 @@ const meta = {
     title: "망원동 소품샵 투어",
     description: "모모 소품샵 → 미미네 선물가게 → 키치 소품",
     imageUrls: createImageUrls(4),
+    imageLoading: "eager",
     tags: ["컬러풀", "문구", "소품"],
   },
 } satisfies Meta<typeof CourseListItem>;
@@ -70,7 +72,15 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    for (const image of canvas.getAllByRole("img")) {
+      await expect(image).toHaveAttribute("loading", "eager");
+    }
+  },
+};
 
 export const OneImage: Story = {
   args: {
@@ -174,11 +184,18 @@ export const InList: Story = {
         {courses.map((course) => {
           return (
             <li key={course.id}>
-              <CourseListItem {...course} />
+              <CourseListItem {...course} imageLoading="eager" />
             </li>
           );
         })}
       </ul>
     );
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    for (const image of canvas.getAllByRole("img")) {
+      await expect(image).toHaveAttribute("loading", "eager");
+    }
   },
 };

@@ -12,9 +12,10 @@ export type PickShop = Pick<
 
 type Props = Readonly<{
   shop: PickShop;
+  imageLoading?: "eager" | "lazy";
 }>;
 
-export function PickShopCard({ shop }: Props) {
+export function PickShopCard({ shop, imageLoading = "lazy" }: Props) {
   const imageUrl = shop.mainImageUrl ?? DEFAULT_SHOP_IMAGE;
 
   return (
@@ -40,6 +41,7 @@ export function PickShopCard({ shop }: Props) {
             src={imageUrl}
             alt={`${shop.name} 매장 이미지`}
             sizes="(max-width: 480px) calc((100vw - 52px) / 2), 214px"
+            loading={imageLoading}
             className="object-cover transition-transform group-hover:scale-[1.02]"
           />
         </div>

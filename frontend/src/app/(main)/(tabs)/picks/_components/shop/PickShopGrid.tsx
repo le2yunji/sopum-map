@@ -16,6 +16,13 @@ type Props = Readonly<{
   onLoadMore: () => void;
 }>;
 
+const EAGER_IMAGE_COUNT = 2;
+
+/** 첫 화면에 보이는 그리드 한 줄만 즉시 불러옵니다. */
+export function getPickShopImageLoading(index: number): "eager" | "lazy" {
+  return index < EAGER_IMAGE_COUNT ? "eager" : "lazy";
+}
+
 /**
  * 목록과 무한스크롤
  */
@@ -73,8 +80,12 @@ export function PickShopGrid({
   return (
     <>
       <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-5">
-        {shops.map((shop) => (
-          <PickShopCard key={shop.id} shop={shop} />
+        {shops.map((shop, index) => (
+          <PickShopCard
+            key={shop.id}
+            shop={shop}
+            imageLoading={getPickShopImageLoading(index)}
+          />
         ))}
       </div>
 

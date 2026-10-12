@@ -21,6 +21,7 @@ export const CourseListItem = ({
   title,
   description,
   imageUrls,
+  imageLoading = "lazy",
   tags,
 }: CourseListItemProps) => {
   const thumbnailImages =
@@ -68,6 +69,7 @@ export const CourseListItem = ({
                 src={imageUrl}
                 alt={`${title} 매장 이미지 ${index + 1}`}
                 sizes="80px"
+                loading={imageLoading}
                 className="
                   object-cover
                   transition-transform duration-300
