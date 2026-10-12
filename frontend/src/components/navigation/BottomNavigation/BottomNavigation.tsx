@@ -9,6 +9,7 @@ type BottomNavigationProps = Readonly<{
 
 type NavigationIconProps = Readonly<{
   name: "home" | "map" | "pick" | "course" | "me";
+  active: boolean;
 }>;
 
 const NAVIGATION_ITEMS = [
@@ -34,10 +35,12 @@ function getActiveNavigationHref(currentPath: string) {
 }
 
 /** 하단 내비게이션에서 의미를 보조하는 선형 아이콘을 표시합니다. */
-function NavigationIcon({ name }: NavigationIconProps) {
+function NavigationIcon({ name, active }: NavigationIconProps) {
+  const className = active ? "size-5 text-brand" : "size-5";
+
   if (name === "home") {
     return (
-      <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+      <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
         <path
           d="M4 10.5 12 4l8 6.5V20h-5v-6H9v6H4z"
           fill="none"
@@ -51,7 +54,7 @@ function NavigationIcon({ name }: NavigationIconProps) {
 
   if (name === "map") {
     return (
-      <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+      <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
         <path
           d="m3.5 6 5-2 7 2 5-2v14l-5 2-7-2-5 2zM8.5 4v14m7-12v14"
           fill="none"
@@ -65,7 +68,7 @@ function NavigationIcon({ name }: NavigationIconProps) {
 
   if (name === "pick") {
     return (
-      <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+      <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
         <path
           d="M6 4.5h12v16L12 17l-6 3.5z"
           fill="none"
@@ -79,7 +82,7 @@ function NavigationIcon({ name }: NavigationIconProps) {
 
   if (name === "course") {
     return (
-      <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+      <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
         <path
           d="M6 18.5c2.5-1 2.5-3 5-4s3.5.5 6-1.5"
           fill="none"
@@ -94,7 +97,7 @@ function NavigationIcon({ name }: NavigationIconProps) {
   }
 
   return (
-    <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
       <circle
         cx="12"
         cy="8"
@@ -148,7 +151,7 @@ export function BottomNavigation({ currentPath }: BottomNavigationProps) {
                     : "text-black-400 hover:text-black-800",
                 ].join(" ")}
               >
-                <NavigationIcon name={item.icon} />
+                <NavigationIcon name={item.icon} active={isActive} />
                 <span>{item.label}</span>
               </Link>
             </li>

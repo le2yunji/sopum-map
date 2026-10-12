@@ -49,9 +49,10 @@ export const CoursesActive: Story = {
     const canvas = within(canvasElement);
     const navigation = canvas.getByRole("navigation", { name: "주요 메뉴" });
 
-    await expect(
-      within(navigation).getByRole("link", { name: "코스" }),
-    ).toHaveAttribute("aria-current", "page");
+    const courseLink = within(navigation).getByRole("link", { name: "코스" });
+
+    await expect(courseLink).toHaveAttribute("aria-current", "page");
+    await expect(courseLink.querySelector("svg")).toHaveClass("text-brand");
     await expect(
       within(navigation).getByRole("link", { name: "마이페이지" }),
     ).not.toHaveAttribute("aria-current");
