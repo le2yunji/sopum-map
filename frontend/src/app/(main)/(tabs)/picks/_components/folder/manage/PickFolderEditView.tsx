@@ -9,15 +9,23 @@ import {
 } from "@/api/pick-folder/pick-folder.query";
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
+import { getPickFolderErrorMessage } from "../../picks-ui";
 
 type Props = Readonly<{
   folderId: string;
   title: string;
+  description: string | null;
   onBack: () => void;
 }>;
 
-export function PickFolderEditView({ folderId, title, onBack }: Props) {
+export function PickFolderEditView({
+  folderId,
+  title,
+  description,
+  onBack,
+}: Props) {
   const [draftTitle, setDraftTitle] = useState(title);
+  const [draftDescription, setDraftDescription] = useState(description ?? "");
 
   const updateFolderMutation = useUpdatePickFolder(folderId);
 
@@ -29,16 +37,19 @@ export function PickFolderEditView({ folderId, title, onBack }: Props) {
 
   const normalizedTitle = draftTitle.trim();
 
-  const isTitleChanged =
-    normalizedTitle.length > 0 && normalizedTitle !== title;
+  const normalizedDescription = draftDescription.trim();
+  const isFolderChanged =
+    normalizedTitle.length > 0 &&
+    (normalizedTitle !== title || normalizedDescription !== (description ?? ""));
 
   const handleUpdateTitle = () => {
-    if (!isTitleChanged || updateFolderMutation.isPending) {
+    if (!isFolderChanged || updateFolderMutation.isPending) {
       return;
     }
 
     updateFolderMutation.mutate({
       title: normalizedTitle,
+      description: normalizedDescription || null,
     });
   };
 
@@ -80,13 +91,38 @@ export function PickFolderEditView({ folderId, title, onBack }: Props) {
           <Button
             size="small"
             isLoading={updateFolderMutation.isPending}
-            disabled={!isTitleChanged}
+            disabled={!isFolderChanged}
             onClick={handleUpdateTitle}
           >
-            변경
+            저장
           </Button>
         </div>
       </div>
+
+      <div className="mt-5">
+        <label
+          htmlFor="pick-folder-edit-description"
+          className="text-13 font-medium text-black-700"
+        >
+          폴더 설명
+        </label>
+        <textarea
+          id="pick-folder-edit-description"
+          value={draftDescription}
+          maxLength={300}
+          rows={3}
+          onChange={(event) => setDraftDescription(event.target.value)}
+          className="mt-2 w-full resize-none rounded-lg border border-black-300 px-3 py-2 text-14 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
+        />
+      </div>
+
+      {updateFolderMutation.error || removeShopMutation.error ? (
+        <p role="alert" className="mt-3 text-13 text-red-600">
+          {getPickFolderErrorMessage(
+            updateFolderMutation.error ?? removeShopMutation.error,
+          )}
+        </p>
+      ) : null}
 
       <div className="mt-7">
         <div className="flex items-center justify-between">
