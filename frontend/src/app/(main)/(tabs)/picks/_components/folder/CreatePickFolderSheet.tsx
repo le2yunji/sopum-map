@@ -1,20 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import type { PickFolderListItem } from "@sopum-map/shared";
 
 import { useCreatePickFolder } from "@/api/pick-folder/pick-folder.query";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button/Button";
-
-type PickFolder = Readonly<{
-  id: string;
-  title: string;
-}>;
+import { getPickFolderErrorMessage } from "../picks-ui";
 
 type Props = Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  folders: PickFolder[];
+  folders: readonly Pick<PickFolderListItem, "id" | "title">[];
   onCreated: (folderId: string) => void;
 }>;
 
@@ -109,6 +106,12 @@ export function CreatePickFolderSheet({
           {isDuplicateFolder ? (
             <p id="new-folder-error" className="mt-2 text-12 text-red-600">
               이미 사용 중인 폴더 이름이에요.
+            </p>
+          ) : null}
+
+          {createFolderMutation.error ? (
+            <p role="alert" className="mt-2 text-12 text-red-600">
+              {getPickFolderErrorMessage(createFolderMutation.error)}
             </p>
           ) : null}
         </BottomSheet.Body>

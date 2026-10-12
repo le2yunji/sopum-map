@@ -179,7 +179,7 @@ export async function createCourse(
 
       regionGroup: input.regionGroup,
 
-      isPublic: input.isPublic,
+      isPublic: input.isPublic ?? false,
 
       shops: courseShops,
     });
