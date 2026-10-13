@@ -9,6 +9,7 @@ import {
   updateCourseController,
   updateCourseVisibilityController,
 } from "../controllers/course.controller.js";
+import { getCourseWalkingRouteController } from "../controllers/course-route.controller.js";
 
 import { requireAuth } from "../middlewares/require-auth.middleware.js";
 import { validateRequest } from "../middlewares/validate-request.middleware.js";
@@ -70,6 +71,14 @@ courseRouter.patch(
   requireAuth,
   validateRequest(updateCourseVisibilitySchema),
   updateCourseVisibilityController,
+);
+
+/** 저장된 코스의 실제 도보 경로 조회 */
+courseRouter.get(
+  "/:courseId/walking-route",
+  requireAuth,
+  validateRequest(getCourseDetailSchema),
+  getCourseWalkingRouteController,
 );
 
 /**

@@ -29,6 +29,7 @@ import {
   updateCourse,
   updateCourseVisibility,
 } from "./course.api";
+import { courseRouteQueryKeys } from "../course-route/course-route.query";
 
 type CourseInfiniteData<TPage> = InfiniteData<TPage, string | undefined>;
 
@@ -380,6 +381,10 @@ export function useUpdateCourse() {
     }) => updateCourse(courseId, input),
 
     onSuccess: async (_, { courseId }) => {
+      queryClient.removeQueries({
+        queryKey: courseRouteQueryKeys.walking(courseId),
+      });
+
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: courseKeys.detail(courseId),
@@ -405,6 +410,9 @@ export function useDeleteCourse() {
     onSuccess: async (_, courseId) => {
       queryClient.removeQueries({
         queryKey: courseKeys.detail(courseId),
+      });
+      queryClient.removeQueries({
+        queryKey: courseRouteQueryKeys.walking(courseId),
       });
 
       await queryClient.invalidateQueries({
