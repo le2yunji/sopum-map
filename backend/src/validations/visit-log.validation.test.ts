@@ -1,6 +1,6 @@
 // backend/src/validations/visit-log.validation.test.ts
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   createVisitLogSchema,
@@ -9,6 +9,10 @@ import {
 } from "./visit-log.validation.js";
 
 const shopId = "6a8a68e15e2aa43be6a6549d";
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 /** 현재 시각보다 하루 전인 정상 방문 로그 요청을 만듭니다. */
 function createValidVisitLogRequest() {
@@ -102,6 +106,21 @@ describe("createVisitLogSchema", () => {
         },
       }),
     ).toThrow();
+  });
+
+  it("오늘 오전에도 오늘 정오로 정규화한 방문일을 허용한다", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-10-14T00:00:00.000Z"));
+
+    expect(() =>
+      createVisitLogSchema.parse({
+        ...createValidVisitLogRequest(),
+        body: {
+          ...createValidVisitLogRequest().body,
+          visitedAt: "2026-10-14T03:00:00.000Z",
+        },
+      }),
+    ).not.toThrow();
   });
 });
 

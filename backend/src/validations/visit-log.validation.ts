@@ -11,10 +11,24 @@ const visitLogTagKeySchema = z.custom<TagKey>(
   "정의되지 않은 방문 태그입니다.",
 );
 
-/** 현재보다 미래인 방문 시각이 저장되지 않게 합니다. */
+/** 주어진 시각을 서비스 기준인 한국 달력 날짜로 변환합니다. */
+function formatKoreanDate(value: Date): string {
+  const dateParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(value);
+  const getPart = (type: Intl.DateTimeFormatPartTypes) =>
+    dateParts.find((part) => part.type === type)?.value ?? "";
+
+  return `${getPart("year")}-${getPart("month")}-${getPart("day")}`;
+}
+
+/** 방문 시각이 한국 달력 기준 미래 날짜가 아닌지 확인합니다. */
 const visitedAtSchema = z.iso
   .datetime()
-  .refine((value) => new Date(value).getTime() <= Date.now(), {
+  .refine((value) => formatKoreanDate(new Date(value)) <= formatKoreanDate(new Date()), {
     message: "방문일은 미래일 수 없습니다.",
   });
 
