@@ -50,10 +50,16 @@ export const OpenCalendar: Story = {
     await expect(
       canvas.getByRole("button", { name: /2026년 10월 15일/ }),
     ).toBeDisabled();
+    const viewportWidth =
+      canvasElement.ownerDocument.defaultView?.innerWidth ?? 320;
+    const cancelButton = canvas.getByRole("button", { name: "취소" });
+    const confirmButton = canvas.getByRole("button", { name: "선택 완료" });
+    await expect(cancelButton.getBoundingClientRect().left).toBeGreaterThanOrEqual(0);
+    await expect(confirmButton.getBoundingClientRect().right).toBeLessThanOrEqual(
+      viewportWidth,
+    );
     await expect(
       canvasElement.ownerDocument.documentElement.scrollWidth,
-    ).toBeLessThanOrEqual(
-      canvasElement.ownerDocument.defaultView?.innerWidth ?? 320,
-    );
+    ).toBeLessThanOrEqual(viewportWidth);
   },
 };

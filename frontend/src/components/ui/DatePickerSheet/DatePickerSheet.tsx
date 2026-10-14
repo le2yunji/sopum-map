@@ -157,11 +157,12 @@ export function DatePickerSheet({
           <Button
             variant="outline"
             fullWidth
+            className="min-w-0 flex-1"
             onClick={() => handleOpenChange(false)}
           >
             취소
           </Button>
-          <Button fullWidth onClick={confirmSelection}>
+          <Button fullWidth className="min-w-0 flex-1" onClick={confirmSelection}>
             선택 완료
           </Button>
         </BottomSheet.Footer>
