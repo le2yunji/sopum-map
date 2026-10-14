@@ -1,7 +1,8 @@
-import { VisitReviewForm } from "./_components/VisitReviewForm";
+import { redirect } from "next/navigation";
 
-/** 동적 상점 식별자를 후기 작성 화면에 연결합니다. */
+/** 이전 후기 작성 주소를 방문 로그 작성 주소로 교체 이동합니다. */
 export default async function Page({ params }: PageProps<"/shops/[shopId]/reviews/new">) {
   const { shopId } = await params;
-  return <VisitReviewForm shopId={shopId} shopName="모모 소품샵" />;
+
+  redirect(`/shops/${shopId}/visit-logs/new`);
 }
