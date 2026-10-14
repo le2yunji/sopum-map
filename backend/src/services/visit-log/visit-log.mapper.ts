@@ -1,10 +1,11 @@
 // backend/src/services/visit-log/visit-log.mapper.ts
 
-import type { VisitLogListItem } from "@sopum-map/shared";
+import type { TagKey, VisitLogListItem } from "@sopum-map/shared";
 
 type VisitLogMapperParams = Readonly<{
   visitLog: {
     _id: unknown;
+    selectedTagKeys?: TagKey[];
     content?: string | null;
     imageUrls: string[];
     visitedAt: Date;
@@ -33,6 +34,7 @@ export function mapVisitLogListItem({
       isMe: author.isMe,
     },
 
+    selectedTagKeys: visitLog.selectedTagKeys ?? [],
     content: visitLog.content ?? null,
     imageUrls: visitLog.imageUrls,
 
