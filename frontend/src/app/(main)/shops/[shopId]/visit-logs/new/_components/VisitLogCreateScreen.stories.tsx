@@ -38,10 +38,11 @@ export const CreateVisitLog: Story = {
     await expect(
       canvas.getByText("태그를 1개 이상 선택해 주세요."),
     ).toBeVisible();
-
-    await userEvent.click(
+    await expect(
       canvas.getByRole("button", { name: "사진 남기기 좋아요" }),
-    );
+    ).toHaveFocus();
+
+    await userEvent.keyboard(" ");
     await userEvent.type(
       canvas.getByLabelText("방문 메모"),
       "다시 가고 싶은 상점이에요.",
@@ -101,5 +102,29 @@ export const BackFallback: Story = {
       canvas.getByRole("button", { name: "상점 상세로 돌아가기" }),
     );
     await expect(args.onBack).toHaveBeenCalledOnce();
+  },
+};
+
+export const SmallMobile: Story = {
+  globals: { viewport: { value: "sopumSmall", isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole("heading", { name: "방문 로그 작성" })).toBeVisible();
+    await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(
+      canvasElement.ownerDocument.defaultView?.innerWidth ?? 320,
+    );
+  },
+};
+
+export const LargeMobile: Story = {
+  globals: { viewport: { value: "sopumLarge", isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByRole("heading", { name: "방문 로그 작성" })).toBeVisible();
+    await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(
+      canvasElement.ownerDocument.defaultView?.innerWidth ?? 480,
+    );
   },
 };

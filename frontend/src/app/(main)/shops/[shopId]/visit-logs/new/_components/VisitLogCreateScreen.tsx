@@ -8,7 +8,7 @@ import type {
 import { SHOP_REGION_GROUP_LABELS } from "@sopum-map/shared";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 
 import { useShopDetail } from "@/api/shops/shop.query";
 import { useCreateVisitLog } from "@/api/visit-log/visit-log.query";
@@ -51,6 +51,7 @@ export function VisitLogCreateForm({
   const [tagError, setTagError] = useState("");
   const [dateError, setDateError] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const firstTagRef = useRef<HTMLButtonElement>(null);
 
   /** 입력값을 확인하고 작성 요청을 전달합니다. */
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -61,6 +62,7 @@ export function VisitLogCreateForm({
 
     if (selectedTagKeys.length === 0) {
       setTagError("태그를 1개 이상 선택해 주세요.");
+      firstTagRef.current?.focus();
       return;
     }
 
@@ -162,6 +164,7 @@ export function VisitLogCreateForm({
 
         <section className="px-5 py-5">
           <VisitLogTagSelector
+            firstTagRef={firstTagRef}
             selectedTagKeys={selectedTagKeys}
             onChange={(nextTagKeys) => {
               setSelectedTagKeys(nextTagKeys);
@@ -169,6 +172,9 @@ export function VisitLogCreateForm({
             }}
             errorMessage={tagError || undefined}
           />
+          <p className="mt-3 text-12 text-black-500">
+            작성한 방문 로그는 다른 사용자에게 공개돼요.
+          </p>
         </section>
 
         <div className="h-2 bg-black-100" />
@@ -203,13 +209,22 @@ export function VisitLogCreateForm({
 }
 
 /** 같은 서비스 안에서 들어온 경우에만 브라우저 뒤로가기를 사용합니다. */
-export function canReturnWithBrowserHistory(referrer: string, origin: string) {
+export function canReturnWithBrowserHistory(
+  referrer: string,
+  origin: string,
+  shopId: string,
+) {
   if (!referrer) {
     return false;
   }
 
   try {
-    return new URL(referrer).origin === origin;
+    const previousUrl = new URL(referrer);
+
+    return (
+      previousUrl.origin === origin &&
+      previousUrl.pathname === `/shops/${encodeURIComponent(shopId)}`
+    );
   } catch {
     return false;
   }
@@ -257,7 +272,13 @@ export function VisitLogCreateScreen({ shopId }: Readonly<{ shopId: string }>) {
       }}
       isPending={createMutation.isPending}
       onBack={() => {
-        if (canReturnWithBrowserHistory(document.referrer, window.location.origin)) {
+        if (
+          canReturnWithBrowserHistory(
+            document.referrer,
+            window.location.origin,
+            shopId,
+          )
+        ) {
           router.back();
           return;
         }

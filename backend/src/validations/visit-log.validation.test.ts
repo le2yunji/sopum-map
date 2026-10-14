@@ -30,10 +30,12 @@ describe("createVisitLogSchema", () => {
     expect(createVisitLogSchema.parse(request)).toEqual(request);
   });
 
-  it.each([
+  const invalidTagSelections: readonly string[][] = [
     [],
     ["cute", "vintage", "cozy", "hip", "lovely", "kitsch"],
-  ])("태그가 1개 미만이거나 5개를 초과하면 거부한다", (selectedTagKeys) => {
+  ];
+
+  it.each(invalidTagSelections)("태그가 1개 미만이거나 5개를 초과하면 거부한다", (selectedTagKeys) => {
     expect(() =>
       createVisitLogSchema.parse({
         ...createValidVisitLogRequest(),

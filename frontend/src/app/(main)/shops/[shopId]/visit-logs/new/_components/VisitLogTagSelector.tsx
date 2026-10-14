@@ -8,7 +8,7 @@ import {
   type TagGroup,
   type TagKey,
 } from "@sopum-map/shared";
-import { useState } from "react";
+import { useState, type Ref } from "react";
 
 import { Button } from "@/components/ui/Button";
 
@@ -19,6 +19,7 @@ type Props = Readonly<{
   selectedTagKeys: readonly TagKey[];
   onChange: (selectedTagKeys: readonly TagKey[]) => void;
   errorMessage?: string;
+  firstTagRef?: Ref<HTMLButtonElement>;
 }>;
 
 /** 방문 로그에 붙일 태그를 그룹별로 최대 5개까지 선택하게 합니다. */
@@ -26,6 +27,7 @@ export function VisitLogTagSelector({
   selectedTagKeys,
   onChange,
   errorMessage,
+  firstTagRef,
 }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const visibleGroups = isExpanded ? TAG_GROUPS : DEFAULT_VISIBLE_GROUPS;
@@ -82,7 +84,7 @@ export function VisitLogTagSelector({
         </div>
       )}
 
-      <div className="space-y-5">
+      <div id="visit-log-tag-groups" className="space-y-5">
         {visibleGroups.map((group) => {
           const tags = ACTIVE_TAG_DEFINITIONS.filter((tag) => tag.group === group);
 
@@ -96,12 +98,13 @@ export function VisitLogTagSelector({
                 {TAG_GROUP_LABELS[group]}
               </legend>
               <div className="flex flex-wrap gap-2">
-                {tags.map((tag) => {
+                {tags.map((tag, tagIndex) => {
                   const isSelected = selectedTagKeys.includes(tag.key);
 
                   return (
                     <Button
                       key={tag.key}
+                      ref={group === DEFAULT_VISIBLE_GROUPS[0] && tagIndex === 0 ? firstTagRef : undefined}
                       variant={isSelected ? "secondary" : "outline"}
                       size="small"
                       aria-pressed={isSelected}
@@ -123,6 +126,7 @@ export function VisitLogTagSelector({
         variant="ghost"
         size="small"
         aria-expanded={isExpanded}
+        aria-controls="visit-log-tag-groups"
         onClick={() => setIsExpanded((current) => !current)}
         className="w-full text-black-600"
       >

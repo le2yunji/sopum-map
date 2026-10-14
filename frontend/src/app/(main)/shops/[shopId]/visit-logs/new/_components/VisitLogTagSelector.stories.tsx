@@ -44,6 +44,7 @@ export const Default: Story = {
       canvas.getByRole("button", { name: "사진 남기기 좋아요" }),
     ).not.toBePressed();
     await expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await expect(toggle).toHaveAttribute("aria-controls", "visit-log-tag-groups");
     await expect(
       canvas.getByText("태그를 1개 이상 선택해 주세요."),
     ).toHaveAttribute("id", "visit-log-tags-error");
@@ -51,7 +52,8 @@ export const Default: Story = {
     await userEvent.click(
       canvas.getByRole("button", { name: "사진 남기기 좋아요" }),
     );
-    await userEvent.click(toggle);
+    toggle.focus();
+    await userEvent.keyboard("{Enter}");
 
     await expect(canvas.getByText("분위기")).toBeVisible();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
