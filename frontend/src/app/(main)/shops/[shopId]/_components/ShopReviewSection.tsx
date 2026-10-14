@@ -86,14 +86,14 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
   return (
     <section className="mt-2 bg-white px-5 py-4">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-16 font-semibold">후기 {visitLogCount}개</h2>
+        <h2 className="text-16 font-semibold">방문 로그 {visitLogCount}개</h2>
 
         <Link
-          href={`/shops/${shopId}/reviews/new`}
+          href={`/shops/${shopId}/visit-logs/new`}
           className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-lg border border-pink-300/30 px-3 text-12 font-medium text-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
         >
           <CameraIcon className="w-4 text-green-700" />
-          후기 작성하기
+          방문 로그 작성
         </Link>
       </div>
 
@@ -104,12 +104,12 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
       ) : visitLogs.length === 0 ? (
         <div className="py-10 text-center">
           <p className="text-14 text-black-500">
-            아직 등록된 방문 후기가 없어요
+            아직 등록된 방문 로그가 없어요
           </p>
         </div>
       ) : (
         <div className="mt-5 space-y-7">
-          {visitLogs.map((visitLog, reviewIndex) => (
+          {visitLogs.map((visitLog, logIndex) => (
             <article key={visitLog.id}>
               <div className="flex items-center gap-2">
                 <Image
@@ -144,7 +144,7 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
                       <Image
                         fill
                         loading={
-                          reviewIndex === 0 && index === 0 ? "eager" : "lazy"
+                          logIndex === 0 && index === 0 ? "eager" : "lazy"
                         }
                         src={url}
                         alt={`${visitLog.author.nickname}님의 방문 사진 ${index + 1}`}

@@ -1,8 +1,24 @@
 // frontend/src/api/visit-log/visit-log.api.ts
 
-import type { GetVisitLogsQuery, VisitLogListData } from "@sopum-map/shared";
+import type {
+  CreateVisitLogData,
+  CreateVisitLogRequest,
+  GetVisitLogsQuery,
+  VisitLogListData,
+} from "@sopum-map/shared";
 
 import { apiClient } from "../client";
+
+/** 이미지 없이 새 방문 로그를 작성합니다. */
+export async function createVisitLog(
+  shopId: string,
+  input: CreateVisitLogRequest,
+): Promise<CreateVisitLogData> {
+  return apiClient<CreateVisitLogData>(`/shops/${shopId}/visit-logs`, {
+    method: "POST",
+    body: input,
+  });
+}
 
 /** 방문 기록 조회 조건을 URL query string으로 변환합니다. */
 export function createVisitLogsSearchParams(

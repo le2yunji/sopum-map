@@ -78,7 +78,7 @@ const meta = {
 
     likeCount: 12,
 
-    reviewCount: 3,
+    visitLogCount: 3,
 
     isLiked: false,
 

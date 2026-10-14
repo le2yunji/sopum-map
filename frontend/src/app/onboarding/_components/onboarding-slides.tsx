@@ -122,7 +122,7 @@ export const ONBOARDING_SLIDES: readonly OnboardingSlideData[] = [
   {
     id: "visit",
     title: "다녀온 추억을 기록해요",
-    description: "사진과 한 줄 후기로 소품샵에서의 추억을 남겨보세요.",
+    description: "사진과 한 줄 방문 로그로 소품샵에서의 추억을 남겨보세요.",
     visual: (
       <div className="relative h-56 w-72 overflow-hidden rounded-3xl bg-pink-100 min-[390px]:h-64 min-[390px]:w-80">
         <div className="absolute left-5 top-5 w-40 -rotate-3 rounded-2xl bg-white p-3 shadow-sm">

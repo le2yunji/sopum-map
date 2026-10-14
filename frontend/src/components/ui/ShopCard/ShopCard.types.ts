@@ -9,7 +9,7 @@ export interface ShopCardProps {
   region: string;
   tags: string[];
   likeCount: number;
-  reviewCount: number;
+  visitLogCount: number;
   isLiked?: boolean;
   isLikePending?: boolean;
   variant?: ShopCardVariant;

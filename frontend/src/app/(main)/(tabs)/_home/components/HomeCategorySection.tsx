@@ -107,7 +107,7 @@ export function HomeCategorySection() {
                 {({ isLiked, isPending, onToggle }) => (
                   <ShopCard
                     likeCount={23}
-                    reviewCount={12}
+                    visitLogCount={12}
                     {...shop}
                     href={`/shops/${shop.id}`}
                     isLiked={isLiked}

@@ -12,6 +12,18 @@ export const TAG_GROUPS = [
   "etc",
 ] as const;
 
+export const TAG_GROUP_LABELS = {
+  mood: "분위기",
+  product: "상품",
+  character: "캐릭터",
+  price: "가격",
+  shopping: "쇼핑 목적",
+  experience: "방문 경험",
+  feature: "매장 특징",
+  trend: "트렌드",
+  etc: "기타",
+} as const satisfies Record<(typeof TAG_GROUPS)[number], string>;
+
 export const TAG_DEFINITIONS = [
   // ─────────────────────────────
   // 분위기 / 취향

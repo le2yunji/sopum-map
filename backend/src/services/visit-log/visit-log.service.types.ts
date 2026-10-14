@@ -1,6 +1,14 @@
 // backend/src/services/visit-log/visit-log.service.types.ts
 
-import type { VisitLogListData } from "@sopum-map/shared";
+import type {
+  CreateVisitLogData,
+  CreateVisitLogRequest,
+  VisitLogListData,
+} from "@sopum-map/shared";
+
+export type CreateVisitLogServiceInput = CreateVisitLogRequest;
+
+export type CreateVisitLogServiceResult = CreateVisitLogData;
 
 export type GetVisitLogsServiceParams = Readonly<{
   shopId: string;

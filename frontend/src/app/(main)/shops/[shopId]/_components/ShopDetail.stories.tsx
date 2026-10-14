@@ -234,10 +234,9 @@ export const Default: Story = {
 
     await expect(
       canvas.getByRole("link", {
-        name: "후기 작성하기",
+        name: "방문 로그 작성",
       }),
-    ).toHaveAttribute("href", "/shops/shop-1/reviews/new");
-
+    ).toHaveAttribute("href", "/shops/shop-1/visit-logs/new");
     await expect(
       canvas.getByRole("button", { name: "내 픽에서 제거" }),
     ).toHaveAttribute("aria-pressed", "true");
