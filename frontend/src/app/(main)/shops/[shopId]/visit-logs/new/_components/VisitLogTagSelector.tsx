@@ -5,13 +5,29 @@ import {
   TAG_DEFINITION_BY_KEY,
   TAG_GROUP_LABELS,
   TAG_GROUPS,
+  type TagGroup,
   type TagKey,
 } from "@sopum-map/shared";
-import type { Ref } from "react";
+import { useState, type Ref } from "react";
 
 import { Button } from "@/components/ui/Button";
 
 const MAX_SELECTED_TAG_COUNT = 5;
+const DEFAULT_VISIBLE_TAG_COUNT = 6;
+const TAG_GROUP_COPY = {
+  product: {
+    title: "어떤 소품이 있었나요?",
+    description: "기억에 남는 상품이나 캐릭터를 선택해 주세요.",
+  },
+  mood: {
+    title: "어떤 분위기였나요?",
+    description: "매장에서 느낀 분위기를 골라보세요.",
+  },
+  experience: {
+    title: "방문 경험은 어땠나요?",
+    description: "다른 소품 수집가에게 도움이 되는 정보를 알려주세요.",
+  },
+} as const;
 
 type Props = Readonly<{
   selectedTagKeys: readonly TagKey[];
@@ -27,6 +43,7 @@ export function VisitLogTagSelector({
   errorMessage,
   firstTagRef,
 }: Props) {
+  const [expandedGroups, setExpandedGroups] = useState<readonly TagGroup[]>([]);
   const hasReachedLimit = selectedTagKeys.length >= MAX_SELECTED_TAG_COUNT;
 
   /** 선택 여부를 반대로 바꾸되 최대 개수를 넘기지 않습니다. */
@@ -83,6 +100,11 @@ export function VisitLogTagSelector({
       <div id="visit-log-tag-groups" className="space-y-5">
         {TAG_GROUPS.map((group) => {
           const tags = ACTIVE_TAG_DEFINITIONS.filter((tag) => tag.group === group);
+          const isExpanded = expandedGroups.includes(group);
+          const visibleTags = isExpanded
+            ? tags
+            : tags.slice(0, DEFAULT_VISIBLE_TAG_COUNT);
+          const copy = TAG_GROUP_COPY[group];
 
           if (tags.length === 0) {
             return null;
@@ -90,11 +112,10 @@ export function VisitLogTagSelector({
 
           return (
             <fieldset key={group} className="space-y-2">
-              <legend className="text-14 font-semibold text-black-800">
-                {TAG_GROUP_LABELS[group]}
-              </legend>
+              <legend className="text-16 font-semibold text-black-900">{copy.title}</legend>
+              <p className="text-13 text-black-500">{copy.description}</p>
               <div className="flex flex-wrap gap-2">
-                {tags.map((tag, tagIndex) => {
+                {visibleTags.map((tag, tagIndex) => {
                   const isSelected = selectedTagKeys.includes(tag.key);
 
                   return (
@@ -113,6 +134,23 @@ export function VisitLogTagSelector({
                   );
                 })}
               </div>
+              {tags.length > DEFAULT_VISIBLE_TAG_COUNT && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="small"
+                  aria-expanded={isExpanded}
+                  onClick={() =>
+                    setExpandedGroups((current) =>
+                      isExpanded
+                        ? current.filter((currentGroup) => currentGroup !== group)
+                        : [...current, group],
+                    )
+                  }
+                >
+                  {isExpanded ? `${TAG_GROUP_LABELS[group]} 접기` : `${TAG_GROUP_LABELS[group]} 더보기`}
+                </Button>
+              )}
             </fieldset>
           );
         })}

@@ -36,9 +36,9 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByText("소품")).toBeVisible();
-    await expect(canvas.getByText("분위기")).toBeVisible();
-    await expect(canvas.getByText("방문 경험")).toBeVisible();
+    await expect(canvas.getByText("어떤 소품이 있었나요?")).toBeVisible();
+    await expect(canvas.getByText("어떤 분위기였나요?")).toBeVisible();
+    await expect(canvas.getByText("방문 경험은 어땠나요?")).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "키링" }),
     ).not.toBePressed();
