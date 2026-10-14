@@ -5,14 +5,12 @@ import {
   TAG_DEFINITION_BY_KEY,
   TAG_GROUP_LABELS,
   TAG_GROUPS,
-  type TagGroup,
   type TagKey,
 } from "@sopum-map/shared";
-import { useState, type Ref } from "react";
+import type { Ref } from "react";
 
 import { Button } from "@/components/ui/Button";
 
-const DEFAULT_VISIBLE_GROUPS: readonly TagGroup[] = ["experience", "shopping"];
 const MAX_SELECTED_TAG_COUNT = 5;
 
 type Props = Readonly<{
@@ -29,8 +27,6 @@ export function VisitLogTagSelector({
   errorMessage,
   firstTagRef,
 }: Props) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const visibleGroups = isExpanded ? TAG_GROUPS : DEFAULT_VISIBLE_GROUPS;
   const hasReachedLimit = selectedTagKeys.length >= MAX_SELECTED_TAG_COUNT;
 
   /** 선택 여부를 반대로 바꾸되 최대 개수를 넘기지 않습니다. */
@@ -73,11 +69,11 @@ export function VisitLogTagSelector({
                 key={tagKey}
                 variant="secondary"
                 size="small"
-                aria-label={`선택한 태그 ${tag.selectionLabel} 삭제`}
+                aria-label={`선택한 태그 ${tag.label} 삭제`}
                 onClick={() => toggleTag(tagKey)}
                 className="min-h-9 rounded-full px-3"
               >
-                {tag.selectionLabel} ×
+                {tag.label} ×
               </Button>
             );
           })}
@@ -85,7 +81,7 @@ export function VisitLogTagSelector({
       )}
 
       <div id="visit-log-tag-groups" className="space-y-5">
-        {visibleGroups.map((group) => {
+        {TAG_GROUPS.map((group) => {
           const tags = ACTIVE_TAG_DEFINITIONS.filter((tag) => tag.group === group);
 
           if (tags.length === 0) {
@@ -104,7 +100,7 @@ export function VisitLogTagSelector({
                   return (
                     <Button
                       key={tag.key}
-                      ref={group === DEFAULT_VISIBLE_GROUPS[0] && tagIndex === 0 ? firstTagRef : undefined}
+                      ref={group === TAG_GROUPS[0] && tagIndex === 0 ? firstTagRef : undefined}
                       variant={isSelected ? "secondary" : "outline"}
                       size="small"
                       aria-pressed={isSelected}
@@ -112,7 +108,7 @@ export function VisitLogTagSelector({
                       onClick={() => toggleTag(tag.key)}
                       className={isSelected ? "border border-green-500" : ""}
                     >
-                      {tag.selectionLabel}
+                      {tag.label}
                     </Button>
                   );
                 })}
@@ -121,17 +117,6 @@ export function VisitLogTagSelector({
           );
         })}
       </div>
-
-      <Button
-        variant="ghost"
-        size="small"
-        aria-expanded={isExpanded}
-        aria-controls="visit-log-tag-groups"
-        onClick={() => setIsExpanded((current) => !current)}
-        className="w-full text-black-600"
-      >
-        {isExpanded ? "기본 태그만 보기" : "모든 태그 보기"}
-      </Button>
 
       {errorMessage && (
         <p id="visit-log-tags-error" role="alert" className="text-13 text-red-500">

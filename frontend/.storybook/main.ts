@@ -20,6 +20,8 @@ const config: StorybookConfig = {
   viteFinal(viteConfig) {
     viteConfig.optimizeDeps = {
       ...viteConfig.optimizeDeps,
+      // 워크스페이스 패키지 변경이 잠긴 의존성 캐시에 가려지지 않게 합니다.
+      force: true,
       include: [
         ...(viteConfig.optimizeDeps?.include ?? []),
         "next/script",

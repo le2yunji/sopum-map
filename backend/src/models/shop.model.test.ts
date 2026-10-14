@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import ShopModel from "./shop.model.js";
 
 /** 모델 검증에 필요한 최소 상점 문서를 생성합니다. */
-const createShop = () => {
+const createShop = (overrides: Record<string, unknown> = {}) => {
   return new ShopModel({
     name: "초록 서랍",
     category: "소품샵",
@@ -27,6 +27,7 @@ const createShop = () => {
         order: 2,
       },
     ],
+    ...overrides,
   });
 };
 
@@ -35,5 +36,11 @@ describe("Shop model", () => {
     await expect(createShop().validate()).rejects.toThrow(
       "대표 이미지는 최대 한 장만 저장할 수 있습니다.",
     );
+  });
+
+  it("폐기된 태그 통계를 거부한다", async () => {
+    await expect(
+      createShop({ images: [], tagStats: [{ key: "calm", count: 1 }] }).validate(),
+    ).rejects.toThrow();
   });
 });

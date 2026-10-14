@@ -28,6 +28,7 @@ describe("VisitLog model", () => {
     ["태그 없음", []],
     ["6개 태그", ["cute", "vintage", "cozy", "hip", "lovely", "kitsch"]],
     ["중복 태그", ["cute", "cute"]],
+    ["폐기된 태그", ["calm"]],
   ])("%s을 거부한다", async (_, selectedTagKeys) => {
     const visitLog = createVisitLog({ selectedTagKeys: [...selectedTagKeys] });
 

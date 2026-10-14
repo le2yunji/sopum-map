@@ -46,7 +46,7 @@ export function ShopSummarySection({ shop }: Props) {
       <div className="mt-3 flex flex-wrap gap-2">
         {shop.tags.map((tag) => (
           <Badge key={tag.key} variant="softGreen" shape="pill" size="medium">
-            #{tag.shortLabel}
+            #{tag.label}
           </Badge>
         ))}
       </div>

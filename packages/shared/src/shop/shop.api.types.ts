@@ -30,8 +30,7 @@ export type GetShopsQuery = {
 export type ShopTag = Readonly<{
   key: TagKey;
   count: number;
-  selectionLabel: string;
-  shortLabel: string;
+  label: string;
   group: TagGroup;
 }>;
 

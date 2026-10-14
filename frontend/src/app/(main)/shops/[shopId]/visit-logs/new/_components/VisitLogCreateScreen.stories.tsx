@@ -39,7 +39,7 @@ export const CreateVisitLog: Story = {
       canvas.getByText("태그를 1개 이상 선택해 주세요."),
     ).toBeVisible();
     await expect(
-      canvas.getByRole("button", { name: "사진 남기기 좋아요" }),
+      canvas.getByRole("button", { name: "키링" }),
     ).toHaveFocus();
 
     await userEvent.keyboard(" ");
@@ -52,7 +52,7 @@ export const CreateVisitLog: Story = {
     await waitFor(() => {
       expect(args.onSubmit).toHaveBeenCalledWith({
         visitedAt: "2026-10-14T03:00:00.000Z",
-        selectedTagKeys: ["photo_spot"],
+        selectedTagKeys: ["keyrings"],
         content: "다시 가고 싶은 상점이에요.",
         imageKeys: [],
       });
@@ -82,7 +82,7 @@ export const ApiErrorKeepsDraft: Story = {
     const memo = canvas.getByLabelText("방문 메모");
 
     await userEvent.click(
-      canvas.getByRole("button", { name: "사진 남기기 좋아요" }),
+      canvas.getByRole("button", { name: "키링" }),
     );
     await userEvent.type(memo, "입력을 보존해 주세요.");
     await userEvent.click(canvas.getByRole("button", { name: "방문 로그 등록하기" }));

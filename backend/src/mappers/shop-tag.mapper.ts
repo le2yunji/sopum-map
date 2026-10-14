@@ -13,8 +13,7 @@ export const mapShopTags = (tagStats: readonly ShopTagStat[]): ShopTag[] => {
     return {
       key,
       count,
-      selectionLabel: tag.selectionLabel,
-      shortLabel: tag.shortLabel,
+      label: tag.label,
       group: tag.group,
     };
   });
