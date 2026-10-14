@@ -1,18 +1,18 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { expect, fn, userEvent, within } from "storybook/test";
 
-import { VisitReviewForm } from "./VisitReviewForm";
+import { VisitLogForm } from "./VisitLogForm";
 
 const meta = {
-  title: "Pages/VisitReviewForm",
-  component: VisitReviewForm,
+  title: "Pages/VisitLogForm",
+  component: VisitLogForm,
   parameters: { layout: "fullscreen" },
   args: {
     shopId: "shop-1",
     shopName: "모모 소품샵",
     onSubmit: fn(),
   },
-} satisfies Meta<typeof VisitReviewForm>;
+} satisfies Meta<typeof VisitLogForm>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -22,21 +22,21 @@ export const Success: Story = {
     const canvas = within(canvasElement);
 
     await expect(
-      canvas.getByRole("heading", { name: "후기 작성" }),
+      canvas.getByRole("heading", { name: "방문 로그 작성" }),
     ).toBeInTheDocument();
     await expect(canvas.getByText("모모 소품샵")).toBeInTheDocument();
-    await userEvent.click(
-      canvas.getByRole("button", { name: "아기자기해요" }),
-    );
+    await userEvent.click(canvas.getByRole("button", { name: "아기자기해요" }));
     await userEvent.type(
-      canvas.getByRole("textbox", { name: "후기" }),
+      canvas.getByRole("textbox", { name: "방문 로그" }),
       "작고 귀여운 소품이 많아 즐거웠어요.",
     );
-    await userEvent.click(canvas.getByRole("button", { name: "후기 등록하기" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "방문 로그 등록하기" }),
+    );
 
     await expect(args.onSubmit).toHaveBeenCalledWith({
       tags: ["아기자기해요"],
-      review: "작고 귀여운 소품이 많아 즐거웠어요.",
+      visitLog: "작고 귀여운 소품이 많아 즐거웠어요.",
       images: [],
     });
   },
@@ -46,8 +46,12 @@ export const Validation: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await userEvent.click(canvas.getByRole("button", { name: "후기 등록하기" }));
-    await expect(canvas.getByText("태그를 1개 이상 선택해 주세요.")).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "방문 로그 등록하기" }),
+    );
+    await expect(
+      canvas.getByText("태그를 1개 이상 선택해 주세요."),
+    ).toBeVisible();
     await expect(canvas.getByRole("button", { name: "미니멀" })).toHaveFocus();
   },
 };
@@ -74,7 +78,7 @@ export const TagLimit: Story = {
   },
 };
 
-export const ImagePreview: Story = {
+export const ImagePvisitLog: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const input = canvas.getByLabelText("사진 추가");
@@ -97,7 +101,7 @@ export const Loading: Story = {
   play: async ({ canvasElement }) => {
     await expect(
       within(canvasElement).getByRole("status", {
-        name: "후기 작성 화면을 불러오는 중",
+        name: "방문 로그 작성 화면을 불러오는 중",
       }),
     ).toBeInTheDocument();
   },

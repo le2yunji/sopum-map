@@ -31,7 +31,7 @@ export const ShopCard = ({
   region,
   tags,
   likeCount,
-  reviewCount,
+  visitLogCount,
   isLiked = false,
   isLikePending = false,
   variant = "default",
@@ -98,7 +98,7 @@ export const ShopCard = ({
         )}
         <div className="mt-1 flex items-center gap-2 text-12 text-fg-tertiary">
           <span className="shrink-0">
-            ♥ {likeCount} · 후기 {reviewCount}
+            ♥ {likeCount} · 방문 로그 {visitLogCount}
           </span>
         </div>
       </div>

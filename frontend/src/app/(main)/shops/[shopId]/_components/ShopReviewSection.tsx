@@ -109,7 +109,7 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
         </div>
       ) : (
         <div className="mt-5 space-y-7">
-          {visitLogs.map((visitLog, reviewIndex) => (
+          {visitLogs.map((visitLog, logIndex) => (
             <article key={visitLog.id}>
               <div className="flex items-center gap-2">
                 <Image
@@ -144,7 +144,7 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
                       <Image
                         fill
                         loading={
-                          reviewIndex === 0 && index === 0 ? "eager" : "lazy"
+                          logIndex === 0 && index === 0 ? "eager" : "lazy"
                         }
                         src={url}
                         alt={`${visitLog.author.nickname}님의 방문 사진 ${index + 1}`}

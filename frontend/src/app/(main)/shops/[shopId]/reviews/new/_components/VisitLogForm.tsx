@@ -17,9 +17,9 @@ const TAGS = [
   "빈티지해요",
 ] as const;
 
-type ReviewDraft = Readonly<{
+type LogDraft = Readonly<{
   tags: string[];
-  review: string;
+  log: string;
   images: File[];
 }>;
 
@@ -27,12 +27,12 @@ type Props = Readonly<{
   shopId: string;
   shopName: string;
   state?: "success" | "loading" | "error";
-  onSubmit?: (draft: ReviewDraft) => void;
+  onSubmit?: (draft: LogDraft) => void;
   onRetry?: () => void;
 }>;
 
-/** Figma의 방문 후기 작성 흐름을 로컬 초안으로 제공합니다. */
-export function VisitReviewForm({
+/** Figma의 방문 로그 작성 흐름을 로컬 초안으로 제공합니다. */
+export function VisitLogForm({
   shopId,
   shopName,
   state = "success",
@@ -40,7 +40,7 @@ export function VisitReviewForm({
   onRetry = () => window.location.reload(),
 }: Props) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [review, setReview] = useState("");
+  const [log, setLog] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [tagError, setTagError] = useState("");
   const firstTagRef = useRef<HTMLButtonElement>(null);
@@ -56,14 +56,14 @@ export function VisitReviewForm({
   }, [previews]);
 
   if (state === "loading") {
-    return <ReviewFormSkeleton />;
+    return <LogFormSkeleton />;
   }
 
   if (state === "error") {
     return (
       <main className="flex min-h-dvh flex-col items-center justify-center px-5 text-center">
         <p className="text-16 font-semibold">
-          후기 작성 화면을 불러오지 못했어요
+          방문 로그 작성 화면을 불러오지 못했어요
         </p>
         <Button className="mt-4" onClick={onRetry}>
           다시 시도
@@ -90,7 +90,7 @@ export function VisitReviewForm({
       firstTagRef.current?.focus();
       return;
     }
-    onSubmit({ tags: selectedTags, review, images });
+    onSubmit({ tags: selectedTags, log, images });
   };
 
   return (
@@ -103,7 +103,7 @@ export function VisitReviewForm({
         >
           ‹
         </Link>
-        <h1 className="text-18 font-semibold">후기 작성</h1>
+        <h1 className="text-18 font-semibold">방문 로그 작성</h1>
       </header>
 
       <form onSubmit={handleSubmit} noValidate>
@@ -225,10 +225,10 @@ export function VisitReviewForm({
 
         <section className="px-5 py-5">
           <Textarea
-            value={review}
-            onChange={(event) => setReview(event.target.value)}
-            label="후기"
-            placeholder={`${shopName}에 대한 솔직한 한 줄 후기를 남겨주세요.`}
+            value={log}
+            onChange={(event) => setLog(event.target.value)}
+            label="방문 로그"
+            placeholder={`${shopName}에 대한 솔직한 한 줄 방문 로그를 남겨주세요.`}
             maxLength={300}
             showCharacterCount
             textareaClassName="min-h-32 border-0 px-0 focus:ring-0"
@@ -236,7 +236,7 @@ export function VisitReviewForm({
         </section>
 
         <section className="border-y-8 border-black-100 px-5 py-5 text-13 text-black-500">
-          <h2 className="font-bold">후기 작성 가이드</h2>
+          <h2 className="font-bold">방문 로그 작성 가이드</h2>
           <ul className="mt-4 space-y-3">
             <li>🍀 실제 방문 경험을 바탕으로 솔직하게 작성해주세요.</li>
             <li>
@@ -247,7 +247,7 @@ export function VisitReviewForm({
         </section>
         <div className="fixed inset-x-0 bottom-0 z-10 mx-auto max-w-[480px] border-t border-black-100 bg-white p-5">
           <Button type="submit" fullWidth size="large">
-            후기 등록하기
+            방문 로그 등록하기
           </Button>
         </div>
       </form>
@@ -255,11 +255,14 @@ export function VisitReviewForm({
   );
 }
 
-/** 후기 작성 화면의 주요 높이를 유지하는 로딩 상태입니다. */
-function ReviewFormSkeleton() {
+/** 방문 로그 작성 화면의 주요 높이를 유지하는 로딩 상태입니다. */
+function LogFormSkeleton() {
   return (
     <main aria-busy="true">
-      <Skeleton label="후기 작성 화면을 불러오는 중" className="h-[109px]" />
+      <Skeleton
+        label="방문 로그 작성 화면을 불러오는 중"
+        className="h-[109px]"
+      />
       <div className="space-y-5 p-5">
         <Skeleton announce={false} className="h-16 rounded-2xl" />
         <Skeleton announce={false} className="h-32 rounded-xl" />
