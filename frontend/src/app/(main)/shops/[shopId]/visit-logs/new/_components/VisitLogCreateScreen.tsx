@@ -220,7 +220,10 @@ export function canReturnWithBrowserHistory(
 }
 
 /** 실제 상점 데이터와 방문 로그 작성 API를 작성 폼에 연결합니다. */
-export function VisitLogCreateScreen({ shopId }: Readonly<{ shopId: string }>) {
+export function VisitLogCreateScreen({
+  shopId,
+  onBackOverride,
+}: Readonly<{ shopId: string; onBackOverride?: () => void }>) {
   const router = useRouter();
   const shopQuery = useShopDetail(shopId);
   const createMutation = useCreateVisitLog(shopId);
@@ -261,6 +264,11 @@ export function VisitLogCreateScreen({ shopId }: Readonly<{ shopId: string }>) {
       }}
       isPending={createMutation.isPending}
       onBack={() => {
+        if (onBackOverride) {
+          onBackOverride();
+          return;
+        }
+
         if (
           canReturnWithBrowserHistory(
             document.referrer,
