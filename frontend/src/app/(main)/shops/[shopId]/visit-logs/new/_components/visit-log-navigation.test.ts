@@ -17,14 +17,17 @@ describe("canReturnWithBrowserHistory", () => {
     "",
     "https://outside.example/shops/shop-1",
     "https://sopum.example/shops/shop-2",
-    "https://sopum.example/shops/shop-1/reviews/new",
-  ])("직접 접근하거나 다른 화면에서 온 기록 %s는 재사용하지 않는다", (referrer) => {
-    expect(
-      canReturnWithBrowserHistory(
-        referrer,
-        "https://sopum.example",
-        "shop-1",
-      ),
-    ).toBe(false);
-  });
+    "https://sopum.example/shops/shop-1/visit-logs/new",
+  ])(
+    "직접 접근하거나 다른 화면에서 온 기록 %s는 재사용하지 않는다",
+    (referrer) => {
+      expect(
+        canReturnWithBrowserHistory(
+          referrer,
+          "https://sopum.example",
+          "shop-1",
+        ),
+      ).toBe(false);
+    },
+  );
 });
