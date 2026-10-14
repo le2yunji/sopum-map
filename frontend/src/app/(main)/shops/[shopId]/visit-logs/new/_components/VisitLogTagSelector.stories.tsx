@@ -36,9 +36,9 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByText("소품")).toBeVisible();
-    await expect(canvas.getByText("분위기")).toBeVisible();
-    await expect(canvas.getByText("방문 경험")).toBeVisible();
+    await expect(canvas.getByText("어떤 소품이 있었나요?")).toBeVisible();
+    await expect(canvas.getByText("어떤 분위기였나요?")).toBeVisible();
+    await expect(canvas.getByText("방문 경험은 어땠나요?")).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "키링" }),
     ).not.toBePressed();
@@ -52,22 +52,23 @@ export const Default: Story = {
       "다꾸템",
       "인형",
       "피규어",
+      "가챠",
+      "아기자기",
+      "빈티지",
     ]) {
       await userEvent.click(canvas.getByRole("button", { name: label }));
     }
 
+    await expect(canvas.getByText("8/8")).toBeVisible();
     await expect(
-      canvas.getByRole("button", { name: "가챠" }),
+      canvas.getByRole("button", { name: "키치" }),
     ).toBeDisabled();
+    await expect(canvas.queryByLabelText("선택한 태그")).not.toBeInTheDocument();
 
-    await userEvent.click(
-      canvas.getByRole("button", { name: "선택한 태그 키링 삭제" }),
-    );
+    await userEvent.click(canvas.getByRole("button", { name: "키링" }));
+    await expect(canvas.getByRole("button", { name: "키링" })).not.toBePressed();
     await expect(
-      canvas.getByRole("button", { name: "가챠" }),
+      canvas.getByRole("button", { name: "키치" }),
     ).toBeEnabled();
-    await expect(
-      canvas.queryByRole("button", { name: "선택한 태그 키링 삭제" }),
-    ).not.toBeInTheDocument();
   },
 };

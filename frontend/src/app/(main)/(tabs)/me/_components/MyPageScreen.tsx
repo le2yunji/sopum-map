@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 import { LogoutIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button/Button";
@@ -76,6 +77,13 @@ export function MyPageScreen({ isEmpty = false, state = "success" }: Props) {
         nickname={user.nickname}
         profileImage={user.profileImage}
       />
+
+      <Link
+        href="/visit-logs/new"
+        className="mt-4 flex min-h-12 items-center justify-center rounded-xl bg-green-500 px-4 text-14 font-semibold text-white hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+      >
+        방문 로그 기록하기
+      </Link>
 
       <MyPageActivityMenu isEmpty={isEmpty} />
 

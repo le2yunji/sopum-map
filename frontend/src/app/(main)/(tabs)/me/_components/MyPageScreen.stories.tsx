@@ -61,6 +61,9 @@ export const Success: Story = {
     ).toBeVisible();
     await expect(canvas.getByText("소품 수집가")).toBeVisible();
     await expect(
+      canvas.getByRole("link", { name: "방문 로그 기록하기" }),
+    ).toHaveAttribute("href", "/visit-logs/new");
+    await expect(
       canvas.getByRole("link", { name: "방문 기록 5개 보기" }),
     ).toHaveAttribute("href", "/me/visit-logs");
     await expect(

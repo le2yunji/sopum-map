@@ -1,9 +1,14 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
-import { TAG_KEYS, VISIT_LOG_STATUSES } from "@sopum-map/shared";
+import {
+  TAG_KEYS,
+  VISIT_LOG_CONTENT_MAX_LENGTH,
+  VISIT_LOG_STATUSES,
+  VISIT_LOG_TAG_MAX_COUNT,
+} from "@sopum-map/shared";
 
 /** 방문 로그 태그가 필수 개수 범위에 있는지 확인합니다. */
 function hasValidTagCount(tagKeys: string[]): boolean {
-  return 1 <= tagKeys.length && tagKeys.length <= 5;
+  return 1 <= tagKeys.length && tagKeys.length <= VISIT_LOG_TAG_MAX_COUNT;
 }
 
 /** 한 방문 로그 안에 같은 태그가 중복 저장되지 않게 합니다. */
@@ -46,7 +51,7 @@ const visitLogSchema = new Schema(
       validate: [
         {
           validator: hasValidTagCount,
-          message: "방문 태그는 1개 이상 5개 이하로 선택해야 합니다.",
+          message: `방문 태그는 1개 이상 ${VISIT_LOG_TAG_MAX_COUNT}개 이하로 선택해야 합니다.`,
         },
         {
           validator: hasUniqueTags,
@@ -60,7 +65,7 @@ const visitLogSchema = new Schema(
       type: String,
       default: null,
       trim: true,
-      maxlength: 300,
+      maxlength: VISIT_LOG_CONTENT_MAX_LENGTH,
     },
 
     // 방문 기록에 첨부한 이미지
