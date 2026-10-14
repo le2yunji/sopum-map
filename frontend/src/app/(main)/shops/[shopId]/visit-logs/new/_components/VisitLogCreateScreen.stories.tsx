@@ -32,7 +32,20 @@ export const CreateVisitLog: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByText("모모 소품샵")).toBeVisible();
-    await expect(canvas.getByLabelText("방문일")).toHaveValue("2026-10-14");
+    const dateButton = canvas.getByRole("button", {
+      name: "방문일 선택, 2026년 10월 14일",
+    });
+    await expect(dateButton).toHaveTextContent("2026. 10. 14.");
+
+    await userEvent.click(dateButton);
+    await expect(
+      canvas.getByRole("heading", { name: "방문일 선택" }),
+    ).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: /2026년 10월 13일/ }),
+    );
+    await userEvent.click(canvas.getByRole("button", { name: "선택 완료" }));
+    await expect(dateButton).toHaveTextContent("2026. 10. 13.");
 
     await userEvent.click(canvas.getByRole("button", { name: "다음 · 태그 선택" }));
     await userEvent.click(canvas.getByRole("button", { name: "다음 · 사진과 기록" }));
@@ -53,7 +66,7 @@ export const CreateVisitLog: Story = {
 
     await waitFor(() => {
       expect(args.onSubmit).toHaveBeenCalledWith({
-        visitedAt: "2026-10-14T03:00:00.000Z",
+        visitedAt: "2026-10-13T03:00:00.000Z",
         selectedTagKeys: ["keyrings"],
         content: "다시 가고 싶은 상점이에요.",
         imageKeys: [],

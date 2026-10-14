@@ -14,6 +14,7 @@ import { useRef, useState, type FormEvent } from "react";
 import { useShopDetail } from "@/api/shops/shop.query";
 import { useCreateVisitLog } from "@/api/visit-log/visit-log.query";
 import { Button } from "@/components/ui/Button";
+import { DatePickerSheet } from "@/components/ui/DatePickerSheet";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 import { Textarea } from "@/components/ui/Textarea/Textarea";
@@ -156,9 +157,16 @@ export function VisitLogCreateForm({
                 <p className="mt-1 text-13 text-green-700">{shop.regionLabel} · {shop.category}</p>
               </div>
             </div>
-            <label htmlFor="visit-log-date" className="block pt-4 text-14 font-semibold">방문일</label>
-            <input id="visit-log-date" type="date" value={dateValue} max={getTodayDateInputValue()} aria-invalid={Boolean(dateError)} aria-describedby={dateError ? "visit-log-date-error" : undefined} onChange={(event) => { setDateValue(event.target.value); setDateError(""); }} className="min-h-12 w-full rounded-xl border border-black-200 px-4 text-14 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20" />
-            {dateError && <p id="visit-log-date-error" role="alert" className="text-12 text-red-600">{dateError}</p>}
+            <DatePickerSheet
+              label="방문일"
+              value={dateValue}
+              maxDateValue={getTodayDateInputValue()}
+              errorMessage={dateError || undefined}
+              onChange={(nextDateValue) => {
+                setDateValue(nextDateValue);
+                setDateError("");
+              }}
+            />
           </div>
         )}
 
