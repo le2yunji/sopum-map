@@ -2,9 +2,9 @@
 
 import {
   ACTIVE_TAG_DEFINITIONS,
-  TAG_DEFINITION_BY_KEY,
   TAG_GROUP_LABELS,
   TAG_GROUPS,
+  VISIT_LOG_TAG_MAX_COUNT,
   type TagGroup,
   type TagKey,
 } from "@sopum-map/shared";
@@ -12,7 +12,6 @@ import { useState, type Ref } from "react";
 
 import { Button } from "@/components/ui/Button";
 
-const MAX_SELECTED_TAG_COUNT = 5;
 const DEFAULT_VISIBLE_TAG_COUNT = 6;
 const TAG_GROUP_COPY = {
   product: {
@@ -36,7 +35,7 @@ type Props = Readonly<{
   firstTagRef?: Ref<HTMLButtonElement>;
 }>;
 
-/** 방문 로그에 붙일 태그를 그룹별로 최대 5개까지 선택하게 합니다. */
+/** 방문 로그에 붙일 태그를 그룹별로 최대 허용 개수까지 선택하게 합니다. */
 export function VisitLogTagSelector({
   selectedTagKeys,
   onChange,
@@ -44,7 +43,7 @@ export function VisitLogTagSelector({
   firstTagRef,
 }: Props) {
   const [expandedGroups, setExpandedGroups] = useState<readonly TagGroup[]>([]);
-  const hasReachedLimit = selectedTagKeys.length >= MAX_SELECTED_TAG_COUNT;
+  const hasReachedLimit = selectedTagKeys.length >= VISIT_LOG_TAG_MAX_COUNT;
 
   /** 선택 여부를 반대로 바꾸되 최대 개수를 넘기지 않습니다. */
   const toggleTag = (tagKey: TagKey) => {
@@ -69,33 +68,14 @@ export function VisitLogTagSelector({
           <h2 id="visit-log-tags-title" className="text-16 font-semibold text-black-950">
             이 상점은 어땠나요?
           </h2>
-          <p className="mt-1 text-13 text-black-500">1개 이상, 최대 5개까지 선택해 주세요.</p>
+          <p className="mt-1 text-13 text-black-500">
+            1개 이상, 최대 {VISIT_LOG_TAG_MAX_COUNT}개까지 선택해 주세요.
+          </p>
         </div>
         <span className="shrink-0 text-13 text-black-500">
-          {selectedTagKeys.length}/{MAX_SELECTED_TAG_COUNT}
+          {selectedTagKeys.length}/{VISIT_LOG_TAG_MAX_COUNT}
         </span>
       </div>
-
-      {selectedTagKeys.length > 0 && (
-        <div aria-label="선택한 태그" className="flex flex-wrap gap-2">
-          {selectedTagKeys.map((tagKey) => {
-            const tag = TAG_DEFINITION_BY_KEY[tagKey];
-
-            return (
-              <Button
-                key={tagKey}
-                variant="secondary"
-                size="small"
-                aria-label={`선택한 태그 ${tag.label} 삭제`}
-                onClick={() => toggleTag(tagKey)}
-                className="min-h-9 rounded-full px-3"
-              >
-                {tag.label} ×
-              </Button>
-            );
-          })}
-        </div>
-      )}
 
       <div id="visit-log-tag-groups" className="space-y-5">
         {TAG_GROUPS.map((group) => {
@@ -127,7 +107,9 @@ export function VisitLogTagSelector({
                       aria-pressed={isSelected}
                       disabled={!isSelected && hasReachedLimit}
                       onClick={() => toggleTag(tag.key)}
-                      className={isSelected ? "border border-green-500" : ""}
+                      className={`min-h-9! rounded-full! px-3! py-1! ${
+                        isSelected ? "border border-green-500 bg-green-100" : ""
+                      }`}
                     >
                       {tag.label}
                     </Button>

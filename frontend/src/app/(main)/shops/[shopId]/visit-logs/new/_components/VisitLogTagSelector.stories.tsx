@@ -52,22 +52,23 @@ export const Default: Story = {
       "다꾸템",
       "인형",
       "피규어",
+      "가챠",
+      "아기자기",
+      "빈티지",
     ]) {
       await userEvent.click(canvas.getByRole("button", { name: label }));
     }
 
+    await expect(canvas.getByText("8/8")).toBeVisible();
     await expect(
-      canvas.getByRole("button", { name: "가챠" }),
+      canvas.getByRole("button", { name: "키치" }),
     ).toBeDisabled();
+    await expect(canvas.queryByLabelText("선택한 태그")).not.toBeInTheDocument();
 
-    await userEvent.click(
-      canvas.getByRole("button", { name: "선택한 태그 키링 삭제" }),
-    );
+    await userEvent.click(canvas.getByRole("button", { name: "키링" }));
+    await expect(canvas.getByRole("button", { name: "키링" })).not.toBePressed();
     await expect(
-      canvas.getByRole("button", { name: "가챠" }),
+      canvas.getByRole("button", { name: "키치" }),
     ).toBeEnabled();
-    await expect(
-      canvas.queryByRole("button", { name: "선택한 태그 키링 삭제" }),
-    ).not.toBeInTheDocument();
   },
 };

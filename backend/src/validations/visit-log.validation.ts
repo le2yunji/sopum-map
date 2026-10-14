@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   TAG_KEYS,
   VISIT_LOG_CONTENT_MAX_LENGTH,
+  VISIT_LOG_TAG_MAX_COUNT,
   type TagKey,
 } from "@sopum-map/shared";
 import { objectIdSchema } from "./common.validation.js";
@@ -45,7 +46,7 @@ export const createVisitLogSchema = z.object({
     selectedTagKeys: z
       .array(visitLogTagKeySchema)
       .min(1)
-      .max(5)
+      .max(VISIT_LOG_TAG_MAX_COUNT)
       .refine((tagKeys) => new Set(tagKeys).size === tagKeys.length, {
         message: "방문 태그는 중복될 수 없습니다.",
       }),
