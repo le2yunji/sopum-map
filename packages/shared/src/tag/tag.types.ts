@@ -6,8 +6,7 @@ export type TagKey = (typeof TAG_DEFINITIONS)[number]["key"];
 
 export type TagDefinition = Readonly<{
   key: TagKey;
-  selectionLabel: string;
-  shortLabel: string;
+  label: string;
   group: TagGroup;
   isActive: boolean;
 }>;

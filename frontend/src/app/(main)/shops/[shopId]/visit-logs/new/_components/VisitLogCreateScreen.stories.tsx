@@ -52,7 +52,7 @@ export const CreateVisitLog: Story = {
     await waitFor(() => {
       expect(args.onSubmit).toHaveBeenCalledWith({
         visitedAt: "2026-10-14T03:00:00.000Z",
-        selectedTagKeys: ["photo_spot"],
+        selectedTagKeys: ["cute"],
         content: "다시 가고 싶은 상점이에요.",
         imageKeys: [],
       });

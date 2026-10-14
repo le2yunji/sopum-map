@@ -21,7 +21,7 @@ export const toHomeShopCardItem = (shop: ShopListItem) => {
 
     tags: shop.tags
       .slice(0, 3)
-      .map((tag) => TAG_DEFINITION_BY_KEY[tag.key].shortLabel),
+      .map((tag) => TAG_DEFINITION_BY_KEY[tag.key].label),
 
     isLiked: shop.isLiked,
   };

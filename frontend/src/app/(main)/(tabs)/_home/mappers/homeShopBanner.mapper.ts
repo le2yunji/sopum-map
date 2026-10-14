@@ -28,7 +28,7 @@ export const toShopBannerItem = (shop: HomeCuratedShop): ShopBannerItem => {
 
     tags: shop.tags.map((tag) => ({
       id: tag.key,
-      name: TAG_DEFINITION_BY_KEY[tag.key].shortLabel,
+      name: TAG_DEFINITION_BY_KEY[tag.key].label,
     })),
   };
 };
