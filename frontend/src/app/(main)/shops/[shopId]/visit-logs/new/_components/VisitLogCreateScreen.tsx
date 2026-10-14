@@ -1,11 +1,12 @@
 "use client";
 
-import type {
-  CreateVisitLogRequest,
-  ShopCategory,
-  TagKey,
+import {
+  SHOP_REGION_GROUP_LABELS,
+  VISIT_LOG_CONTENT_MAX_LENGTH,
+  type CreateVisitLogRequest,
+  type ShopCategory,
+  type TagKey,
 } from "@sopum-map/shared";
-import { SHOP_REGION_GROUP_LABELS } from "@sopum-map/shared";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
@@ -181,9 +182,9 @@ export function VisitLogCreateForm({
 
         <section className="px-5 py-5">
           <Textarea
-            label="방문 메모"
+            label="방문 내용 (선택)"
             value={content}
-            maxLength={300}
+            maxLength={VISIT_LOG_CONTENT_MAX_LENGTH}
             showCharacterCount
             disabled={isPending}
             placeholder={`${shop.name}에서의 경험을 남겨 주세요. 선택 입력이에요.`}

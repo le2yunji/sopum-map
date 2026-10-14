@@ -44,7 +44,7 @@ export const CreateVisitLog: Story = {
 
     await userEvent.keyboard(" ");
     await userEvent.type(
-      canvas.getByLabelText("방문 메모"),
+      canvas.getByLabelText("방문 내용 (선택)"),
       "다시 가고 싶은 상점이에요.",
     );
     await userEvent.click(canvas.getByRole("button", { name: "방문 로그 등록하기" }));
@@ -79,7 +79,7 @@ export const ApiErrorKeepsDraft: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const memo = canvas.getByLabelText("방문 메모");
+    const memo = canvas.getByLabelText("방문 내용 (선택)");
 
     await userEvent.click(
       canvas.getByRole("button", { name: "키링" }),

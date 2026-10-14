@@ -35,15 +35,15 @@ describe("VisitLog model", () => {
     await expect(visitLog.validate()).rejects.toThrow();
   });
 
-  it("방문 글은 300자까지 허용한다", async () => {
+  it("방문 글은 1,000자까지 허용한다", async () => {
     await expect(
-      createVisitLog({ content: "가".repeat(300) }).validate(),
+      createVisitLog({ content: "가".repeat(1_000) }).validate(),
     ).resolves.toBeUndefined();
   });
 
-  it("300자를 초과한 방문 글을 거부한다", async () => {
+  it("1,000자를 초과한 방문 글을 거부한다", async () => {
     await expect(
-      createVisitLog({ content: "가".repeat(301) }).validate(),
+      createVisitLog({ content: "가".repeat(1_001) }).validate(),
     ).rejects.toThrow();
   });
 

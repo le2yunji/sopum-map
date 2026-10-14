@@ -1,7 +1,11 @@
 // backend/src/validations/visit-log.validation.ts
 
 import { z } from "zod";
-import { TAG_KEYS, type TagKey } from "@sopum-map/shared";
+import {
+  TAG_KEYS,
+  VISIT_LOG_CONTENT_MAX_LENGTH,
+  type TagKey,
+} from "@sopum-map/shared";
 import { objectIdSchema } from "./common.validation.js";
 
 const TAG_KEY_SET = new Set<string>(TAG_KEYS);
@@ -45,7 +49,12 @@ export const createVisitLogSchema = z.object({
       .refine((tagKeys) => new Set(tagKeys).size === tagKeys.length, {
         message: "방문 태그는 중복될 수 없습니다.",
       }),
-    content: z.string().trim().max(300).nullable().optional(),
+    content: z
+      .string()
+      .trim()
+      .max(VISIT_LOG_CONTENT_MAX_LENGTH)
+      .nullable()
+      .optional(),
     imageKeys: z.array(z.string()).max(0).default([]),
   }),
 });

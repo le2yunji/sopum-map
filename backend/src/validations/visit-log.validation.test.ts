@@ -72,13 +72,25 @@ describe("createVisitLogSchema", () => {
     ).toThrow();
   });
 
-  it("300자를 초과한 방문 글을 거부한다", () => {
+  it("1,000자 방문 글을 허용한다", () => {
     expect(() =>
       createVisitLogSchema.parse({
         ...createValidVisitLogRequest(),
         body: {
           ...createValidVisitLogRequest().body,
-          content: "가".repeat(301),
+          content: "가".repeat(1_000),
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("1,000자를 초과한 방문 글을 거부한다", () => {
+    expect(() =>
+      createVisitLogSchema.parse({
+        ...createValidVisitLogRequest(),
+        body: {
+          ...createValidVisitLogRequest().body,
+          content: "가".repeat(1_001),
         },
       }),
     ).toThrow();

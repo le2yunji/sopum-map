@@ -1,5 +1,9 @@
 import { Schema, model, type InferSchemaType } from "mongoose";
-import { TAG_KEYS, VISIT_LOG_STATUSES } from "@sopum-map/shared";
+import {
+  TAG_KEYS,
+  VISIT_LOG_CONTENT_MAX_LENGTH,
+  VISIT_LOG_STATUSES,
+} from "@sopum-map/shared";
 
 /** 방문 로그 태그가 필수 개수 범위에 있는지 확인합니다. */
 function hasValidTagCount(tagKeys: string[]): boolean {
@@ -60,7 +64,7 @@ const visitLogSchema = new Schema(
       type: String,
       default: null,
       trim: true,
-      maxlength: 300,
+      maxlength: VISIT_LOG_CONTENT_MAX_LENGTH,
     },
 
     // 방문 기록에 첨부한 이미지
