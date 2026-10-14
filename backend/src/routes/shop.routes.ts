@@ -10,7 +10,12 @@ import {
   getShopDetailController,
   getShopsController,
 } from "../controllers/shop.controller.js";
-import { getVisitLogsController } from "../controllers/visit-log.controller.js";
+import {
+  createVisitLogController,
+  getVisitLogsController,
+} from "../controllers/visit-log.controller.js";
+import { validateRequest } from "../middlewares/validate-request.middleware.js";
+import { createVisitLogSchema } from "../validations/visit-log.validation.js";
 
 export const shopRouter = Router();
 
@@ -28,6 +33,16 @@ shopRouter.get("/:shopId", optionalAuth, getShopDetailController);
  * GET /shops/:shopId/visit-logs
  */
 shopRouter.get("/:shopId/visit-logs", optionalAuth, getVisitLogsController);
+
+/*
+ * POST /shops/:shopId/visit-logs
+ */
+shopRouter.post(
+  "/:shopId/visit-logs",
+  requireAuth,
+  validateRequest(createVisitLogSchema),
+  createVisitLogController,
+);
 
 /**
  * POST /:shopId/likes
