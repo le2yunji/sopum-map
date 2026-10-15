@@ -28,6 +28,8 @@ import {
   unlikeCourse,
   updateCourse,
   updateCourseVisibility,
+  setCourseShopVisited,
+  unsetCourseShopVisited,
 } from "./course.api";
 
 type CourseInfiniteData<TPage> = InfiniteData<TPage, string | undefined>;
@@ -40,6 +42,15 @@ type LikeMutationContext = Readonly<{
 type VisibilityMutationContext = Readonly<{
   previousDetail?: CourseDetailData;
   previousMyCourses?: CourseInfiniteData<MyCourseListData>;
+}>;
+
+type CourseShopVisitMutationInput = Readonly<{
+  courseId: string;
+  shopId: string;
+}>;
+
+type CourseShopVisitMutationContext = Readonly<{
+  previousDetail?: CourseDetailData;
 }>;
 
 export const courseKeys = {
@@ -76,6 +87,88 @@ export function updateCourseDetailVisibility(
   isPublic: boolean,
 ): CourseDetailData | undefined {
   return detail ? { ...detail, isPublic } : detail;
+}
+
+/** 한 상점의 방문 상태만 코스 상세 캐시에 반영합니다. */
+export function updateCourseShopVisited(
+  detail: CourseDetailData | undefined,
+  shopId: string,
+  isVisited: boolean,
+): CourseDetailData | undefined {
+  if (!detail) {
+    return detail;
+  }
+
+  return {
+    ...detail,
+    shops: detail.shops.map((shop) =>
+      shop.id === shopId ? { ...shop, isVisited } : shop,
+    ),
+  };
+}
+
+/** 방문 상태 변경 전 코스 상세 캐시를 보존하고 원하는 상태를 먼저 표시합니다. */
+async function createCourseShopVisitMutationContext(
+  queryClient: ReturnType<typeof useQueryClient>,
+  input: CourseShopVisitMutationInput,
+  isVisited: boolean,
+): Promise<CourseShopVisitMutationContext> {
+  await queryClient.cancelQueries({ queryKey: courseKeys.detail(input.courseId) });
+  const previousDetail = queryClient.getQueryData<CourseDetailData>(
+    courseKeys.detail(input.courseId),
+  );
+
+  queryClient.setQueryData<CourseDetailData>(
+    courseKeys.detail(input.courseId),
+    (current) => updateCourseShopVisited(current, input.shopId, isVisited),
+  );
+
+  return { previousDetail };
+}
+
+/** 방문 상태 변경 실패 시 코스 상세를 이전 값으로 되돌립니다. */
+function restoreCourseShopVisitMutationContext(
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId: string,
+  context?: CourseShopVisitMutationContext,
+) {
+  if (context?.previousDetail) {
+    queryClient.setQueryData(courseKeys.detail(courseId), context.previousDetail);
+  }
+}
+
+/** 코스 상점을 방문 완료 상태로 저장합니다. */
+export function useSetCourseShopVisited() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ courseId, shopId }: CourseShopVisitMutationInput) =>
+      setCourseShopVisited(courseId, shopId),
+    onMutate: (input) =>
+      createCourseShopVisitMutationContext(queryClient, input, true),
+    onError: (_, input, context) =>
+      restoreCourseShopVisitMutationContext(queryClient, input.courseId, context),
+    onSettled: async (_, __, input) => {
+      await queryClient.invalidateQueries({ queryKey: courseKeys.detail(input.courseId) });
+    },
+  });
+}
+
+/** 코스 상점을 미방문 상태로 되돌립니다. */
+export function useUnsetCourseShopVisited() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ courseId, shopId }: CourseShopVisitMutationInput) =>
+      unsetCourseShopVisited(courseId, shopId),
+    onMutate: (input) =>
+      createCourseShopVisitMutationContext(queryClient, input, false),
+    onError: (_, input, context) =>
+      restoreCourseShopVisitMutationContext(queryClient, input.courseId, context),
+    onSettled: async (_, __, input) => {
+      await queryClient.invalidateQueries({ queryKey: courseKeys.detail(input.courseId) });
+    },
+  });
 }
 
 /** 찜한 코스를 모든 무한 목록 페이지에서 제거합니다. */

@@ -3,6 +3,7 @@ import type {
   CreateCourseRequest,
   CourseDetailData,
   CourseLikeData,
+  CourseShopVisitData,
   LikedCourseListData,
   MyCourseListData,
   UpdateCourseData,
@@ -84,6 +85,28 @@ export async function unlikeCourse(
   return apiClient<CourseLikeData>(`/courses/${courseId}/likes`, {
     method: "DELETE",
   });
+}
+
+/** 코스 상점을 방문 완료 상태로 저장합니다. */
+export async function setCourseShopVisited(
+  courseId: string,
+  shopId: string,
+): Promise<CourseShopVisitData> {
+  return apiClient<CourseShopVisitData>(
+    `/courses/${courseId}/shops/${shopId}/visit`,
+    { method: "PUT" },
+  );
+}
+
+/** 코스 상점을 미방문 상태로 되돌립니다. */
+export async function unsetCourseShopVisited(
+  courseId: string,
+  shopId: string,
+): Promise<CourseShopVisitData> {
+  return apiClient<CourseShopVisitData>(
+    `/courses/${courseId}/shops/${shopId}/visit`,
+    { method: "DELETE" },
+  );
 }
 
 /**

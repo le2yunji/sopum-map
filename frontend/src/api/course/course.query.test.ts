@@ -13,6 +13,7 @@ import {
   removeLikedCourseFromPages,
   updateCourseDetailLike,
   updateCourseDetailVisibility,
+  updateCourseShopVisited,
   updateMyCourseVisibilityInPages,
 } from "./course.query";
 
@@ -136,5 +137,31 @@ describe("course query cache helpers", () => {
 
     expect(optimisticDetail).not.toBe(previousDetail);
     expect(previousDetail).toMatchObject({ isLiked: false, likeCount: 2 });
+  });
+
+  it("한 상점의 방문 상태만 상세 캐시에 반영한다", () => {
+    const courseWithShops: CourseDetailData = {
+      ...detail,
+      shops: [
+        {
+          id: "shop-1", name: "첫 상점", address: "서울", mainImageUrl: null,
+          regionGroup: "seongsu-seoulforest", latitude: 37, longitude: 127,
+          status: "active", isUnavailable: false, isVisited: false, order: 1,
+          memo: null, walkingDistanceFromPreviousMeters: null,
+          walkingDurationFromPreviousSeconds: null,
+        },
+        {
+          id: "shop-2", name: "둘째 상점", address: "서울", mainImageUrl: null,
+          regionGroup: "seongsu-seoulforest", latitude: 37, longitude: 127,
+          status: "active", isUnavailable: false, isVisited: false, order: 2,
+          memo: null, walkingDistanceFromPreviousMeters: null,
+          walkingDurationFromPreviousSeconds: null,
+        },
+      ],
+    };
+
+    const result = updateCourseShopVisited(courseWithShops, "shop-2", true);
+
+    expect(result?.shops.map((shop) => shop.isVisited)).toEqual([false, true]);
   });
 });

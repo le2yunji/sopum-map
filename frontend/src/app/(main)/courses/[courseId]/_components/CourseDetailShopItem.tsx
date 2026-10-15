@@ -7,15 +7,30 @@ import type { CourseDetailShop } from "@sopum-map/shared";
 import { ChevronRightIcon } from "@/components/icons";
 
 import { formatWalkingSegment } from "./course-route-display";
+import { CourseShopVisitButton } from "./CourseShopVisitButton";
 
 type Props = Readonly<{
   shop: CourseDetailShop;
   nextShop: CourseDetailShop | null;
   onOpenActions: (shop: CourseDetailShop) => void;
+  isVisitPending: boolean;
+  onSetVisited: () => Promise<void>;
+  onUnsetVisited: () => Promise<void>;
+  onWriteLog: () => void;
+  onVisitError: () => void;
 }>;
 
 /** 방문 순서, 상점 정보와 다음 구간 거리를 하나의 타임라인 행으로 표시합니다. */
-export function CourseDetailShopItem({ shop, nextShop, onOpenActions }: Props) {
+export function CourseDetailShopItem({
+  shop,
+  nextShop,
+  onOpenActions,
+  isVisitPending,
+  onSetVisited,
+  onUnsetVisited,
+  onWriteLog,
+  onVisitError,
+}: Props) {
   const walkingSegment =
     typeof nextShop?.walkingDistanceFromPreviousMeters === "number" &&
     typeof nextShop.walkingDurationFromPreviousSeconds === "number"
@@ -60,6 +75,15 @@ export function CourseDetailShopItem({ shop, nextShop, onOpenActions }: Props) {
 
           <ChevronRightIcon className="size-5 shrink-0 text-black-300" aria-hidden="true" />
         </button>
+
+        <CourseShopVisitButton
+          isVisited={shop.isVisited}
+          isPending={isVisitPending}
+          onSetVisited={onSetVisited}
+          onUnsetVisited={onUnsetVisited}
+          onWriteLog={onWriteLog}
+          onError={onVisitError}
+        />
 
         {walkingSegment ? (
           <div className="mt-4 inline-flex rounded-lg bg-black-50 px-3 py-2 text-12 text-black-600">
