@@ -3,12 +3,13 @@
 import {
   SHOP_REGION_GROUP_LABELS,
   VISIT_LOG_CONTENT_MAX_LENGTH,
+  isApiError,
   type CreateVisitLogRequest,
   type ShopCategory,
   type TagKey,
 } from "@sopum-map/shared";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 
 import { useShopDetail } from "@/api/shops/shop.query";
@@ -122,11 +123,7 @@ export function VisitLogCreateForm({
         imageKeys: [],
       });
     } catch (error) {
-      setSubmitError(
-        error instanceof Error
-          ? error.message
-          : "방문 로그를 등록하지 못했어요.",
-      );
+      setSubmitError(getVisitLogSubmitError(error));
     }
   };
 
@@ -227,12 +224,34 @@ export function canReturnWithBrowserHistory(
   }
 }
 
+/** 코스 상세 한 단계로만 복귀할 수 있게 내부 경로를 제한합니다. */
+export function parseCourseReturnPath(returnTo: string | null): string | null {
+  if (!returnTo || !/^\/courses\/[A-Za-z0-9_-]+$/.test(returnTo)) {
+    return null;
+  }
+
+  return returnTo;
+}
+
+/** 방문 로그 API 오류를 작성 화면에서 실행 가능한 안내로 바꿉니다. */
+export function getVisitLogSubmitError(error: unknown): string {
+  if (isApiError(error) && error.code === "VISIT_LOG_ALREADY_EXISTS") {
+    return "같은 날짜의 방문 로그가 이미 있어요. 다른 날짜를 선택해 주세요.";
+  }
+
+  return error instanceof Error
+    ? error.message
+    : "방문 로그를 등록하지 못했어요.";
+}
+
 /** 실제 상점 데이터와 방문 로그 작성 API를 작성 폼에 연결합니다. */
 export function VisitLogCreateScreen({
   shopId,
   onBackOverride,
 }: Readonly<{ shopId: string; onBackOverride?: () => void }>) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const courseReturnPath = parseCourseReturnPath(searchParams.get("returnTo"));
   const shopQuery = useShopDetail(shopId);
   const createMutation = useCreateVisitLog(shopId);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -277,6 +296,11 @@ export function VisitLogCreateScreen({
           return;
         }
 
+        if (courseReturnPath) {
+          router.replace(courseReturnPath);
+          return;
+        }
+
         if (
           canReturnWithBrowserHistory(
             document.referrer,
@@ -294,7 +318,9 @@ export function VisitLogCreateScreen({
         await createMutation.mutateAsync(input);
         setIsSubmitted(true);
         window.setTimeout(() => {
-          router.replace(`/shops/${shopId}?visitLogCreated=true`);
+          router.replace(
+            courseReturnPath ?? `/shops/${shopId}?visitLogCreated=true`,
+          );
         }, 600);
       }}
     />

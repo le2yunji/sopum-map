@@ -215,7 +215,12 @@ export function CourseDetailScreen({ courseId }: Props) {
                 onUnsetVisited={() =>
                   unsetVisitedMutation.mutateAsync({ courseId: course.id, shopId: shop.id }).then(() => undefined)
                 }
-                onWriteLog={() => router.push(`/shops/${shop.id}/visit-logs/new`)}
+                onWriteLog={() => {
+                  const returnTo = encodeURIComponent(`/courses/${course.id}`);
+                  router.push(
+                    `/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`,
+                  );
+                }}
                 onVisitError={() => setNotice("방문 상태를 저장하지 못했어요.")}
               />
             ))}
