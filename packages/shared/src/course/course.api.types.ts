@@ -64,6 +64,11 @@ export type CourseLikeData = Readonly<{
   likeCount: number;
 }>;
 
+/** PUT/DELETE 코스 상점 방문 상태 성공 데이터 */
+export type CourseShopVisitData = Readonly<{
+  isVisited: boolean;
+}>;
+
 /** 커서 기반 코스 목록 공통 응답 */
 export type CourseCursorPage<T> = Readonly<{
   items: readonly T[];

@@ -42,6 +42,14 @@ export const getCourseDetailSchema = z.object({
 /** 코스 좋아요와 좋아요 해제 요청 */
 export const courseLikeSchema = getCourseDetailSchema;
 
+/** 코스에 포함된 상점의 방문 상태 변경 요청 */
+export const courseShopVisitSchema = z.object({
+  params: z.object({
+    courseId: objectIdSchema,
+    shopId: objectIdSchema,
+  }),
+});
+
 /**
  * 사용자 코스 수정 요청
  */

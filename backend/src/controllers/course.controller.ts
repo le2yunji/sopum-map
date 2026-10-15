@@ -9,6 +9,7 @@ import {
   getCourseListSchema,
   updateCourseSchema,
   updateCourseVisibilitySchema,
+  courseShopVisitSchema,
 } from "../validations/course.validation.js";
 import { createCourse } from "../services/course/course.create.service.js";
 import { getCourseDetail } from "../services/course/course.read.service.js";
@@ -23,6 +24,10 @@ import {
   unlikeCourse,
 } from "../services/course/course-like.service.js";
 import { updateCourseVisibility } from "../services/course/course-visibility.service.js";
+import {
+  setCourseShopVisited,
+  unsetCourseShopVisited,
+} from "../services/course/course-shop-visit.service.js";
 
 /**
  * 내 픽 폴더를 기반으로 사용자 코스를 생성합니다.
@@ -224,6 +229,52 @@ export async function updateCourseVisibilityController(
     } = res.locals.validated as z.infer<typeof updateCourseVisibilitySchema>;
 
     const data = await updateCourseVisibility(userId, courseId, isPublic);
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 코스 상점을 방문 완료 상태로 저장합니다. */
+export async function setCourseShopVisitedController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+    const { params } = res.locals.validated as z.infer<
+      typeof courseShopVisitSchema
+    >;
+    const data = await setCourseShopVisited(
+      userId,
+      params.courseId,
+      params.shopId,
+    );
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 코스 상점을 미방문 상태로 되돌립니다. */
+export async function unsetCourseShopVisitedController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+    const { params } = res.locals.validated as z.infer<
+      typeof courseShopVisitSchema
+    >;
+    const data = await unsetCourseShopVisited(
+      userId,
+      params.courseId,
+      params.shopId,
+    );
 
     res.status(200).json({ success: true, data });
   } catch (error) {
