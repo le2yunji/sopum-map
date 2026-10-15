@@ -6,6 +6,7 @@ import {
 } from "@sopum-map/shared";
 import CourseModel from "../../models/course.model.js";
 import CourseLikeModel from "../../models/course-like.model.js";
+import CourseShopVisitModel from "../../models/course-shop-visit.model.js";
 import ShopModel from "../../models/shop.model.js";
 import UserModel from "../../models/user.model.js";
 import { getMainShopImageUrl } from "../../utils/shop-image.js";
@@ -92,27 +93,35 @@ export async function getCourseDetail(
    * hidden / temporarily_closed / closed 상태도
    * 코스에서는 계속 조회되어야 합니다.
    */
-  const shops = await ShopModel.find({
-    _id: {
-      $in: shopIds,
-    },
-  })
-    .select({
-      _id: 1,
-
-      name: 1,
-      address: 1,
-
-      images: 1,
-
-      regionGroup: 1,
-      location: 1,
-
-      status: 1,
+  const [shops, courseShopVisits] = await Promise.all([
+    ShopModel.find({
+      _id: {
+        $in: shopIds,
+      },
     })
-    .lean();
+      .select({
+        _id: 1,
+        name: 1,
+        address: 1,
+        images: 1,
+        regionGroup: 1,
+        location: 1,
+        status: 1,
+      })
+      .lean(),
+    CourseShopVisitModel.find({
+      userId: objectUserId,
+      courseId: objectCourseId,
+      shopId: { $in: shopIds },
+    })
+      .select({ shopId: 1 })
+      .lean(),
+  ]);
 
   const shopMap = new Map(shops.map((shop) => [shop._id.toString(), shop]));
+  const visitedShopIds = new Set(
+    courseShopVisits.map((visit) => visit.shopId.toString()),
+  );
 
   /**
    * Course에 포함된 Shop 문서가 물리적으로 삭제된 경우
@@ -158,6 +167,8 @@ export async function getCourseDetail(
       status: shop.status,
 
       isUnavailable: isCourseShopUnavailable(shop.status),
+
+      isVisited: visitedShopIds.has(shop._id.toString()),
 
       order: courseShop.order,
 

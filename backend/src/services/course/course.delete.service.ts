@@ -4,6 +4,7 @@ import { createApiError } from "@sopum-map/shared";
 
 import CourseModel from "../../models/course.model.js";
 import CourseLikeModel from "../../models/course-like.model.js";
+import CourseShopVisitModel from "../../models/course-shop-visit.model.js";
 
 /**
  * 사용자 코스 삭제
@@ -67,7 +68,8 @@ export async function deleteCourse(
     });
   }
 
-  await CourseLikeModel.deleteMany({
-    courseId: objectCourseId,
-  });
+  await Promise.all([
+    CourseLikeModel.deleteMany({ courseId: objectCourseId }),
+    CourseShopVisitModel.deleteMany({ courseId: objectCourseId }),
+  ]);
 }

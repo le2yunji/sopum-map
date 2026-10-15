@@ -70,6 +70,9 @@ export type CourseDetailShop = Readonly<{
    */
   isUnavailable: boolean;
 
+  /** 현재 사용자가 이 코스에서 방문 완료로 표시했는지 여부 */
+  isVisited: boolean;
+
   order: number;
 
   memo: string | null;
