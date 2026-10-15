@@ -231,7 +231,7 @@ export const Default: Story = {
 
     await expect(
       canvas.getByRole("link", {
-        name: "방문 로그 작성",
+        name: "방문했어요",
       }),
     ).toHaveAttribute("href", "/shops/shop-1/visit-logs/new");
     await expect(

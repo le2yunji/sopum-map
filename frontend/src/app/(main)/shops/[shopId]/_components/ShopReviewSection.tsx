@@ -93,7 +93,7 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
           className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-lg border border-pink-300/30 px-3 text-12 font-medium text-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
         >
           <CameraIcon className="w-4 text-green-700" />
-          방문 로그 작성
+          방문했어요
         </Link>
       </div>
 
