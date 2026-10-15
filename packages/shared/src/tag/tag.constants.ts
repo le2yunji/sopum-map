@@ -27,11 +27,21 @@ export const TAG_DEFINITIONS = [
   { key: "hip", label: "힙한", group: "mood", isActive: true },
   { key: "lovely", label: "러블리", group: "mood", isActive: true },
   { key: "cozy", label: "포근한 감성", group: "mood", isActive: true },
-  { key: "good_for_gifts", label: "선물 추천", group: "experience", isActive: true },
+  {
+    key: "good_for_gifts",
+    label: "선물 추천",
+    group: "experience",
+    isActive: true,
+  },
   { key: "friendly", label: "친절한", group: "experience", isActive: true },
   { key: "spacious", label: "넓고 쾌적", group: "experience", isActive: true },
   { key: "good_value", label: "가성비", group: "experience", isActive: true },
-  { key: "lots_to_see", label: "볼거리 많은", group: "experience", isActive: true },
+  {
+    key: "lots_to_see",
+    label: "볼거리 많은",
+    group: "experience",
+    isActive: true,
+  },
   {
     key: "impulse_buying",
     label: "충동구매 유발",

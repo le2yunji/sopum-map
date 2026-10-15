@@ -39,6 +39,13 @@ const visitLogSchema = new Schema(
       default: Date.now,
     },
 
+    // 같은 한국 달력 날짜의 중복 로그를 막기 위한 서버 계산 키
+    visitedDate: {
+      type: String,
+      required: true,
+      match: /^\d{4}-\d{2}-\d{2}$/,
+    },
+
     // 사용자가 선택한 방문 경험 태그
     selectedTagKeys: {
       type: [
@@ -100,6 +107,15 @@ visitLogSchema.index({
   visitedAt: -1,
   _id: -1,
 });
+
+// 삭제된 기록은 같은 날짜로 다시 작성할 수 있게 활성 로그에만 적용
+visitLogSchema.index(
+  { userId: 1, shopId: 1, visitedDate: 1 },
+  {
+    unique: true,
+    partialFilterExpression: { status: "active" },
+  },
+);
 
 // 매장별 활성 방문 로그를 방문일 최신순으로 조회
 visitLogSchema.index({

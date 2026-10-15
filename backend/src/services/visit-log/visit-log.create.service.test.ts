@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const modelMocks = vi.hoisted(() => ({
   findShop: vi.fn(),
+  findDuplicateVisitLog: vi.fn(),
   createVisitLog: vi.fn(),
 }));
 
@@ -12,7 +13,10 @@ vi.mock("../../models/shop.model.js", () => ({
 }));
 
 vi.mock("../../models/visit-log.model.js", () => ({
-  default: { create: modelMocks.createVisitLog },
+  default: {
+    exists: modelMocks.findDuplicateVisitLog,
+    create: modelMocks.createVisitLog,
+  },
 }));
 
 import { createVisitLog } from "./visit-log.create.service.js";
@@ -31,6 +35,7 @@ const input: CreateVisitLogRequest = {
 beforeEach(() => {
   vi.clearAllMocks();
   modelMocks.findShop.mockResolvedValue({ _id: new Types.ObjectId(shopId) });
+  modelMocks.findDuplicateVisitLog.mockResolvedValue(null);
   modelMocks.createVisitLog.mockResolvedValue({
     _id: new Types.ObjectId(visitLogId),
   });
@@ -50,6 +55,7 @@ describe("createVisitLog", () => {
       userId: new Types.ObjectId(userId),
       shopId: new Types.ObjectId(shopId),
       visitedAt: new Date(input.visitedAt),
+      visitedDate: "2026-10-13",
       selectedTagKeys: input.selectedTagKeys,
       content: "다시 방문하고 싶은 상점이에요.",
       imageKeys: [],
@@ -57,11 +63,41 @@ describe("createVisitLog", () => {
     });
   });
 
-  it("같은 사용자가 같은 상점에 다시 방문 로그를 만들 수 있다", async () => {
-    await createVisitLog(userId, shopId, input);
-    await createVisitLog(userId, shopId, input);
+  it("같은 사용자의 같은 상점·한국 날짜 활성 로그를 거부한다", async () => {
+    modelMocks.findDuplicateVisitLog.mockResolvedValue({ _id: visitLogId });
 
-    expect(modelMocks.createVisitLog).toHaveBeenCalledTimes(2);
+    await expect(createVisitLog(userId, shopId, input)).rejects.toMatchObject({
+      status: 409,
+      code: "VISIT_LOG_ALREADY_EXISTS",
+    });
+    expect(modelMocks.findDuplicateVisitLog).toHaveBeenCalledWith({
+      userId: new Types.ObjectId(userId),
+      shopId: new Types.ObjectId(shopId),
+      visitedDate: "2026-10-13",
+      status: "active",
+    });
+    expect(modelMocks.createVisitLog).not.toHaveBeenCalled();
+  });
+
+  it("다른 한국 날짜의 방문 로그는 허용한다", async () => {
+    await createVisitLog(userId, shopId, {
+      ...input,
+      visitedAt: "2026-10-13T15:00:00.000Z",
+    });
+
+    expect(modelMocks.findDuplicateVisitLog).toHaveBeenCalledWith(
+      expect.objectContaining({ visitedDate: "2026-10-14" }),
+    );
+    expect(modelMocks.createVisitLog).toHaveBeenCalledOnce();
+  });
+
+  it("동시 생성의 고유 인덱스 충돌을 중복 방문 로그 오류로 변환한다", async () => {
+    modelMocks.createVisitLog.mockRejectedValue({ code: 11000 });
+
+    await expect(createVisitLog(userId, shopId, input)).rejects.toMatchObject({
+      status: 409,
+      code: "VISIT_LOG_ALREADY_EXISTS",
+    });
   });
 
   it("활성 상태가 아닌 상점에는 방문 로그를 만들 수 없다", async () => {

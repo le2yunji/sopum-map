@@ -6,6 +6,8 @@ import { Types } from "mongoose";
 
 import ShopModel from "../../models/shop.model.js";
 import VisitLogModel from "../../models/visit-log.model.js";
+import { toKoreaDateKey } from "../../utils/korea-date.js";
+import { isMongoDuplicateKeyError } from "../../utils/mongo-error.js";
 import type {
   CreateVisitLogServiceInput,
   CreateVisitLogServiceResult,
@@ -37,6 +39,15 @@ function validateImageKeys(imageKeys: readonly string[]): void {
   }
 }
 
+/** 동일한 한국 날짜에 이미 활성 로그가 있음을 공통 API 오류로 알립니다. */
+function createDuplicateVisitLogError() {
+  return createApiError({
+    status: 409,
+    code: "VISIT_LOG_ALREADY_EXISTS",
+    message: "같은 날짜의 방문 로그가 이미 있습니다.",
+  });
+}
+
 /** 로그인 사용자의 공개 방문 로그를 생성합니다. */
 export async function createVisitLog(
   userId: string,
@@ -50,6 +61,8 @@ export async function createVisitLog(
 
   const objectUserId = new Types.ObjectId(userId);
   const objectShopId = new Types.ObjectId(shopId);
+  const visitedAt = new Date(input.visitedAt);
+  const visitedDate = toKoreaDateKey(visitedAt);
   const shopExists = await ShopModel.exists({
     _id: objectShopId,
     status: "active",
@@ -63,16 +76,38 @@ export async function createVisitLog(
     });
   }
 
-  const content = input.content?.trim() || null;
-  const visitLog = await VisitLogModel.create({
+  const duplicateVisitLog = await VisitLogModel.exists({
     userId: objectUserId,
     shopId: objectShopId,
-    visitedAt: new Date(input.visitedAt),
-    selectedTagKeys: [...input.selectedTagKeys],
-    content,
-    imageKeys: [...imageKeys],
+    visitedDate,
     status: "active",
   });
+
+  if (duplicateVisitLog) {
+    throw createDuplicateVisitLogError();
+  }
+
+  const content = input.content?.trim() || null;
+  let visitLog;
+
+  try {
+    visitLog = await VisitLogModel.create({
+      userId: objectUserId,
+      shopId: objectShopId,
+      visitedAt,
+      visitedDate,
+      selectedTagKeys: [...input.selectedTagKeys],
+      content,
+      imageKeys: [...imageKeys],
+      status: "active",
+    });
+  } catch (error) {
+    if (isMongoDuplicateKeyError(error)) {
+      throw createDuplicateVisitLogError();
+    }
+
+    throw error;
+  }
 
   return { visitLogId: visitLog._id.toString() };
 }

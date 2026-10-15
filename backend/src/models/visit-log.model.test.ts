@@ -9,6 +9,7 @@ function createVisitLog(overrides: Record<string, unknown> = {}) {
     userId: new Types.ObjectId(),
     shopId: new Types.ObjectId(),
     visitedAt: new Date("2026-10-13T03:00:00.000Z"),
+    visitedDate: "2026-10-13",
     selectedTagKeys: ["cute"],
     ...overrides,
   });
@@ -87,6 +88,18 @@ describe("VisitLog model", () => {
     expect(indexes).toContainEqual([
       { userId: 1, status: 1, visitedAt: -1, _id: -1 },
       expect.any(Object),
+    ]);
+  });
+
+  it("같은 사용자의 같은 상점·한국 날짜 활성 로그를 하나만 허용한다", () => {
+    const indexes = VisitLogModel.schema.indexes();
+
+    expect(indexes).toContainEqual([
+      { userId: 1, shopId: 1, visitedDate: 1 },
+      expect.objectContaining({
+        unique: true,
+        partialFilterExpression: { status: "active" },
+      }),
     ]);
   });
 });
