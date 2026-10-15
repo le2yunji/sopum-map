@@ -140,7 +140,7 @@ Expected: 생성 서비스가 없어 FAIL.
 
 - [x] **Step 3: `createVisitLog` 구현**
 
-`ShopModel.exists({_id: shopId, status: "active"})`로 상점을 확인한다. 모든 태그가 `ACTIVE_TAG_DEFINITIONS`에 있는지 Set으로 검사하고 `VisitLogModel.create`를 한 번 호출한다. 빈 content는 null로 정규화한다. 재방문 중복 조회나 unique index는 추가하지 않는다.
+`ShopModel.exists({_id: shopId, status: "active"})`로 상점을 확인한다. 모든 태그가 `ACTIVE_TAG_DEFINITIONS`에 있는지 Set으로 검사하고 `VisitLogModel.create`를 한 번 호출한다. 빈 content는 null로 정규화한다. 이 초기 단계에서는 재방문 중복 조회나 unique index를 추가하지 않았다. 동일 날짜 중복 정책은 후속 `2026-10-15-course-shop-visit-design.md`가 대체한다.
 
 - [x] **Step 4: 서비스 테스트 확인**
 
