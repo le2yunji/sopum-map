@@ -14,7 +14,10 @@ export const shopQueryKeys = {
 };
 
 /** 상점 목록을 페이지 단위로 조회합니다. */
-export function useInfiniteShops(query: Omit<GetShopsQuery, "page">) {
+export function useInfiniteShops(
+  query: Omit<GetShopsQuery, "page">,
+  enabled = true,
+) {
   return useInfiniteQuery({
     queryKey: shopQueryKeys.list(query),
 
@@ -25,6 +28,7 @@ export function useInfiniteShops(query: Omit<GetShopsQuery, "page">) {
       }),
 
     initialPageParam: 1,
+    enabled,
 
     getNextPageParam: (lastPage) => {
       const { pagination } = lastPage;

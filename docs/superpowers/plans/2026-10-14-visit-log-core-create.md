@@ -10,13 +10,23 @@
 
 **Spec:** `docs/superpowers/specs/2026-10-14-visit-log-design.md`
 
+## 후속 요구사항 반영
+
+초기 계획 실행 뒤 제품 설계가 다음처럼 확정되었다. 아래 작업 설명과 검증 기준은 이 정책을 기준으로 읽는다.
+
+- 작성 화면은 방문 상점·방문일 → 태그 → 사진·방문 내용의 3단계다.
+- 상점이 정해지지 않은 진입점에서는 상점을 검색하고, 상점 상세 등에서 진입하면 해당 상점을 미리 선택한다.
+- 태그는 24개 공용 정의의 단일 `label`을 사용하며 전체에서 1~8개를 선택한다.
+- 선택 태그를 별도 영역에 복제하지 않고 원래 칩의 활성 색상으로만 표시한다.
+- 방문 내용은 선택 사항이며 최대 1,000자다.
+
 ## Global Constraints
 
 - 사용자 화면에서는 `후기`가 아니라 `방문 로그`를 사용한다.
-- 방문일과 활성 태그 1~5개는 필수이며 사진과 글은 선택 사항이다.
-- 작성 화면은 `TAG_DEFINITIONS.selectionLabel`, 조회 화면은 `shortLabel`을 사용한다.
+- 방문일과 활성 태그 1~8개는 필수이며 사진과 글은 선택 사항이다.
+- 작성 화면과 조회 화면은 모두 `TAG_DEFINITIONS.label`을 사용한다.
 - 태그 선택은 지도 필터처럼 그룹 제목, 둥근 칩, 활성 색상을 사용한다.
-- 기본 상태에서는 `experience`, `shopping` 그룹만 표시하고 전체 보기·접기를 제공한다.
+- `product`, `mood`, `experience`를 질문형 그룹으로 표시하고 각 그룹에 더보기·접기를 제공한다.
 - 모든 방문 로그는 공개이며 같은 사용자와 상점의 재방문 기록을 허용한다.
 - 이번 계획에서는 S3 업로드를 구현하지 않고 `imageKeys`는 빈 배열만 허용한다.
 - 새 작성 경로는 `/shops/:shopId/visit-logs/new`이며 기존 `/reviews/new`는 교체 이동한다.
@@ -74,7 +84,7 @@ git commit -m "feat: 방문 로그 작성 공용 계약 추가"
 
 - [x] **Step 1: 실패하는 요청 검증 테스트 작성**
 
-정상 요청, 태그 0개·6개·중복·정의되지 않은 키, 300자 초과 글, 비어 있지 않은 `imageKeys`, 미래 방문일을 각각 검증한다. 날짜는 유효한 ISO datetime이어야 한다.
+정상 요청, 태그 0개·9개·중복·정의되지 않은 키, 1,000자 초과 글, 비어 있지 않은 `imageKeys`, 미래 방문일을 각각 검증한다. 날짜는 유효한 ISO datetime이어야 한다.
 
 - [x] **Step 2: 검증 테스트 실패 확인**
 
@@ -84,15 +94,15 @@ Expected: `createVisitLogSchema`가 없어 FAIL.
 
 - [x] **Step 3: `createVisitLogSchema` 구현**
 
-params의 `shopId`, body의 ISO datetime, 태그 1~5개와 중복, nullable 300자 content, 길이 0인 `imageKeys`를 검증한다. 미래 여부는 요청마다 현재 시각을 사용해 검사한다.
+params의 `shopId`, body의 ISO datetime, 태그 1~8개와 중복, nullable 1,000자 content, 길이 0인 `imageKeys`를 검증한다. 미래 여부는 요청마다 현재 시각을 사용해 검사한다.
 
 - [x] **Step 4: 실패하는 모델 테스트 작성**
 
-기본 status가 active인지, 태그·imageKeys 기본값, 태그 중복과 개수, content 300자 경계, 새 조회 인덱스 정의를 검사한다.
+기본 status가 active인지, 태그·imageKeys 기본값, 태그 중복과 개수, content 1,000자 경계, 새 조회 인덱스 정의를 검사한다.
 
 - [x] **Step 5: 모델 구현**
 
-기존 `imageUrls` 읽기 호환을 유지하면서 `selectedTagKeys`, `imageKeys`, `status`를 추가한다. content 최대 길이는 작성 UI와 같은 300자로 맞춘다. 공개 조회와 내 조회용 복합 인덱스를 추가한다.
+기존 `imageUrls` 읽기 호환을 유지하면서 `selectedTagKeys`, `imageKeys`, `status`를 추가한다. content 최대 길이는 작성 UI와 같은 1,000자로 맞춘다. 공개 조회와 내 조회용 복합 인덱스를 추가한다.
 
 - [x] **Step 6: 모델·검증 확인**
 
@@ -222,7 +232,7 @@ git add frontend/src/api/visit-log
 git commit -m "feat: 방문 로그 작성 클라이언트 추가"
 ```
 
-### Task 6: 접이식 방문 태그 선택 UI
+### Task 6: 질문형 방문 태그 선택 UI
 
 **Files:**
 - Create: `frontend/src/app/(main)/shops/[shopId]/visit-logs/new/_components/VisitLogTagSelector.tsx`
@@ -234,7 +244,7 @@ git commit -m "feat: 방문 로그 작성 클라이언트 추가"
 
 - [x] **Step 1: Storybook 상호작용 테스트 작성**
 
-기본 상태에서 experience와 shopping만 보임, selectionLabel 사용, 전체 보기·접기, 최대 5개, 숨은 그룹 선택 유지, `aria-expanded`·`aria-pressed`, 오류 메시지 연결을 검사한다.
+세 질문 그룹, `label` 사용, 그룹별 더보기·접기, 최대 8개, 선택 칩 색상, `aria-expanded`·`aria-pressed`, 오류 메시지 연결을 검사한다.
 
 - [x] **Step 2: Storybook 테스트 실패 확인**
 
@@ -244,7 +254,7 @@ Expected: 컴포넌트가 없어 FAIL.
 
 - [x] **Step 3: 태그 선택 컴포넌트 구현**
 
-공용 `Button`을 사용하고 선택 태그 영역과 접이식 그룹 목록을 분리한다. 선택하지 않은 6번째 태그만 disabled 처리한다.
+공용 `Button`을 사용하고 선택 결과는 별도 영역에 복제하지 않는다. 선택한 칩 자체에 활성 색상을 표시하고 8개 선택 뒤 선택하지 않은 태그만 disabled 처리한다.
 
 - [x] **Step 4: Storybook 테스트 확인**
 
@@ -256,7 +266,7 @@ Expected: PASS.
 
 ```bash
 git add 'frontend/src/app/(main)/shops/[shopId]/visit-logs/new/_components/VisitLogTagSelector.tsx' 'frontend/src/app/(main)/shops/[shopId]/visit-logs/new/_components/VisitLogTagSelector.stories.tsx'
-git commit -m "feat: 접이식 방문 로그 태그 선택 UI 추가"
+git commit -m "feat: 질문형 방문 로그 태그 선택 UI 추가"
 ```
 
 ### Task 7: 실제 데이터 기반 방문 로그 작성 화면
@@ -269,12 +279,15 @@ git commit -m "feat: 접이식 방문 로그 태그 선택 UI 추가"
 - Create: `frontend/src/app/(main)/shops/[shopId]/visit-logs/new/_components/VisitLogCreateScreen.stories.tsx`
 - Create: `frontend/src/app/(main)/shops/[shopId]/visit-logs/new/_components/visit-log-date.ts`
 - Create: `frontend/src/app/(main)/shops/[shopId]/visit-logs/new/_components/visit-log-date.test.ts`
+- Create: `frontend/src/app/(main)/visit-logs/new/page.tsx`
+- Create: `frontend/src/app/(main)/visit-logs/new/_components/VisitLogEntryScreen.tsx`
 - Modify: `frontend/src/app/(main)/shops/[shopId]/reviews/new/page.tsx`
 - Modify: `frontend/src/app/(main)/shops/[shopId]/_components/ShopReviewSection.tsx`
+- Modify: `frontend/src/app/(main)/(tabs)/me/_components/MyPageScreen.tsx`
 
 **Interfaces:**
 - Consumes: `useShopDetail(shopId)`, `useCreateVisitLog(shopId)`, Task 6의 selector
-- Produces: 실제 상점 정보, 방문일, 태그, 글을 제출하는 작성 화면과 기존 주소 호환 이동
+- Produces: 상점 검색 또는 미리 선택된 상점에서 시작해 방문일, 태그, 글을 단계별로 제출하는 작성 화면과 기존 주소 호환 이동
 
 - [x] **Step 1: 날짜 변환 실패 테스트 작성**
 
@@ -282,7 +295,7 @@ git commit -m "feat: 접이식 방문 로그 태그 선택 UI 추가"
 
 - [x] **Step 2: 화면 Storybook 실패 테스트 작성**
 
-실제 형태의 상점 표시, 오늘 방문일, 태그 미선택 오류, content 제출, pending 중 버튼 disabled·loading, API 오류 시 입력 유지, 성공 시 상세 replace를 검사한다. 직접 진입 fallback 뒤로가기도 검사한다.
+큰 대표 이미지를 포함한 상점 카드, 오늘 방문일, 3단계 이동, 태그 미선택 오류, content 제출, pending 중 버튼 disabled·loading, API 오류 시 입력 유지, 성공 시 상세 replace를 검사한다. 직접 진입 fallback 뒤로가기도 검사한다.
 
 - [x] **Step 3: 테스트 실패 확인**
 
@@ -292,11 +305,11 @@ Expected: 새 유틸과 화면이 없어 FAIL.
 
 - [x] **Step 4: 작성 화면 구현**
 
-기존 `VisitReviewForm`의 사진 미리보기는 S3 단계까지 노출하지 않는다. 상점 query의 loading/error를 처리하고 방문일·태그·content를 mutation에 전달한다. 등록 성공 시 안내 상태를 거쳐 `router.replace(/shops/:shopId)`를 호출한다.
+기존 `VisitReviewForm`의 사진 미리보기는 S3 단계까지 노출하지 않는다. 상점 query의 loading/error를 처리하고 방문일·태그·content를 3단계에서 수집해 mutation에 전달한다. 등록 성공 시 안내 상태를 거쳐 `router.replace(/shops/:shopId)`를 호출한다.
 
 - [x] **Step 5: 새 경로와 이전 경로 호환 구현**
 
-새 페이지는 `shopId`만 화면에 전달한다. 기존 reviews/new 페이지는 Next.js 16의 서버 `redirect`로 새 주소에 교체 이동한다. 상점 상세 CTA의 링크와 문구를 새 경로·방문 로그 용어로 변경한다.
+상점 상세 경로는 `shopId`를 화면에 전달해 상점을 미리 선택한다. `/visit-logs/new`는 상점 검색 뒤 같은 작성 화면으로 연결하고 마이페이지에서 진입할 수 있게 한다. 기존 reviews/new 페이지는 Next.js 16의 서버 `redirect`로 새 주소에 교체 이동한다. 상점 상세 CTA의 링크와 문구를 새 경로·방문 로그 용어로 변경한다.
 
 - [x] **Step 6: 작성 화면 검증**
 
@@ -335,7 +348,7 @@ Expected: 모든 명령 PASS.
 
 - [x] **Step 2: 모바일·접근성 브라우저 검증**
 
-320px, 390px, 480px에서 작성 화면을 확인한다. 키보드로 태그 선택, 전체 보기·접기, 오류 초점, pending 버튼을 확인한다. 상점 상세 → 작성 → 성공 → 상세 → 뒤로가기 반복이 없는지 확인한다.
+320px, 390px, 480px에서 작성 화면을 확인한다. 키보드로 단계 이동, 태그 선택, 그룹별 더보기·접기, 오류 초점, pending 버튼을 확인한다. 상점 상세 → 작성 → 성공 → 상세 → 뒤로가기 반복이 없는지 확인한다.
 
 - [x] **Step 3: 이슈 체크리스트 갱신**
 
@@ -358,7 +371,7 @@ git commit -m "docs: 방문 로그 핵심 작성 흐름 검증 기록"
 
 이 계획이 끝난 뒤 아래 작업은 별도 계획과 PR로 진행한다.
 
-1. 상점 상세 방문 로그 카드, `shortLabel`, 정보량 우선 정렬
+1. 상점 상세 방문 로그 카드, `label`, 정보량 우선 정렬
 2. 내 방문 로그 목록, 사진 없는 컴팩트 카드, 수정·삭제
 3. S3 presigned URL 업로드, 이미지 키 소유권과 고아 객체 정리
 4. 홈 요약과 방문 로그 보상 시스템

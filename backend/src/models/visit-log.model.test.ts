@@ -26,7 +26,20 @@ describe("VisitLog model", () => {
 
   it.each([
     ["태그 없음", []],
-    ["6개 태그", ["cute", "vintage", "cozy", "hip", "lovely", "kitsch"]],
+    [
+      "9개 태그",
+      [
+        "cute",
+        "vintage",
+        "cozy",
+        "hip",
+        "lovely",
+        "kitsch",
+        "friendly",
+        "spacious",
+        "good_value",
+      ],
+    ],
     ["중복 태그", ["cute", "cute"]],
     ["폐기된 태그", ["calm"]],
   ])("%s을 거부한다", async (_, selectedTagKeys) => {
@@ -35,15 +48,32 @@ describe("VisitLog model", () => {
     await expect(visitLog.validate()).rejects.toThrow();
   });
 
-  it("방문 글은 300자까지 허용한다", async () => {
+  it("방문 글은 1,000자까지 허용한다", async () => {
     await expect(
-      createVisitLog({ content: "가".repeat(300) }).validate(),
+      createVisitLog({ content: "가".repeat(1_000) }).validate(),
     ).resolves.toBeUndefined();
   });
 
-  it("300자를 초과한 방문 글을 거부한다", async () => {
+  it("서로 다른 방문 태그를 8개까지 허용한다", async () => {
     await expect(
-      createVisitLog({ content: "가".repeat(301) }).validate(),
+      createVisitLog({
+        selectedTagKeys: [
+          "cute",
+          "vintage",
+          "cozy",
+          "hip",
+          "lovely",
+          "kitsch",
+          "friendly",
+          "spacious",
+        ],
+      }).validate(),
+    ).resolves.toBeUndefined();
+  });
+
+  it("1,000자를 초과한 방문 글을 거부한다", async () => {
+    await expect(
+      createVisitLog({ content: "가".repeat(1_001) }).validate(),
     ).rejects.toThrow();
   });
 

@@ -36,10 +36,20 @@ describe("createVisitLogSchema", () => {
 
   const invalidTagSelections: readonly string[][] = [
     [],
-    ["cute", "vintage", "cozy", "hip", "lovely", "kitsch"],
+    [
+      "cute",
+      "vintage",
+      "cozy",
+      "hip",
+      "lovely",
+      "kitsch",
+      "friendly",
+      "spacious",
+      "good_value",
+    ],
   ];
 
-  it.each(invalidTagSelections)("태그가 1개 미만이거나 5개를 초과하면 거부한다", (selectedTagKeys) => {
+  it.each(invalidTagSelections)("태그가 1개 미만이거나 8개를 초과하면 거부한다", (selectedTagKeys) => {
     expect(() =>
       createVisitLogSchema.parse({
         ...createValidVisitLogRequest(),
@@ -60,6 +70,27 @@ describe("createVisitLogSchema", () => {
     ).toThrow();
   });
 
+  it("서로 다른 태그를 8개까지 허용한다", () => {
+    expect(() =>
+      createVisitLogSchema.parse({
+        ...createValidVisitLogRequest(),
+        body: {
+          ...createValidVisitLogRequest().body,
+          selectedTagKeys: [
+            "cute",
+            "vintage",
+            "cozy",
+            "hip",
+            "lovely",
+            "kitsch",
+            "friendly",
+            "spacious",
+          ],
+        },
+      }),
+    ).not.toThrow();
+  });
+
   it("정의되지 않은 태그를 거부한다", () => {
     expect(() =>
       createVisitLogSchema.parse({
@@ -72,13 +103,25 @@ describe("createVisitLogSchema", () => {
     ).toThrow();
   });
 
-  it("300자를 초과한 방문 글을 거부한다", () => {
+  it("1,000자 방문 글을 허용한다", () => {
     expect(() =>
       createVisitLogSchema.parse({
         ...createValidVisitLogRequest(),
         body: {
           ...createValidVisitLogRequest().body,
-          content: "가".repeat(301),
+          content: "가".repeat(1_000),
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("1,000자를 초과한 방문 글을 거부한다", () => {
+    expect(() =>
+      createVisitLogSchema.parse({
+        ...createValidVisitLogRequest(),
+        body: {
+          ...createValidVisitLogRequest().body,
+          content: "가".repeat(1_001),
         },
       }),
     ).toThrow();

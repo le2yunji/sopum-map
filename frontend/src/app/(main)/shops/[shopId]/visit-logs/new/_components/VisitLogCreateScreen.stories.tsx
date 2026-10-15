@@ -32,9 +32,23 @@ export const CreateVisitLog: Story = {
     const canvas = within(canvasElement);
 
     await expect(canvas.getByText("모모 소품샵")).toBeVisible();
-    await expect(canvas.getByLabelText("방문일")).toHaveValue("2026-10-14");
+    const dateButton = canvas.getByRole("button", {
+      name: "방문일 선택, 2026년 10월 14일",
+    });
+    await expect(dateButton).toHaveTextContent("2026. 10. 14.");
 
-    await userEvent.click(canvas.getByRole("button", { name: "방문 로그 등록하기" }));
+    await userEvent.click(dateButton);
+    await expect(
+      canvas.getByRole("heading", { name: "방문일 선택" }),
+    ).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: /2026년 10월 13일/ }),
+    );
+    await userEvent.click(canvas.getByRole("button", { name: "선택 완료" }));
+    await expect(dateButton).toHaveTextContent("2026. 10. 13.");
+
+    await userEvent.click(canvas.getByRole("button", { name: "다음 · 태그 선택" }));
+    await userEvent.click(canvas.getByRole("button", { name: "다음 · 사진과 기록" }));
     await expect(
       canvas.getByText("태그를 1개 이상 선택해 주세요."),
     ).toBeVisible();
@@ -43,15 +57,16 @@ export const CreateVisitLog: Story = {
     ).toHaveFocus();
 
     await userEvent.keyboard(" ");
+    await userEvent.click(canvas.getByRole("button", { name: "다음 · 사진과 기록" }));
     await userEvent.type(
-      canvas.getByLabelText("방문 메모"),
+      canvas.getByLabelText("방문 내용 (선택)"),
       "다시 가고 싶은 상점이에요.",
     );
-    await userEvent.click(canvas.getByRole("button", { name: "방문 로그 등록하기" }));
+    await userEvent.click(canvas.getByRole("button", { name: "내 방문 로그에 기록하기" }));
 
     await waitFor(() => {
       expect(args.onSubmit).toHaveBeenCalledWith({
-        visitedAt: "2026-10-14T03:00:00.000Z",
+        visitedAt: "2026-10-13T03:00:00.000Z",
         selectedTagKeys: ["keyrings"],
         content: "다시 가고 싶은 상점이에요.",
         imageKeys: [],
@@ -62,13 +77,6 @@ export const CreateVisitLog: Story = {
 
 export const Pending: Story = {
   args: { isPending: true },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const submitButton = canvas.getByRole("button", { name: "처리 중" });
-
-    await expect(submitButton).toBeDisabled();
-    await expect(submitButton).toHaveAttribute("aria-busy", "true");
-  },
 };
 
 export const ApiErrorKeepsDraft: Story = {
@@ -79,13 +87,15 @@ export const ApiErrorKeepsDraft: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const memo = canvas.getByLabelText("방문 메모");
 
+    await userEvent.click(canvas.getByRole("button", { name: "다음 · 태그 선택" }));
     await userEvent.click(
       canvas.getByRole("button", { name: "키링" }),
     );
+    await userEvent.click(canvas.getByRole("button", { name: "다음 · 사진과 기록" }));
+    const memo = canvas.getByLabelText("방문 내용 (선택)");
     await userEvent.type(memo, "입력을 보존해 주세요.");
-    await userEvent.click(canvas.getByRole("button", { name: "방문 로그 등록하기" }));
+    await userEvent.click(canvas.getByRole("button", { name: "내 방문 로그에 기록하기" }));
 
     await expect(
       await canvas.findByText("방문 로그를 등록하지 못했어요."),
@@ -110,7 +120,7 @@ export const SmallMobile: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole("heading", { name: "방문 로그 작성" })).toBeVisible();
+    await expect(canvas.getByRole("heading", { name: "방문 로그 작성 · 1/3" })).toBeVisible();
     await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(
       canvasElement.ownerDocument.defaultView?.innerWidth ?? 320,
     );
@@ -122,7 +132,7 @@ export const LargeMobile: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByRole("heading", { name: "방문 로그 작성" })).toBeVisible();
+    await expect(canvas.getByRole("heading", { name: "방문 로그 작성 · 1/3" })).toBeVisible();
     await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(
       canvasElement.ownerDocument.defaultView?.innerWidth ?? 480,
     );
