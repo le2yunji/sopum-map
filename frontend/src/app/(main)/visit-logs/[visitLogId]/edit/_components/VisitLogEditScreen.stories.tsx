@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import { visitLogKeys } from "@/api/visit-log/visit-log.query";
 import { VisitLogEditScreen } from "./VisitLogEditScreen";
@@ -38,6 +38,37 @@ export const ExistingValues: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "아기자기" }));
     await userEvent.click(canvas.getByRole("button", { name: "수정 완료" }));
     await expect(canvas.getByText("태그를 1개 이상 선택해 주세요.")).toBeVisible();
+  },
+};
+
+export const FailedSaveKeepsInputs: Story = {
+  beforeEach: () => {
+    const originalFetch = globalThis.fetch;
+    globalThis.fetch = async () =>
+      Response.json(
+        { success: false, error: { code: "UPDATE_FAILED", message: "수정 실패" } },
+        { status: 500 },
+      );
+    return () => {
+      globalThis.fetch = originalFetch;
+    };
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const content = canvas.getByRole("textbox", { name: "방문 내용 (선택)" });
+
+    await userEvent.clear(content);
+    await userEvent.type(content, "수정 중인 방문 내용");
+    await userEvent.click(canvas.getByRole("button", { name: "아기자기" }));
+    await userEvent.click(canvas.getByRole("button", { name: /방문일 선택/ }));
+    await userEvent.click(within(document.body).getByRole("button", { name: /2026년 10월 15일/ }));
+    await userEvent.click(within(document.body).getByRole("button", { name: "선택 완료" }));
+    await userEvent.click(canvas.getByRole("button", { name: "수정 완료" }));
+
+    await waitFor(() => expect(canvas.getByRole("alert")).toBeVisible());
+    await expect(content).toHaveValue("수정 중인 방문 내용");
+    await expect(canvas.getByRole("button", { name: "아기자기" })).toHaveAttribute("aria-pressed", "false");
+    await expect(canvas.getByRole("button", { name: /방문일 선택/ })).toHaveAccessibleName(expect.stringContaining("2026년 10월 15일"));
   },
 };
 

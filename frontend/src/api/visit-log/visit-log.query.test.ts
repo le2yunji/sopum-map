@@ -6,6 +6,7 @@ const queryMocks = vi.hoisted(() => ({
   useQuery: vi.fn(),
   useQueryClient: vi.fn(),
   invalidateQueries: vi.fn(),
+  setQueryData: vi.fn(),
   createVisitLog: vi.fn(),
   getMyVisitLogs: vi.fn(),
   getMyVisitLog: vi.fn(),
@@ -31,6 +32,7 @@ vi.mock("./visit-log.api", () => ({
 import { shopQueryKeys } from "../shops/shop.query";
 import {
   getNextVisitLogPage,
+  removeVisitLogFromPages,
   visitLogKeys,
   useDeleteVisitLog,
   useInfiniteMyVisitLogs,
@@ -41,6 +43,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   queryMocks.useQueryClient.mockReturnValue({
     invalidateQueries: queryMocks.invalidateQueries,
+    setQueryData: queryMocks.setQueryData,
   });
   queryMocks.useMutation.mockImplementation((options) => options);
   queryMocks.useInfiniteQuery.mockImplementation((options) => options);
@@ -48,6 +51,23 @@ beforeEach(() => {
 });
 
 describe("내 방문 로그 query", () => {
+  it("마지막 페이지의 마지막 로그를 지우면 빈 페이지도 제거한다", () => {
+    const firstItem = { id: "log-1" };
+    const lastItem = { id: "log-2" };
+    const data = {
+      pages: [
+        { items: [firstItem], pagination: { totalCount: 2, page: 1, limit: 1, totalPages: 2, hasNext: true }, summary: { totalCount: 2, uniqueShopCount: 2 } },
+        { items: [lastItem], pagination: { totalCount: 2, page: 2, limit: 1, totalPages: 2, hasNext: false }, summary: { totalCount: 2, uniqueShopCount: 2 } },
+      ],
+      pageParams: [1, 2],
+    };
+
+    const result = removeVisitLogFromPages(data as never, "log-2");
+
+    expect(result?.pages).toHaveLength(1);
+    expect(result?.pageParams).toEqual([1]);
+    expect(result?.pages[0]?.pagination).toMatchObject({ totalCount: 1, totalPages: 1, hasNext: false });
+  });
   it("응답이 비어 있으면 다음 페이지 요청을 만들지 않는다", () => {
     expect(getNextVisitLogPage(undefined)).toBeUndefined();
   });
@@ -62,8 +82,14 @@ describe("내 방문 로그 query", () => {
   });
 
   it("삭제 성공 후 내 목록과 상점 캐시를 갱신한다", async () => {
-    const mutation = useDeleteVisitLog() as unknown as { onSuccess: () => Promise<void> };
-    await mutation.onSuccess();
+    const mutation = useDeleteVisitLog() as unknown as {
+      onSuccess: (data: unknown, visitLogId: string) => Promise<void>;
+    };
+    await mutation.onSuccess(undefined, "log-1");
+    expect(queryMocks.setQueryData).toHaveBeenCalledWith(
+      visitLogKeys.myLists(),
+      expect.any(Function),
+    );
     expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({ queryKey: visitLogKeys.myLists() });
     expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({ queryKey: shopQueryKeys.all });
   });
