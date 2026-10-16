@@ -10,7 +10,7 @@ import {
 } from "@sopum-map/shared";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type SubmitEvent } from "react";
 
 import { useShopDetail } from "@/api/shops/shop.query";
 import {
@@ -116,7 +116,7 @@ export function VisitLogCreateForm({
   };
 
   /** 입력값을 확인하고 작성 요청을 전달합니다. */
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setDateError("");
     setTagError("");
