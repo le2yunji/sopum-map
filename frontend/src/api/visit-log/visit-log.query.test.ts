@@ -30,6 +30,7 @@ vi.mock("./visit-log.api", () => ({
 
 import { shopQueryKeys } from "../shops/shop.query";
 import {
+  getNextVisitLogPage,
   visitLogKeys,
   useDeleteVisitLog,
   useInfiniteMyVisitLogs,
@@ -47,6 +48,9 @@ beforeEach(() => {
 });
 
 describe("내 방문 로그 query", () => {
+  it("응답이 비어 있으면 다음 페이지 요청을 만들지 않는다", () => {
+    expect(getNextVisitLogPage(undefined)).toBeUndefined();
+  });
   it("다음 페이지 번호로 내 목록을 이어서 조회한다", async () => {
     const query = useInfiniteMyVisitLogs() as unknown as {
       queryFn: (context: { pageParam: number }) => Promise<unknown>;

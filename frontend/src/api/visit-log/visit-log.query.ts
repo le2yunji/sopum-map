@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CreateVisitLogRequest, UpdateVisitLogRequest } from "@sopum-map/shared";
+import type { CreateVisitLogRequest, MyVisitLogListData, UpdateVisitLogRequest } from "@sopum-map/shared";
 
 import { shopQueryKeys } from "../shops/shop.query";
 import {
@@ -18,6 +18,15 @@ export const visitLogKeys = {
   myDetails: () => [...visitLogKeys.all, "me", "detail"] as const,
   myDetail: (visitLogId: string) => [...visitLogKeys.myDetails(), visitLogId] as const,
 };
+
+/** 비어 있거나 잘못된 응답에서는 추가 페이지 요청을 만들지 않습니다. */
+export function getNextVisitLogPage(
+  lastPage: MyVisitLogListData | undefined,
+): number | undefined {
+  return lastPage?.pagination.hasNext
+    ? lastPage.pagination.page + 1
+    : undefined;
+}
 
 /** 지정한 상점에 방문 로그를 작성하고 상세 정보를 새로고침합니다. */
 export function useCreateVisitLog(shopId: string) {
@@ -40,8 +49,7 @@ export function useInfiniteMyVisitLogs() {
     queryFn: ({ pageParam }) =>
       getMyVisitLogs({ page: pageParam, limit: MY_VISIT_LOG_PAGE_SIZE }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
-      lastPage.pagination.hasNext ? lastPage.pagination.page + 1 : undefined,
+    getNextPageParam: getNextVisitLogPage,
   });
 }
 
