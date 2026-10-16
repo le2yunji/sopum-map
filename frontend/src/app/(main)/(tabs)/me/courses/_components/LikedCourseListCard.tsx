@@ -35,8 +35,12 @@ export function LikedCourseListCard({
           onClick={onPrivateClick}
           className="min-h-16 min-w-0 flex-1 rounded-control text-left focus-visible:outline-2 focus-visible:outline-brand"
         >
-          <span className="block text-16 font-semibold text-fg-primary">비공개 코스</span>
-          <span className="mt-1 block text-13 text-fg-tertiary">작성자가 공개를 중단했어요.</span>
+          <span className="block text-16 font-semibold text-fg-primary">
+            비공개 코스
+          </span>
+          <span className="mt-1 block text-13 text-fg-tertiary">
+            작성자가 공개를 중단했어요.
+          </span>
         </button>
         <button
           type="button"
@@ -60,14 +64,27 @@ export function LikedCourseListCard({
       >
         {course.mainImageUrl ? (
           <span className="relative size-24 shrink-0 overflow-hidden rounded-control bg-surface-muted">
-            <Image src={course.mainImageUrl} alt="" fill sizes="96px" className="object-cover" />
+            <Image
+              src={course.mainImageUrl}
+              alt=""
+              fill
+              sizes="96px"
+              className="object-cover"
+            />
           </span>
         ) : (
-          <span className="size-24 shrink-0 rounded-control bg-surface-muted" aria-hidden="true" />
+          <span
+            className="size-24 shrink-0 rounded-control bg-surface-muted"
+            aria-hidden="true"
+          />
         )}
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-16 font-semibold text-fg-primary">{course.title}</span>
-          <span className="mt-1 block text-12 text-fg-secondary">by {course.author.displayName}</span>
+          <span className="block truncate text-16 font-semibold text-fg-primary">
+            {course.title}
+          </span>
+          <span className="mt-1 block text-12 text-fg-secondary">
+            by {course.author.displayName}
+          </span>
           <span className="mt-3 flex flex-wrap items-center gap-2 text-12 text-fg-tertiary">
             <span>{SHOP_REGION_GROUP_LABELS[course.regionGroup]}</span>
             <span aria-hidden="true">·</span>

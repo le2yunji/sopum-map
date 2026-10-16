@@ -84,12 +84,12 @@ export const CourseListItem = ({
       <div className="min-w-0 flex-1">
         <h3 className="truncate text-16 font-medium text-black-950">{title}</h3>
 
-        <p className="mt-1 truncate text-12 text-pink-900">{description}</p>
+        <p className="mt-1 truncate text-12 text-black-800">{description}</p>
 
         {tags.length > 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
             {tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} shape="square" variant="pink" size="small">
+              <Badge key={tag} shape="square" variant="softGreen" size="small">
                 {tag}
               </Badge>
             ))}
@@ -99,7 +99,7 @@ export const CourseListItem = ({
 
       <ChevronRightIcon
         className="
-          size-5 shrink-0 text-pink-200
+          size-5 shrink-0 text-black-200
           transition-transform duration-200
           group-hover:translate-x-0.5
         "
