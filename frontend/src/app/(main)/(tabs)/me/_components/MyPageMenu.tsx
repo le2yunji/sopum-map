@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -8,6 +10,7 @@ import {
   StoreIcon,
   VisitLogIcon,
 } from "@/components/icons";
+import { useInfiniteMyVisitLogs } from "@/api/visit-log/visit-log.query";
 
 type ActivityItem = Readonly<{
   label: string;
@@ -26,10 +29,14 @@ type MenuLinkProps = Readonly<{
 export function MyPageActivityMenu({
   isEmpty,
 }: Readonly<{ isEmpty: boolean }>) {
+  const visitLogsQuery = useInfiniteMyVisitLogs();
+  const visitLogCount = isEmpty
+    ? 0
+    : (visitLogsQuery.data?.pages[0]?.summary.totalCount ?? 0);
   const items: readonly ActivityItem[] = [
     {
-      label: "방문 기록",
-      count: isEmpty ? 0 : 5,
+      label: "방문 로그",
+      count: visitLogCount,
       href: "/me/visit-logs",
       icon: <VisitLogIcon className="size-5" />,
     },
