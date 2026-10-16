@@ -69,3 +69,24 @@ export const getVisitLogsQuerySchema = z.object({
 
   limit: z.coerce.number().int().min(1).max(50).default(10),
 });
+
+const visitLogIdParamsSchema = z.object({
+  visitLogId: objectIdSchema,
+});
+
+export const getMyVisitLogsSchema = z.object({
+  query: getVisitLogsQuerySchema,
+});
+
+export const getMyVisitLogSchema = z.object({
+  params: visitLogIdParamsSchema,
+});
+
+export const updateVisitLogSchema = z.object({
+  params: visitLogIdParamsSchema,
+  body: createVisitLogSchema.shape.body.omit({ imageKeys: true }),
+});
+
+export const deleteVisitLogSchema = z.object({
+  params: visitLogIdParamsSchema,
+});

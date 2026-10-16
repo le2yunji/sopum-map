@@ -3,13 +3,30 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const serviceMocks = vi.hoisted(() => ({
   createVisitLog: vi.fn(),
+  getMyVisitLogs: vi.fn(),
+  getMyVisitLog: vi.fn(),
+  updateVisitLog: vi.fn(),
+  deleteVisitLog: vi.fn(),
 }));
 
 vi.mock("../services/visit-log/visit-log.create.service.js", () => ({
   createVisitLog: serviceMocks.createVisitLog,
 }));
 
-import { createVisitLogController } from "./visit-log.controller.js";
+vi.mock("../services/visit-log/visit-log.manage.service.js", () => ({
+  getMyVisitLogs: serviceMocks.getMyVisitLogs,
+  getMyVisitLog: serviceMocks.getMyVisitLog,
+  updateVisitLog: serviceMocks.updateVisitLog,
+  deleteVisitLog: serviceMocks.deleteVisitLog,
+}));
+
+import {
+  createVisitLogController,
+  deleteVisitLogController,
+  getMyVisitLogController,
+  getMyVisitLogsController,
+  updateVisitLogController,
+} from "./visit-log.controller.js";
 
 const userId = "6a8a68e15e2aa43be6a6549d";
 const shopId = "6a8a68e15e2aa43be6a6549e";
@@ -38,6 +55,52 @@ function createControllerContext() {
 beforeEach(() => {
   vi.clearAllMocks();
   serviceMocks.createVisitLog.mockResolvedValue({ visitLogId });
+  serviceMocks.getMyVisitLogs.mockResolvedValue({ items: [] });
+  serviceMocks.getMyVisitLog.mockResolvedValue({ id: visitLogId });
+  serviceMocks.updateVisitLog.mockResolvedValue({ visitLogId });
+  serviceMocks.deleteVisitLog.mockResolvedValue({ visitLogId });
+});
+
+describe("방문 로그 관리 컨트롤러", () => {
+  /** 관리 컨트롤러가 사용하는 인증·검증 값을 준비합니다. */
+  function createManageContext(validated: unknown) {
+    const request = { auth: { userId } } as Request;
+    const response = {
+      locals: { validated },
+      status: vi.fn(),
+      json: vi.fn(),
+    } as unknown as Response;
+    vi.mocked(response.status).mockReturnValue(response);
+    const next = vi.fn() as NextFunction;
+    return { request, response, next };
+  }
+
+  it("내 목록 조회에 인증 사용자와 페이지 조건을 전달한다", async () => {
+    const context = createManageContext({ query: { page: 2, limit: 10 } });
+    await getMyVisitLogsController(context.request, context.response, context.next);
+    expect(serviceMocks.getMyVisitLogs).toHaveBeenCalledWith({ userId, page: 2, limit: 10 });
+    expect(context.response.status).toHaveBeenCalledWith(200);
+  });
+
+  it("본인 로그 한 건을 조회한다", async () => {
+    const context = createManageContext({ params: { visitLogId } });
+    await getMyVisitLogController(context.request, context.response, context.next);
+    expect(serviceMocks.getMyVisitLog).toHaveBeenCalledWith(userId, visitLogId);
+  });
+
+  it("검증된 값으로 본인 로그를 수정한다", async () => {
+    const updateBody = { ...body, imageKeys: undefined };
+    const context = createManageContext({ params: { visitLogId }, body: updateBody });
+    await updateVisitLogController(context.request, context.response, context.next);
+    expect(serviceMocks.updateVisitLog).toHaveBeenCalledWith(userId, visitLogId, updateBody);
+  });
+
+  it("본인 로그를 삭제하고 성공 데이터를 반환한다", async () => {
+    const context = createManageContext({ params: { visitLogId } });
+    await deleteVisitLogController(context.request, context.response, context.next);
+    expect(serviceMocks.deleteVisitLog).toHaveBeenCalledWith(userId, visitLogId);
+    expect(context.response.json).toHaveBeenCalledWith({ success: true, data: { visitLogId } });
+  });
 });
 
 describe("createVisitLogController", () => {
