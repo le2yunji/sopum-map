@@ -83,8 +83,8 @@ export async function createCourse(
   /**
    * 동일 폴더의 기존 코스를 먼저 확인
    *
-   * 동시 요청에 대한 최종 중복 방지는
-   * CourseModel의 unique index가 담당
+   * 코스 생성의 DB 쓰기는 Course 단일 문서 생성뿐이므로 트랜잭션을 사용하지 않음
+   * 동시 요청의 중복 생성은 CourseModel의 unique index와 duplicate key 처리로 방지
    */
   const existingCourseId = await getExistingCourseId(
     objectUserId,
