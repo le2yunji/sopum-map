@@ -61,14 +61,11 @@ export function VisitLogTagSelector({
     <section
       aria-labelledby="visit-log-tags-title"
       aria-describedby={errorMessage ? "visit-log-tags-error" : undefined}
-      className="space-y-7"
+      className="space-y-4"
     >
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2
-            id="visit-log-tags-title"
-            className="text-16 font-semibold text-black-950"
-          >
+          <h2 id="visit-log-tags-title" className="text-16 font-semibold text-black-950">
             이 상점은 어땠나요?
           </h2>
           <p className="mt-1 text-13 text-black-500">
@@ -82,9 +79,7 @@ export function VisitLogTagSelector({
 
       <div id="visit-log-tag-groups" className="space-y-5">
         {TAG_GROUPS.map((group) => {
-          const tags = ACTIVE_TAG_DEFINITIONS.filter(
-            (tag) => tag.group === group,
-          );
+          const tags = ACTIVE_TAG_DEFINITIONS.filter((tag) => tag.group === group);
           const isExpanded = expandedGroups.includes(group);
           const visibleTags = isExpanded
             ? tags
@@ -97,9 +92,7 @@ export function VisitLogTagSelector({
 
           return (
             <fieldset key={group} className="space-y-2">
-              <legend className="text-16 font-semibold text-black-900">
-                {copy.title}
-              </legend>
+              <legend className="text-16 font-semibold text-black-900">{copy.title}</legend>
               <p className="text-13 text-black-500">{copy.description}</p>
               <div className="flex flex-wrap gap-2">
                 {visibleTags.map((tag, tagIndex) => {
@@ -108,20 +101,14 @@ export function VisitLogTagSelector({
                   return (
                     <Button
                       key={tag.key}
-                      ref={
-                        group === TAG_GROUPS[0] && tagIndex === 0
-                          ? firstTagRef
-                          : undefined
-                      }
-                      variant="outline"
+                      ref={group === TAG_GROUPS[0] && tagIndex === 0 ? firstTagRef : undefined}
+                      variant={isSelected ? "secondary" : "outline"}
                       size="small"
                       aria-pressed={isSelected}
                       disabled={!isSelected && hasReachedLimit}
                       onClick={() => toggleTag(tag.key)}
-                      className={`min-h-9! rounded-full! bg-transparent! px-3! py-1! hover:bg-transparent! active:bg-transparent! ${
-                        isSelected
-                          ? "border-green-600! bg-transparent! text-green-800 font-semibold!"
-                          : ""
+                      className={`min-h-9! rounded-full! px-3! py-1! ${
+                        isSelected ? "border border-green-500 bg-green-100" : ""
                       }`}
                     >
                       {tag.label}
@@ -138,16 +125,12 @@ export function VisitLogTagSelector({
                   onClick={() =>
                     setExpandedGroups((current) =>
                       isExpanded
-                        ? current.filter(
-                            (currentGroup) => currentGroup !== group,
-                          )
+                        ? current.filter((currentGroup) => currentGroup !== group)
                         : [...current, group],
                     )
                   }
                 >
-                  {isExpanded
-                    ? `${TAG_GROUP_LABELS[group]} 접기`
-                    : `${TAG_GROUP_LABELS[group]} 더보기`}
+                  {isExpanded ? `${TAG_GROUP_LABELS[group]} 접기` : `${TAG_GROUP_LABELS[group]} 더보기`}
                 </Button>
               )}
             </fieldset>
@@ -156,11 +139,7 @@ export function VisitLogTagSelector({
       </div>
 
       {errorMessage && (
-        <p
-          id="visit-log-tags-error"
-          role="alert"
-          className="text-13 text-red-500"
-        >
+        <p id="visit-log-tags-error" role="alert" className="text-13 text-red-500">
           {errorMessage}
         </p>
       )}

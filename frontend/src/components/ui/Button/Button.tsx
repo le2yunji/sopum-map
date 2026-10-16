@@ -16,32 +16,32 @@ export type ButtonProps = ComponentPropsWithRef<"button"> & {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: [
-    "bg-brand-accent",
+    "bg-green-500",
     "text-white",
-    "hover:bg-brand",
-    "active:bg-brand",
+    "hover:bg-green-600",
+    "active:bg-green-600",
   ].join(" "),
 
   secondary: [
-    "bg-brand-soft-strong",
-    "text-fg-primary",
-    "hover:bg-brand-soft-strong",
-    "active:bg-brand-soft-strong",
+    "bg-green-100",
+    "text-black-950",
+    "hover:bg-green-200",
+    "active:bg-green-300",
   ].join(" "),
 
   outline: [
     "border",
-    "border-stroke-subtle",
-    "bg-surface-primary",
-    "text-fg-secondary",
-    "hover:bg-brand-soft-strong",
-    "active:bg-brand-soft-strong",
+    "border-pink-300/30",
+    "bg-white",
+    "text-black-800",
+    "hover:bg-pink-300/10",
+    "active:bg-pink-300/20",
   ].join(" "),
 
   ghost: [
     "bg-transparent",
-    "text-fg-primary",
-    "hover:bg-surface-muted",
+    "text-black-950",
+    "hover:bg-black-100",
     "active:bg-black-300",
   ].join(" "),
 };
@@ -123,12 +123,12 @@ export function Button({
     "font-semibold transition-colors",
     "focus-visible:outline-none",
     "focus-visible:ring-2",
-    "focus-visible:ring-brand-accent",
+    "focus-visible:ring-green-500",
     "focus-visible:ring-offset-2",
     "disabled:cursor-not-allowed",
-    "disabled:border-stroke-subtle",
-    "disabled:bg-surface-muted",
-    "disabled:text-fg-disabled",
+    "disabled:border-black-100",
+    "disabled:bg-black-100",
+    "disabled:text-black-400",
     iconSizeClasses[size],
     variantClasses[variant],
     iconOnly

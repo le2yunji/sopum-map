@@ -54,7 +54,7 @@ function VisitLogEditForm({ visitLog }: Readonly<{ visitLog: MyVisitLogListItem 
   };
 
   return (
-    <main className="min-h-dvh bg-white px-5 pb-28 pt-10">
+    <main className="min-h-dvh bg-black-100/40 px-5 pb-28 pt-10">
       <header><p className="text-12 text-green-700">나의 기록</p><h1 className="mt-1 text-24 font-semibold">방문 로그 수정</h1></header>
       <section className="mt-5 flex items-center gap-4 rounded-card bg-white p-4">
         <div className="relative size-20 shrink-0 overflow-hidden rounded-card bg-black-100"><Image fill loading="eager" src={visitLog.shop.imageUrl ?? DEFAULT_IMAGES.shop} alt={`${visitLog.shop.name} 대표 이미지`} className="object-cover" sizes="80px" /></div>

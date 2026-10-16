@@ -21,7 +21,7 @@ const meta = {
     variant: {
       description: "배지의 디자인 스타일",
       control: "select",
-      options: ["green", "pink", "softGreen"],
+      options: ["green", "pink"],
       table: {
         defaultValue: {
           summary: "green",
@@ -45,7 +45,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 /**
- * 배경 없이 초록 글자로 강조하는 배지입니다.
+ * 높이 19px의 연두색 배지입니다.
  */
 export const Green: Story = {
   args: {
@@ -55,7 +55,7 @@ export const Green: Story = {
 };
 
 /**
- * 배경 없이 분홍 글자로 강조하는 배지입니다.
+ * 높이 26px의 분홍색 배지입니다.
  */
 export const Pink: Story = {
   args: {
@@ -76,14 +76,13 @@ export const LongText: Story = {
 };
 
 /**
- * 세 가지 배지 스타일을 함께 확인합니다.
+ * 두 가지 배지 스타일을 함께 확인합니다.
  */
 export const AllVariants: Story = {
   render: () => (
     <div className="flex items-center gap-3">
       <Badge variant="green">소품샵</Badge>
       <Badge variant="pink">방문 완료</Badge>
-      <Badge variant="softGreen">#아기자기</Badge>
     </div>
   ),
 };
