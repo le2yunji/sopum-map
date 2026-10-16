@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const serviceMocks = vi.hoisted(() => ({
   createVisitLog: vi.fn(),
+  checkVisitLogAvailability: vi.fn(),
   getMyVisitLogs: vi.fn(),
   getMyVisitLog: vi.fn(),
   updateVisitLog: vi.fn(),
@@ -11,6 +12,7 @@ const serviceMocks = vi.hoisted(() => ({
 
 vi.mock("../services/visit-log/visit-log.create.service.js", () => ({
   createVisitLog: serviceMocks.createVisitLog,
+  checkVisitLogAvailability: serviceMocks.checkVisitLogAvailability,
 }));
 
 vi.mock("../services/visit-log/visit-log.manage.service.js", () => ({
@@ -22,6 +24,7 @@ vi.mock("../services/visit-log/visit-log.manage.service.js", () => ({
 
 import {
   createVisitLogController,
+  checkVisitLogAvailabilityController,
   deleteVisitLogController,
   getMyVisitLogController,
   getMyVisitLogsController,
@@ -55,6 +58,7 @@ function createControllerContext() {
 beforeEach(() => {
   vi.clearAllMocks();
   serviceMocks.createVisitLog.mockResolvedValue({ visitLogId });
+  serviceMocks.checkVisitLogAvailability.mockResolvedValue({ canCreate: true });
   serviceMocks.getMyVisitLogs.mockResolvedValue({ items: [] });
   serviceMocks.getMyVisitLog.mockResolvedValue({ id: visitLogId });
   serviceMocks.updateVisitLog.mockResolvedValue({ visitLogId });
@@ -127,5 +131,35 @@ describe("createVisitLogController", () => {
 
     expect(next).toHaveBeenCalledWith(error);
     expect(response.status).not.toHaveBeenCalled();
+  });
+});
+
+describe("checkVisitLogAvailabilityController", () => {
+  it("검증된 상점·방문일로 중복 가능 여부를 반환한다", async () => {
+    const request = { auth: { userId } } as Request;
+    const response = {
+      locals: {
+        validated: {
+          params: { shopId },
+          query: { visitedAt: body.visitedAt },
+        },
+      },
+      status: vi.fn(),
+      json: vi.fn(),
+    } as unknown as Response;
+    vi.mocked(response.status).mockReturnValue(response);
+    const next = vi.fn() as NextFunction;
+
+    await checkVisitLogAvailabilityController(request, response, next);
+
+    expect(serviceMocks.checkVisitLogAvailability).toHaveBeenCalledWith(
+      userId,
+      shopId,
+      body.visitedAt,
+    );
+    expect(response.json).toHaveBeenCalledWith({
+      success: true,
+      data: { canCreate: true },
+    });
   });
 });

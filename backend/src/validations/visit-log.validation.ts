@@ -37,6 +37,15 @@ const visitedAtSchema = z.iso
     message: "방문일은 미래일 수 없습니다.",
   });
 
+export const checkVisitLogAvailabilitySchema = z.object({
+  params: z.object({
+    shopId: objectIdSchema,
+  }),
+  query: z.object({
+    visitedAt: visitedAtSchema,
+  }),
+});
+
 export const createVisitLogSchema = z.object({
   params: z.object({
     shopId: objectIdSchema,

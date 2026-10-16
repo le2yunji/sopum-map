@@ -17,6 +17,20 @@ export type CreateVisitLogData = Readonly<{
 /** POST /api/shops/:shopId/visit-logs 성공 응답 */
 export type CreateVisitLogResponse = ApiSuccessResponse<CreateVisitLogData>;
 
+/** GET /api/shops/:shopId/visit-logs/availability 조회 조건 */
+export type CheckVisitLogAvailabilityQuery = Readonly<{
+  visitedAt: string;
+}>;
+
+/** 같은 상점과 방문일에 새 로그를 작성할 수 있는지 나타냅니다. */
+export type CheckVisitLogAvailabilityData = Readonly<{
+  canCreate: boolean;
+}>;
+
+/** GET /api/shops/:shopId/visit-logs/availability 성공 응답 */
+export type CheckVisitLogAvailabilityResponse =
+  ApiSuccessResponse<CheckVisitLogAvailabilityData>;
+
 export type VisitLogAuthor = Readonly<{
   id: string;
   nickname: string;

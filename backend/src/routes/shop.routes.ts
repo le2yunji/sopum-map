@@ -11,11 +11,15 @@ import {
   getShopsController,
 } from "../controllers/shop.controller.js";
 import {
+  checkVisitLogAvailabilityController,
   createVisitLogController,
   getVisitLogsController,
 } from "../controllers/visit-log.controller.js";
 import { validateRequest } from "../middlewares/validate-request.middleware.js";
-import { createVisitLogSchema } from "../validations/visit-log.validation.js";
+import {
+  checkVisitLogAvailabilitySchema,
+  createVisitLogSchema,
+} from "../validations/visit-log.validation.js";
 
 export const shopRouter = Router();
 
@@ -33,6 +37,16 @@ shopRouter.get("/:shopId", optionalAuth, getShopDetailController);
  * GET /shops/:shopId/visit-logs
  */
 shopRouter.get("/:shopId/visit-logs", optionalAuth, getVisitLogsController);
+
+/*
+ * GET /shops/:shopId/visit-logs/availability
+ */
+shopRouter.get(
+  "/:shopId/visit-logs/availability",
+  requireAuth,
+  validateRequest(checkVisitLogAvailabilitySchema),
+  checkVisitLogAvailabilityController,
+);
 
 /*
  * POST /shops/:shopId/visit-logs

@@ -3,6 +3,7 @@
 import type { NextFunction, Request, Response } from "express";
 import type {
   CreateVisitLogResponse,
+  CheckVisitLogAvailabilityResponse,
   DeleteVisitLogResponse,
   GetMyVisitLogResponse,
   GetMyVisitLogsResponse,
@@ -11,7 +12,10 @@ import type {
 } from "@sopum-map/shared";
 import type { z } from "zod";
 
-import { createVisitLog } from "../services/visit-log/visit-log.create.service.js";
+import {
+  checkVisitLogAvailability,
+  createVisitLog,
+} from "../services/visit-log/visit-log.create.service.js";
 import { getVisitLogs } from "../services/visit-log/visit-log.service.js";
 import {
   deleteVisitLog,
@@ -22,6 +26,7 @@ import {
 
 import {
   createVisitLogSchema,
+  checkVisitLogAvailabilitySchema,
   deleteVisitLogSchema,
   getMyVisitLogSchema,
   getMyVisitLogsSchema,
@@ -29,6 +34,28 @@ import {
   getVisitLogsQuerySchema,
   updateVisitLogSchema,
 } from "../validations/visit-log.validation.js";
+
+/** 선택한 상점과 방문일의 중복 여부를 작성 전에 확인합니다. */
+export async function checkVisitLogAvailabilityController(
+  req: Request,
+  res: Response<CheckVisitLogAvailabilityResponse>,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { params, query } = res.locals.validated as z.infer<
+      typeof checkVisitLogAvailabilitySchema
+    >;
+    const data = await checkVisitLogAvailability(
+      req.auth!.userId,
+      params.shopId,
+      query.visitedAt,
+    );
+
+    res.status(200).json({ success: true, data });
+  } catch (error) {
+    next(error);
+  }
+}
 
 /** 로그인 사용자의 방문 로그를 생성합니다. */
 export async function createVisitLogController(
@@ -81,7 +108,9 @@ export async function getMyVisitLogsController(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { query } = res.locals.validated as z.infer<typeof getMyVisitLogsSchema>;
+    const { query } = res.locals.validated as z.infer<
+      typeof getMyVisitLogsSchema
+    >;
     const data = await getMyVisitLogs({ userId: req.auth!.userId, ...query });
     res.status(200).json({ success: true, data });
   } catch (error) {
@@ -96,7 +125,9 @@ export async function getMyVisitLogController(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { params } = res.locals.validated as z.infer<typeof getMyVisitLogSchema>;
+    const { params } = res.locals.validated as z.infer<
+      typeof getMyVisitLogSchema
+    >;
     const data = await getMyVisitLog(req.auth!.userId, params.visitLogId);
     res.status(200).json({ success: true, data });
   } catch (error) {
@@ -111,8 +142,14 @@ export async function updateVisitLogController(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { params, body } = res.locals.validated as z.infer<typeof updateVisitLogSchema>;
-    const data = await updateVisitLog(req.auth!.userId, params.visitLogId, body);
+    const { params, body } = res.locals.validated as z.infer<
+      typeof updateVisitLogSchema
+    >;
+    const data = await updateVisitLog(
+      req.auth!.userId,
+      params.visitLogId,
+      body,
+    );
     res.status(200).json({ success: true, data });
   } catch (error) {
     next(error);
@@ -126,7 +163,9 @@ export async function deleteVisitLogController(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { params } = res.locals.validated as z.infer<typeof deleteVisitLogSchema>;
+    const { params } = res.locals.validated as z.infer<
+      typeof deleteVisitLogSchema
+    >;
     const data = await deleteVisitLog(req.auth!.userId, params.visitLogId);
     res.status(200).json({ success: true, data });
   } catch (error) {

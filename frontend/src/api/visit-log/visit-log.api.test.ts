@@ -8,6 +8,7 @@ vi.mock("../client", () => ({ apiClient: apiMocks.apiClient }));
 
 import {
   createVisitLog,
+  checkVisitLogAvailability,
   createVisitLogsSearchParams,
   deleteVisitLog,
   getMyVisitLog,
@@ -52,6 +53,19 @@ describe("createVisitLog", () => {
     expect(apiMocks.apiClient).toHaveBeenCalledWith(
       "/shops/shop-1/visit-logs",
       { method: "POST", body: input },
+    );
+  });
+});
+
+describe("checkVisitLogAvailability", () => {
+  it("방문 시각을 query로 전달해 중복 여부를 확인한다", async () => {
+    apiMocks.apiClient.mockResolvedValue({ canCreate: false });
+
+    await expect(
+      checkVisitLogAvailability("shop-1", "2026-10-13T03:00:00.000Z"),
+    ).resolves.toEqual({ canCreate: false });
+    expect(apiMocks.apiClient).toHaveBeenCalledWith(
+      "/shops/shop-1/visit-logs/availability?visitedAt=2026-10-13T03%3A00%3A00.000Z",
     );
   });
 });

@@ -8,6 +8,7 @@ const queryMocks = vi.hoisted(() => ({
   invalidateQueries: vi.fn(),
   setQueryData: vi.fn(),
   createVisitLog: vi.fn(),
+  checkVisitLogAvailability: vi.fn(),
   getMyVisitLogs: vi.fn(),
   getMyVisitLog: vi.fn(),
   updateVisitLog: vi.fn(),
@@ -23,6 +24,7 @@ vi.mock("@tanstack/react-query", () => ({
 
 vi.mock("./visit-log.api", () => ({
   createVisitLog: queryMocks.createVisitLog,
+  checkVisitLogAvailability: queryMocks.checkVisitLogAvailability,
   getMyVisitLogs: queryMocks.getMyVisitLogs,
   getMyVisitLog: queryMocks.getMyVisitLog,
   updateVisitLog: queryMocks.updateVisitLog,
@@ -38,6 +40,7 @@ import {
   useInfiniteMyVisitLogs,
 } from "./visit-log.query";
 import { useCreateVisitLog } from "./visit-log.query";
+import { useCheckVisitLogAvailability } from "./visit-log.query";
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -125,5 +128,20 @@ describe("useCreateVisitLog", () => {
     expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
       queryKey: shopQueryKeys.detail("shop-1"),
     });
+  });
+});
+
+describe("useCheckVisitLogAvailability", () => {
+  it("고정된 상점 ID와 방문 시각으로 중복 여부를 확인한다", async () => {
+    const mutation = useCheckVisitLogAvailability("shop-1") as unknown as {
+      mutationFn: (visitedAt: string) => Promise<unknown>;
+    };
+
+    await mutation.mutationFn("2026-10-13T03:00:00.000Z");
+
+    expect(queryMocks.checkVisitLogAvailability).toHaveBeenCalledWith(
+      "shop-1",
+      "2026-10-13T03:00:00.000Z",
+    );
   });
 });

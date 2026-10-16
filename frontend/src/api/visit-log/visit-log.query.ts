@@ -5,10 +5,15 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import type { CreateVisitLogRequest, MyVisitLogListData, UpdateVisitLogRequest } from "@sopum-map/shared";
+import type {
+  CreateVisitLogRequest,
+  MyVisitLogListData,
+  UpdateVisitLogRequest,
+} from "@sopum-map/shared";
 
 import { shopQueryKeys } from "../shops/shop.query";
 import {
+  checkVisitLogAvailability,
   createVisitLog,
   deleteVisitLog,
   getMyVisitLog,
@@ -78,6 +83,14 @@ export function useCreateVisitLog(shopId: string) {
         queryKey: shopQueryKeys.detail(shopId),
       });
     },
+  });
+}
+
+/** 날짜 단계에서 같은 날의 기존 방문 로그가 있는지 확인합니다. */
+export function useCheckVisitLogAvailability(shopId: string) {
+  return useMutation({
+    mutationFn: (visitedAt: string) =>
+      checkVisitLogAvailability(shopId, visitedAt),
   });
 }
 

@@ -1,6 +1,7 @@
 // frontend/src/api/visit-log/visit-log.api.ts
 
 import type {
+  CheckVisitLogAvailabilityData,
   CreateVisitLogData,
   CreateVisitLogRequest,
   GetVisitLogsQuery,
@@ -24,6 +25,18 @@ export async function createVisitLog(
     method: "POST",
     body: input,
   });
+}
+
+/** 선택한 방문일에 같은 상점의 로그를 새로 작성할 수 있는지 확인합니다. */
+export async function checkVisitLogAvailability(
+  shopId: string,
+  visitedAt: string,
+): Promise<CheckVisitLogAvailabilityData> {
+  const searchParams = new URLSearchParams({ visitedAt });
+
+  return apiClient<CheckVisitLogAvailabilityData>(
+    `/shops/${shopId}/visit-logs/availability?${searchParams.toString()}`,
+  );
 }
 
 /** 내 방문 로그를 페이지 단위로 조회합니다. */

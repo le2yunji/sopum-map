@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   createVisitLogSchema,
+  checkVisitLogAvailabilitySchema,
   getMyVisitLogSchema,
   getMyVisitLogsSchema,
   getVisitLogsParamsSchema,
@@ -167,6 +168,17 @@ describe("createVisitLogSchema", () => {
         },
       }),
     ).not.toThrow();
+  });
+});
+
+describe("checkVisitLogAvailabilitySchema", () => {
+  it("상점 ID와 방문 시각을 검증한다", () => {
+    const request = {
+      params: { shopId: "6a8a68e15e2aa43be6a6549e" },
+      query: { visitedAt: "2026-10-13T03:00:00.000Z" },
+    };
+
+    expect(checkVisitLogAvailabilitySchema.parse(request)).toEqual(request);
   });
 });
 
