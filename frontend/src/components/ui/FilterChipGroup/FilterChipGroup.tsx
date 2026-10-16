@@ -44,15 +44,14 @@ export const FilterChipGroup = ({
               ${
                 isSelected
                   ? `
-                    border-green-950 bg-green-950
-                    font-bold text-white
+                    border-green-700 bg-transparent
+                    font-semibold text-green-800
                   `
                   : `
-                    border-black-100 bg-white
+                    border-black-200 bg-transparent
                     font-medium text-black-800
-                    hover:border-black-300
-                    hover:bg-black-100/50
-                    active:bg-black-100
+                    hover:border-green-300 hover:text-green-800
+                    active:border-green-500
                   `
               }
             `}

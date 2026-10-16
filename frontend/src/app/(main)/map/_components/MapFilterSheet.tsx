@@ -59,10 +59,10 @@ export function MapFilterSheet({
                 aria-pressed={isSelected}
                 onClick={() => onToggleFilter(filter)}
                 className={`
-                  rounded-full
+                  rounded-full bg-transparent! hover:bg-transparent! active:bg-transparent!
                   ${
                     isSelected
-                      ? "border-green-700 bg-green-100 text-black-950"
+                      ? "border-green-700! text-green-800 font-semibold!"
                       : ""
                   }
                 `}

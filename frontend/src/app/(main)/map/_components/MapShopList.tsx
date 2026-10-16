@@ -103,11 +103,8 @@ export function MapShopList({
                   <span
                     key={tag}
                     className="
-                          rounded-full
-                          bg-green-100
-                          px-2 py-1
-                          text-10
-                          text-green-900
+                          text-10 font-medium
+                          text-green-800
                         "
                   >
                     #{tag}

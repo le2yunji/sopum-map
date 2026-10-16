@@ -86,10 +86,8 @@ export function MapSelectedShopCard({
                 <span
                   key={tag}
                   className="
-                    shrink-0 rounded-full
-                    bg-brand-soft-strong
-                    px-2 py-1
-                    text-10 text-green-900
+                    shrink-0
+                    text-10 font-medium text-green-800
                   "
                 >
                   #{tag}

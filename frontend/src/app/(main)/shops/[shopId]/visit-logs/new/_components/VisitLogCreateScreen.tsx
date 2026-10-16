@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 import { Textarea } from "@/components/ui/Textarea/Textarea";
 import { DEFAULT_IMAGES } from "@/constants/image.constants";
+import { ChevronLeftIcon } from "@/components/icons";
 
 import { getTodayDateInputValue, toVisitLogIsoDate } from "./visit-log-date";
 import { VisitLogTagSelector } from "./VisitLogTagSelector";
@@ -160,7 +161,7 @@ export function VisitLogCreateForm({
           onClick={handleBack}
           className="absolute left-3 text-24"
         >
-          ‹
+          <ChevronLeftIcon />
         </Button>
         <h1 className="text-18 font-semibold">방문 로그 작성 · {step}/3</h1>
       </header>
@@ -169,7 +170,7 @@ export function VisitLogCreateForm({
         {step === 1 && (
           <div className="space-y-2 px-5 py-5">
             <h2 className="text-18 font-semibold">방문한 소품샵과 방문일</h2>
-            <div className="flex items-center gap-4 rounded-card bg-green-100/70 p-4">
+            <div className="flex items-center gap-4 rounded-card bg-green-100/10 p-4">
               <Image
                 src={shop.mainImageUrl ?? DEFAULT_IMAGES.shop}
                 alt=""
@@ -257,7 +258,7 @@ export function VisitLogCreateForm({
                 <li className="flex gap-2">
                   <span aria-hidden="true">📸</span>
                   <span>
-                    직접 찍은 사진을 첨부하면 다른 피커들에게 더 도움이 돼요.
+                    직접 찍은 사진을 첨부하면 다른 수집가들에게 더 도움이 돼요.
                   </span>
                 </li>
                 <li className="flex gap-2">

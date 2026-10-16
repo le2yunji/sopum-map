@@ -16,10 +16,10 @@
   --green-400: #8dbd4f;
   --green-500: #6eb746;
   --green-600: #5d9c3e;
-  --green-700: #738547;
-  --green-800: #526438;
-  --green-900: #39482a;
-  --green-950: #222d1a;
+  --green-700: #4c7c36;
+  --green-800: #3e602f;
+  --green-900: #2f4625;
+  --green-950: #1f2d1a;
 
   /* Black */
   --black-100: #f0f0f0;
@@ -227,6 +227,12 @@
 
   /* Semantic - State */
   --color-danger: var(--state-danger);
+}
+
+html,
+body {
+  background: var(--surface-primary);
+  color: var(--text-primary);
 }
 
 /* ========================================

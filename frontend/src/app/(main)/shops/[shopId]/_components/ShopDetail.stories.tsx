@@ -210,7 +210,7 @@ const meta = {
 
   decorators: [
     (Story) => (
-      <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-black-100">
+      <div className="mx-auto min-h-dvh w-full max-w-[480px] bg-white">
         <Story />
       </div>
     ),

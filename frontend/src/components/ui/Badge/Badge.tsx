@@ -12,22 +12,15 @@ interface BadgeProps extends ComponentPropsWithoutRef<"span"> {
 }
 
 const variantStyles: Record<BadgeVariant, string> = {
-  green: ["bg-green-100", "text-black-800"].join(" "),
-
-  pink: [
-    "bg-pink-300/15",
-    "text-green-700",
-    "border",
-    "border-pink-300/35",
-  ].join(" "),
-
-  softGreen: ["bg-green-50", "text-green-700"].join(" "),
+  green: "text-green-800",
+  pink: "text-pink-500",
+  softGreen: "text-green-700",
 };
 
 const sizeStyles: Record<BadgeSize, string> = {
-  small: ["px-2", "py-1", "text-10"].join(" "),
-  medium: ["px-3", "py-1.5", "text-12"].join(" "),
-  large: ["px-4", "py-2", "text-14"].join(" "),
+  small: "py-0.5 text-10",
+  medium: "py-0.5 text-12",
+  large: "py-1 text-14",
 };
 
 const shapeStyles: Record<BadgeShape, string> = {

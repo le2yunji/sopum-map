@@ -36,7 +36,7 @@ export function ShopDetailScreen({ shopId }: Props) {
   const imageUrls = shop.images.map((image) => image.imageUrl);
 
   return (
-    <main className="min-h-dvh bg-black-100/40 pb-10">
+    <main className="min-h-dvh bg-white pb-10">
       <ShopDetailActions
         shopId={shop.id}
         shopName={shop.name}

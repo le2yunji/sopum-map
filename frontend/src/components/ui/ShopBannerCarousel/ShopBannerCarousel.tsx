@@ -107,10 +107,7 @@ export const ShopBannerCarousel = ({
                           <span
                             key={tag.id}
                             className="
-                              rounded-full
-                              bg-brand-soft-strong/80
-                              px-2 py-1
-                              text-12 font-medium text-green-900
+                              text-12 font-medium text-green-800
                             "
                           >
                             #{tag.name}
