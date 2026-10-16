@@ -8,6 +8,8 @@ import { createApiError } from "@sopum-map/shared";
 const serviceMocks = vi.hoisted(() => ({
   getAuthenticatedUserId: vi.fn(),
   createCourse: vi.fn(),
+  setCourseShopVisited: vi.fn(),
+  unsetCourseShopVisited: vi.fn(),
 }));
 
 vi.mock("../services/auth/auth.service.js", () => ({
@@ -18,12 +20,18 @@ vi.mock("../services/course/course.create.service.js", () => ({
   createCourse: serviceMocks.createCourse,
 }));
 
+vi.mock("../services/course/course-shop-visit.service.js", () => ({
+  setCourseShopVisited: serviceMocks.setCourseShopVisited,
+  unsetCourseShopVisited: serviceMocks.unsetCourseShopVisited,
+}));
+
 import { errorMiddleware } from "../middlewares/error.middleware.js";
 import { courseRouter } from "./course.routes.js";
 
 const userId = "6a8a68e15e2aa43be6a6549d";
 const folderId = "6a8a68e15e2aa43be6a6549e";
 const courseId = "6a8a68e15e2aa43be6a6549f";
+const shopId = "6a8a68e15e2aa43be6a654a0";
 
 const validBody = {
   sourceFolderId: folderId,
@@ -52,6 +60,32 @@ beforeEach(() => {
   vi.clearAllMocks();
   serviceMocks.getAuthenticatedUserId.mockResolvedValue(userId);
   serviceMocks.createCourse.mockResolvedValue({ courseId });
+  serviceMocks.setCourseShopVisited.mockResolvedValue({ isVisited: true });
+  serviceMocks.unsetCourseShopVisited.mockResolvedValue({ isVisited: false });
+});
+
+describe("/api/courses/:courseId/shops/:shopId/visit", () => {
+  it.each([
+    ["put", true, "setCourseShopVisited"],
+    ["delete", false, "unsetCourseShopVisited"],
+  ] as const)("%s 요청으로 방문 상태 %s를 보장한다", async (method, isVisited, serviceName) => {
+    const response = await request(createTestApp())
+      [method](`/api/courses/${courseId}/shops/${shopId}/visit`)
+      .set("Cookie", "auth_session=test-session");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ success: true, data: { isVisited } });
+    expect(serviceMocks[serviceName]).toHaveBeenCalledWith(userId, courseId, shopId);
+  });
+
+  it("미인증 방문 저장 요청을 거부한다", async () => {
+    const response = await request(createTestApp()).put(
+      `/api/courses/${courseId}/shops/${shopId}/visit`,
+    );
+
+    expect(response.status).toBe(401);
+    expect(serviceMocks.setCourseShopVisited).not.toHaveBeenCalled();
+  });
 });
 
 describe("POST /api/courses", () => {

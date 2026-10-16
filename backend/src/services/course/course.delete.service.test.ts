@@ -7,6 +7,7 @@ const modelMocks = vi.hoisted(() => ({
   findCourseById: vi.fn(),
   deleteCourse: vi.fn(),
   deleteLikes: vi.fn(),
+  deleteVisits: vi.fn(),
 }));
 
 vi.mock("../../models/course.model.js", () => ({
@@ -18,6 +19,10 @@ vi.mock("../../models/course.model.js", () => ({
 
 vi.mock("../../models/course-like.model.js", () => ({
   default: { deleteMany: modelMocks.deleteLikes },
+}));
+
+vi.mock("../../models/course-shop-visit.model.js", () => ({
+  default: { deleteMany: modelMocks.deleteVisits },
 }));
 
 const userId = "6a8a68e15e2aa43be6a6549d";
@@ -36,6 +41,7 @@ beforeEach(() => {
   });
   modelMocks.deleteCourse.mockResolvedValue({ deletedCount: 1 });
   modelMocks.deleteLikes.mockResolvedValue({ deletedCount: 2 });
+  modelMocks.deleteVisits.mockResolvedValue({ deletedCount: 2 });
 });
 
 describe("deleteCourse", () => {
@@ -43,6 +49,9 @@ describe("deleteCourse", () => {
     await deleteCourse(userId, courseId);
 
     expect(modelMocks.deleteLikes).toHaveBeenCalledWith({
+      courseId: new Types.ObjectId(courseId),
+    });
+    expect(modelMocks.deleteVisits).toHaveBeenCalledWith({
       courseId: new Types.ObjectId(courseId),
     });
   });

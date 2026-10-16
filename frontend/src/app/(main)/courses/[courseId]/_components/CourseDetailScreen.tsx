@@ -11,6 +11,8 @@ import {
   useLikeCourse,
   useUnlikeCourse,
   useUpdateCourseVisibility,
+  useSetCourseShopVisited,
+  useUnsetCourseShopVisited,
 } from "@/api/course/course.query";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
@@ -44,6 +46,8 @@ export function CourseDetailScreen({ courseId }: Props) {
   const likeMutation = useLikeCourse();
   const unlikeMutation = useUnlikeCourse();
   const visibilityMutation = useUpdateCourseVisibility();
+  const setVisitedMutation = useSetCourseShopVisited();
+  const unsetVisitedMutation = useUnsetCourseShopVisited();
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [deleteSheetOpen, setDeleteSheetOpen] = useState(false);
   const [visibilitySheetOpen, setVisibilitySheetOpen] = useState(false);
@@ -199,6 +203,25 @@ export function CourseDetailScreen({ courseId }: Props) {
                 onOpenActions={() => {
                   setSelectedShop({ shop, previousShop: orderedShops[index - 1] ?? null });
                 }}
+                isVisitPending={
+                  (setVisitedMutation.isPending &&
+                    setVisitedMutation.variables?.shopId === shop.id) ||
+                  (unsetVisitedMutation.isPending &&
+                    unsetVisitedMutation.variables?.shopId === shop.id)
+                }
+                onSetVisited={() =>
+                  setVisitedMutation.mutateAsync({ courseId: course.id, shopId: shop.id }).then(() => undefined)
+                }
+                onUnsetVisited={() =>
+                  unsetVisitedMutation.mutateAsync({ courseId: course.id, shopId: shop.id }).then(() => undefined)
+                }
+                onWriteLog={() => {
+                  const returnTo = encodeURIComponent(`/courses/${course.id}`);
+                  router.push(
+                    `/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`,
+                  );
+                }}
+                onVisitError={() => setNotice("방문 상태를 저장하지 못했어요.")}
               />
             ))}
           </ol>

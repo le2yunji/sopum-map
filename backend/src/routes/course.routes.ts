@@ -8,6 +8,8 @@ import {
   unlikeCourseController,
   updateCourseController,
   updateCourseVisibilityController,
+  setCourseShopVisitedController,
+  unsetCourseShopVisitedController,
 } from "../controllers/course.controller.js";
 
 import { requireAuth } from "../middlewares/require-auth.middleware.js";
@@ -20,9 +22,26 @@ import {
   getCourseDetailSchema,
   updateCourseSchema,
   updateCourseVisibilitySchema,
+  courseShopVisitSchema,
 } from "../validations/course.validation.js";
 
 const courseRouter = Router();
+
+/** 코스 상점을 방문 완료 상태로 저장합니다. */
+courseRouter.put(
+  "/:courseId/shops/:shopId/visit",
+  requireAuth,
+  validateRequest(courseShopVisitSchema),
+  setCourseShopVisitedController,
+);
+
+/** 코스 상점을 미방문 상태로 되돌립니다. */
+courseRouter.delete(
+  "/:courseId/shops/:shopId/visit",
+  requireAuth,
+  validateRequest(courseShopVisitSchema),
+  unsetCourseShopVisitedController,
+);
 
 /**
  * 사용자 코스 생성
