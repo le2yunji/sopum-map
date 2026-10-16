@@ -88,7 +88,7 @@ export function CourseRegionSelectSheet({
                   }}
                   className="
                     flex w-full items-center justify-between
-                    rounded-xl border border-black-100 p-4 text-left
+                    rounded-card border border-black-100 p-4 text-left
                     disabled:cursor-not-allowed disabled:opacity-40
                   "
                 >

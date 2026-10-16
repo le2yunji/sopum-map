@@ -80,7 +80,7 @@ export function PickFolderEditView({
               setDraftTitle(event.target.value);
             }}
             className="
-              min-h-11 min-w-0 flex-1 rounded-lg
+              min-h-11 min-w-0 flex-1 rounded-control
               border border-black-300 px-3
               text-14 outline-none
               focus:border-green-500
@@ -112,7 +112,7 @@ export function PickFolderEditView({
           maxLength={300}
           rows={3}
           onChange={(event) => setDraftDescription(event.target.value)}
-          className="mt-2 w-full resize-none rounded-lg border border-black-300 px-3 py-2 text-14 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
+          className="mt-2 w-full resize-none rounded-control border border-black-300 px-3 py-2 text-14 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
         />
       </div>
 
@@ -133,8 +133,8 @@ export function PickFolderEditView({
 
         {shopsQuery.isPending ? (
           <div className="mt-3 space-y-2">
-            <Skeleton className="h-12 rounded-xl" />
-            <Skeleton announce={false} className="h-12 rounded-xl" />
+            <Skeleton className="h-12 rounded-control" />
+            <Skeleton announce={false} className="h-12 rounded-control" />
           </div>
         ) : shops.length === 0 ? (
           <p className="mt-3 py-4 text-13 text-black-500">

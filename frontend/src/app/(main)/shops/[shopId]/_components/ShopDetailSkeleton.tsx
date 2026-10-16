@@ -11,7 +11,7 @@ export function ShopDetailSkeleton() {
 
         <Skeleton announce={false} className="h-4 w-56 rounded" />
 
-        <Skeleton announce={false} className="h-44 rounded-xl" />
+        <Skeleton announce={false} className="h-44 rounded-card" />
       </div>
     </main>
   );

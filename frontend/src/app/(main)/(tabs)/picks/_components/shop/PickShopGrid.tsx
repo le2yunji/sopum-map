@@ -101,9 +101,9 @@ export function PickShopGrid({
 function NextPageSkeleton() {
   return (
     <div className="mt-4 grid grid-cols-2 gap-x-3 gap-y-5">
-      <Skeleton announce={false} className="aspect-square rounded-2xl" />
+      <Skeleton announce={false} className="aspect-square rounded-card" />
 
-      <Skeleton announce={false} className="aspect-square rounded-2xl" />
+      <Skeleton announce={false} className="aspect-square rounded-card" />
     </div>
   );
 }

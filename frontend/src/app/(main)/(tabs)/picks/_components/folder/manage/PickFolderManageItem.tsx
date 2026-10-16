@@ -38,7 +38,7 @@ export function PickFolderManageItem({
   };
 
   return (
-    <div className="rounded-xl border border-black-100 px-3 py-1">
+    <div className="rounded-card border border-black-100 px-3 py-1">
       <div className="flex items-center gap-3">
         <div className="flex min-w-0 flex-1 items-center gap-2">
           <div className="truncate text-14 font-medium">{title}</div>

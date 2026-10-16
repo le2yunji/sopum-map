@@ -51,7 +51,7 @@ export function MyPageActivityMenu({
   return (
     <nav
       aria-label="내 활동"
-      className="mt-4 overflow-hidden rounded-2xl border border-black-200"
+      className="mt-4 overflow-hidden rounded-card border border-black-200"
     >
       {items.map((item) => (
         <Link
@@ -102,7 +102,7 @@ function MyPageMenuLink({ href, label, icon }: MenuLinkProps) {
   return (
     <Link
       href={href}
-      className="flex min-h-15 items-center gap-4 rounded-2xl border border-black-100 px-5 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+      className="flex min-h-15 items-center gap-4 rounded-card border border-black-100 px-5 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
     >
       <span className="text-green-400" aria-hidden="true">
         {icon}

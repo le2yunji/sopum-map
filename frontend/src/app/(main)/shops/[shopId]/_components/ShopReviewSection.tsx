@@ -90,7 +90,7 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
 
         <Link
           href={`/shops/${shopId}/visit-logs/new`}
-          className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-lg border border-pink-300/30 px-3 text-12 font-medium text-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+          className="inline-flex min-h-9 shrink-0 items-center gap-1 rounded-control border border-pink-300/30 px-3 text-12 font-medium text-green-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
         >
           <CameraIcon className="w-4 text-green-700" />
           방문했어요
@@ -139,7 +139,7 @@ export function ShopReviewSection({ shopId, visitLogCount }: Props) {
                   {visitLog.imageUrls.map((url, index) => (
                     <div
                       key={`${url}-${index}`}
-                      className="relative aspect-square w-[calc((100%-2rem)/2)] shrink-0 snap-start overflow-hidden rounded-lg"
+                      className="relative aspect-square w-[calc((100%-2rem)/2)] shrink-0 snap-start overflow-hidden rounded-card"
                     >
                       <Image
                         fill

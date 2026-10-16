@@ -44,7 +44,7 @@ export const ShopBannerCarousel = ({
                 className="
                   group relative block
                   aspect-[149/168] w-full
-                  overflow-hidden rounded-3xl
+                  overflow-hidden rounded-card-lg
                   bg-surface-muted
                   focus-visible:outline-2
                   focus-visible:outline-offset-4
@@ -82,7 +82,7 @@ export const ShopBannerCarousel = ({
                 <div
                   className="
                     absolute inset-x-3 bottom-3
-                    rounded-[20px]
+                    rounded-card-lg
                     border border-white/50
                     bg-white/30 px-4 py-4
                     shadow-lg backdrop-blur-sm

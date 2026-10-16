@@ -48,7 +48,7 @@ export function MapSearchSheet({
       ariaLabelledBy="map-search-title"
       showCloseButton
       closeButtonLabel="상점 검색 닫기"
-      className="min-h-[calc(100dvh-1.25rem)] rounded-t-[20px] bg-white"
+      className="min-h-[calc(100dvh-1.25rem)] rounded-t-sheet bg-white"
     >
       <BottomSheet.Handle />
       <BottomSheet.Header>
@@ -97,7 +97,7 @@ export function MapSearchSheet({
                           width={48}
                           height={48}
                           loading={index === 0 ? "eager" : "lazy"}
-                          className="size-12 shrink-0 rounded-xl object-cover"
+                          className="size-12 shrink-0 rounded-card object-cover"
                         />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-15 font-semibold">

@@ -169,14 +169,14 @@ export function VisitLogCreateForm({
         {step === 1 && (
           <div className="space-y-2 px-5 py-5">
             <h2 className="text-18 font-semibold">방문한 소품샵과 방문일</h2>
-            <div className="flex items-center gap-4 rounded-2xl bg-green-100/70 p-4">
+            <div className="flex items-center gap-4 rounded-card bg-green-100/70 p-4">
               <Image
                 src={shop.mainImageUrl ?? DEFAULT_IMAGES.shop}
                 alt=""
                 width={80}
                 height={80}
                 loading="eager"
-                className="size-20 shrink-0 rounded-2xl object-cover"
+                className="size-20 shrink-0 rounded-card object-cover"
               />
               <div className="min-w-0">
                 <p className="truncate text-16 font-bold text-black-950">
@@ -430,9 +430,9 @@ export function VisitLogCreateSkeleton() {
   return (
     <main aria-busy="true" className="space-y-5 p-5">
       <Skeleton label="방문 로그 작성 화면을 불러오는 중" className="h-16" />
-      <Skeleton announce={false} className="h-20 rounded-2xl" />
-      <Skeleton announce={false} className="h-36 rounded-2xl" />
-      <Skeleton announce={false} className="h-40 rounded-2xl" />
+      <Skeleton announce={false} className="h-20 rounded-card" />
+      <Skeleton announce={false} className="h-36 rounded-card" />
+      <Skeleton announce={false} className="h-40 rounded-card" />
     </main>
   );
 }

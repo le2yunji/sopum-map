@@ -65,7 +65,7 @@ export function PickFolderSheetContent({
                   key={folder.id}
                   className={[
                     "flex min-h-11 cursor-pointer",
-                    "items-center gap-3 rounded-xl px-3",
+                    "items-center gap-3 rounded-control px-3",
                     isSelected ? "bg-green-100" : "hover:bg-black-100",
                   ].join(" ")}
                 >

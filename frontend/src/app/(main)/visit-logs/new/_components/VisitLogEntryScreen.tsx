@@ -81,7 +81,7 @@ export function VisitLogEntryScreen() {
                   width={48}
                   height={48}
                   loading={index === 0 ? "eager" : "lazy"}
-                  className="size-12 shrink-0 rounded-xl object-cover"
+                  className="size-12 shrink-0 rounded-card object-cover"
                 />
                 <span className="min-w-0">
                   <span className="block truncate text-15 font-semibold">{shop.name}</span>

@@ -10,7 +10,7 @@ const meta = {
     layout: "centered",
   },
   args: {
-    className: "h-24 w-64 rounded-2xl",
+    className: "h-24 w-64 rounded-card",
   },
 } satisfies Meta<typeof Skeleton>;
 

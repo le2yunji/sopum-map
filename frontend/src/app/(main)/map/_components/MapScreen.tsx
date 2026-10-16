@@ -235,7 +235,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
             top-24
             z-30
             -translate-x-1/2
-            rounded-lg
+            rounded-control
             bg-white
             px-4
             py-3

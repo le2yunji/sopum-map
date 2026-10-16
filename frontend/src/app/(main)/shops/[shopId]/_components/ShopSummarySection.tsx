@@ -27,7 +27,7 @@ type Props = Readonly<{
 
 export function ShopSummarySection({ shop }: Props) {
   return (
-    <section className="relative -mt-5 rounded-t-[20px] bg-white px-5 pt-5 pb-6">
+    <section className="relative -mt-5 rounded-t-card bg-white px-5 pt-5 pb-6">
       <div className="flex justify-between">
         <h1 className="text-20 font-semibold">{shop.name}</h1>
 
@@ -62,7 +62,7 @@ export function ShopSummarySection({ shop }: Props) {
             href={shop.naverPlaceUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex min-h-11 items-center justify-between rounded-xl border border-pink-300/30 text-14 px-4"
+            className="flex min-h-11 items-center justify-between rounded-control border border-pink-300/30 text-14 px-4"
           >
             <span className="flex items-center gap-2 text-black-600">
               <StoreIcon aria-hidden="true" className="w-5" />

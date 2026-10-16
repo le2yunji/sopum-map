@@ -36,7 +36,7 @@ export const CourseListItem = ({
       href={`/courses/${id}`}
       aria-label={`${title} 코스 상세 보기`}
       className="
-        group flex w-full items-center gap-4 rounded-xl py-4
+        group flex w-full items-center gap-4 rounded-card py-4
         transition-colors
         hover:bg-black-100/50
         focus-visible:outline-2
@@ -47,7 +47,7 @@ export const CourseListItem = ({
       <div
         className={[
           "grid size-20 shrink-0 gap-0.5",
-          "overflow-hidden rounded-2xl",
+          "overflow-hidden rounded-card",
           "bg-white",
           thumbnailGridStyles[thumbnailCount],
         ].join(" ")}

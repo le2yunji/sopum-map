@@ -66,7 +66,7 @@ export function NaverMapRouteLink({
       target={isMobile ? undefined : "_blank"}
       rel={isMobile ? undefined : "noopener noreferrer"}
       onClick={handleClick}
-      className="flex min-h-11 items-center justify-between rounded-xl border border-pink-300/30 px-4 text-14"
+      className="flex min-h-11 items-center justify-between rounded-control border border-pink-300/30 px-4 text-14"
     >
       <span className="flex items-center gap-2 text-black-600">
         <LocationIcon aria-hidden="true" className="w-5" />

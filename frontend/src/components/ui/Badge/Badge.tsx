@@ -32,7 +32,7 @@ const sizeStyles: Record<BadgeSize, string> = {
 
 const shapeStyles: Record<BadgeShape, string> = {
   pill: "rounded-full",
-  square: "rounded-md",
+  square: "rounded-control",
 };
 
 export function Badge({

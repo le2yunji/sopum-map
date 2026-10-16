@@ -47,9 +47,9 @@ const variantClasses: Record<ButtonVariant, string> = {
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
-  small: "min-h-11 rounded-lg px-3 text-12", // 44px
-  medium: "min-h-12 rounded-xl px-4 py-3 text-14", // 48px
-  large: "min-h-14 rounded-xl px-5 py-3.5 text-16", // 56px
+  small: "min-h-11 rounded-control px-3 text-12", // 44px
+  medium: "min-h-12 rounded-control px-4 py-3 text-14", // 48px
+  large: "min-h-14 rounded-control px-5 py-3.5 text-16", // 56px
 };
 
 const iconOnlySizeClasses: Record<ButtonSize, string> = {

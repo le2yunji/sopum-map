@@ -53,7 +53,7 @@ function BottomSheetRoot({
     >
       <div
         className={[
-          "relative max-h-[calc(100dvh-1.25rem)] overflow-y-auto rounded-t-[20px] bg-white px-6 pt-3 pb-[max(24px,env(safe-area-inset-bottom))] transition-transform duration-[250ms] ease-out motion-reduce:duration-0",
+          "relative max-h-[calc(100dvh-1.25rem)] overflow-y-auto rounded-t-sheet bg-white px-6 pt-3 pb-[max(24px,env(safe-area-inset-bottom))] transition-transform duration-[250ms] ease-out motion-reduce:duration-0",
           visualState === "open" ? "translate-y-0" : "translate-y-full",
           className,
         ].join(" ")}

@@ -10,15 +10,15 @@ export default function OnboardingLoading() {
       <section className="flex flex-1 flex-col items-center justify-center py-4">
         <Skeleton
           label="온보딩 화면을 불러오는 중"
-          className="h-56 w-72 rounded-3xl min-[390px]:h-64 min-[390px]:w-80"
+          className="h-56 w-72 rounded-card-lg min-[390px]:h-64 min-[390px]:w-80"
         />
         <Skeleton
           announce={false}
-          className="mt-6 h-7 w-64 rounded-lg min-[390px]:mt-7 min-[390px]:h-8 min-[390px]:w-72"
+          className="mt-6 h-7 w-64 rounded-control min-[390px]:mt-7 min-[390px]:h-8 min-[390px]:w-72"
         />
         <Skeleton
           announce={false}
-          className="mt-3 h-6 w-72 rounded-lg min-[390px]:h-7 min-[390px]:w-80"
+          className="mt-3 h-6 w-72 rounded-control min-[390px]:h-7 min-[390px]:w-80"
         />
       </section>
 
@@ -37,7 +37,7 @@ export default function OnboardingLoading() {
             <Skeleton announce={false} className="size-2 rounded-full" />
           </li>
         </ol>
-        <Skeleton announce={false} className="mt-6 h-14 w-full rounded-xl" />
+        <Skeleton announce={false} className="mt-6 h-14 w-full rounded-control" />
       </nav>
     </main>
   );

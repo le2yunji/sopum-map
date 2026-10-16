@@ -83,7 +83,7 @@ export function MapShopListSheet({
       className="
         absolute inset-x-0 bottom-0 z-9999
         overflow-hidden
-        rounded-t-3xl
+        rounded-t-sheet
         bg-white
         shadow-[0_-6px_16px_rgba(0,0,0,0.08)]
       "
