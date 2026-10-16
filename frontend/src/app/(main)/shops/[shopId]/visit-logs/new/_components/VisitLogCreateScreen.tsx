@@ -240,9 +240,34 @@ export function VisitLogCreateForm({
             <p className="text-12 text-black-500">
               기록한 방문 로그는 모두에게 공개됩니다.
             </p>
-            <p className="text-13 text-black-700">
-              나의 기록도 쌓이고, 다른 소품 수집가에게도 도움이 돼요.
-            </p>
+            <section aria-labelledby="visit-log-writing-guide">
+              <h2
+                id="visit-log-writing-guide"
+                className="text-16 font-semibold text-black-700"
+              >
+                방문 로그 작성 가이드
+              </h2>
+              <ul className="mt-3 space-y-2 text-13 text-black-500">
+                <li className="flex gap-2">
+                  <span aria-hidden="true">🍀</span>
+                  <span>
+                    나의 기록도 쌓이고, 다른 소품 수집가에게도 도움이 돼요.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden="true">📸</span>
+                  <span>
+                    직접 찍은 사진을 첨부하면 다른 피커들에게 더 도움이 돼요.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden="true">🚫</span>
+                  <span>
+                    광고성·비방·개인정보가 포함된 내용은 삭제될 수 있어요.
+                  </span>
+                </li>
+              </ul>
+            </section>
           </section>
         )}
 

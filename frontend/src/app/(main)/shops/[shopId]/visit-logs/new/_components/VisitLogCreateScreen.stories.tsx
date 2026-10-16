@@ -60,6 +60,14 @@ export const CreateVisitLog: Story = {
 
     await userEvent.keyboard(" ");
     await userEvent.click(canvas.getByRole("button", { name: "다음 · 사진과 기록" }));
+    await expect(
+      canvas.getByRole("heading", { name: "방문 로그 작성 가이드" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByText(
+        "나의 기록도 쌓이고, 다른 소품 수집가에게도 도움이 돼요.",
+      ),
+    ).toBeVisible();
     await userEvent.type(
       canvas.getByLabelText("방문 내용 (선택)"),
       "다시 가고 싶은 상점이에요.",
