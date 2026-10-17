@@ -85,7 +85,7 @@ export function ShopImageCarousel({
 
   return (
     <section
-      className="relative h-[318px] overflow-hidden bg-black-300"
+      className="relative aspect-[7/5] max-h-[318px] overflow-hidden bg-black-300"
       aria-label="상점 이미지"
     >
       <div

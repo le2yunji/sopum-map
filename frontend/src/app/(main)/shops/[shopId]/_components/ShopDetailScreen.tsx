@@ -43,13 +43,20 @@ export function ShopDetailScreen({ shopId }: Props) {
         shopCategory={shop.category}
         imageUrls={imageUrls}
         initialIsLiked={shop.isLiked}
-      />
-
-      <ShopSummarySection shop={shop} />
-
-      <ShopVisitInfoSection shop={shop} />
+      >
+        {({ isLiked, isPending, onToggle }) => (
+          <ShopSummarySection
+            shop={shop}
+            isLiked={isLiked}
+            isLikePending={isPending}
+            onToggleLike={onToggle}
+          />
+        )}
+      </ShopDetailActions>
 
       <ShopLocationSection shop={shop} />
+
+      <ShopVisitInfoSection shop={shop} />
 
       <ShopReviewSection shopId={shop.id} visitLogCount={shop.visitLogCount} />
     </main>

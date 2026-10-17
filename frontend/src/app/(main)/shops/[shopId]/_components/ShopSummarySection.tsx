@@ -1,12 +1,6 @@
 import Link from "next/link";
 
-import {
-  CommentIcon,
-  HeartIcon,
-  LinkIcon,
-  StoreIcon,
-} from "@/components/icons";
-import { Badge } from "@/components/ui/Badge/Badge";
+import { CommentIcon, HeartIcon, VisitLogIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 
 import { ShopDetailData } from "@sopum-map/shared";
@@ -15,20 +9,59 @@ import { NaverMapRouteLink } from "./NaverMapRouteLink";
 type Props = Readonly<{
   shop: Pick<
     ShopDetailData,
+    | "id"
     | "name"
     | "visitLogCount"
     | "likeCount"
     | "tags"
+    | "address"
+    | "businessHours"
     | "naverPlaceUrl"
     | "latitude"
     | "longitude"
   >;
+  isLiked: boolean;
+  isLikePending: boolean;
+  onToggleLike: () => void;
 }>;
 
-export function ShopSummarySection({ shop }: Props) {
+const BUSINESS_DAYS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+] as const;
+
+/** 한국 시간 기준 오늘 영업시간을 요약합니다. */
+function getTodayBusinessHours(shop: Props["shop"]): string {
+  const weekday = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    timeZone: "Asia/Seoul",
+  })
+    .format(new Date())
+    .toLowerCase();
+  const day = BUSINESS_DAYS.find((value) => value === weekday);
+  const hours = shop.businessHours.find((item) => item.day === day);
+
+  if (!hours) {
+    return "영업시간 정보 없음";
+  }
+
+  if (hours.isClosed) {
+    return "오늘 휴무";
+  }
+
+  const periods = hours.periods.map(({ open, close }) => `${open} - ${close}`).join(" / ");
+  return periods ? `오늘 ${periods}` : "영업시간 정보 없음";
+}
+
+export function ShopSummarySection({ shop, isLiked, isLikePending, onToggleLike }: Props) {
   return (
     <section className="relative -mt-5 rounded-t-card bg-white px-5 pt-5 pb-6">
-      <div className="flex justify-between">
+      <div className="flex items-start justify-between gap-3">
         <h1 className="text-20 font-semibold">{shop.name}</h1>
 
         <div className="flex gap-2">
@@ -43,38 +76,45 @@ export function ShopSummarySection({ shop }: Props) {
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap gap-2">
-        {shop.tags.map((tag) => (
-          <Badge key={tag.key} variant="softGreen" shape="pill" size="medium">
-            #{tag.label}
-          </Badge>
-        ))}
-      </div>
-      <div className="mt-5 grid grid-cols-2 gap-2">
+      <div className="mt-1 flex items-center justify-between gap-3">
+        <p className="min-w-0 truncate text-12 text-black-500">{shop.address}</p>
         <NaverMapRouteLink
           name={shop.name}
           latitude={shop.latitude}
           longitude={shop.longitude}
           naverPlaceUrl={shop.naverPlaceUrl}
         />
-        {shop.naverPlaceUrl ? (
-          <Link
-            href={shop.naverPlaceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex min-h-11 items-center justify-between rounded-control border border-pink-300/30 text-14 px-4"
-          >
-            <span className="flex items-center gap-2 text-black-600">
-              <StoreIcon aria-hidden="true" className="w-5" />
-              플레이스 링크
-            </span>
-            <LinkIcon aria-hidden="true" className="w-5 text-black-600" />
-          </Link>
-        ) : (
-          <Button disabled className="flex items-center justify-center">
-            플레이스 준비중
-          </Button>
-        )}
+      </div>
+
+      <p className="mt-1 text-12 text-black-500">{getTodayBusinessHours(shop)}</p>
+
+      <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1">
+        {shop.tags.map((tag) => (
+          <span key={tag.key} className="text-13 font-medium text-green-700">
+            # {tag.label}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-3">
+        <Button
+          variant="primary"
+          fullWidth
+          aria-label={isLiked ? "내 픽에서 제거" : "내 픽에 추가"}
+          aria-pressed={isLiked}
+          disabled={isLikePending}
+          onClick={onToggleLike}
+          leftIcon={<HeartIcon filled={isLiked} className="size-5" />}
+        >
+          내 픽에 추가하기
+        </Button>
+        <Link
+          href={`/shops/${shop.id}/visit-logs/new`}
+          className="inline-flex min-h-12 items-center justify-center gap-2 rounded-control bg-black-100 px-3 text-14 font-semibold text-black-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+        >
+          <VisitLogIcon aria-hidden="true" className="size-5" />
+          방문 로그 작성하기
+        </Link>
       </div>
     </section>
   );

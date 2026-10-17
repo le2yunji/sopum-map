@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { PickAction } from "@/components/pick/PickAction";
 
@@ -13,6 +13,11 @@ type Props = Readonly<{
   shopCategory: string;
   imageUrls: readonly string[];
   initialIsLiked?: boolean;
+  children: (props: {
+    isLiked: boolean;
+    isPending: boolean;
+    onToggle: () => void;
+  }) => ReactNode;
 }>;
 
 export function ShopDetailActions({
@@ -21,6 +26,7 @@ export function ShopDetailActions({
   shopCategory,
   imageUrls,
   initialIsLiked = false,
+  children,
 }: Props) {
   const [isReportSheetOpen, setReportSheetOpen] = useState(false);
 
@@ -28,15 +34,18 @@ export function ShopDetailActions({
     <>
       <PickAction shopId={shopId} initialIsLiked={initialIsLiked}>
         {({ isLiked, isPending, onToggle }) => (
-          <ShopImageCarousel
-            shopName={shopName}
-            shopCategory={shopCategory}
-            imageUrls={imageUrls}
-            isLikePending={isPending}
-            isLiked={isLiked}
-            onToggleLike={onToggle}
-            onReport={() => setReportSheetOpen(true)}
-          />
+          <>
+            <ShopImageCarousel
+              shopName={shopName}
+              shopCategory={shopCategory}
+              imageUrls={imageUrls}
+              isLikePending={isPending}
+              isLiked={isLiked}
+              onToggleLike={onToggle}
+              onReport={() => setReportSheetOpen(true)}
+            />
+            {children({ isLiked, isPending, onToggle })}
+          </>
         )}
       </PickAction>
 
