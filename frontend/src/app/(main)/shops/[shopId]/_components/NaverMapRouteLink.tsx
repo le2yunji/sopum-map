@@ -67,7 +67,7 @@ export function NaverMapRouteLink({
       rel={isMobile ? undefined : "noopener noreferrer"}
       onClick={handleClick}
       aria-label="길찾기"
-      className="inline-flex min-h-11 shrink-0 items-center gap-1 text-12 text-black-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+      className="relative inline-flex shrink-0 items-center gap-1 text-12 text-black-500 after:absolute after:left-1/2 after:top-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
     >
       <LocationIcon aria-hidden="true" className="size-4" />
       길찾기
