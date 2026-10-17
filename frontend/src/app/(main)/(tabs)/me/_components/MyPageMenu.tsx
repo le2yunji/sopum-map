@@ -8,7 +8,7 @@ import {
   CourseIcon,
   SettingIcon,
   StoreIcon,
-  VisitLogIcon,
+  CameraIcon,
 } from "@/components/icons";
 import { useInfiniteMyVisitLogs } from "@/api/visit-log/visit-log.query";
 
@@ -38,7 +38,7 @@ export function MyPageActivityMenu({
       label: "방문 로그",
       count: visitLogCount,
       href: "/me/visit-logs",
-      icon: <VisitLogIcon className="size-5" />,
+      icon: <CameraIcon className="size-5" />,
     },
     {
       label: "내 산책 코스",

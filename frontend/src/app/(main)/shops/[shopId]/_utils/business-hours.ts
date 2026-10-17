@@ -90,7 +90,7 @@ export function groupBusinessHours(
 
       dayLabel:
         group.length === 1
-          ? firstLabel
+          ? `${firstLabel}요일`
           : `${firstLabel}요일 ~ ${lastLabel}요일`,
 
       isClosed: first.isClosed,
@@ -206,7 +206,9 @@ export function formatTodayBusinessHours(
     return "오늘 휴무";
   }
 
-  const periods = hours.periods.map(({ open, close }) => `${open} - ${close}`).join(" / ");
+  const periods = hours.periods
+    .map(({ open, close }) => `${open} - ${close}`)
+    .join(" / ");
 
   return periods ? `오늘 ${periods}` : "영업시간 정보 없음";
 }
