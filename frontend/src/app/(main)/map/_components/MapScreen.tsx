@@ -1,10 +1,6 @@
 "use client";
 
 import { useMemo, type ReactNode } from "react";
-
-import type { TagKey } from "@sopum-map/shared";
-
-import { getMapTagFilterValue } from "../_constants/map.constants";
 import { useMapScreenState } from "../_hooks/useMapScreenState";
 import { toMapShop } from "../_mappers/mapShop.mapper";
 import type { MapShop } from "@/components/naver-map";
@@ -37,7 +33,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
     handleClearKeyword,
     debouncedKeyword,
     pickedOnly,
-    selectedDetailedFilters,
+    selectedTagKeys,
     selectedShopId,
     isFilterOpen,
     isSearchOpen,
@@ -47,7 +43,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
     handleKeywordChange,
     handleShowAll,
     handleShowPicked,
-    handleToggleDetailedFilter,
+    handleToggleTag,
     handleOpenFilter,
     handleCloseFilter,
     handleOpenSearch,
@@ -56,20 +52,6 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
     handleShowShopList,
     resetFilters,
   } = useMapScreenState();
-
-  /**
-   * 현재 MapTagFilter 값이 실제 TagKey라는 전제입니다.
-   *
-   * MapTagFilter에 group 필터도 포함되어 있다면
-   * group → tagKeys 변환 로직을 별도로 두어야 합니다.
-   */
-  const selectedTagKeys = useMemo(
-    () =>
-      selectedDetailedFilters.map(
-        (filter) => getMapTagFilterValue(filter) as TagKey,
-      ),
-    [selectedDetailedFilters],
-  );
 
   const {
     data: shopsData,
@@ -169,7 +151,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
 
         <MapTagFilterChips
           pickedOnly={pickedOnly}
-          hasDetailedFilters={selectedDetailedFilters.length > 0}
+          hasDetailedFilters={selectedTagKeys.length > 0}
           onShowAll={handleShowAll}
           onShowPicked={handleShowPicked}
           onOpenTags={handleOpenFilter}
@@ -186,7 +168,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
         totalCount={pickedOnly ? visibleShops.length : totalCount}
         visible={!isSelectedShopCardOpen}
         state={shopListSheetState}
-        selectedTagCount={selectedDetailedFilters.length}
+        selectedTagCount={selectedTagKeys.length}
         hasNextPage={Boolean(hasNextPage)}
         isLoadingMore={isFetchingNextPage}
         onLoadMore={() => {
@@ -205,8 +187,8 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
 
       <MapFilterSheet
         open={isFilterOpen}
-        selectedFilters={selectedDetailedFilters}
-        onToggleFilter={handleToggleDetailedFilter}
+        selectedTagKeys={selectedTagKeys}
+        onToggleTag={handleToggleTag}
         onClose={handleCloseFilter}
       />
 
