@@ -35,7 +35,7 @@ export function StatePanel({
               href={actionHref}
               className="
                 mt-5 inline-flex min-h-11
-                items-center rounded-xl
+                items-center rounded-control
                 bg-green-500 px-5
                 text-14 font-semibold text-white!
                 focus-visible:outline-none

@@ -3,19 +3,16 @@
 import Image from "next/image";
 import { useRef, useState } from "react";
 
-import { PenIcon } from "@/components/icons";
+import { PenIcon, ShareIcon } from "@/components/icons";
 import { BackButton } from "@/components/navigation/BackButton";
 import { Button } from "@/components/ui/Button/Button";
 import { Badge } from "@/components/ui/Badge/Badge";
-import { PickButton } from "@/components/pick/PickButton";
 
 type ShopImageCarouselProps = Readonly<{
   shopName: string;
   shopCategory: string;
   imageUrls: readonly string[];
-  isLiked: boolean;
-  isLikePending: boolean;
-  onToggleLike: () => void;
+  onShare: () => void;
   onReport: () => void;
   fallbackImageUrl?: string;
 }>;
@@ -29,8 +26,7 @@ type ShopImageCarouselProps = Readonly<{
  *   shopName={shop.name}
  *   shopCategory={shop.category}
  *   imageUrls={shop.imageUrls}
- *   isLiked={isLiked}
- *   onToggleLike={() => setLiked((prev) => !prev)}
+ *   onShare={handleShare}
  *   onReport={() => setSheet("report")}
  * />
  * ```
@@ -39,9 +35,7 @@ export function ShopImageCarousel({
   shopName,
   shopCategory,
   imageUrls,
-  isLikePending,
-  isLiked,
-  onToggleLike,
+  onShare,
   onReport,
   fallbackImageUrl = "/images/profiles/shop_default.webp",
 }: ShopImageCarouselProps) {
@@ -85,7 +79,7 @@ export function ShopImageCarousel({
 
   return (
     <section
-      className="relative h-[318px] overflow-hidden bg-black-300"
+      className="relative aspect-[7/5] max-h-[318px] overflow-hidden bg-black-300"
       aria-label="상점 이미지"
     >
       <div
@@ -141,12 +135,16 @@ export function ShopImageCarousel({
         />
 
         <div className="flex gap-2">
-          <PickButton
-            isLiked={isLiked}
-            isPending={isLikePending}
-            onToggleLike={onToggleLike}
+          <Button
+            iconOnly
+            size="small"
+            variant="ghost"
+            aria-label="상점 공유"
+            onClick={onShare}
             className="bg-white/90! active:bg-black-100!"
-          />
+          >
+            <ShareIcon />
+          </Button>
 
           <Button
             iconOnly

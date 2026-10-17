@@ -127,7 +127,7 @@ export function NaverShopMapCanvas({ name, latitude, longitude }: Props) {
               role="status"
               aria-label="지도를 불러오는 중"
             >
-              <Skeleton className="size-full rounded-xl" />
+              <Skeleton className="size-full rounded-card" />
             </div>
           ) : (
             <div role="alert">

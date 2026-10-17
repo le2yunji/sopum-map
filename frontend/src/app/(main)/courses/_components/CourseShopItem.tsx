@@ -83,7 +83,7 @@ export function CourseShopItem({
   return (
     <article
       className="
-        rounded-xl
+        rounded-card
         border border-black-100
         p-4
       "
@@ -123,7 +123,7 @@ export function CourseShopItem({
             <div
               className="
                 relative size-16 shrink-0
-                overflow-hidden rounded-lg
+                overflow-hidden rounded-card
                 bg-black-50
               "
             >
@@ -139,7 +139,7 @@ export function CourseShopItem({
             <div
               className="
                 size-16 shrink-0
-                rounded-lg bg-black-100
+                rounded-card bg-black-100
               "
             />
           )}
@@ -186,7 +186,7 @@ export function CourseShopItem({
               onMemoChange(event.target.value);
             }}
             className="
-              w-full resize-none rounded-lg
+              w-full resize-none rounded-control
               bg-black-50
               px-3 py-2
               text-12 outline-none

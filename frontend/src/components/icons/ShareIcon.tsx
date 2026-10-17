@@ -1,11 +1,11 @@
 import type { SVGProps } from "react";
 
-/** 방문한 장소를 나타내는 접힌 지도 아이콘입니다. */
-export function VisitLogIcon(props: SVGProps<SVGSVGElement>) {
+/** 현재 화면의 링크를 외부로 공유하는 동작을 나타냅니다. */
+export function ShareIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="0 0 24 24" fill="none" {...props}>
       <path
-        d="m3.5 6 5-2 7 2 5-2v14l-5 2-7-2-5 2V6Zm5-2v14m7-12v14"
+        d="M12 15V3m0 0L8 7m4-4 4 4M5 11v8h14v-8"
         stroke="currentColor"
         strokeWidth={1.7}
         strokeLinecap="round"

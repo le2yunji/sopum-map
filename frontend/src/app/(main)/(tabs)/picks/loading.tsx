@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 export default function Loading() {
   return (
     <main className="p-5 pt-16">
-      <Skeleton label="내 픽을 불러오는 중" className="h-64 rounded-2xl" />
+      <Skeleton label="내 픽을 불러오는 중" className="h-64 rounded-card" />
     </main>
   );
 }

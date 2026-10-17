@@ -70,7 +70,7 @@ export function PickFolderActions({
             }
             closeMenuAndFocusTrigger();
           }}
-          className="w-56 rounded-2xl bg-white p-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
+          className="w-56 rounded-card bg-white p-2 shadow-[0_4px_20px_rgba(0,0,0,0.12)]"
         >
           <Button
             ref={menuFirstItemRef}

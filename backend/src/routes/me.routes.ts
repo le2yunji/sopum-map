@@ -36,12 +36,36 @@ import {
   getMyLikedCoursesController,
 } from "../controllers/course.controller.js";
 import { getCourseListSchema } from "../validations/course.validation.js";
+import {
+  getMyVisitLogController,
+  getMyVisitLogsController,
+} from "../controllers/visit-log.controller.js";
+import {
+  getMyVisitLogSchema,
+  getMyVisitLogsSchema,
+} from "../validations/visit-log.validation.js";
 
 import { optimizeCourseRouteController } from "../controllers/course-route.controller.js";
 
 import { optimizeCourseRouteSchema } from "../validations/course-route.validation.js";
 
 const meRouter = Router();
+
+/** GET /api/me/visit-logs */
+meRouter.get(
+  "/visit-logs",
+  requireAuth,
+  validateRequest(getMyVisitLogsSchema),
+  getMyVisitLogsController,
+);
+
+/** GET /api/me/visit-logs/:visitLogId */
+meRouter.get(
+  "/visit-logs/:visitLogId",
+  requireAuth,
+  validateRequest(getMyVisitLogSchema),
+  getMyVisitLogController,
+);
 
 /**
  * 내가 좋아요한 전체 상점 목록

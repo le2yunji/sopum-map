@@ -10,7 +10,7 @@ export default function MapLoading() {
     >
       <Skeleton className="h-11 w-full rounded-full" />
       <Skeleton className="mt-3 h-10 w-4/5 rounded-full" />
-      <Skeleton className="mt-[360px] h-56 w-full rounded-t-3xl" />
+      <Skeleton className="mt-[360px] h-56 w-full rounded-t-sheet" />
     </div>
   );
 }

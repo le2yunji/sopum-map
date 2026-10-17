@@ -37,6 +37,15 @@ const visitedAtSchema = z.iso
     message: "방문일은 미래일 수 없습니다.",
   });
 
+export const checkVisitLogAvailabilitySchema = z.object({
+  params: z.object({
+    shopId: objectIdSchema,
+  }),
+  query: z.object({
+    visitedAt: visitedAtSchema,
+  }),
+});
+
 export const createVisitLogSchema = z.object({
   params: z.object({
     shopId: objectIdSchema,
@@ -68,4 +77,25 @@ export const getVisitLogsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
 
   limit: z.coerce.number().int().min(1).max(50).default(10),
+});
+
+const visitLogIdParamsSchema = z.object({
+  visitLogId: objectIdSchema,
+});
+
+export const getMyVisitLogsSchema = z.object({
+  query: getVisitLogsQuerySchema,
+});
+
+export const getMyVisitLogSchema = z.object({
+  params: visitLogIdParamsSchema,
+});
+
+export const updateVisitLogSchema = z.object({
+  params: visitLogIdParamsSchema,
+  body: createVisitLogSchema.shape.body.omit({ imageKeys: true }),
+});
+
+export const deleteVisitLogSchema = z.object({
+  params: visitLogIdParamsSchema,
 });

@@ -10,6 +10,16 @@ const BUSINESS_DAY_LABELS: Record<ShopBusinessDay, string> = {
   sunday: "일",
 };
 
+const BUSINESS_DAYS: readonly ShopBusinessDay[] = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+];
+
 export type BusinessHourGroup = Readonly<{
   days: ShopBusinessDay[];
   dayLabel: string;
@@ -80,7 +90,7 @@ export function groupBusinessHours(
 
       dayLabel:
         group.length === 1
-          ? firstLabel
+          ? `${firstLabel}요일`
           : `${firstLabel}요일 ~ ${lastLabel}요일`,
 
       isClosed: first.isClosed,
@@ -172,4 +182,33 @@ export function formatClosedDays(
     })
     .filter(Boolean)
     .join(", ");
+}
+
+/** 한국 시간 기준 오늘의 실제 영업시간을 한 줄로 표시합니다. */
+export function formatTodayBusinessHours(
+  businessHours: readonly ShopBusinessHour[],
+  now = new Date(),
+): string {
+  const weekday = new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    timeZone: "Asia/Seoul",
+  })
+    .format(now)
+    .toLowerCase();
+  const day = BUSINESS_DAYS.find((value) => value === weekday);
+  const hours = businessHours.find((item) => item.day === day);
+
+  if (!hours) {
+    return "영업시간 정보 없음";
+  }
+
+  if (hours.isClosed) {
+    return "오늘 휴무";
+  }
+
+  const periods = hours.periods
+    .map(({ open, close }) => `${open} - ${close}`)
+    .join(" / ");
+
+  return periods ? `오늘 ${periods}` : "영업시간 정보 없음";
 }

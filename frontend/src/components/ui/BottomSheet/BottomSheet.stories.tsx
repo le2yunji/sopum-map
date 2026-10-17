@@ -61,7 +61,7 @@ function ReportReasonBottomSheetExample() {
       <BottomSheet.Footer>
         <button
           type="button"
-          className="h-12 w-full rounded-xl bg-green-500 text-14 font-semibold text-white"
+          className="h-12 w-full rounded-control bg-green-500 text-14 font-semibold text-white"
         >
           다음
         </button>

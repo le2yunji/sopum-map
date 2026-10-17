@@ -19,7 +19,10 @@ vi.mock("../../models/visit-log.model.js", () => ({
   },
 }));
 
-import { createVisitLog } from "./visit-log.create.service.js";
+import {
+  checkVisitLogAvailability,
+  createVisitLog,
+} from "./visit-log.create.service.js";
 
 const userId = "6a8a68e15e2aa43be6a6549d";
 const shopId = "6a8a68e15e2aa43be6a6549e";
@@ -144,5 +147,21 @@ describe("createVisitLog", () => {
     expect(modelMocks.createVisitLog).toHaveBeenCalledWith(
       expect.objectContaining({ content: null }),
     );
+  });
+});
+
+describe("checkVisitLogAvailability", () => {
+  it("같은 상점·한국 날짜의 활성 로그가 없으면 작성 가능하다", async () => {
+    await expect(
+      checkVisitLogAvailability(userId, shopId, input.visitedAt),
+    ).resolves.toEqual({ canCreate: true });
+  });
+
+  it("같은 상점·한국 날짜의 활성 로그가 있으면 작성할 수 없다", async () => {
+    modelMocks.findDuplicateVisitLog.mockResolvedValue({ _id: visitLogId });
+
+    await expect(
+      checkVisitLogAvailability(userId, shopId, input.visitedAt),
+    ).resolves.toEqual({ canCreate: false });
   });
 });

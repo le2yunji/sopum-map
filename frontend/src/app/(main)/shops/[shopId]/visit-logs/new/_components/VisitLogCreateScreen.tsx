@@ -10,10 +10,13 @@ import {
 } from "@sopum-map/shared";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useRef, useState, type FormEvent } from "react";
+import { useRef, useState, type SubmitEvent } from "react";
 
 import { useShopDetail } from "@/api/shops/shop.query";
-import { useCreateVisitLog } from "@/api/visit-log/visit-log.query";
+import {
+  useCheckVisitLogAvailability,
+  useCreateVisitLog,
+} from "@/api/visit-log/visit-log.query";
 import { Button } from "@/components/ui/Button";
 import { DatePickerSheet } from "@/components/ui/DatePickerSheet";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
@@ -35,8 +38,12 @@ type ShopSummary = Readonly<{
 type FormProps = Readonly<{
   shop: ShopSummary;
   initialDateValue?: string;
+  isAvailabilityPending: boolean;
   isPending: boolean;
   onBack: () => void;
+  onCheckAvailability: (
+    visitedAt: string,
+  ) => Promise<Readonly<{ canCreate: boolean }>>;
   onSubmit: (input: CreateVisitLogRequest) => Promise<void>;
 }>;
 
@@ -46,8 +53,10 @@ type VisitLogStep = 1 | 2 | 3;
 export function VisitLogCreateForm({
   shop,
   initialDateValue = getTodayDateInputValue(),
+  isAvailabilityPending,
   isPending,
   onBack,
+  onCheckAvailability,
   onSubmit,
 }: FormProps) {
   const [step, setStep] = useState<VisitLogStep>(1);
@@ -70,15 +79,26 @@ export function VisitLogCreateForm({
   };
 
   /** 방문일을 확인한 뒤 태그 선택 단계로 이동합니다. */
-  const moveToTagStep = () => {
+  const moveToTagStep = async () => {
     setDateError("");
 
     try {
-      toVisitLogIsoDate(dateValue);
+      const visitedAt = toVisitLogIsoDate(dateValue);
+      const availability = await onCheckAvailability(visitedAt);
+
+      if (!availability.canCreate) {
+        setDateError(
+          "같은 날짜의 방문 로그가 이미 있어요. 다른 날짜를 선택해 주세요.",
+        );
+        return;
+      }
+
       setStep(2);
     } catch (error) {
       setDateError(
-        error instanceof Error ? error.message : "방문일을 올바르게 입력해 주세요.",
+        error instanceof Error
+          ? error.message
+          : "방문일 중복 여부를 확인하지 못했어요.",
       );
     }
   };
@@ -96,7 +116,7 @@ export function VisitLogCreateForm({
   };
 
   /** 입력값을 확인하고 작성 요청을 전달합니다. */
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     setDateError("");
     setTagError("");
@@ -134,7 +154,9 @@ export function VisitLogCreateForm({
           variant="ghost"
           size="small"
           iconOnly
-          aria-label={step === 1 ? "상점 상세로 돌아가기" : "이전 단계로 돌아가기"}
+          aria-label={
+            step === 1 ? "상점 상세로 돌아가기" : "이전 단계로 돌아가기"
+          }
           onClick={handleBack}
           className="absolute left-3 text-24"
         >
@@ -147,11 +169,22 @@ export function VisitLogCreateForm({
         {step === 1 && (
           <div className="space-y-2 px-5 py-5">
             <h2 className="text-18 font-semibold">방문한 소품샵과 방문일</h2>
-            <div className="flex items-center gap-4 rounded-2xl bg-green-100/70 p-4">
-              <Image src={shop.mainImageUrl ?? DEFAULT_IMAGES.shop} alt="" width={80} height={80} loading="eager" className="size-20 shrink-0 rounded-2xl object-cover" />
+            <div className="flex items-center gap-4 rounded-card bg-green-100/70 p-4">
+              <Image
+                src={shop.mainImageUrl ?? DEFAULT_IMAGES.shop}
+                alt=""
+                width={80}
+                height={80}
+                loading="eager"
+                className="size-20 shrink-0 rounded-card object-cover"
+              />
               <div className="min-w-0">
-                <p className="truncate text-16 font-bold text-black-950">{shop.name}</p>
-                <p className="mt-1 text-13 text-green-700">{shop.regionLabel} · {shop.category}</p>
+                <p className="truncate text-16 font-bold text-black-950">
+                  {shop.name}
+                </p>
+                <p className="mt-1 text-13 text-green-700">
+                  {shop.regionLabel} · {shop.category}
+                </p>
               </div>
             </div>
             <DatePickerSheet
@@ -169,20 +202,72 @@ export function VisitLogCreateForm({
 
         {step === 2 && (
           <section className="px-5 py-5">
-            <VisitLogTagSelector firstTagRef={firstTagRef} selectedTagKeys={selectedTagKeys} onChange={(nextTagKeys) => { setSelectedTagKeys(nextTagKeys); setTagError(""); }} errorMessage={tagError || undefined} />
+            <VisitLogTagSelector
+              firstTagRef={firstTagRef}
+              selectedTagKeys={selectedTagKeys}
+              onChange={(nextTagKeys) => {
+                setSelectedTagKeys(nextTagKeys);
+                setTagError("");
+              }}
+              errorMessage={tagError || undefined}
+            />
           </section>
         )}
 
         {step === 3 && (
           <section className="space-y-6 px-5 py-5">
             <div>
-              <h2 className="text-16 font-semibold">오늘 발견한 소품을 보여주세요</h2>
-              <p className="mt-1 text-13 text-black-500">사진을 추가하면 더 생생한 로그가 돼요 (선택)</p>
-              <Button type="button" variant="outline" disabled className="mt-3">사진 추가 준비 중</Button>
+              <h2 className="text-16 font-semibold">
+                오늘 발견한 소품을 보여주세요
+              </h2>
+              <p className="mt-1 text-13 text-black-500">
+                사진을 추가하면 더 생생한 로그가 돼요 (선택)
+              </p>
+              <Button type="button" variant="outline" disabled className="mt-3">
+                사진 추가 준비 중
+              </Button>
             </div>
-            <Textarea label="방문 내용 (선택)" value={content} maxLength={VISIT_LOG_CONTENT_MAX_LENGTH} showCharacterCount disabled={isPending} placeholder={`${shop.name}에서의 경험을 남겨 주세요.`} textareaClassName="min-h-40" onChange={(event) => setContent(event.target.value)} />
-            <p className="text-12 text-black-500">기록한 방문 로그는 모두에게 공개됩니다.</p>
-            <p className="text-13 text-black-700">나의 기록도 쌓이고, 다른 소품 수집가에게도 도움이 돼요.</p>
+            <Textarea
+              label="방문 내용 (선택)"
+              value={content}
+              maxLength={VISIT_LOG_CONTENT_MAX_LENGTH}
+              showCharacterCount
+              disabled={isPending}
+              placeholder={`${shop.name}에서의 경험을 남겨 주세요.`}
+              textareaClassName="min-h-40"
+              onChange={(event) => setContent(event.target.value)}
+            />
+            <p className="text-12 text-black-500">
+              기록한 방문 로그는 모두에게 공개됩니다.
+            </p>
+            <section aria-labelledby="visit-log-writing-guide">
+              <h2
+                id="visit-log-writing-guide"
+                className="text-16 font-semibold text-black-700"
+              >
+                방문 로그 작성 가이드
+              </h2>
+              <ul className="mt-3 space-y-2 text-13 text-black-500">
+                <li className="flex gap-2">
+                  <span aria-hidden="true">🍀</span>
+                  <span>
+                    나의 기록도 쌓이고, 다른 소품 수집가에게도 도움이 돼요.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden="true">📸</span>
+                  <span>
+                    직접 찍은 사진을 첨부하면 다른 피커들에게 더 도움이 돼요.
+                  </span>
+                </li>
+                <li className="flex gap-2">
+                  <span aria-hidden="true">🚫</span>
+                  <span>
+                    광고성·비방·개인정보가 포함된 내용은 삭제될 수 있어요.
+                  </span>
+                </li>
+              </ul>
+            </section>
           </section>
         )}
 
@@ -193,9 +278,39 @@ export function VisitLogCreateForm({
         )}
 
         <div className="fixed inset-x-0 bottom-0 z-20 mx-auto max-w-[480px] border-t border-black-100 bg-white p-4 safe-area-pb">
-          {step === 1 && <Button type="button" fullWidth size="large" onClick={moveToTagStep}>다음 · 태그 선택</Button>}
-          {step === 2 && <Button type="button" fullWidth size="large" onClick={moveToContentStep}>다음 · 사진과 기록</Button>}
-          {step === 3 && <Button type="submit" fullWidth size="large" isLoading={isPending} disabled={isPending}>내 방문 로그에 기록하기</Button>}
+          {step === 1 && (
+            <Button
+              type="button"
+              fullWidth
+              size="large"
+              isLoading={isAvailabilityPending}
+              disabled={isAvailabilityPending}
+              onClick={() => void moveToTagStep()}
+            >
+              다음 · 태그 선택
+            </Button>
+          )}
+          {step === 2 && (
+            <Button
+              type="button"
+              fullWidth
+              size="large"
+              onClick={moveToContentStep}
+            >
+              다음 · 사진과 기록
+            </Button>
+          )}
+          {step === 3 && (
+            <Button
+              type="submit"
+              fullWidth
+              size="large"
+              isLoading={isPending}
+              disabled={isPending}
+            >
+              내 방문 로그에 기록하기
+            </Button>
+          )}
         </div>
       </form>
     </main>
@@ -253,6 +368,7 @@ export function VisitLogCreateScreen({
   const searchParams = useSearchParams();
   const courseReturnPath = parseCourseReturnPath(searchParams.get("returnTo"));
   const shopQuery = useShopDetail(shopId);
+  const availabilityMutation = useCheckVisitLogAvailability(shopId);
   const createMutation = useCreateVisitLog(shopId);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -274,7 +390,10 @@ export function VisitLogCreateScreen({
 
   if (isSubmitted) {
     return (
-      <main className="grid min-h-dvh place-items-center px-5 text-center" role="status">
+      <main
+        className="grid min-h-dvh place-items-center px-5 text-center"
+        role="status"
+      >
         <p className="text-18 font-semibold">방문 로그를 등록했어요.</p>
       </main>
     );
@@ -289,7 +408,11 @@ export function VisitLogCreateScreen({
         regionLabel: SHOP_REGION_GROUP_LABELS[shop.regionGroup],
         mainImageUrl: shop.mainImageUrl,
       }}
+      isAvailabilityPending={availabilityMutation.isPending}
       isPending={createMutation.isPending}
+      onCheckAvailability={(visitedAt) =>
+        availabilityMutation.mutateAsync(visitedAt)
+      }
       onBack={() => {
         if (onBackOverride) {
           onBackOverride();
@@ -332,9 +455,9 @@ export function VisitLogCreateSkeleton() {
   return (
     <main aria-busy="true" className="space-y-5 p-5">
       <Skeleton label="방문 로그 작성 화면을 불러오는 중" className="h-16" />
-      <Skeleton announce={false} className="h-20 rounded-2xl" />
-      <Skeleton announce={false} className="h-36 rounded-2xl" />
-      <Skeleton announce={false} className="h-40 rounded-2xl" />
+      <Skeleton announce={false} className="h-20 rounded-card" />
+      <Skeleton announce={false} className="h-36 rounded-card" />
+      <Skeleton announce={false} className="h-40 rounded-card" />
     </main>
   );
 }

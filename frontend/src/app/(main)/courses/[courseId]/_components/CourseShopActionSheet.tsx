@@ -22,10 +22,10 @@ export function CourseShopActionSheet({ open, shop, onOpenChange, onViewShop, on
         <BottomSheet.Title id="course-shop-action-title">{shop?.name ?? "상점"}</BottomSheet.Title>
       </BottomSheet.Header>
       <BottomSheet.Body className="space-y-1">
-        <button type="button" onClick={onViewShop} className="flex min-h-12 w-full items-center justify-between rounded-xl px-4 text-15 font-semibold hover:bg-black-50 focus-visible:outline-2 focus-visible:outline-green-700">
+        <button type="button" onClick={onViewShop} className="flex min-h-12 w-full items-center justify-between rounded-control px-4 text-15 font-semibold hover:bg-black-50 focus-visible:outline-2 focus-visible:outline-green-700">
           상점 보기 <ChevronRightIcon className="size-5 text-black-400" aria-hidden="true" />
         </button>
-        <button type="button" onClick={onOpenRoute} className="flex min-h-12 w-full items-center justify-between rounded-xl px-4 text-15 font-semibold hover:bg-black-50 focus-visible:outline-2 focus-visible:outline-green-700">
+        <button type="button" onClick={onOpenRoute} className="flex min-h-12 w-full items-center justify-between rounded-control px-4 text-15 font-semibold hover:bg-black-50 focus-visible:outline-2 focus-visible:outline-green-700">
           길찾기 <ChevronRightIcon className="size-5 text-black-400" aria-hidden="true" />
         </button>
       </BottomSheet.Body>

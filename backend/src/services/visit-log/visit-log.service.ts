@@ -16,7 +16,7 @@ import type {
 export async function getVisitLogs(
   params: GetVisitLogsServiceParams,
 ): Promise<GetVisitLogsServiceResult> {
-  const { shopId, page, limit } = params;
+  const { shopId, userId, page, limit } = params;
 
   const shopExists = await ShopModel.exists({
     _id: shopId,
@@ -36,6 +36,7 @@ export async function getVisitLogs(
   const [visitLogs, totalCount] = await Promise.all([
     VisitLogModel.find({
       shopId,
+      status: "active",
     })
       .sort({
         visitedAt: -1,
@@ -47,6 +48,7 @@ export async function getVisitLogs(
 
     VisitLogModel.countDocuments({
       shopId,
+      status: "active",
     }),
   ]);
 
@@ -77,13 +79,13 @@ export async function getVisitLogs(
             id: visitLog.userId.toString(),
             nickname: "알 수 없는 사용자",
             profileImage: null,
-            isMe: false,
+            isMe: userId === visitLog.userId.toString(),
           }
         : {
             id: user._id.toString(),
             nickname: user.nickname ?? "알 수 없는 사용자",
             profileImage: user.profileImage ?? null,
-            isMe: false,
+            isMe: userId === user._id.toString(),
           };
 
     return mapVisitLogListItem({

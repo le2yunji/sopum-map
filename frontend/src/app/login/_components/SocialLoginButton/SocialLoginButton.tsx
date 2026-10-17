@@ -20,7 +20,7 @@ export function SocialLoginButton({
       size="medium"
       fullWidth
       className={[
-        "relative h-12 rounded-lg",
+        "relative h-12 rounded-control",
         "hover:opacity-90 active:opacity-80",
         "disabled:opacity-50",
         "[&>span]:w-full",

@@ -1,6 +1,7 @@
 import {
   ACTIVE_TAG_DEFINITIONS,
   createApiError,
+  type CheckVisitLogAvailabilityData,
 } from "@sopum-map/shared";
 import { Types } from "mongoose";
 
@@ -48,6 +49,55 @@ function createDuplicateVisitLogError() {
   });
 }
 
+/** 상점이 방문 로그를 받을 수 있는 활성 상태인지 확인합니다. */
+async function validateActiveShop(shopId: Types.ObjectId): Promise<void> {
+  const shopExists = await ShopModel.exists({ _id: shopId, status: "active" });
+
+  if (!shopExists) {
+    throw createApiError({
+      status: 404,
+      code: "SHOP_NOT_FOUND",
+      message: "상점을 찾을 수 없습니다.",
+    });
+  }
+}
+
+/** 같은 사용자의 같은 상점·한국 날짜 활성 로그를 찾습니다. */
+async function hasDuplicateVisitLog(
+  userId: Types.ObjectId,
+  shopId: Types.ObjectId,
+  visitedDate: string,
+): Promise<boolean> {
+  const duplicateVisitLog = await VisitLogModel.exists({
+    userId,
+    shopId,
+    visitedDate,
+    status: "active",
+  });
+
+  return Boolean(duplicateVisitLog);
+}
+
+/** 선택한 방문일에 새 방문 로그를 작성할 수 있는지 미리 확인합니다. */
+export async function checkVisitLogAvailability(
+  userId: string,
+  shopId: string,
+  visitedAtValue: string,
+): Promise<CheckVisitLogAvailabilityData> {
+  const objectUserId = new Types.ObjectId(userId);
+  const objectShopId = new Types.ObjectId(shopId);
+  const visitedDate = toKoreaDateKey(new Date(visitedAtValue));
+
+  await validateActiveShop(objectShopId);
+  const hasDuplicate = await hasDuplicateVisitLog(
+    objectUserId,
+    objectShopId,
+    visitedDate,
+  );
+
+  return { canCreate: !hasDuplicate };
+}
+
 /** 로그인 사용자의 공개 방문 로그를 생성합니다. */
 export async function createVisitLog(
   userId: string,
@@ -63,27 +113,9 @@ export async function createVisitLog(
   const objectShopId = new Types.ObjectId(shopId);
   const visitedAt = new Date(input.visitedAt);
   const visitedDate = toKoreaDateKey(visitedAt);
-  const shopExists = await ShopModel.exists({
-    _id: objectShopId,
-    status: "active",
-  });
+  await validateActiveShop(objectShopId);
 
-  if (!shopExists) {
-    throw createApiError({
-      status: 404,
-      code: "SHOP_NOT_FOUND",
-      message: "상점을 찾을 수 없습니다.",
-    });
-  }
-
-  const duplicateVisitLog = await VisitLogModel.exists({
-    userId: objectUserId,
-    shopId: objectShopId,
-    visitedDate,
-    status: "active",
-  });
-
-  if (duplicateVisitLog) {
+  if (await hasDuplicateVisitLog(objectUserId, objectShopId, visitedDate)) {
     throw createDuplicateVisitLogError();
   }
 

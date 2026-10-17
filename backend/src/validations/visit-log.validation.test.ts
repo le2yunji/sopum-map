@@ -4,8 +4,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   createVisitLogSchema,
+  checkVisitLogAvailabilitySchema,
+  getMyVisitLogSchema,
+  getMyVisitLogsSchema,
   getVisitLogsParamsSchema,
   getVisitLogsQuerySchema,
+  updateVisitLogSchema,
 } from "./visit-log.validation.js";
 
 const shopId = "6a8a68e15e2aa43be6a6549d";
@@ -167,6 +171,17 @@ describe("createVisitLogSchema", () => {
   });
 });
 
+describe("checkVisitLogAvailabilitySchema", () => {
+  it("상점 ID와 방문 시각을 검증한다", () => {
+    const request = {
+      params: { shopId: "6a8a68e15e2aa43be6a6549e" },
+      query: { visitedAt: "2026-10-13T03:00:00.000Z" },
+    };
+
+    expect(checkVisitLogAvailabilitySchema.parse(request)).toEqual(request);
+  });
+});
+
 describe("getVisitLogsParamsSchema", () => {
   it("올바른 shopId를 허용한다", () => {
     const result = getVisitLogsParamsSchema.parse({
@@ -205,5 +220,57 @@ describe("getVisitLogsQuerySchema", () => {
       page: 2,
       limit: 20,
     });
+  });
+});
+
+describe("getMyVisitLogsSchema", () => {
+  it("페이지와 개수의 기본값을 적용한다", () => {
+    expect(getMyVisitLogsSchema.parse({ query: {} })).toEqual({
+      query: { page: 1, limit: 10 },
+    });
+  });
+
+  it("페이지 개수가 50을 넘으면 거부한다", () => {
+    expect(() =>
+      getMyVisitLogsSchema.parse({ query: { page: "1", limit: "51" } }),
+    ).toThrow();
+  });
+});
+
+describe("getMyVisitLogSchema", () => {
+  it("올바르지 않은 방문 로그 ID를 거부한다", () => {
+    expect(() =>
+      getMyVisitLogSchema.parse({ params: { visitLogId: "wrong" } }),
+    ).toThrow();
+  });
+});
+
+describe("updateVisitLogSchema", () => {
+  it("수정할 방문일·태그·내용을 검증한다", () => {
+    const request = {
+      params: { visitLogId: "6a8a68e15e2aa43be6a6549f" },
+      body: {
+        visitedAt: "2026-10-13T03:00:00.000Z",
+        selectedTagKeys: ["cute"],
+        content: "  다시 방문했어요.  ",
+      },
+    };
+
+    expect(updateVisitLogSchema.parse(request)).toEqual({
+      ...request,
+      body: { ...request.body, content: "다시 방문했어요." },
+    });
+  });
+
+  it("태그가 없으면 거부한다", () => {
+    expect(() =>
+      updateVisitLogSchema.parse({
+        params: { visitLogId: "6a8a68e15e2aa43be6a6549f" },
+        body: {
+          visitedAt: "2026-10-13T03:00:00.000Z",
+          selectedTagKeys: [],
+        },
+      }),
+    ).toThrow();
   });
 });

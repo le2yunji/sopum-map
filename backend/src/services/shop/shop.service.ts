@@ -108,6 +108,7 @@ export const getShopById = async (
 
     VisitLogModel.countDocuments({
       shopId: shop._id,
+      status: "active",
     }),
   ]);
 

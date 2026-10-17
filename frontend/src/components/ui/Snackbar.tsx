@@ -21,7 +21,7 @@ export function Snackbar({ open, message, action }: Props) {
         fixed inset-x-4 bottom-20 z-60
         mx-auto flex h-12 max-w-[440px]
         items-center justify-between gap-3
-        rounded-lg bg-black-950
+        rounded-card bg-black-950
         px-4 py-3
         shadow-lg
       "

@@ -44,7 +44,7 @@ export const ShopBannerCarousel = ({
                 className="
                   group relative block
                   aspect-[149/168] w-full
-                  overflow-hidden rounded-3xl
+                  overflow-hidden rounded-card-lg
                   bg-surface-muted
                   focus-visible:outline-2
                   focus-visible:outline-offset-4
@@ -53,9 +53,7 @@ export const ShopBannerCarousel = ({
               >
                 <Image
                   fill
-                  loading={
-                    eagerImageUrls.has(item.imageUrl) ? "eager" : "lazy"
-                  }
+                  loading={eagerImageUrls.has(item.imageUrl) ? "eager" : "lazy"}
                   src={item.imageUrl}
                   alt={`${item.name} 매장 이미지`}
                   sizes="(max-width: 480px) calc(100vw - 48px), 298px"
@@ -81,42 +79,52 @@ export const ShopBannerCarousel = ({
 
                 <div
                   className="
-                    absolute inset-x-3 bottom-3
-                    rounded-[20px]
-                    border border-white/50
-                    bg-white/30 px-4 py-4
-                    shadow-lg backdrop-blur-sm
-                  "
+                      absolute inset-x-3 bottom-3
+                      rounded-card-lg
+                      border border-white/50
+                      bg-white/20 px-4 py-4
+                      shadow-lg backdrop-blur-md
+                    "
                 >
-                  <p className="mt-0.5 truncate text-14 text-fg-secondary">
-                    {item.curatorText && ` · ${item.curatorText}`}
-                  </p>
+                  {/* 큐레이터 한 줄 소개 */}
+                  {item.curatorText && (
+                    <p className="mb-1 line-clamp-1 text-14 text-fg-secondary">
+                      {item.curatorText}
+                    </p>
+                  )}
 
-                  <p className="line-clamp-1 text-18 font-semibold text-fg-primary">
+                  {/* 상점명 */}
+                  <p className="truncate text-18 font-semibold text-fg-primary">
                     {item.name}
                   </p>
 
-                  <p className="mt-0.5 truncate text-14 text-fg-secondary">
-                    {item.region} · {item.description}
-                  </p>
+                  {/* 지역 / 설명 */}
+                  {(item.region || item.description) && (
+                    <div className="mt-1 flex items-center gap-1.5 text-14 text-fg-secondary">
+                      {item.region && (
+                        <span className="shrink-0">{item.region}</span>
+                      )}
 
+                      {item.region && item.description && (
+                        <span aria-hidden="true" className="opacity-40">
+                          ·
+                        </span>
+                      )}
+
+                      {item.description && (
+                        <span className="min-w-0 truncate">
+                          {item.description}
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 태그 */}
                   {item.tags.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {item.tags.slice(0, 3).map((tag) => {
-                        return (
-                          <span
-                            key={tag.id}
-                            className="
-                              rounded-full
-                              bg-brand-soft-strong/80
-                              px-2 py-1
-                              text-12 font-medium text-green-900
-                            "
-                          >
-                            #{tag.name}
-                          </span>
-                        );
-                      })}
+                      {item.tags.slice(0, 2).map((tag) => (
+                        <span key={tag.id}>#{tag.name}</span>
+                      ))}
                     </div>
                   )}
                 </div>

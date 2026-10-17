@@ -100,7 +100,7 @@ export function CreatePickFolderSheet({
             aria-describedby={
               isDuplicateFolder ? "new-folder-error" : undefined
             }
-            className="mt-2 min-h-12 w-full rounded-xl border border-black-300 px-4 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
+            className="mt-2 min-h-12 w-full rounded-control border border-black-300 px-4 outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20"
           />
 
           {isDuplicateFolder ? (
