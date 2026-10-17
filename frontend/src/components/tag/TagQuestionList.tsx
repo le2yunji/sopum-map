@@ -31,14 +31,16 @@ const TAG_GROUP_COPY = {
 type Props = Readonly<{
   selectedTagKeys: readonly TagKey[];
   onToggleTag: (tagKey: TagKey) => void;
+  displayMode?: "questions" | "categories";
   isTagDisabled?: (tagKey: TagKey) => boolean;
   firstTagRef?: Ref<HTMLButtonElement>;
 }>;
 
-/** 태그를 방문 경험에 맞춘 질문과 순서로 나누어 보여줍니다. */
+/** 공통 태그를 화면 목적에 맞는 제목과 순서로 나누어 보여줍니다. */
 export function TagQuestionList({
   selectedTagKeys,
   onToggleTag,
+  displayMode = "questions",
   isTagDisabled,
   firstTagRef,
 }: Props) {
@@ -50,7 +52,10 @@ export function TagQuestionList({
         const tags = ACTIVE_TAG_DEFINITIONS.filter((tag) => tag.group === group);
         const isExpanded = expandedGroups.includes(group);
         const visibleTags = isExpanded ? tags : tags.slice(0, DEFAULT_VISIBLE_TAG_COUNT);
-        const copy = TAG_GROUP_COPY[group];
+        const title =
+          displayMode === "categories" ? TAG_GROUP_LABELS[group] : TAG_GROUP_COPY[group].title;
+        const description =
+          displayMode === "questions" ? TAG_GROUP_COPY[group].description : undefined;
 
         if (tags.length === 0) {
           return null;
@@ -58,8 +63,8 @@ export function TagQuestionList({
 
         return (
           <fieldset key={group} className="space-y-2">
-            <legend className="text-16 font-semibold text-black-900">{copy.title}</legend>
-            <p className="text-13 text-black-500">{copy.description}</p>
+            <legend className="text-16 font-semibold text-black-900">{title}</legend>
+            {description ? <p className="text-13 text-black-500">{description}</p> : null}
             <div className="flex flex-wrap gap-2">
               {visibleTags.map((tag, tagIndex) => {
                 const isSelected = selectedTagKeys.includes(tag.key);

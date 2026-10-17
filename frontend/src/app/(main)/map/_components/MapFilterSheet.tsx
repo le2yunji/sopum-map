@@ -39,7 +39,11 @@ export function MapFilterSheet({
       </BottomSheet.Header>
 
       <BottomSheet.Body>
-        <TagQuestionList selectedTagKeys={selectedTagKeys} onToggleTag={onToggleTag} />
+        <TagQuestionList
+          selectedTagKeys={selectedTagKeys}
+          onToggleTag={onToggleTag}
+          displayMode="categories"
+        />
       </BottomSheet.Body>
 
       <BottomSheet.Footer>

@@ -20,7 +20,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** 지도 필터가 방문 로그와 같은 질문별 태그 목록을 제공합니다. */
+/** 지도 필터가 안내 문구 없이 분류별 태그 목록을 제공합니다. */
 function StatefulMapFilterSheet() {
   const [selectedTagKeys, setSelectedTagKeys] = useState<readonly TagKey[]>([]);
 
@@ -48,9 +48,12 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    await expect(canvas.getByText("어떤 소품이 있었나요?")).toBeVisible();
-    await expect(canvas.getByText("어떤 분위기였나요?")).toBeVisible();
-    await expect(canvas.getByText("방문 경험은 어땠나요?")).toBeVisible();
+    await expect(canvas.getByText("소품")).toBeVisible();
+    await expect(canvas.getByText("분위기")).toBeVisible();
+    await expect(canvas.getByText("방문 경험")).toBeVisible();
+    await expect(
+      canvas.queryByText("기억에 남는 상품이나 캐릭터를 선택해 주세요."),
+    ).not.toBeInTheDocument();
 
     await userEvent.click(canvas.getByRole("button", { name: "키링" }));
 
