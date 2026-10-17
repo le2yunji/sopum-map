@@ -1,9 +1,16 @@
 import Link from "next/link";
 
-import { CommentIcon, HeartIcon, VisitLogIcon } from "@/components/icons";
+import {
+  CommentIcon,
+  HeartIcon,
+  LocationIcon,
+  TimeIcon,
+  VisitLogIcon,
+} from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 
 import { ShopDetailData } from "@sopum-map/shared";
+import { formatTodayBusinessHours } from "../_utils/business-hours";
 import { NaverMapRouteLink } from "./NaverMapRouteLink";
 
 type Props = Readonly<{
@@ -25,39 +32,6 @@ type Props = Readonly<{
   onToggleLike: () => void;
 }>;
 
-const BUSINESS_DAYS = [
-  "sunday",
-  "monday",
-  "tuesday",
-  "wednesday",
-  "thursday",
-  "friday",
-  "saturday",
-] as const;
-
-/** 한국 시간 기준 오늘 영업시간을 요약합니다. */
-function getTodayBusinessHours(shop: Props["shop"]): string {
-  const weekday = new Intl.DateTimeFormat("en-US", {
-    weekday: "long",
-    timeZone: "Asia/Seoul",
-  })
-    .format(new Date())
-    .toLowerCase();
-  const day = BUSINESS_DAYS.find((value) => value === weekday);
-  const hours = shop.businessHours.find((item) => item.day === day);
-
-  if (!hours) {
-    return "영업시간 정보 없음";
-  }
-
-  if (hours.isClosed) {
-    return "오늘 휴무";
-  }
-
-  const periods = hours.periods.map(({ open, close }) => `${open} - ${close}`).join(" / ");
-  return periods ? `오늘 ${periods}` : "영업시간 정보 없음";
-}
-
 export function ShopSummarySection({ shop, isLiked, isLikePending, onToggleLike }: Props) {
   return (
     <section className="relative -mt-5 rounded-t-card bg-white px-5 pt-5 pb-6">
@@ -77,7 +51,10 @@ export function ShopSummarySection({ shop, isLiked, isLikePending, onToggleLike 
       </div>
 
       <div className="mt-1 flex items-center justify-between gap-3">
-        <p className="min-w-0 truncate text-12 text-black-500">{shop.address}</p>
+        <div className="flex min-w-0 items-center gap-1 text-black-500">
+          <LocationIcon aria-hidden="true" className="size-4 shrink-0" />
+          <p className="min-w-0 truncate text-12">{shop.address}</p>
+        </div>
         <NaverMapRouteLink
           name={shop.name}
           latitude={shop.latitude}
@@ -86,7 +63,10 @@ export function ShopSummarySection({ shop, isLiked, isLikePending, onToggleLike 
         />
       </div>
 
-      <p className="mt-1 text-12 text-black-500">{getTodayBusinessHours(shop)}</p>
+      <div className="mt-1 flex items-center gap-1 text-black-500">
+        <TimeIcon aria-hidden="true" className="size-4 shrink-0" />
+        <p className="text-12">{formatTodayBusinessHours(shop.businessHours)}</p>
+      </div>
 
       <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1">
         {shop.tags.map((tag) => (

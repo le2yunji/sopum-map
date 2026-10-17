@@ -30,3 +30,4 @@ export { HomeIcon } from "./HomeIcon";
 export { MapIcon } from "./MapIcon";
 export { PickIcon } from "./PickIcon";
 export { ProfileIcon } from "./ProfileIcon";
+export { ShareIcon } from "./ShareIcon";

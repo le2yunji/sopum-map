@@ -244,6 +244,8 @@ export const Default: Story = {
 
     const summary = within(summarySection);
 
+    await expect(canvas.getByRole("button", { name: "상점 공유" })).toBeVisible();
+    await expect(canvas.getAllByRole("button", { name: "내 픽에서 제거" })).toHaveLength(1);
     await expect(summary.getByRole("link", { name: "길찾기" })).toBeVisible();
     await expect(summary.getByText(defaultShop.address)).toBeVisible();
     await expect(
