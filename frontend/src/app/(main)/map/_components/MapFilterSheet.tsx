@@ -1,25 +1,22 @@
 "use client";
 
+import type { TagKey } from "@sopum-map/shared";
+
+import { TagQuestionList } from "@/components/tag/TagQuestionList";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button/Button";
 
-import {
-  getMapTagFilterValue,
-  MAP_TAG_FILTERS,
-  type MapTagFilter,
-} from "../_constants/map.constants";
-
 type MapFilterSheetProps = Readonly<{
   open: boolean;
-  selectedFilters: readonly MapTagFilter[];
-  onToggleFilter: (filter: MapTagFilter) => void;
+  selectedTagKeys: readonly TagKey[];
+  onToggleTag: (tagKey: TagKey) => void;
   onClose: () => void;
 }>;
 
 export function MapFilterSheet({
   open,
-  selectedFilters,
-  onToggleFilter,
+  selectedTagKeys,
+  onToggleTag,
   onClose,
 }: MapFilterSheetProps) {
   /** 공용 BottomSheet의 제어 상태를 지도 화면의 닫기 동작으로 연결합니다. */
@@ -42,36 +39,11 @@ export function MapFilterSheet({
       </BottomSheet.Header>
 
       <BottomSheet.Body>
-        <div className="mt-5 flex flex-wrap gap-2">
-          {MAP_TAG_FILTERS.map((filter) => {
-            const filterValue = getMapTagFilterValue(filter);
-            const isSelected = selectedFilters.some(
-              (selectedFilter) =>
-                getMapTagFilterValue(selectedFilter) === filterValue,
-            );
-
-            return (
-              <Button
-                key={filterValue}
-                type="button"
-                variant="outline"
-                size="small"
-                aria-pressed={isSelected}
-                onClick={() => onToggleFilter(filter)}
-                className={`
-                  rounded-full
-                  ${
-                    isSelected
-                      ? "border-green-700 bg-green-100 text-black-950"
-                      : ""
-                  }
-                `}
-              >
-                # {filter.label}
-              </Button>
-            );
-          })}
-        </div>
+        <TagQuestionList
+          selectedTagKeys={selectedTagKeys}
+          onToggleTag={onToggleTag}
+          displayMode="categories"
+        />
       </BottomSheet.Body>
 
       <BottomSheet.Footer>
@@ -82,8 +54,8 @@ export function MapFilterSheet({
           fullWidth
           onClick={onClose}
         >
-          {selectedFilters.length
-            ? `${selectedFilters.length}개 태그 적용`
+          {selectedTagKeys.length
+            ? `${selectedTagKeys.length}개 태그 적용`
             : "전체 상점 보기"}
         </Button>
       </BottomSheet.Footer>

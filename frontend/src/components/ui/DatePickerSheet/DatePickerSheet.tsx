@@ -85,7 +85,7 @@ export function DatePickerSheet({
         aria-describedby={errorMessage ? errorId : undefined}
         disabled={disabled}
         onClick={() => handleOpenChange(true)}
-        className={`mt-2 flex min-h-12 w-full items-center justify-between rounded-xl border bg-white px-4 text-left text-14 outline-none transition-colors hover:border-green-500 focus-visible:border-green-500 focus-visible:ring-2 focus-visible:ring-green-500/20 disabled:bg-black-100 disabled:text-black-400 ${
+        className={`mt-2 flex min-h-12 w-full items-center justify-between rounded-control border bg-white px-4 text-left text-14 outline-none transition-colors hover:border-green-500 focus-visible:border-green-500 focus-visible:ring-2 focus-visible:ring-green-500/20 disabled:bg-black-100 disabled:text-black-400 ${
           errorMessage ? "border-red-600" : "border-black-200"
         }`}
       >

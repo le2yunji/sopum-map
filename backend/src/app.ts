@@ -8,6 +8,7 @@ import { authRouter } from "./routes/auth.routes.js";
 import { shopRouter } from "./routes/shop.routes.js";
 import { homeRouter } from "./routes/home.routes.js";
 import { meRouter } from "./routes/me.routes.js";
+import { visitLogRouter } from "./routes/visit-log.routes.js";
 import { courseRouter } from "./routes/course.routes.js";
 
 const app = express();
@@ -35,6 +36,7 @@ app.use("/api/auth", authRouter);
 app.use("/api/home", homeRouter);
 app.use("/api/shops", shopRouter);
 app.use("/api/courses", courseRouter);
+app.use("/api/visit-logs", visitLogRouter);
 
 app.use(errorMiddleware);
 

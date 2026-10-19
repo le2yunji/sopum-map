@@ -40,7 +40,7 @@ export default function TabsError({ error, unstable_retry }: TabsErrorProps) {
         </Button>
         <Link
           href="/"
-          className="flex min-h-11 items-center justify-center rounded-xl text-14 text-black-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:ring-offset-2"
+          className="flex min-h-11 items-center justify-center rounded-control text-14 text-black-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:ring-offset-2"
         >
           홈으로 이동
         </Link>

@@ -80,7 +80,7 @@ export function MapShopList({
               className="
                   size-20
                   shrink-0
-                  rounded-xl
+                  rounded-control
                   object-cover
                 "
             />

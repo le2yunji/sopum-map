@@ -80,7 +80,7 @@ export function MyPageScreen({ isEmpty = false, state = "success" }: Props) {
 
       <Link
         href="/visit-logs/new"
-        className="mt-4 flex min-h-12 items-center justify-center rounded-xl bg-green-500 px-4 text-14 font-semibold text-white hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+        className="mt-4 flex min-h-12 items-center justify-center rounded-control bg-green-500 px-4 text-14 font-semibold text-white hover:bg-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
       >
         방문 로그 기록하기
       </Link>
@@ -103,7 +103,7 @@ export function MyPageScreen({ isEmpty = false, state = "success" }: Props) {
       </Button>
 
       {isLogoutConfirmOpen ? (
-        <section role="alert" className="mt-4 rounded-2xl bg-green-50 p-5">
+        <section role="alert" className="mt-4 rounded-card bg-green-50 p-5">
           <p className="font-semibold">로그아웃하시겠어요?</p>
 
           <p className="mt-1 text-12 text-black-500">
@@ -149,16 +149,16 @@ function MyPageSkeleton() {
     <main className="p-4 pt-10">
       <Skeleton
         label="마이페이지를 불러오는 중"
-        className="h-8 w-32 rounded-xl"
+        className="h-8 w-32 rounded-control"
       />
 
-      <Skeleton announce={false} className="mt-5 h-24 rounded-2xl" />
+      <Skeleton announce={false} className="mt-5 h-24 rounded-card" />
 
-      <Skeleton announce={false} className="mt-4 h-30 rounded-2xl" />
+      <Skeleton announce={false} className="mt-4 h-30 rounded-card" />
 
-      <Skeleton announce={false} className="mt-4 h-15 rounded-2xl" />
+      <Skeleton announce={false} className="mt-4 h-15 rounded-card" />
 
-      <Skeleton announce={false} className="mt-2 h-15 rounded-2xl" />
+      <Skeleton announce={false} className="mt-2 h-15 rounded-card" />
     </main>
   );
 }

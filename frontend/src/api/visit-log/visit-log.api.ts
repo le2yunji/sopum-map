@@ -1,9 +1,16 @@
 // frontend/src/api/visit-log/visit-log.api.ts
 
 import type {
+  CheckVisitLogAvailabilityData,
   CreateVisitLogData,
   CreateVisitLogRequest,
   GetVisitLogsQuery,
+  GetMyVisitLogsQuery,
+  MyVisitLogListData,
+  MyVisitLogListItem,
+  UpdateVisitLogData,
+  UpdateVisitLogRequest,
+  DeleteVisitLogData,
   VisitLogListData,
 } from "@sopum-map/shared";
 
@@ -17,6 +24,56 @@ export async function createVisitLog(
   return apiClient<CreateVisitLogData>(`/shops/${shopId}/visit-logs`, {
     method: "POST",
     body: input,
+  });
+}
+
+/** 선택한 방문일에 같은 상점의 로그를 새로 작성할 수 있는지 확인합니다. */
+export async function checkVisitLogAvailability(
+  shopId: string,
+  visitedAt: string,
+): Promise<CheckVisitLogAvailabilityData> {
+  const searchParams = new URLSearchParams({ visitedAt });
+
+  return apiClient<CheckVisitLogAvailabilityData>(
+    `/shops/${shopId}/visit-logs/availability?${searchParams.toString()}`,
+  );
+}
+
+/** 내 방문 로그를 페이지 단위로 조회합니다. */
+export async function getMyVisitLogs(
+  query: GetMyVisitLogsQuery = {},
+): Promise<MyVisitLogListData> {
+  const searchParams = createVisitLogsSearchParams(query);
+  const queryString = searchParams.toString();
+  return apiClient<MyVisitLogListData>(
+    `/me/visit-logs${queryString ? `?${queryString}` : ""}`,
+  );
+}
+
+/** 수정 화면에서 본인 방문 로그 한 건을 조회합니다. */
+export async function getMyVisitLog(
+  visitLogId: string,
+): Promise<MyVisitLogListItem> {
+  return apiClient<MyVisitLogListItem>(`/me/visit-logs/${visitLogId}`);
+}
+
+/** 본인 방문 로그의 입력 내용을 수정합니다. */
+export async function updateVisitLog(
+  visitLogId: string,
+  input: UpdateVisitLogRequest,
+): Promise<UpdateVisitLogData> {
+  return apiClient<UpdateVisitLogData>(`/visit-logs/${visitLogId}`, {
+    method: "PATCH",
+    body: input,
+  });
+}
+
+/** 본인 방문 로그를 소프트 삭제합니다. */
+export async function deleteVisitLog(
+  visitLogId: string,
+): Promise<DeleteVisitLogData> {
+  return apiClient<DeleteVisitLogData>(`/visit-logs/${visitLogId}`, {
+    method: "DELETE",
   });
 }
 

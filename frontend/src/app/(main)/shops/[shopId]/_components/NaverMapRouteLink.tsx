@@ -1,6 +1,6 @@
 "use client";
 
-import { LinkIcon, LocationIcon } from "@/components/icons";
+import { LocationIcon } from "@/components/icons";
 
 import { useIsMobile } from "@/hooks/useIsMobile";
 import {
@@ -66,14 +66,11 @@ export function NaverMapRouteLink({
       target={isMobile ? undefined : "_blank"}
       rel={isMobile ? undefined : "noopener noreferrer"}
       onClick={handleClick}
-      className="flex min-h-11 items-center justify-between rounded-xl border border-pink-300/30 px-4 text-14"
+      aria-label="길찾기"
+      className="relative inline-flex shrink-0 items-center gap-1 text-12 text-black-500 after:absolute after:left-1/2 after:top-1/2 after:size-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
     >
-      <span className="flex items-center gap-2 text-black-600">
-        <LocationIcon aria-hidden="true" className="w-5" />
-        길찾기
-      </span>
-
-      <LinkIcon aria-hidden="true" className="w-5 text-black-600" />
+      <LocationIcon aria-hidden="true" className="size-4" />
+      길찾기
     </a>
   );
 }

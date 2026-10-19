@@ -319,6 +319,20 @@ describe("shop service", () => {
   });
 
   describe("getShopById", () => {
+    it("상점의 활성 방문 로그만 집계한다", async () => {
+      modelMocks.findOneShop.mockResolvedValue(shopDocument);
+      modelMocks.countVisitLogs.mockResolvedValue(2);
+
+      await getShopById({ shopId: shopId.toString(), userId });
+
+      expect(modelMocks.countVisitLogs).toHaveBeenCalledWith({
+        shopId,
+        status: "active",
+      });
+    });
+  });
+
+  describe("getShopById", () => {
     it("상점이 없으면 오류를 반환한다", async () => {
       modelMocks.findOneShop.mockResolvedValue(null);
 

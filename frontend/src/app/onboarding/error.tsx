@@ -43,7 +43,7 @@ export default function OnboardingError({
         </Button>
         <Link
           href="/login"
-          className="flex min-h-12 items-center justify-center rounded-xl px-4 text-14 text-black-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:ring-offset-2"
+          className="flex min-h-12 items-center justify-center rounded-control px-4 text-14 text-black-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-700 focus-visible:ring-offset-2"
         >
           로그인 화면으로 이동
         </Link>

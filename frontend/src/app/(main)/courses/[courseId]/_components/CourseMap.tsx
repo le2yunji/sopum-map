@@ -178,7 +178,7 @@ export function CourseMap({ shops }: Props) {
   };
 
   return (
-    <div className="relative h-[280px] w-full overflow-hidden rounded-xl bg-black-100">
+    <div className="relative h-[280px] w-full overflow-hidden rounded-card bg-black-100">
       <NaverMapScript
         retryCount={retryCount}
         onReady={() => setSdkState("ready")}
@@ -199,7 +199,7 @@ export function CourseMap({ shops }: Props) {
               role="status"
               aria-label="코스 지도를 불러오는 중"
             >
-              <Skeleton className="size-full rounded-xl" />
+              <Skeleton className="size-full rounded-card" />
             </div>
           ) : (
             <div role="alert">

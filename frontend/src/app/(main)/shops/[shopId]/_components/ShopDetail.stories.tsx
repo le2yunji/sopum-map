@@ -231,11 +231,28 @@ export const Default: Story = {
 
     await expect(
       canvas.getByRole("link", {
-        name: "방문했어요",
+        name: "방문 로그 작성하기",
       }),
     ).toHaveAttribute("href", "/shops/shop-1/visit-logs/new");
+    const summarySection = canvas
+      .getByRole("heading", { name: defaultShop.name })
+      .closest("section");
+
+    if (!summarySection) {
+      throw new Error("상점 요약 영역을 찾을 수 없습니다.");
+    }
+
+    const summary = within(summarySection);
+
+    await expect(canvas.getByRole("button", { name: "상점 공유" })).toBeVisible();
+    await expect(canvas.getAllByRole("button", { name: "내 픽에서 제거" })).toHaveLength(1);
+    await expect(summary.getByRole("link", { name: "길찾기" })).toBeVisible();
+    await expect(summary.getByText(defaultShop.address)).toBeVisible();
     await expect(
-      canvas.getByRole("button", { name: "내 픽에서 제거" }),
+      summary.getByRole("button", { name: "내 픽에서 제거" }),
+    ).toHaveTextContent("내 픽에 추가하기");
+    await expect(
+      summary.getByRole("button", { name: "내 픽에서 제거" }),
     ).toHaveAttribute("aria-pressed", "true");
   },
 };

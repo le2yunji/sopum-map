@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useMemo, useState } from "react";
 
 import { useInfiniteShops } from "@/api/shops/shop.query";
+import { BackButton } from "@/components/navigation/BackButton";
 import { Button } from "@/components/ui/Button";
 import { SearchInput } from "@/components/ui/SearchInput/SearchInput";
 import { DEFAULT_IMAGES } from "@/constants/image.constants";
@@ -34,7 +35,10 @@ export function VisitLogEntryScreen() {
 
   return (
     <main className="min-h-dvh bg-white px-5 pt-6 pb-10">
-      <h1 className="text-20 font-semibold">방문한 소품샵 찾기</h1>
+      <header className="flex items-center gap-2">
+        <BackButton className="-ml-2" />
+        <h1 className="text-20 font-semibold">방문한 소품샵 찾기</h1>
+      </header>
       <p className="mt-1 text-13 text-black-500">
         방문 로그를 남길 소품샵을 검색해 주세요.
       </p>
@@ -43,8 +47,8 @@ export function VisitLogEntryScreen() {
         value={keyword}
         onValueChange={setKeyword}
         aria-label="방문한 소품샵 검색"
-        placeholder="상점 이름이나 지역 검색"
-        className="mt-5"
+        placeholder="상점 이름, 지역, 태그 검색"
+        className="mt-5 bg-black-100! shadow-none! hover:shadow-none!"
       />
 
       {normalizedKeyword.length === 0 ? (
@@ -81,7 +85,7 @@ export function VisitLogEntryScreen() {
                   width={48}
                   height={48}
                   loading={index === 0 ? "eager" : "lazy"}
-                  className="size-12 shrink-0 rounded-xl object-cover"
+                  className="size-12 shrink-0 rounded-card object-cover"
                 />
                 <span className="min-w-0">
                   <span className="block truncate text-15 font-semibold">{shop.name}</span>

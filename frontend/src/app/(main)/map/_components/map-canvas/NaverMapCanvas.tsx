@@ -197,10 +197,10 @@ export function NaverMapCanvas({
               role="status"
               aria-label="지도를 불러오는 중"
             >
-              <Skeleton className="h-64 w-full rounded-3xl" />
+              <Skeleton className="h-64 w-full rounded-card-lg" />
             </div>
           ) : (
-            <div role="alert" className="rounded-3xl bg-white p-6 shadow-lg">
+            <div role="alert" className="rounded-card-lg bg-white p-6 shadow-lg">
               <p className="font-semibold">지도를 표시할 수 없어요</p>
               <p className="mt-2 text-14 text-black-500">
                 {visibleState === "missing-key"

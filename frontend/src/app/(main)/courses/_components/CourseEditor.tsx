@@ -293,7 +293,7 @@ export function CourseEditor({
                 role="switch"
                 aria-checked={isPublic}
                 onClick={() => setIsPublic((current) => !current)}
-                className="flex min-h-11 items-center gap-2 rounded-lg px-2 text-13 font-semibold focus-visible:outline-2 focus-visible:outline-green-700"
+                className="flex min-h-11 items-center gap-2 rounded-control px-2 text-13 font-semibold focus-visible:outline-2 focus-visible:outline-green-700"
               >
                 <span>{isPublic ? "공개" : "비공개"}</span>
                 <span
@@ -325,7 +325,7 @@ export function CourseEditor({
             setTitle(event.target.value);
           }}
           className="
-            mt-2 w-full rounded-lg
+            mt-2 w-full rounded-control
             border border-black-200
             px-3 py-3
             text-14 outline-none
@@ -352,7 +352,7 @@ export function CourseEditor({
             setDescription(event.target.value);
           }}
           className="
-            mt-2 w-full resize-none rounded-lg
+            mt-2 w-full resize-none rounded-control
             border border-black-200
             px-3 py-3
             text-14 outline-none

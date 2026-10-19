@@ -54,14 +54,14 @@ export function CourseDetailShopItem({
           type="button"
           aria-label={`${shop.name} 메뉴`}
           onClick={() => onOpenActions(shop)}
-          className="flex min-h-20 w-full items-center gap-3 rounded-xl text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+          className="flex min-h-20 w-full items-center gap-3 rounded-card text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
         >
           {shop.mainImageUrl ? (
-            <span className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-black-100">
+            <span className="relative size-20 shrink-0 overflow-hidden rounded-card bg-black-100">
               <Image src={shop.mainImageUrl} alt="" fill sizes="80px" className="object-cover" />
             </span>
           ) : (
-            <span className="size-20 shrink-0 rounded-xl bg-black-100" aria-hidden="true" />
+            <span className="size-20 shrink-0 rounded-card bg-black-100" aria-hidden="true" />
           )}
 
           <span className="min-w-0 flex-1">
@@ -86,7 +86,7 @@ export function CourseDetailShopItem({
         />
 
         {walkingSegment ? (
-          <div className="mt-4 inline-flex rounded-lg bg-black-50 px-3 py-2 text-12 text-black-600">
+          <div className="mt-4 inline-flex rounded-card bg-black-50 px-3 py-2 text-12 text-black-600">
             {formatWalkingSegment(walkingSegment)}
           </div>
         ) : null}

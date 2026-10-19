@@ -64,7 +64,7 @@ export const Success: Story = {
       canvas.getByRole("link", { name: "방문 로그 기록하기" }),
     ).toHaveAttribute("href", "/visit-logs/new");
     await expect(
-      canvas.getByRole("link", { name: "방문 기록 5개 보기" }),
+      canvas.getByRole("link", { name: "방문 로그 0개 보기" }),
     ).toHaveAttribute("href", "/me/visit-logs");
     await expect(
       canvas.getByRole("link", { name: "내 산책 코스 3개 보기" }),
@@ -136,7 +136,7 @@ export const Empty: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(
-      canvas.getByRole("link", { name: "방문 기록 0개 보기" }),
+      canvas.getByRole("link", { name: "방문 로그 0개 보기" }),
     ).toBeVisible();
     await expect(
       canvas.getByRole("link", { name: "내 산책 코스 0개 보기" }),

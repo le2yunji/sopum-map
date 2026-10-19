@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import type { ReactNode } from "react";
 
@@ -6,8 +8,9 @@ import {
   CourseIcon,
   SettingIcon,
   StoreIcon,
-  VisitLogIcon,
+  CameraIcon,
 } from "@/components/icons";
+import { useInfiniteMyVisitLogs } from "@/api/visit-log/visit-log.query";
 
 type ActivityItem = Readonly<{
   label: string;
@@ -26,12 +29,16 @@ type MenuLinkProps = Readonly<{
 export function MyPageActivityMenu({
   isEmpty,
 }: Readonly<{ isEmpty: boolean }>) {
+  const visitLogsQuery = useInfiniteMyVisitLogs();
+  const visitLogCount = isEmpty
+    ? 0
+    : (visitLogsQuery.data?.pages[0]?.summary.totalCount ?? 0);
   const items: readonly ActivityItem[] = [
     {
-      label: "방문 기록",
-      count: isEmpty ? 0 : 5,
+      label: "방문 로그",
+      count: visitLogCount,
       href: "/me/visit-logs",
-      icon: <VisitLogIcon className="size-5" />,
+      icon: <CameraIcon className="size-5" />,
     },
     {
       label: "내 산책 코스",
@@ -44,7 +51,7 @@ export function MyPageActivityMenu({
   return (
     <nav
       aria-label="내 활동"
-      className="mt-4 overflow-hidden rounded-2xl border border-black-200"
+      className="mt-4 overflow-hidden rounded-card border border-black-200"
     >
       {items.map((item) => (
         <Link
@@ -95,7 +102,7 @@ function MyPageMenuLink({ href, label, icon }: MenuLinkProps) {
   return (
     <Link
       href={href}
-      className="flex min-h-15 items-center gap-4 rounded-2xl border border-black-100 px-5 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+      className="flex min-h-15 items-center gap-4 rounded-card border border-black-100 px-5 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
     >
       <span className="text-green-400" aria-hidden="true">
         {icon}

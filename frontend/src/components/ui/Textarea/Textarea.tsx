@@ -72,7 +72,7 @@ export const Textarea = ({
         aria-describedby={ariaDescribedByValue}
         aria-invalid={errorMessage ? true : ariaInvalid}
         className={[
-          "w-full resize-none overflow-y-auto rounded-xl border border-gray-200 bg-white px-4 py-3",
+          "w-full resize-none overflow-y-auto rounded-control border border-gray-200 bg-white px-4 py-3",
           "text-14 leading-6 text-black-950 outline-none placeholder:text-black-400",
           "disabled:cursor-not-allowed disabled:bg-black-100 disabled:text-black-400",
           "read-only:bg-black-100 read-only:text-black-800",

@@ -2,11 +2,8 @@
 
 import { useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import type { TagKey } from "@sopum-map/shared";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
-import {
-  getMapTagFilterValue,
-  type MapTagFilter,
-} from "../_constants/map.constants";
 
 import { useMapShopListSheetState } from "./mapShopListSheet/useMapShopListSheetState";
 
@@ -27,9 +24,7 @@ export function useMapScreenState() {
   const selectedShopId = searchParams.get("shopId") ?? undefined;
 
   const [pickedOnly, setPickedOnly] = useState(false); // 찜한 상점만 보기
-  const [selectedDetailedFilters, setSelectedDetailedFilters] = useState<
-    MapTagFilter[]
-  >([]);
+  const [selectedTagKeys, setSelectedTagKeys] = useState<TagKey[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [shopListSheetState, setShopListSheetState] =
@@ -77,7 +72,7 @@ export function useMapScreenState() {
   /** 모든 분류 조건을 해제합니다. */
   const handleShowAll = () => {
     setPickedOnly(false);
-    setSelectedDetailedFilters([]);
+    setSelectedTagKeys([]);
 
     clearSelectedShop();
   };
@@ -85,28 +80,18 @@ export function useMapScreenState() {
   /** 사용자가 저장한 상점만 표시합니다. */
   const handleShowPicked = () => {
     setPickedOnly(true);
-    setSelectedDetailedFilters([]);
+    setSelectedTagKeys([]);
 
     clearSelectedShop();
   };
 
   /** 상세 태그 필터 하나를 추가하거나 제거합니다. */
-  const handleToggleDetailedFilter = useCallback(
-    (filter: MapTagFilter) => {
-      const filterValue = getMapTagFilterValue(filter);
-
-      setSelectedDetailedFilters((current) => {
-        const isSelected = current.some(
-          (selectedFilter) =>
-            getMapTagFilterValue(selectedFilter) === filterValue,
-        );
-
-        return isSelected
-          ? current.filter(
-              (selectedFilter) =>
-                getMapTagFilterValue(selectedFilter) !== filterValue,
-            )
-          : [...current, filter];
+  const handleToggleTag = useCallback(
+    (tagKey: TagKey) => {
+      setSelectedTagKeys((current) => {
+        return current.includes(tagKey)
+          ? current.filter((selectedKey) => selectedKey !== tagKey)
+          : [...current, tagKey];
       });
 
       setPickedOnly(false);
@@ -156,7 +141,7 @@ export function useMapScreenState() {
   const resetFilters = useCallback(() => {
     setKeyword("");
     setPickedOnly(false);
-    setSelectedDetailedFilters([]);
+    setSelectedTagKeys([]);
 
     clearSelectedShop();
   }, [clearSelectedShop]);
@@ -173,7 +158,7 @@ export function useMapScreenState() {
     debouncedKeyword,
     handleClearKeyword,
     pickedOnly,
-    selectedDetailedFilters,
+    selectedTagKeys,
     selectedShopId,
     isFilterOpen,
     isSearchOpen,
@@ -185,7 +170,7 @@ export function useMapScreenState() {
     handleKeywordChange,
     handleShowAll,
     handleShowPicked,
-    handleToggleDetailedFilter,
+    handleToggleTag,
     handleOpenFilter,
     handleCloseFilter,
     handleOpenSearch,

@@ -131,7 +131,7 @@ export function HomeCategorySection() {
           role="status"
           className="
             mx-4 mt-4
-            rounded-2xl bg-green-50
+            rounded-card bg-green-50
             px-4 py-8 text-center
           "
         >

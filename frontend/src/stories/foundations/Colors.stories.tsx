@@ -74,7 +74,7 @@ export const Palette: Story = {
         {colors.map(({ name, value, backgroundClass, textClass }) => (
           <div
             key={name}
-            className={`flex aspect-square flex-col justify-end rounded-2xl p-4 ${backgroundClass} ${textClass}`}
+            className={`flex aspect-square flex-col justify-end rounded-card p-4 ${backgroundClass} ${textClass}`}
           >
             <strong className="text-14 font-semibold">{name}</strong>
             <span className="mt-1 text-12 font-regular opacity-80">
