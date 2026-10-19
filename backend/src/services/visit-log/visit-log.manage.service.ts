@@ -8,6 +8,13 @@ import { Types } from "mongoose";
 import VisitLogModel from "../../models/visit-log.model.js";
 import { toKoreaDateKey } from "../../utils/korea-date.js";
 import { isMongoDuplicateKeyError } from "../../utils/mongo-error.js";
+import { createVisitLogImageUrl } from "../upload/image-url.service.js";
+import { deleteVisitLogImageObject } from "../upload/s3-image-storage.service.js";
+import {
+  abortVisitLogImages,
+  attachVisitLogImages,
+  prepareVisitLogImages,
+} from "../upload/upload-finalization.service.js";
 import type {
   DeleteVisitLogServiceResult,
   GetMyVisitLogServiceResult,
@@ -22,9 +29,21 @@ const ACTIVE_TAG_KEYS = new Set<string>(
 );
 
 type MyVisitLogFacet = Readonly<{
-  items?: MyVisitLogListItem[];
+  items?: MyVisitLogProjection[];
   summary?: ReadonlyArray<Readonly<{ totalCount: number; uniqueShopCount: number }>>;
 }>;
+
+type MyVisitLogProjection = Omit<MyVisitLogListItem, "images"> &
+  Readonly<{ imageKeys: string[] }>;
+
+/** 조회용 Object Key를 외부 이미지 URL로 바꿉니다. */
+function mapMyVisitLogImages(item: MyVisitLogProjection): MyVisitLogListItem {
+  const { imageKeys, ...rest } = item;
+  return {
+    ...rest,
+    images: imageKeys.map((key) => ({ key, url: createVisitLogImageUrl(key) })),
+  };
+}
 
 /** 방문 로그가 없거나 본인 소유가 아닐 때 같은 오류를 반환합니다. */
 function createVisitLogNotFoundError() {
@@ -53,6 +72,35 @@ function validateActiveTagKeys(tagKeys: readonly string[]): void {
       message: "선택할 수 없는 방문 태그가 포함되어 있습니다.",
     });
   }
+}
+
+/** 수정 요청의 기존 이미지는 현재 방문 로그에 속한 키만 허용합니다. */
+function validateExistingImageKeys(
+  requestedKeys: readonly string[],
+  currentKeys: ReadonlySet<string>,
+): void {
+  if (
+    requestedKeys.some((key) => !currentKeys.has(key)) ||
+    new Set(requestedKeys).size !== requestedKeys.length
+  ) {
+    throw createApiError({
+      status: 400,
+      code: "INVALID_VISIT_LOG_IMAGE",
+      message: "방문 로그에 속하지 않은 이미지가 포함되어 있습니다.",
+    });
+  }
+}
+
+/** DB에서 참조가 제거된 이미지의 S3 정리를 시도하고 실패는 정리 작업에 맡깁니다. */
+async function deleteUnusedImageObjects(keys: readonly string[]): Promise<void> {
+  const results = await Promise.allSettled(
+    keys.map((key) => deleteVisitLogImageObject(key)),
+  );
+  results.forEach((result) => {
+    if (result.status === "rejected") {
+      console.error("사용하지 않는 방문 로그 이미지 삭제에 실패했습니다.", result.reason);
+    }
+  });
 }
 
 /** 내 목록과 단건 조회가 같은 안전한 표시 형태를 사용하게 합니다. */
@@ -90,7 +138,7 @@ function createMyVisitLogPipeline(match: Record<string, unknown>) {
         },
         selectedTagKeys: { $ifNull: ["$selectedTagKeys", []] },
         content: { $ifNull: ["$content", null] },
-        imageUrls: { $ifNull: ["$imageUrls", []] },
+        imageKeys: { $ifNull: ["$images.key", []] },
         visitedAt: { $dateToString: { date: "$visitedAt" } },
         createdAt: { $dateToString: { date: "$createdAt" } },
         updatedAt: { $dateToString: { date: "$updatedAt" } },
@@ -127,7 +175,7 @@ export async function getMyVisitLogs(
   const totalPages = Math.ceil(summary.totalCount / limit);
 
   return {
-    items: result.items ?? [],
+    items: (result.items ?? []).map(mapMyVisitLogImages),
     pagination: {
       totalCount: summary.totalCount,
       page,
@@ -144,7 +192,7 @@ export async function getMyVisitLog(
   userId: string,
   visitLogId: string,
 ): Promise<GetMyVisitLogServiceResult> {
-  const [item] = await VisitLogModel.aggregate<MyVisitLogListItem>(
+  const [item] = await VisitLogModel.aggregate<MyVisitLogProjection>(
     createMyVisitLogPipeline({
       _id: new Types.ObjectId(visitLogId),
       userId: new Types.ObjectId(userId),
@@ -153,7 +201,7 @@ export async function getMyVisitLog(
   );
 
   if (!item) throw createVisitLogNotFoundError();
-  return item;
+  return mapMyVisitLogImages(item);
 }
 
 /** 본인 활성 방문 로그의 방문일·태그·내용만 수정합니다. */
@@ -184,6 +232,41 @@ export async function updateVisitLog(
   });
   if (duplicate) throw createDuplicateVisitLogError();
 
+  const currentImageKeys = current.images.map((image) => image.key);
+  const imageInputs = input.images;
+  const existingImageKeys = imageInputs
+    ?.filter((image) => image.type === "existing")
+    .map((image) => image.key) ?? [];
+  validateExistingImageKeys(existingImageKeys, new Set(currentImageKeys));
+
+  const newUploadIds = imageInputs
+    ?.filter((image) => image.type === "new")
+    .map((image) => image.uploadId) ?? [];
+  const preparedImages = await prepareVisitLogImages(userId, newUploadIds);
+  const preparedImageByUploadId = new Map(
+    newUploadIds.map((uploadId, index) => [
+      uploadId,
+      preparedImages.images[index],
+    ]),
+  );
+  const nextImages = imageInputs?.map((image) => {
+    if (image.type === "existing") return { key: image.key };
+    const preparedImage = preparedImageByUploadId.get(image.uploadId);
+    if (!preparedImage) {
+      throw createApiError({
+        status: 400,
+        code: "INVALID_IMAGE_UPLOAD",
+        message: "사용할 수 없는 이미지 업로드가 포함되어 있습니다.",
+      });
+    }
+    return { key: preparedImage.key };
+  });
+  const removedImageKeys = imageInputs
+    ? currentImageKeys.filter(
+        (key) => !nextImages?.some((image) => image.key === key),
+      )
+    : [];
+
   try {
     const updated = await VisitLogModel.findOneAndUpdate(
       { _id: objectId, userId: objectUserId, status: "active" },
@@ -193,15 +276,20 @@ export async function updateVisitLog(
           visitedDate,
           selectedTagKeys: [...input.selectedTagKeys],
           content: input.content?.trim() || null,
+          ...(nextImages ? { images: nextImages } : {}),
         },
       },
       { new: true },
     );
     if (!updated) throw createVisitLogNotFoundError();
   } catch (error) {
+    await abortVisitLogImages(preparedImages, error);
     if (isMongoDuplicateKeyError(error)) throw createDuplicateVisitLogError();
     throw error;
   }
+
+  await attachVisitLogImages(preparedImages, objectId);
+  await deleteUnusedImageObjects(removedImageKeys);
 
   return { visitLogId };
 }
@@ -221,5 +309,6 @@ export async function deleteVisitLog(
     { new: true },
   );
   if (!deleted) throw createVisitLogNotFoundError();
+  await deleteUnusedImageObjects(deleted.images.map((image) => image.key));
   return { visitLogId };
 }

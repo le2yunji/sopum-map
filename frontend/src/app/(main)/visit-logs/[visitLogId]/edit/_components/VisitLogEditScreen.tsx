@@ -7,6 +7,7 @@ import { useState, type FormEvent } from "react";
 
 import { useMyVisitLog, useUpdateVisitLog } from "@/api/visit-log/visit-log.query";
 import { VisitLogTagSelector } from "@/app/(main)/shops/[shopId]/visit-logs/new/_components/VisitLogTagSelector";
+import { VisitLogImagePicker, type VisitLogImageFormValue } from "@/app/(main)/shops/[shopId]/visit-logs/new/_components/VisitLogImagePicker";
 import { getTodayDateInputValue, toVisitLogIsoDate } from "@/app/(main)/shops/[shopId]/visit-logs/new/_components/visit-log-date";
 import { Button } from "@/components/ui/Button/Button";
 import { DatePickerSheet } from "@/components/ui/DatePickerSheet";
@@ -38,6 +39,10 @@ function VisitLogEditForm({ visitLog }: Readonly<{ visitLog: MyVisitLogListItem 
   const [selectedTagKeys, setSelectedTagKeys] = useState<readonly TagKey[]>(visitLog.selectedTagKeys);
   const [content, setContent] = useState(visitLog.content ?? "");
   const [tagError, setTagError] = useState<string | undefined>();
+  const [images, setImages] = useState<readonly VisitLogImageFormValue[]>(
+    visitLog.images.map((image) => ({ type: "existing", key: image.key })),
+  );
+  const [imageState, setImageState] = useState({ isBusy: false, hasError: false });
 
   /** 태그 필수값을 확인한 뒤 수정 API를 호출합니다. */
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -46,9 +51,10 @@ function VisitLogEditForm({ visitLog }: Readonly<{ visitLog: MyVisitLogListItem 
       setTagError("태그를 1개 이상 선택해 주세요.");
       return;
     }
+    if (imageState.isBusy || imageState.hasError) return;
     setTagError(undefined);
     mutation.mutate(
-      { visitedAt: toVisitLogIsoDate(visitedDate, todayValue), selectedTagKeys, content: content.trim() || null },
+      { visitedAt: toVisitLogIsoDate(visitedDate, todayValue), selectedTagKeys, content: content.trim() || null, images },
       { onSuccess: () => router.replace("/me/visit-logs") },
     );
   };
@@ -63,9 +69,21 @@ function VisitLogEditForm({ visitLog }: Readonly<{ visitLog: MyVisitLogListItem 
       <form onSubmit={handleSubmit} className="mt-4 space-y-6 rounded-card bg-white p-4">
         <DatePickerSheet label="방문일" value={visitedDate} maxDateValue={todayValue} onChange={setVisitedDate} disabled={mutation.isPending} />
         <VisitLogTagSelector selectedTagKeys={selectedTagKeys} onChange={(keys) => { setSelectedTagKeys(keys); if (keys.length > 0) setTagError(undefined); }} errorMessage={tagError} />
+        <section>
+          <h2 className="text-16 font-semibold">방문 사진 (선택)</h2>
+          <VisitLogImagePicker
+            initialImages={visitLog.images}
+            disabled={mutation.isPending}
+            onChange={(nextImages, nextState) => {
+              setImages(nextImages);
+              setImageState(nextState);
+            }}
+          />
+        </section>
         <Textarea label="방문 내용 (선택)" value={content} onChange={(event) => setContent(event.target.value)} maxLength={VISIT_LOG_CONTENT_MAX_LENGTH} showCharacterCount textareaClassName="min-h-36" placeholder="방문했을 때 기억하고 싶은 내용을 남겨주세요." disabled={mutation.isPending} />
         {mutation.isError ? <p role="alert" className="text-13 text-red-600">수정하지 못했어요. 입력한 내용은 그대로 유지돼요.</p> : null}
-        <div className="flex gap-2"><Button fullWidth variant="outline" disabled={mutation.isPending} onClick={() => router.back()}>취소</Button><Button type="submit" fullWidth isLoading={mutation.isPending}>수정 완료</Button></div>
+        {imageState.hasError ? <p role="alert" className="text-13 text-red-600">업로드에 실패한 사진을 다시 시도하거나 삭제해 주세요.</p> : null}
+        <div className="flex gap-2"><Button fullWidth variant="outline" disabled={mutation.isPending} onClick={() => router.back()}>취소</Button><Button type="submit" fullWidth isLoading={mutation.isPending} disabled={imageState.isBusy || imageState.hasError}>수정 완료</Button></div>
       </form>
     </main>
   );

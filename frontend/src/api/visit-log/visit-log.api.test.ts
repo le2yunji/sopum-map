@@ -44,7 +44,7 @@ describe("createVisitLog", () => {
       visitedAt: "2026-10-13T03:00:00.000Z",
       selectedTagKeys: ["cute"],
       content: null,
-      imageKeys: [],
+      imageUploadIds: [],
     } as const;
 
     await expect(createVisitLog("shop-1", input)).resolves.toEqual({

@@ -15,13 +15,16 @@
     "seed:prepare-shops": "tsx src/scripts/public-shop/create-shop-seeds.ts",
     "seed:shops": "tsx src/scripts/seed-shops.ts",
     "cleanup:legacy-tags": "tsx src/scripts/cleanup-legacy-tags.ts",
-    "backfill:visit-log-dates": "tsx src/scripts/backfill-visit-log-dates.ts"
+    "backfill:visit-log-dates": "tsx src/scripts/backfill-visit-log-dates.ts",
+    "cleanup:visit-log-uploads": "tsx src/scripts/cleanup-visit-log-uploads.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.34.4",
   "dependencies": {
+    "@aws-sdk/client-s3": "3.1152.0",
+    "@aws-sdk/s3-presigned-post": "3.1152.0",
     "@sopum-map/shared": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",

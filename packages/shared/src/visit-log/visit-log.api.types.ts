@@ -6,7 +6,7 @@ export type CreateVisitLogRequest = Readonly<{
   visitedAt: string;
   selectedTagKeys: readonly TagKey[];
   content?: string | null;
-  imageKeys?: readonly string[];
+  imageUploadIds?: readonly string[];
 }>;
 
 /** POST /api/shops/:shopId/visit-logs 성공 데이터 */
@@ -70,12 +70,17 @@ export type MyVisitLogShop = Readonly<{
   address: string;
 }>;
 
+export type MyVisitLogImage = Readonly<{
+  key: string;
+  url: string;
+}>;
+
 export type MyVisitLogListItem = Readonly<{
   id: string;
   shop: MyVisitLogShop;
   selectedTagKeys: readonly TagKey[];
   content: string | null;
-  imageUrls: readonly string[];
+  images: readonly MyVisitLogImage[];
   visitedAt: string;
   createdAt: string;
   updatedAt: string;
@@ -106,7 +111,12 @@ export type UpdateVisitLogRequest = Readonly<{
   visitedAt: string;
   selectedTagKeys: readonly TagKey[];
   content?: string | null;
+  images?: readonly VisitLogImageUpdateInput[];
 }>;
+
+export type VisitLogImageUpdateInput =
+  | Readonly<{ type: "existing"; key: string }>
+  | Readonly<{ type: "new"; uploadId: string }>;
 
 export type UpdateVisitLogData = Readonly<{
   visitLogId: string;

@@ -15,10 +15,10 @@ function formatVisitedAt(value: string): string {
 
 /** 사진 유무에 따라 정보 밀도만 달리하고 같은 로그 동작을 제공합니다. */
 export function MyVisitLogCard({ visitLog, onDelete }: Props) {
-  const hasPhoto = visitLog.imageUrls.length > 0;
+  const hasPhoto = visitLog.images.length > 0;
   return (
     <article className="overflow-hidden rounded-card border border-black-100 bg-white">
-      {hasPhoto ? <div className="relative aspect-[16/10] w-full bg-black-100"><Image fill src={visitLog.imageUrls[0] ?? DEFAULT_IMAGES.shop} alt={`${visitLog.shop.name} 방문 사진`} className="object-cover" sizes="(max-width: 480px) calc(100vw - 40px), 440px" /></div> : null}
+      {hasPhoto ? <div className="relative aspect-[16/10] w-full bg-black-100"><Image fill src={visitLog.images[0]?.url ?? DEFAULT_IMAGES.shop} alt={`${visitLog.shop.name} 방문 사진`} className="object-cover" sizes="(max-width: 480px) calc(100vw - 40px), 440px" /></div> : null}
       <div className="p-4">
         <div className="flex items-start gap-3">
           {!hasPhoto ? <div className="relative size-16 shrink-0 overflow-hidden rounded-card bg-black-100"><Image fill loading="eager" src={visitLog.shop.imageUrl ?? DEFAULT_IMAGES.shop} alt={`${visitLog.shop.name} 대표 이미지`} className="object-cover" sizes="64px" /></div> : null}
