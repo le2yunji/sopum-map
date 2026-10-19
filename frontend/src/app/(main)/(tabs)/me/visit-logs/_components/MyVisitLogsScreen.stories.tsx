@@ -14,7 +14,7 @@ const listData: MyVisitLogListData = {
       shop: { id: "shop-1", name: "모모 소품샵", imageUrl: null, address: "서울 성동구 연무장길" },
       selectedTagKeys: ["keyrings", "cute"],
       content: "키링이 다양하고 천천히 구경하기 좋았어요.",
-      imageUrls: [],
+      images: [],
       visitedAt: "2026-10-14T03:00:00.000Z",
       createdAt: "2026-10-14T04:00:00.000Z",
       updatedAt: "2026-10-14T04:00:00.000Z",

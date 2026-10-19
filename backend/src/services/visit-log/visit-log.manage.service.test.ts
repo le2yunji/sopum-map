@@ -7,10 +7,24 @@ const modelMocks = vi.hoisted(() => ({
   exists: vi.fn(),
   findOne: vi.fn(),
   findOneAndUpdate: vi.fn(),
+  prepareVisitLogImages: vi.fn(),
+  attachVisitLogImages: vi.fn(),
+  abortVisitLogImages: vi.fn(),
+  deleteObject: vi.fn(),
 }));
 
 vi.mock("../../models/visit-log.model.js", () => ({
   default: modelMocks,
+}));
+
+vi.mock("../upload/upload-finalization.service.js", () => ({
+  prepareVisitLogImages: modelMocks.prepareVisitLogImages,
+  attachVisitLogImages: modelMocks.attachVisitLogImages,
+  abortVisitLogImages: modelMocks.abortVisitLogImages,
+}));
+
+vi.mock("../upload/s3-image-storage.service.js", () => ({
+  deleteVisitLogImageObject: modelMocks.deleteObject,
 }));
 
 import {
@@ -28,11 +42,13 @@ const mappedItem = {
   shop: { id: shopId, name: "모모 소품샵", imageUrl: null, address: "서울 성동구" },
   selectedTagKeys: ["cute"],
   content: null,
-  imageUrls: [],
+  imageKeys: [],
   visitedAt: "2026-10-13T03:00:00.000Z",
   createdAt: "2026-10-13T04:00:00.000Z",
   updatedAt: "2026-10-13T04:00:00.000Z",
 } as const;
+const { imageKeys: _imageKeys, ...mappedItemWithoutImageKeys } = mappedItem;
+const responseItem = { ...mappedItemWithoutImageKeys, images: [] };
 
 const updateInput: UpdateVisitLogRequest = {
   visitedAt: "2026-10-14T03:00:00.000Z",
@@ -45,15 +61,25 @@ beforeEach(() => {
   modelMocks.aggregate.mockResolvedValue([{ items: [mappedItem], summary: [{ totalCount: 1, uniqueShopCount: 1 }] }]);
   modelMocks.exists.mockResolvedValue(null);
   modelMocks.findOne.mockReturnValue({
-    lean: vi.fn().mockResolvedValue({ shopId: new Types.ObjectId(shopId) }),
+    lean: vi.fn().mockResolvedValue({
+      shopId: new Types.ObjectId(shopId),
+      images: [],
+    }),
   });
-  modelMocks.findOneAndUpdate.mockResolvedValue({ _id: new Types.ObjectId(visitLogId) });
+  modelMocks.findOneAndUpdate.mockResolvedValue({
+    _id: new Types.ObjectId(visitLogId),
+    images: [],
+  });
+  modelMocks.prepareVisitLogImages.mockResolvedValue({ uploads: [], images: [] });
+  modelMocks.attachVisitLogImages.mockResolvedValue(undefined);
+  modelMocks.abortVisitLogImages.mockResolvedValue(undefined);
+  modelMocks.deleteObject.mockResolvedValue(undefined);
 });
 
 describe("getMyVisitLogs", () => {
   it("내 활성 로그와 상점 요약을 최신 방문일순으로 조회한다", async () => {
     await expect(getMyVisitLogs({ userId, page: 1, limit: 10 })).resolves.toEqual({
-      items: [mappedItem],
+      items: [responseItem],
       pagination: { totalCount: 1, page: 1, limit: 10, totalPages: 1, hasNext: false },
       summary: { totalCount: 1, uniqueShopCount: 1 },
     });
@@ -71,7 +97,7 @@ describe("getMyVisitLog", () => {
   it("본인 활성 로그 한 건을 반환한다", async () => {
     modelMocks.aggregate.mockResolvedValue([mappedItem]);
 
-    await expect(getMyVisitLog(userId, visitLogId)).resolves.toEqual(mappedItem);
+    await expect(getMyVisitLog(userId, visitLogId)).resolves.toEqual(responseItem);
   });
 
   it("본인 활성 로그가 아니면 404를 반환한다", async () => {
@@ -104,6 +130,53 @@ describe("updateVisitLog", () => {
     });
   });
 
+  it("기존 이미지 순서를 유지하며 새 업로드를 원하는 위치에 추가한다", async () => {
+    const existingKey = `visit-logs/${userId}/existing.webp`;
+    const newKey = `visit-logs/${userId}/new.webp`;
+    const uploadId = "6a8a68e15e2aa43be6a654a0";
+    modelMocks.findOne.mockReturnValue({
+      lean: vi.fn().mockResolvedValue({
+        shopId: new Types.ObjectId(shopId),
+        images: [{ key: existingKey }],
+      }),
+    });
+    modelMocks.prepareVisitLogImages.mockResolvedValue({
+      uploads: [{ id: new Types.ObjectId(uploadId) }],
+      images: [{ key: newKey }],
+    });
+
+    await updateVisitLog(userId, visitLogId, {
+      ...updateInput,
+      images: [
+        { type: "new", uploadId },
+        { type: "existing", key: existingKey },
+      ],
+    });
+
+    expect(modelMocks.findOneAndUpdate).toHaveBeenCalledWith(
+      expect.any(Object),
+      {
+        $set: expect.objectContaining({
+          images: [{ key: newKey }, { key: existingKey }],
+        }),
+      },
+      { new: true },
+    );
+  });
+
+  it("현재 로그에 속하지 않은 기존 이미지 키를 거부한다", async () => {
+    await expect(
+      updateVisitLog(userId, visitLogId, {
+        ...updateInput,
+        images: [{ type: "existing", key: "visit-logs/other/image.webp" }],
+      }),
+    ).rejects.toMatchObject({
+      status: 400,
+      code: "INVALID_VISIT_LOG_IMAGE",
+    });
+    expect(modelMocks.prepareVisitLogImages).not.toHaveBeenCalled();
+  });
+
   it("본인 활성 로그가 아니면 404를 반환한다", async () => {
     modelMocks.findOneAndUpdate.mockResolvedValue(null);
 
@@ -122,5 +195,18 @@ describe("deleteVisitLog", () => {
       { $set: { status: "deleted" } },
       { new: true },
     );
+  });
+
+
+  it("소프트 삭제가 확정된 뒤 연결된 S3 이미지를 정리한다", async () => {
+    const key = `visit-logs/${userId}/image.webp`;
+    modelMocks.findOneAndUpdate.mockResolvedValue({
+      _id: new Types.ObjectId(visitLogId),
+      images: [{ key }],
+    });
+
+    await deleteVisitLog(userId, visitLogId);
+
+    expect(modelMocks.deleteObject).toHaveBeenCalledWith(key);
   });
 });

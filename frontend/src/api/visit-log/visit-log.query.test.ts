@@ -104,13 +104,13 @@ describe("useCreateVisitLog", () => {
       mutationFn: (input: {
         visitedAt: string;
         selectedTagKeys: readonly ["cute"];
-        imageKeys: readonly [];
+        imageUploadIds: readonly [];
       }) => Promise<unknown>;
     };
     const input = {
       visitedAt: "2026-10-13T03:00:00.000Z",
       selectedTagKeys: ["cute"],
-      imageKeys: [],
+      imageUploadIds: [],
     } as const;
 
     await mutation.mutationFn(input);

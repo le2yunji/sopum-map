@@ -22,7 +22,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Next.js 16과 React 19 문법
 
-- 현재 기준은 Next.js 16.2.12 App Router와 React 19.2.4다. 버전 숫자가 바뀌면 `package.json`과 설치된 문서를 새 기준으로 삼고 이 문단의 예시도 다시 확인한다.
+- 현재 기준은 Next.js 16.3.8 App Router와 React 19.2.4다. 버전 숫자가 바뀌면 `package.json`과 설치된 문서를 새 기준으로 삼고 이 문단의 예시도 다시 확인한다.
 - Next.js 코드는 `frontend/node_modules/next/dist/docs/`의 해당 API 문서를 먼저 읽는다. 특히 비동기로 바뀐 `cookies()`, `headers()`, 동적 라우트의 `params`와 `searchParams`를 예전 동기 문법으로 작성하지 않는다.
 - App Router의 컴포넌트는 기본적으로 Server Component로 유지한다. 상태, 이벤트, 브라우저 API가 필요한 가장 작은 경계에만 `"use client"`를 둔다.
 - App Router 이동 API는 `next/navigation`을 사용한다. 폐기된 `middleware.ts` 대신 현재 프로젝트처럼 `proxy.ts` 규칙을 따른다.
