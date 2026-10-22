@@ -5,6 +5,7 @@ import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
 
 import { courseKeys } from "@/api/course/course.query";
+import { courseRouteQueryKeys } from "@/api/course-route/course-route.query";
 
 import { CourseDetailScreen } from "./CourseDetailScreen";
 
@@ -71,6 +72,15 @@ function CourseDetailStory({ course }: Readonly<{ course: CourseDetailData }>) {
     });
 
     client.setQueryData(courseKeys.detail(course.id), course);
+    client.setQueryData(courseRouteQueryKeys.walking(course.id), {
+      totalDistanceMeters: 320,
+      totalDurationSeconds: 240,
+      coordinates: [
+        { latitude: 37.544, longitude: 127.037 },
+        { latitude: 37.543, longitude: 127.038 },
+        { latitude: 37.542, longitude: 127.039 },
+      ],
+    });
     return client;
   });
 

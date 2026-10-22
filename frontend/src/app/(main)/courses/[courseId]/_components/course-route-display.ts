@@ -1,9 +1,3 @@
-type CoursePathShop = Readonly<{
-  order: number;
-  latitude: number | null;
-  longitude: number | null;
-}>;
-
 export type CoursePathCoordinate = Readonly<{
   latitude: number;
   longitude: number;
@@ -28,17 +22,27 @@ export function formatWalkingSegment({
   return `도보 ${durationMinutes}분 · ${distance}`;
 }
 
-/** 상점 좌표를 방문 순서대로 정렬해 지도 미리보기용 직선 경로를 만듭니다. */
-export function getStraightCoursePath(
-  shops: readonly CoursePathShop[],
+/** 외부 경로에서 유효한 WGS84 좌표만 지도용 경로로 전달합니다. */
+export function getWalkingCoursePath(
+  coordinates: readonly CoursePathCoordinate[],
 ): CoursePathCoordinate[] {
+  return coordinates.filter(
+    ({ latitude, longitude }) =>
+      Number.isFinite(latitude) &&
+      Number.isFinite(longitude) &&
+      latitude >= -90 &&
+      latitude <= 90 &&
+      longitude >= -180 &&
+      longitude <= 180,
+  );
+}
+
+/** 코스 구성이 바뀔 때만 최초 화면 맞춤을 다시 실행할 키를 만듭니다. */
+export function getCourseRouteKey(
+  shops: readonly Readonly<{ id: string; order: number }>[],
+): string {
   return [...shops]
     .sort((first, second) => first.order - second.order)
-    .filter(
-      (shop): shop is CoursePathShop & {
-        latitude: number;
-        longitude: number;
-      } => shop.latitude !== null && shop.longitude !== null,
-    )
-    .map(({ latitude, longitude }) => ({ latitude, longitude }));
+    .map(({ id, order }) => `${order}:${id}`)
+    .join("|");
 }
