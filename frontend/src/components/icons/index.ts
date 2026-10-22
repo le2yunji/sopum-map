@@ -32,3 +32,4 @@ export { PickIcon } from "./PickIcon";
 export { ProfileIcon } from "./ProfileIcon";
 export { ShareIcon } from "./ShareIcon";
 export { CheckIcon } from "./CheckIcon";
+export { EllipsisVerticalIcon } from "./EllipsisVerticalIcon";

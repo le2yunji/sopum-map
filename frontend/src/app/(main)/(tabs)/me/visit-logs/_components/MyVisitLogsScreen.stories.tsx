@@ -45,7 +45,11 @@ export const Default: Story = {
     await expect(canvas.getByRole("heading", { name: "내 방문 로그" })).toBeVisible();
     await expect(canvas.getByText("모모 소품샵")).toBeVisible();
     await expect(canvas.getByText("키링")).toBeVisible();
-    await userEvent.click(canvas.getByRole("button", { name: "삭제" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "모모 소품샵 방문 로그 메뉴" }),
+    );
+    await expect(canvas.getByRole("menuitem", { name: "수정" })).toBeVisible();
+    await userEvent.click(canvas.getByRole("menuitem", { name: "삭제" }));
     await expect(canvas.getByRole("heading", { name: "방문 로그를 삭제할까요?" })).toBeVisible();
   },
 };
