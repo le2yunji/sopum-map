@@ -6,12 +6,9 @@ import type { CourseDetailShop } from "@sopum-map/shared";
 
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
-import {
-  type MapSdkState,
-  NaverMapScript,
-} from "@/components/naver-map";
+import { type MapSdkState, NaverMapScript } from "@/components/naver-map";
 
-import { getStraightCoursePath } from "./course-route-display";
+import { getStraightCoursePath } from "../_utils/course-route-display";
 
 type Props = Readonly<{
   shops: readonly CourseDetailShop[];
@@ -41,7 +38,9 @@ export function CourseMap({ shops }: Props) {
     const firstShop = [...shops]
       .sort((a, b) => a.order - b.order)
       .find(
-        (shop): shop is CourseDetailShop & {
+        (
+          shop,
+        ): shop is CourseDetailShop & {
           latitude: number;
           longitude: number;
         } => shop.latitude !== null && shop.longitude !== null,
@@ -80,7 +79,9 @@ export function CourseMap({ shops }: Props) {
     const orderedShops = [...shops]
       .sort((a, b) => a.order - b.order)
       .filter(
-        (shop): shop is CourseDetailShop & {
+        (
+          shop,
+        ): shop is CourseDetailShop & {
           latitude: number;
           longitude: number;
         } => shop.latitude !== null && shop.longitude !== null,
