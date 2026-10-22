@@ -145,9 +145,43 @@ export const ShopActions: Story = {
   args: { course: baseCourse },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole("button", { name: "하츠베이커리 성수점 메뉴" }),
+    );
+    const actionSheet = within(canvas.getByRole("dialog"));
+    await expect(actionSheet.getByText("서울 성동구 성수동2가")).toBeVisible();
+    await expect(actionSheet.getByText("엽서를 천천히 둘러보기")).toBeVisible();
+    await expect(
+      actionSheet.getByRole("button", { name: "상점 보기" }),
+    ).toBeVisible();
+    await expect(
+      actionSheet.getByRole("button", { name: "길찾기" }),
+    ).toBeVisible();
+    await userEvent.click(
+      actionSheet.getByRole("button", { name: "방문했어요" }),
+    );
+    await expect(
+      canvas.getByRole("heading", { name: "방문 로그를 작성하시겠어요?" }),
+    ).toBeVisible();
+  },
+};
+
+export const VisitedShopActions: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      shops: baseCourse.shops.map((shop, index) =>
+        index === 0 ? { ...shop, isVisited: true } : shop,
+      ),
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByLabelText("퍼먼트 방문 완료")).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: "퍼먼트 메뉴" }));
-    await expect(canvas.getByRole("button", { name: "상점 보기" })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "길찾기" })).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "방문 완료 취소" }),
+    ).toBeVisible();
   },
 };
 
