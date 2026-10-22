@@ -9,6 +9,7 @@ import {
 } from "@sopum-map/shared";
 import { useState, type Ref } from "react";
 
+import { ChevronRightIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 
 const DEFAULT_VISIBLE_TAG_COUNT = 6;
@@ -94,6 +95,15 @@ export function TagQuestionList({
                 variant="ghost"
                 size="small"
                 aria-expanded={isExpanded}
+                rightIcon={
+                  displayMode === "categories" ? (
+                    <ChevronRightIcon
+                      className={`transition-transform ${
+                        isExpanded ? "-rotate-90" : "rotate-90"
+                      }`}
+                    />
+                  ) : undefined
+                }
                 onClick={() =>
                   setExpandedGroups((current) =>
                     isExpanded
