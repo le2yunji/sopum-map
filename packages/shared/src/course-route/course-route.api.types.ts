@@ -2,6 +2,7 @@ import type { ShopRegionGroup } from "../shop/shop.types";
 
 export type OptimizeCourseRouteRequest = Readonly<{
   sourceFolderId: string;
+  courseId?: string;
   regionGroup: ShopRegionGroup;
   shopIds: readonly string[];
   startShopId?: string;

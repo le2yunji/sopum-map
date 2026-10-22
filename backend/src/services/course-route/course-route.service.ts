@@ -8,6 +8,7 @@ import {
 
 import PickFolderItemModel from "../../models/pick-folder-item.model.js";
 import PickFolderModel from "../../models/pick-folder.model.js";
+import CourseModel from "../../models/course.model.js";
 import ShopModel from "../../models/shop.model.js";
 
 import { optimizeCourseRoute } from "./course-route-optimizer.service.js";
@@ -26,7 +27,7 @@ export async function optimizeUserCourseRoute({
   userId,
   input,
 }: OptimizeUserCourseRouteParams): Promise<OptimizeCourseRouteData> {
-  const { sourceFolderId, regionGroup, shopIds, startShopId } = input;
+  const { sourceFolderId, courseId, regionGroup, shopIds, startShopId } = input;
 
   const objectUserId = new Types.ObjectId(userId);
 
@@ -66,7 +67,38 @@ export async function optimizeUserCourseRoute({
     })
     .lean();
 
-  if (folderItems.length !== shopIds.length) {
+  const allowedShopIds = new Set(
+    folderItems.map((item) => item.shopId.toString()),
+  );
+
+  /**
+   * 수정 중인 코스의 기존 상점은 원본 폴더에서 삭제됐더라도 유지합니다.
+   * courseId가 없으면 생성 화면이므로 폴더 상점만 허용합니다.
+   */
+  if (courseId) {
+    const course = await CourseModel.findOne({
+      _id: new Types.ObjectId(courseId),
+      userId: objectUserId,
+      sourceFolderId: objectFolderId,
+      courseType: "user_created",
+    })
+      .select({ shops: 1 })
+      .lean();
+
+    if (!course) {
+      throw createApiError({
+        status: 404,
+        code: "COURSE_NOT_FOUND",
+        message: "코스를 찾을 수 없습니다.",
+      });
+    }
+
+    for (const shop of course.shops) {
+      allowedShopIds.add(shop.shopId.toString());
+    }
+  }
+
+  if (shopIds.some((shopId) => !allowedShopIds.has(shopId))) {
     throw createApiError({
       status: 400,
       code: "INVALID_COURSE_SHOPS",
