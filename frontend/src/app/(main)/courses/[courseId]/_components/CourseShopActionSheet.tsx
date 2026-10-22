@@ -39,7 +39,7 @@ export function CourseShopActionSheet({
           onClick={onViewShop}
           className="flex min-h-12 w-full items-center justify-between rounded-control px-4 text-15 font-semibold hover:bg-black-50 focus-visible:outline-2 focus-visible:outline-green-700"
         >
-          상점 보기{" "}
+          상점 보기
           <ChevronRightIcon
             className="size-5 text-black-400"
             aria-hidden="true"
@@ -51,7 +51,7 @@ export function CourseShopActionSheet({
           onClick={onOpenRoute}
           className="flex min-h-12 w-full items-center justify-between rounded-control px-4 text-15 font-semibold hover:bg-black-50 focus-visible:outline-2 focus-visible:outline-green-700"
         >
-          길찾기{" "}
+          길찾기
           <ChevronRightIcon
             className="size-5 text-black-400"
             aria-hidden="true"
