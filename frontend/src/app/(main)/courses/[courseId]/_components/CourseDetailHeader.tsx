@@ -3,7 +3,7 @@
 import type { CourseDetailData } from "@sopum-map/shared";
 
 import { ChevronLeftIcon, HeartIcon } from "@/components/icons";
-import { getCourseAuthorDisplayName } from "./course-author";
+import { getCourseAuthorDisplayName } from "../_utils/course-author";
 
 type Props = Readonly<{
   course: CourseDetailData;
@@ -62,8 +62,19 @@ export function CourseDetailHeader({
             onClick={onShare}
             className="grid size-11 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-green-700"
           >
-            <svg aria-hidden="true" viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.7">
-              <path d="M12 15V3m0 0L8 7m4-4 4 4M5 11v8h14v-8" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="size-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+            >
+              <path
+                d="M12 15V3m0 0L8 7m4-4 4 4M5 11v8h14v-8"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           </button>
 
@@ -74,7 +85,9 @@ export function CourseDetailHeader({
               onClick={onMore}
               className="grid size-11 place-items-center rounded-full focus-visible:outline-2 focus-visible:outline-green-700"
             >
-              <span aria-hidden="true" className="text-24 leading-none">•••</span>
+              <span aria-hidden="true" className="text-24 leading-none">
+                •••
+              </span>
             </button>
           ) : null}
         </div>
@@ -82,7 +95,9 @@ export function CourseDetailHeader({
 
       <div className="mt-7">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="min-w-0 text-24 font-semibold leading-8">{course.title}</h1>
+          <h1 className="min-w-0 text-24 font-semibold leading-8">
+            {course.title}
+          </h1>
 
           {course.isOwner ? (
             <button
@@ -103,7 +118,11 @@ export function CourseDetailHeader({
               onClick={onLikeToggle}
               className="flex min-h-11 shrink-0 items-center gap-1 rounded-full px-2 text-black-700 focus-visible:outline-2 focus-visible:outline-green-700 disabled:opacity-50"
             >
-              <HeartIcon filled={course.isLiked} className="size-7" aria-hidden="true" />
+              <HeartIcon
+                filled={course.isLiked}
+                className="size-7"
+                aria-hidden="true"
+              />
               <span>{course.likeCount}</span>
             </button>
           )}

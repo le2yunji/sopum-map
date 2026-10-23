@@ -38,6 +38,11 @@ shopLikeSchema.index({
   createdAt: -1,
 });
 
+// 상점 목록에서 상점별 전체 좋아요 수를 묶어 집계
+shopLikeSchema.index({
+  shopId: 1,
+});
+
 export type LikeSchemaType = InferSchemaType<typeof shopLikeSchema>;
 
 const ShopLikeModel = model("Like", shopLikeSchema);
