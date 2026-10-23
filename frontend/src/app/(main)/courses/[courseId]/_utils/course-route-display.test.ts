@@ -1,27 +1,27 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  formatWalkingSegment,
+  formatWalkingSegmentParts,
   getStraightCoursePath,
 } from "./course-route-display";
 
-describe("formatWalkingSegment", () => {
-  it("1km 미만 구간을 올림한 도보 시간과 미터로 표시합니다", () => {
+describe("formatWalkingSegmentParts", () => {
+  it("1km 미만 구간을 도보 시간과 미터 단위의 두 줄 정보로 표시합니다", () => {
     expect(
-      formatWalkingSegment({
+      formatWalkingSegmentParts({
         distanceMeters: 620,
         durationSeconds: 421,
       }),
-    ).toBe("도보 8분 · 620m");
+    ).toEqual({ durationLabel: "도보 8분", distanceLabel: "620m" });
   });
 
-  it("1km 이상 구간을 소수점 한 자리 km로 표시합니다", () => {
+  it("1km 이상 구간을 도보 시간과 소수점 한 자리 km로 표시합니다", () => {
     expect(
-      formatWalkingSegment({
+      formatWalkingSegmentParts({
         distanceMeters: 1250,
         durationSeconds: 720,
       }),
-    ).toBe("도보 12분 · 1.3km");
+    ).toEqual({ durationLabel: "도보 12분", distanceLabel: "1.3km" });
   });
 });
 
