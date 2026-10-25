@@ -20,7 +20,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.34.4",
   "dependencies": {
     "@sopum-map/shared": "workspace:*",
     "cookie-parser": "^1.4.7",
