@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatWalkingSegment,
-  getStraightCoursePath,
+  getCourseRouteKey,
+  getWalkingCoursePath,
 } from "./course-route-display";
 
 describe("formatWalkingSegment", () => {
@@ -25,31 +26,41 @@ describe("formatWalkingSegment", () => {
   });
 });
 
-describe("getStraightCoursePath", () => {
-  it("상점 좌표를 방문 순서대로 정렬해 직선 경로를 만듭니다", () => {
+describe("getWalkingCoursePath", () => {
+  it("TMAP 경도·위도 좌표를 NAVER 지도용 위도·경도 좌표로 보존합니다", () => {
     expect(
-      getStraightCoursePath([
-        { order: 3, latitude: 37.3, longitude: 127.3 },
-        { order: 1, latitude: 37.1, longitude: 127.1 },
-        { order: 2, latitude: 37.2, longitude: 127.2 },
+      getWalkingCoursePath([
+        { latitude: 37.1, longitude: 127.1 },
+        { latitude: 37.2, longitude: 127.2 },
       ]),
     ).toEqual([
       { latitude: 37.1, longitude: 127.1 },
       { latitude: 37.2, longitude: 127.2 },
-      { latitude: 37.3, longitude: 127.3 },
     ]);
   });
 
-  it("위치 정보가 없는 기존 상점은 지도 경로에서 제외합니다", () => {
+  it("유효하지 않은 좌표는 Polyline 경로에서 제외합니다", () => {
     expect(
-      getStraightCoursePath([
-        { order: 2, latitude: null, longitude: null },
-        { order: 1, latitude: 37.1, longitude: 127.1 },
-        { order: 3, latitude: 37.3, longitude: 127.3 },
+      getWalkingCoursePath([
+        { latitude: 37.1, longitude: 127.1 },
+        { latitude: 95, longitude: 127.2 },
+        { latitude: 37.3, longitude: 190 },
       ]),
-    ).toEqual([
-      { latitude: 37.1, longitude: 127.1 },
-      { latitude: 37.3, longitude: 127.3 },
+    ).toEqual([{ latitude: 37.1, longitude: 127.1 }]);
+  });
+});
+
+describe("getCourseRouteKey", () => {
+  it("상점 순서가 달라지면 최초 화면 맞춤 기준도 달라집니다", () => {
+    const firstKey = getCourseRouteKey([
+      { id: "shop-1", order: 1 },
+      { id: "shop-2", order: 2 },
     ]);
+    const reversedKey = getCourseRouteKey([
+      { id: "shop-1", order: 2 },
+      { id: "shop-2", order: 1 },
+    ]);
+
+    expect(firstKey).not.toBe(reversedKey);
   });
 });
