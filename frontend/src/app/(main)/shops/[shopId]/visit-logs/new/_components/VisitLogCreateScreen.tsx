@@ -26,6 +26,10 @@ import { DEFAULT_IMAGES } from "@/constants/image.constants";
 
 import { getTodayDateInputValue, toVisitLogIsoDate } from "./visit-log-date";
 import { VisitLogTagSelector } from "./VisitLogTagSelector";
+import {
+  VisitLogImagePicker,
+  type VisitLogImageFormValue,
+} from "./VisitLogImagePicker";
 
 type ShopSummary = Readonly<{
   id: string;
@@ -66,6 +70,8 @@ export function VisitLogCreateForm({
   const [tagError, setTagError] = useState("");
   const [dateError, setDateError] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [images, setImages] = useState<readonly VisitLogImageFormValue[]>([]);
+  const [imageState, setImageState] = useState({ isBusy: false, hasError: false });
   const firstTagRef = useRef<HTMLButtonElement>(null);
 
   /** 현재 단계에서 이전 화면으로 이동하고 첫 단계에서는 진입 화면으로 돌아갑니다. */
@@ -136,11 +142,21 @@ export function VisitLogCreateForm({
     }
 
     try {
+      if (imageState.isBusy || imageState.hasError) {
+        setSubmitError(
+          imageState.hasError
+            ? "업로드에 실패한 사진을 다시 시도하거나 삭제해 주세요."
+            : "사진 업로드가 끝날 때까지 기다려 주세요.",
+        );
+        return;
+      }
       await onSubmit({
         visitedAt,
         selectedTagKeys,
         content: content.trim() || null,
-        imageKeys: [],
+        imageUploadIds: images.flatMap((image) =>
+          image.type === "new" ? [image.uploadId] : [],
+        ),
       });
     } catch (error) {
       setSubmitError(getVisitLogSubmitError(error));
@@ -223,9 +239,14 @@ export function VisitLogCreateForm({
               <p className="mt-1 text-13 text-black-500">
                 사진을 추가하면 더 생생한 로그가 돼요 (선택)
               </p>
-              <Button type="button" variant="outline" disabled className="mt-3">
-                사진 추가 준비 중
-              </Button>
+              <VisitLogImagePicker
+                disabled={isPending}
+                onChange={(nextImages, nextState) => {
+                  setImages(nextImages);
+                  setImageState(nextState);
+                  setSubmitError("");
+                }}
+              />
             </div>
             <Textarea
               label="방문 내용 (선택)"
@@ -306,7 +327,7 @@ export function VisitLogCreateForm({
               fullWidth
               size="large"
               isLoading={isPending}
-              disabled={isPending}
+              disabled={isPending || imageState.isBusy || imageState.hasError}
             >
               내 방문 로그에 기록하기
             </Button>

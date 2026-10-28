@@ -6,6 +6,9 @@ const modelMocks = vi.hoisted(() => ({
   findShop: vi.fn(),
   findDuplicateVisitLog: vi.fn(),
   createVisitLog: vi.fn(),
+  prepareVisitLogImages: vi.fn(),
+  attachVisitLogImages: vi.fn(),
+  abortVisitLogImages: vi.fn(),
 }));
 
 vi.mock("../../models/shop.model.js", () => ({
@@ -17,6 +20,12 @@ vi.mock("../../models/visit-log.model.js", () => ({
     exists: modelMocks.findDuplicateVisitLog,
     create: modelMocks.createVisitLog,
   },
+}));
+
+vi.mock("../upload/upload-finalization.service.js", () => ({
+  prepareVisitLogImages: modelMocks.prepareVisitLogImages,
+  attachVisitLogImages: modelMocks.attachVisitLogImages,
+  abortVisitLogImages: modelMocks.abortVisitLogImages,
 }));
 
 import {
@@ -32,7 +41,7 @@ const input: CreateVisitLogRequest = {
   visitedAt: "2026-10-13T03:00:00.000Z",
   selectedTagKeys: ["cute", "friendly"],
   content: "  다시 방문하고 싶은 상점이에요.  ",
-  imageKeys: [],
+  imageUploadIds: [],
 };
 
 beforeEach(() => {
@@ -42,6 +51,9 @@ beforeEach(() => {
   modelMocks.createVisitLog.mockResolvedValue({
     _id: new Types.ObjectId(visitLogId),
   });
+  modelMocks.prepareVisitLogImages.mockResolvedValue({ uploads: [], images: [] });
+  modelMocks.attachVisitLogImages.mockResolvedValue(undefined);
+  modelMocks.abortVisitLogImages.mockResolvedValue(undefined);
 });
 
 describe("createVisitLog", () => {
@@ -61,7 +73,7 @@ describe("createVisitLog", () => {
       visitedDate: "2026-10-13",
       selectedTagKeys: input.selectedTagKeys,
       content: "다시 방문하고 싶은 상점이에요.",
-      imageKeys: [],
+      images: [],
       status: "active",
     });
   });
@@ -128,17 +140,40 @@ describe("createVisitLog", () => {
     expect(modelMocks.createVisitLog).not.toHaveBeenCalled();
   });
 
-  it("S3 도입 전에는 이미지 키가 있는 요청을 거부한다", async () => {
-    await expect(
-      createVisitLog(userId, shopId, {
-        ...input,
-        imageKeys: ["visit-logs/user/image.webp"],
-      }),
-    ).rejects.toMatchObject({
-      status: 400,
-      code: "VISIT_LOG_IMAGE_NOT_SUPPORTED",
+  it("업로드 ID를 검증·확정한 이미지로 저장한다", async () => {
+    const imageUploadId = "6a8a68e15e2aa43be6a654a0";
+    const prepared = {
+      uploads: [{ id: new Types.ObjectId(imageUploadId) }],
+      images: [{ key: `visit-logs/${userId}/image.webp` }],
+    };
+    modelMocks.prepareVisitLogImages.mockResolvedValue(prepared);
+
+    await createVisitLog(userId, shopId, {
+      ...input,
+      imageUploadIds: [imageUploadId],
     });
-    expect(modelMocks.createVisitLog).not.toHaveBeenCalled();
+
+    expect(modelMocks.prepareVisitLogImages).toHaveBeenCalledWith(userId, [imageUploadId]);
+    expect(modelMocks.createVisitLog).toHaveBeenCalledWith(
+      expect.objectContaining({ images: prepared.images }),
+    );
+    expect(modelMocks.attachVisitLogImages).toHaveBeenCalledWith(
+      prepared,
+      new Types.ObjectId(visitLogId),
+    );
+  });
+
+  it("방문 로그 저장 실패 시 복사한 이미지를 되돌린다", async () => {
+    const prepared = {
+      uploads: [{ id: new Types.ObjectId() }],
+      images: [{ key: `visit-logs/${userId}/image.webp` }],
+    };
+    const error = new Error("database unavailable");
+    modelMocks.prepareVisitLogImages.mockResolvedValue(prepared);
+    modelMocks.createVisitLog.mockRejectedValue(error);
+
+    await expect(createVisitLog(userId, shopId, input)).rejects.toThrow(error);
+    expect(modelMocks.abortVisitLogImages).toHaveBeenCalledWith(prepared, error);
   });
 
   it("공백으로만 작성한 방문 글은 null로 저장한다", async () => {

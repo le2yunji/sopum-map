@@ -14,7 +14,7 @@ const listData: MyVisitLogListData = {
       shop: { id: "shop-1", name: "모모 소품샵", imageUrl: null, address: "서울 성동구 연무장길" },
       selectedTagKeys: ["keyrings", "cute"],
       content: "키링이 다양하고 천천히 구경하기 좋았어요.",
-      imageUrls: [],
+      images: [],
       visitedAt: "2026-10-14T03:00:00.000Z",
       createdAt: "2026-10-14T04:00:00.000Z",
       updatedAt: "2026-10-14T04:00:00.000Z",
@@ -45,7 +45,11 @@ export const Default: Story = {
     await expect(canvas.getByRole("heading", { name: "내 방문 로그" })).toBeVisible();
     await expect(canvas.getByText("모모 소품샵")).toBeVisible();
     await expect(canvas.getByText("키링")).toBeVisible();
-    await userEvent.click(canvas.getByRole("button", { name: "삭제" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "모모 소품샵 방문 로그 메뉴" }),
+    );
+    await expect(canvas.getByRole("menuitem", { name: "수정" })).toBeVisible();
+    await userEvent.click(canvas.getByRole("menuitem", { name: "삭제" }));
     await expect(canvas.getByRole("heading", { name: "방문 로그를 삭제할까요?" })).toBeVisible();
   },
 };

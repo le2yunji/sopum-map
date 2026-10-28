@@ -4,6 +4,7 @@ import { z } from "zod";
 import {
   TAG_KEYS,
   VISIT_LOG_CONTENT_MAX_LENGTH,
+  VISIT_LOG_IMAGE_MAX_COUNT,
   VISIT_LOG_TAG_MAX_COUNT,
   type TagKey,
 } from "@sopum-map/shared";
@@ -65,7 +66,13 @@ export const createVisitLogSchema = z.object({
       .max(VISIT_LOG_CONTENT_MAX_LENGTH)
       .nullable()
       .optional(),
-    imageKeys: z.array(z.string()).max(0).default([]),
+    imageUploadIds: z
+      .array(objectIdSchema)
+      .max(VISIT_LOG_IMAGE_MAX_COUNT)
+      .refine((uploadIds) => new Set(uploadIds).size === uploadIds.length, {
+        message: "같은 이미지는 중복 등록할 수 없습니다.",
+      })
+      .default([]),
   }),
 });
 
@@ -93,7 +100,17 @@ export const getMyVisitLogSchema = z.object({
 
 export const updateVisitLogSchema = z.object({
   params: visitLogIdParamsSchema,
-  body: createVisitLogSchema.shape.body.omit({ imageKeys: true }),
+  body: createVisitLogSchema.shape.body.omit({ imageUploadIds: true }).extend({
+    images: z
+      .array(
+        z.discriminatedUnion("type", [
+          z.object({ type: z.literal("existing"), key: z.string().min(1) }),
+          z.object({ type: z.literal("new"), uploadId: objectIdSchema }),
+        ]),
+      )
+      .max(VISIT_LOG_IMAGE_MAX_COUNT)
+      .optional(),
+  }),
 });
 
 export const deleteVisitLogSchema = z.object({

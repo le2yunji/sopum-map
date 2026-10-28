@@ -104,13 +104,13 @@ describe("useCreateVisitLog", () => {
       mutationFn: (input: {
         visitedAt: string;
         selectedTagKeys: readonly ["cute"];
-        imageKeys: readonly [];
+        imageUploadIds: readonly [];
       }) => Promise<unknown>;
     };
     const input = {
       visitedAt: "2026-10-13T03:00:00.000Z",
       selectedTagKeys: ["cute"],
-      imageKeys: [],
+      imageUploadIds: [],
     } as const;
 
     await mutation.mutationFn(input);
@@ -118,7 +118,7 @@ describe("useCreateVisitLog", () => {
     expect(queryMocks.createVisitLog).toHaveBeenCalledWith("shop-1", input);
   });
 
-  it("작성 성공 후 상점 상세 캐시를 갱신한다", async () => {
+  it("작성 성공 후 상점 상세와 목록 캐시를 갱신한다", async () => {
     const mutation = useCreateVisitLog("shop-1") as unknown as {
       onSuccess: () => Promise<void>;
     };
@@ -127,6 +127,9 @@ describe("useCreateVisitLog", () => {
 
     expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
       queryKey: shopQueryKeys.detail("shop-1"),
+    });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: shopQueryKeys.lists(),
     });
   });
 });
