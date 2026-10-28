@@ -3,7 +3,7 @@ name: Deploy Backend Artifact
 on:
   push:
     branches:
-      - codex/ec2-cicd
+      - main
     paths:
       - "backend/**"
       - "packages/**"
