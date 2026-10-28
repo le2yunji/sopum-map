@@ -18,8 +18,8 @@ concurrency:
 
 env:
   CI: true
-  PNPM_VERSION: 10.28.0
-  NODE_VERSION: 20
+  PNPM_VERSION: 10.34.4
+  NODE_VERSION: 24.22.1
 
 jobs:
   backend:

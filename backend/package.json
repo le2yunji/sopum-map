@@ -2,6 +2,10 @@
   "name": "backend",
   "type": "module",
   "version": "1.0.0",
+  "files": [
+    "dist",
+    "data"
+  ],
   "description": "",
   "main": "dist/server.js",
   "scripts": {
@@ -29,7 +33,7 @@
     "express": "^5.2.1",
     "jose": "^6.2.10",
     "mongoose": "^9.7.3",
-    "zod": "^4.4.3"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",

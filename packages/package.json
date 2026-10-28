@@ -1,6 +1,9 @@
 {
   "name": "@sopum-map/shared",
   "version": "1.0.0",
+  "files": [
+    "dist"
+  ],
   "private": true,
   "type": "commonjs",
   "main": "./dist/index.js",
