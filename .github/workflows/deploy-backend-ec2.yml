@@ -1,0 +1,136 @@
+name: Deploy Backend Artifact
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "packages/**"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "package.json"
+      - ".github/workflows/deploy-backend-ec2.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: deploy-backend-artifact
+  cancel-in-progress: false
+
+env:
+  CI: true
+  AWS_REGION: ap-northeast-2
+  NODE_VERSION: 24.22.1
+  PNPM_VERSION: 10.34.4
+  AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+  DEPLOY_BUCKET: ${{ vars.DEPLOY_BUCKET }}
+
+jobs:
+  build-and-upload:
+    name: Build and Upload Artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      MONGODB_URI: mongodb://127.0.0.1:27017/sopum_map_test
+      CLIENT_ORIGIN: http://127.0.0.1:3000
+      KAKAO_REST_API_KEY: test-kakao-rest-api-key
+      KAKAO_CLIENT_SECRET: test-kakao-client-secret
+      KAKAO_REDIRECT_URI: http://127.0.0.1:4000/api/auth/kakao/callback
+      NAVER_CLIENT_ID: test-naver-client-id
+      NAVER_CLIENT_SECRET: test-naver-client-secret
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build shared package
+        run: pnpm --dir packages build
+
+      - name: Test backend
+        run: pnpm --dir backend test
+
+      - name: Build backend
+        run: pnpm --dir backend build
+
+      - name: Create production release directory
+        run: |
+          rm -rf "$RUNNER_TEMP/release"
+
+          pnpm \
+            --filter backend \
+            --prod \
+            deploy \
+            --legacy \
+            "$RUNNER_TEMP/release"
+
+          test -f "$RUNNER_TEMP/release/dist/server.js"
+          test -d "$RUNNER_TEMP/release/node_modules"
+
+      - name: Create deployment archive
+        run: |
+          ARCHIVE="$RUNNER_TEMP/sopum-api-${GITHUB_SHA}.tar.gz"
+
+          tar \
+            -C "$RUNNER_TEMP/release" \
+            -czf "$ARCHIVE" \
+            .
+
+          sha256sum "$ARCHIVE" > "${ARCHIVE}.sha256"
+
+          ls -lh "$ARCHIVE" "${ARCHIVE}.sha256"
+
+      - name: Validate deployment variables
+        run: |
+          : "${AWS_ROLE_ARN:?AWS_ROLE_ARN repository variable is required}"
+          : "${DEPLOY_BUCKET:?DEPLOY_BUCKET repository variable is required}"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: GitHubActionsSopumMapArtifactUpload
+
+      - name: Upload deployment artifact to S3
+        run: |
+          ARCHIVE="$RUNNER_TEMP/sopum-api-${GITHUB_SHA}.tar.gz"
+          S3_PREFIX="s3://${DEPLOY_BUCKET}/releases/${GITHUB_SHA}"
+
+          aws s3 cp \
+            "$ARCHIVE" \
+            "${S3_PREFIX}/sopum-api.tar.gz"
+
+          aws s3 cp \
+            "${ARCHIVE}.sha256" \
+            "${S3_PREFIX}/sopum-api.tar.gz.sha256"
+
+      - name: Write deployment summary
+        run: |
+          {
+            echo "## Backend artifact uploaded"
+            echo
+            echo "- Commit: \`${GITHUB_SHA}\`"
+            echo "- Region: \`${AWS_REGION}\`"
+            echo "- S3: \`s3://${DEPLOY_BUCKET}/releases/${GITHUB_SHA}/\`"
+          } >> "$GITHUB_STEP_SUMMARY"
