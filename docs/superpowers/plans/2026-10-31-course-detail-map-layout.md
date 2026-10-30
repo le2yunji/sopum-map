@@ -209,9 +209,10 @@
 
 ## Verification Results
 
-- `pnpm --dir frontend test:unit`: 23 files, 96 tests passed.
+- `pnpm --dir frontend test:unit`: 23 files, 97 tests passed.
 - `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000 pnpm --dir frontend exec vitest --project storybook --run`: 27 files, 143 tests passed.
 - `pnpm --dir frontend lint`: passed with no errors.
+- Final self-review fixed two regressions with RED→GREEN coverage: collapsed sheet controls are removed from the accessibility tree, and empty courses initialize the map at a safe default center.
 - `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000 pnpm --dir frontend build`: Turbopack failed while binding its internal PostCSS worker port with `Operation not permitted` in this execution environment.
 - `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000 pnpm --dir frontend exec next build --webpack`: passed, including compilation, TypeScript, and 12 static pages.
 - Playwright Chromium: 320px, 390px, 480px에서 정보 카드와 접힌 시트가 겹치지 않았고 첫 Tab 포커스, 정보 카드 닫기·복원을 확인했다.

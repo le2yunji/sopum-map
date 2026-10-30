@@ -8,6 +8,17 @@ type WalkingSegmentSummary = Readonly<{
   durationSeconds: number;
 }>;
 
+type CourseMapCenterShop = Readonly<{
+  latitude: number | null;
+  longitude: number | null;
+  order: number;
+}>;
+
+const DEFAULT_COURSE_MAP_CENTER: CoursePathCoordinate = {
+  latitude: 37.5445,
+  longitude: 127.056,
+};
+
 /** 도보 구간을 사용자가 빠르게 읽을 수 있는 거리와 시간으로 표시합니다. */
 export function formatWalkingSegment({
   distanceMeters,
@@ -45,4 +56,22 @@ export function getCourseRouteKey(
     .sort((first, second) => first.order - second.order)
     .map(({ id, order }) => `${order}:${id}`)
     .join("|");
+}
+
+/** 위치가 없는 빈 코스도 지도를 만들 수 있도록 안전한 중심점을 반환합니다. */
+export function getCourseMapCenter(
+  shops: readonly CourseMapCenterShop[],
+): CoursePathCoordinate {
+  const firstShop = [...shops]
+    .sort((first, second) => first.order - second.order)
+    .find(
+      (shop): shop is CourseMapCenterShop & {
+        latitude: number;
+        longitude: number;
+      } => shop.latitude !== null && shop.longitude !== null,
+    );
+
+  return firstShop
+    ? { latitude: firstShop.latitude, longitude: firstShop.longitude }
+    : DEFAULT_COURSE_MAP_CENTER;
 }

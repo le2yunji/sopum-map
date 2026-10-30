@@ -125,6 +125,9 @@ export const OtherUserCourse: Story = {
     await expect(
       canvas.getByRole("region", { name: "코스 정보" }),
     ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "퍼먼트 메뉴" }),
+    ).not.toBeInTheDocument();
 
     const sheetToggle = canvas.getByRole("button", {
       name: "방문 순서 펼치기",
@@ -237,7 +240,12 @@ export const ShopActions: Story = {
   args: { course: baseCourse },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", { name: "퍼먼트 메뉴" }));
+    await userEvent.click(
+      canvas.getByRole("button", { name: "방문 순서 펼치기" }),
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "퍼먼트 메뉴" }),
+    );
     await expect(canvas.getByRole("button", { name: "상점 보기" })).toBeVisible();
     await expect(canvas.getByRole("button", { name: "길찾기" })).toBeVisible();
   },

@@ -15,6 +15,7 @@ import {
 } from "@/components/naver-map";
 
 import {
+  getCourseMapCenter,
   getCourseRouteKey,
   getWalkingCoursePath,
 } from "./course-route-display";
@@ -54,21 +55,14 @@ export function CourseMap({
       return;
     }
 
-    const firstShop = [...shops]
-      .sort((a, b) => a.order - b.order)
-      .find(
-        (shop): shop is CourseDetailShop & {
-          latitude: number;
-          longitude: number;
-        } => shop.latitude !== null && shop.longitude !== null,
-      );
+    const center = getCourseMapCenter(shops);
 
-    if (mapInstanceRef.current || !firstShop) {
+    if (mapInstanceRef.current) {
       return;
     }
 
     mapInstanceRef.current = new naver.maps.Map(mapElementRef.current, {
-      center: new naver.maps.LatLng(firstShop.latitude, firstShop.longitude),
+      center: new naver.maps.LatLng(center.latitude, center.longitude),
       zoom: 14,
       maxZoom: 21,
       draggable: true,

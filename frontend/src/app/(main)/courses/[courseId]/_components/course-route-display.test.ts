@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatWalkingSegment,
+  getCourseMapCenter,
   getCourseRouteKey,
   getWalkingCoursePath,
 } from "./course-route-display";
@@ -62,5 +63,23 @@ describe("getCourseRouteKey", () => {
     ]);
 
     expect(firstKey).not.toBe(reversedKey);
+  });
+});
+
+describe("getCourseMapCenter", () => {
+  it("위치가 있는 상점이 없으면 코스 지도의 기본 중심을 반환합니다", () => {
+    expect(getCourseMapCenter([])).toEqual({
+      latitude: 37.5445,
+      longitude: 127.056,
+    });
+  });
+
+  it("방문 순서상 첫 번째 유효한 상점 위치를 반환합니다", () => {
+    expect(
+      getCourseMapCenter([
+        { latitude: 37.6, longitude: 127.1, order: 2 },
+        { latitude: 37.5, longitude: 127, order: 1 },
+      ]),
+    ).toEqual({ latitude: 37.5, longitude: 127 });
   });
 });

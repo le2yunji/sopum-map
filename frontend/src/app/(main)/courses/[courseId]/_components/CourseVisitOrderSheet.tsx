@@ -91,6 +91,8 @@ export function CourseVisitOrderSheet({
       ) : (
         <ol
           ref={listRef}
+          aria-hidden={!isExpanded}
+          inert={!isExpanded}
           onClickCapture={handleListClickCapture}
           className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(24px,env(safe-area-inset-bottom))]"
         >
