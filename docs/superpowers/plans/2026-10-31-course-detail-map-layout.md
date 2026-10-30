@@ -4,7 +4,7 @@
 
 **Goal:** `/courses/[courseId]`를 전체 화면 지도, 반투명 코스 정보 오버레이, 접힘·펼침 가능한 방문순서 시트로 재구성한다.
 
-**Architecture:** `CourseDetailScreen`은 기존 데이터와 액션 상태를 유지하면서 지도·오버레이·시트를 조합한다. 코스 전용 방문순서 시트가 2단 위치와 포인터 제스처를 소유하며, `CourseMap`은 전체 화면에서 조작 가능한 지도와 기존 직선 경로를 렌더링한다.
+**Architecture:** `CourseDetailScreen`은 기존 데이터와 액션 상태를 유지하면서 지도·오버레이·시트를 조합한다. 코스 전용 방문순서 시트가 2단 위치와 포인터 제스처를 소유하며, `CourseMap`은 전체 화면에서 조작 가능한 지도와 기존 TMAP 도보 경로를 렌더링한다.
 
 **Tech Stack:** Next.js 16.3.8 App Router, React 19.2.4, TypeScript 6, Tailwind CSS 4, NAVER Maps JavaScript API, Vitest 4, Storybook 10
 
@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - API 계약과 백엔드는 변경하지 않는다.
-- 현재 TMAP 거리·시간 및 상점 간 직선 Polyline 정책을 유지한다.
+- 현재 TMAP 거리·시간 및 실제 도보 Polyline 정책을 유지한다.
 - 기존 좋아요, 공개 전환, 공유, 수정·삭제, 상점 메뉴와 방문 기록 동작을 유지한다.
 - 정보 카드는 닫기 버튼으로 축소하고 `코스 정보` 버튼으로 다시 열 수 있게 한다. 뒤로가기·공유·더보기는 항상 유지한다.
 - 새 의존성을 추가하지 않는다.
@@ -209,9 +209,10 @@
 
 ## Verification Results
 
-- `pnpm --dir frontend test:unit`: 23 files, 97 tests passed.
-- `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000 pnpm --dir frontend exec vitest --project storybook --run`: 27 files, 143 tests passed.
+- `pnpm --dir frontend test:unit`: 20 files, 91 tests passed.
+- `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000 pnpm --dir frontend exec vitest --project storybook --run`: 28 files, 145 tests passed.
 - `pnpm --dir frontend lint`: passed with no errors.
+- `pnpm --dir packages build`: passed and refreshed the target branch's shared type output before the frontend build.
 - Final self-review fixed two regressions with RED→GREEN coverage: collapsed sheet controls are removed from the accessibility tree, and empty courses initialize the map at a safe default center.
 - `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000 pnpm --dir frontend build`: Turbopack failed while binding its internal PostCSS worker port with `Operation not permitted` in this execution environment.
 - `NEXT_PUBLIC_API_BASE_URL=http://localhost:4000 pnpm --dir frontend exec next build --webpack`: passed, including compilation, TypeScript, and 12 static pages.
