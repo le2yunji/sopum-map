@@ -1,4 +1,5 @@
 import type {
+  CourseWalkingRouteData,
   OptimizeCourseRouteData,
   OptimizeCourseRouteRequest,
 } from "@sopum-map/shared";
@@ -14,4 +15,13 @@ export function optimizeCourseRoute(
     method: "POST",
     body: input,
   });
+}
+
+/** 저장된 코스 순서의 실제 도보 경로를 조회합니다. */
+export function getCourseWalkingRoute(
+  courseId: string,
+): Promise<CourseWalkingRouteData> {
+  return apiClient<CourseWalkingRouteData>(
+    `/courses/${courseId}/walking-route`,
+  );
 }

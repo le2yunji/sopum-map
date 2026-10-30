@@ -14,6 +14,7 @@ import {
   useSetCourseShopVisited,
   useUnsetCourseShopVisited,
 } from "@/api/course/course.query";
+import { useCourseWalkingRoute } from "@/api/course-route/course-route.query";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -41,6 +42,11 @@ export function CourseDetailScreen({ courseId }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: course, isPending, isError, refetch } = useCourseDetail(courseId);
+  const {
+    data: walkingRoute,
+    isPending: isWalkingRoutePending,
+    isError: isWalkingRouteError,
+  } = useCourseWalkingRoute(course?.id);
   const { data: currentUser } = useCurrentUser();
   const deleteCourseMutation = useDeleteCourse();
   const likeMutation = useLikeCourse();
@@ -182,7 +188,12 @@ export function CourseDetailScreen({ courseId }: Props) {
       </div>
 
       <div className="mt-7">
-        <CourseMap shops={orderedShops} />
+        <CourseMap
+          shops={orderedShops}
+          walkingRoute={walkingRoute}
+          isRoutePending={isWalkingRoutePending}
+          isRouteError={isWalkingRouteError}
+        />
       </div>
 
       <section className="px-5 pt-8">
