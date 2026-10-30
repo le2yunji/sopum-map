@@ -20,7 +20,7 @@
     "seed:shops": "tsx src/scripts/seed-shops.ts",
     "cleanup:legacy-tags": "tsx src/scripts/cleanup-legacy-tags.ts",
     "backfill:visit-log-dates": "tsx src/scripts/backfill-visit-log-dates.ts",
-    "cleanup:visit-log-uploads": "tsx src/scripts/cleanup-visit-log-uploads.ts"
+    "cleanup:visit-log-uploads": "node src/scripts/cleanup-visit-log-uploads.ts"
   },
   "keywords": [],
   "author": "",
