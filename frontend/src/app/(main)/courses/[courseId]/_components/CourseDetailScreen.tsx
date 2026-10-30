@@ -24,11 +24,11 @@ import {
 } from "@/utils/naver-map";
 
 import { CourseDetailHeader } from "./CourseDetailHeader";
-import { CourseDetailShopItem } from "./CourseDetailShopItem";
 import { CourseMap } from "./CourseMap";
 import { CourseMoreSheet } from "./CourseMoreSheet";
 import { CourseShopActionSheet } from "./CourseShopActionSheet";
 import { CourseVisibilitySheet } from "./CourseVisibilitySheet";
+import { CourseVisitOrderSheet } from "./CourseVisitOrderSheet";
 import { DeleteCourseSheet } from "./DeleteCourseSheet";
 
 type Props = Readonly<{ courseId: string }>;
@@ -196,48 +196,35 @@ export function CourseDetailScreen({ courseId }: Props) {
         />
       </div>
 
-      <section className="px-5 pt-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-16 font-semibold">방문 순서</h2>
-          <span className="text-12 text-black-500">{orderedShops.length}곳</span>
-        </div>
-
-        {orderedShops.length === 0 ? (
-          <p className="mt-4 text-14 text-black-500">아직 코스에 담긴 상점이 없습니다.</p>
-        ) : (
-          <ol className="mt-6">
-            {orderedShops.map((shop, index) => (
-              <CourseDetailShopItem
-                key={shop.id}
-                shop={shop}
-                nextShop={orderedShops[index + 1] ?? null}
-                onOpenActions={() => {
-                  setSelectedShop({ shop, previousShop: orderedShops[index - 1] ?? null });
-                }}
-                isVisitPending={
-                  (setVisitedMutation.isPending &&
-                    setVisitedMutation.variables?.shopId === shop.id) ||
-                  (unsetVisitedMutation.isPending &&
-                    unsetVisitedMutation.variables?.shopId === shop.id)
-                }
-                onSetVisited={() =>
-                  setVisitedMutation.mutateAsync({ courseId: course.id, shopId: shop.id }).then(() => undefined)
-                }
-                onUnsetVisited={() =>
-                  unsetVisitedMutation.mutateAsync({ courseId: course.id, shopId: shop.id }).then(() => undefined)
-                }
-                onWriteLog={() => {
-                  const returnTo = encodeURIComponent(`/courses/${course.id}`);
-                  router.push(
-                    `/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`,
-                  );
-                }}
-                onVisitError={() => setNotice("방문 상태를 저장하지 못했어요.")}
-              />
-            ))}
-          </ol>
-        )}
-      </section>
+      <CourseVisitOrderSheet
+        shops={orderedShops}
+        onOpenShopActions={(shop, previousShop) => {
+          setSelectedShop({ shop, previousShop });
+        }}
+        isVisitPending={(shop) =>
+          (setVisitedMutation.isPending &&
+            setVisitedMutation.variables?.shopId === shop.id) ||
+          (unsetVisitedMutation.isPending &&
+            unsetVisitedMutation.variables?.shopId === shop.id)
+        }
+        onSetVisited={(shop) =>
+          setVisitedMutation
+            .mutateAsync({ courseId: course.id, shopId: shop.id })
+            .then(() => undefined)
+        }
+        onUnsetVisited={(shop) =>
+          unsetVisitedMutation
+            .mutateAsync({ courseId: course.id, shopId: shop.id })
+            .then(() => undefined)
+        }
+        onWriteLog={(shop) => {
+          const returnTo = encodeURIComponent(`/courses/${course.id}`);
+          router.push(
+            `/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`,
+          );
+        }}
+        onVisitError={() => setNotice("방문 상태를 저장하지 못했어요.")}
+      />
 
       <CourseMoreSheet
         open={moreSheetOpen}

@@ -104,11 +104,35 @@ export const OtherUserCourse: Story = {
   args: { course: baseCourse },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const sheetToggle = canvas.getByRole("button", {
+      name: "방문 순서 펼치기",
+    });
+
+    await expect(sheetToggle).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(sheetToggle);
+    await expect(
+      canvas.getByRole("button", { name: "방문 순서 접기" }),
+    ).toHaveAttribute("aria-expanded", "true");
     await expect(canvas.getByText("by 빵별일지")).toBeVisible();
     await expect(canvas.getByRole("button", { name: "코스 공유" })).toBeVisible();
     await expect(canvas.getByRole("button", { name: "코스 좋아요" })).toBeVisible();
     await expect(canvas.getByText("12")).toBeVisible();
     await expect(canvas.queryByRole("button", { name: "코스 더보기" })).not.toBeInTheDocument();
+  },
+};
+
+export const EmptyCourse: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      shops: [],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByText("아직 코스에 담긴 상점이 없습니다."),
+    ).toBeVisible();
   },
 };
 
