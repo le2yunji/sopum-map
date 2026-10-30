@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { SHOP_REGION_GROUP_LABELS, type CourseDetailShop } from "@sopum-map/shared";
+import type { CourseDetailShop } from "@sopum-map/shared";
 
 import {
   useCourseDetail,
@@ -57,6 +57,7 @@ export function CourseDetailScreen({ courseId }: Props) {
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [deleteSheetOpen, setDeleteSheetOpen] = useState(false);
   const [visibilitySheetOpen, setVisibilitySheetOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(true);
   const [selectedShop, setSelectedShop] = useState<SelectedShop | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const isCreated = searchParams.get("created") === "true";
@@ -157,7 +158,7 @@ export function CourseDetailScreen({ courseId }: Props) {
   };
 
   if (isPending) {
-    return <div role="status" aria-label="코스를 불러오는 중" className="px-5 pt-16">코스 정보를 불러오는 중...</div>;
+    return <div role="status" aria-label="코스를 불러오는 중" className="grid h-dvh min-h-[560px] place-items-center bg-green-50">코스 정보를 불러오는 중...</div>;
   }
 
   if (isError || !course) {
@@ -165,36 +166,34 @@ export function CourseDetailScreen({ courseId }: Props) {
   }
 
   return (
-    <section className="min-h-full bg-white pb-14">
-      <div className="px-5 pt-4">
-        <CourseDetailHeader
-          course={course}
-          likePending={likeMutation.isPending || unlikeMutation.isPending}
-          visibilityPending={visibilityMutation.isPending}
-          currentUserNickname={currentUser?.nickname}
-          onBack={() => router.back()}
-          onShare={() => void handleShare()}
-          onMore={() => setMoreSheetOpen(true)}
-          onLikeToggle={() => {
-            const mutation = course.isLiked ? unlikeMutation : likeMutation;
-            mutation.mutate(course.id);
-          }}
-          onVisibilityClick={() => setVisibilitySheetOpen(true)}
-        />
+    <section
+      aria-label="코스 지도 화면"
+      className="relative h-dvh min-h-[560px] overflow-hidden bg-green-50"
+    >
+      <CourseMap
+        shops={orderedShops}
+        walkingRoute={walkingRoute}
+        isRoutePending={isWalkingRoutePending}
+        isRouteError={isWalkingRouteError}
+      />
 
-        <span className="mt-5 inline-flex rounded-full bg-green-50 px-3 py-1.5 text-12 font-semibold text-green-700">
-          {SHOP_REGION_GROUP_LABELS[course.regionGroup]}
-        </span>
-      </div>
-
-      <div className="mt-7">
-        <CourseMap
-          shops={orderedShops}
-          walkingRoute={walkingRoute}
-          isRoutePending={isWalkingRoutePending}
-          isRouteError={isWalkingRouteError}
-        />
-      </div>
+      <CourseDetailHeader
+        course={course}
+        likePending={likeMutation.isPending || unlikeMutation.isPending}
+        visibilityPending={visibilityMutation.isPending}
+        currentUserNickname={currentUser?.nickname}
+        infoOpen={infoOpen}
+        onBack={() => router.back()}
+        onShare={() => void handleShare()}
+        onMore={() => setMoreSheetOpen(true)}
+        onCloseInfo={() => setInfoOpen(false)}
+        onOpenInfo={() => setInfoOpen(true)}
+        onLikeToggle={() => {
+          const mutation = course.isLiked ? unlikeMutation : likeMutation;
+          mutation.mutate(course.id);
+        }}
+        onVisibilityClick={() => setVisibilitySheetOpen(true)}
+      />
 
       <CourseVisitOrderSheet
         shops={orderedShops}

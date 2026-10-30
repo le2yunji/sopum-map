@@ -81,6 +81,12 @@ export function CourseMap({
         style: naver.maps.ZoomControlStyle.SMALL,
         position: naver.maps.Position.TOP_RIGHT,
       },
+      mapDataControl: false,
+      mapTypeControl: false,
+      scaleControl: false,
+      logoControlOptions: {
+        position: naver.maps.Position.BOTTOM_RIGHT,
+      },
     });
 
     polylineRef.current = new naver.maps.Polyline({
@@ -228,7 +234,7 @@ export function CourseMap({
   };
 
   return (
-    <div className="relative h-[280px] w-full overflow-hidden rounded-card bg-black-100">
+    <div className="absolute inset-0 bg-black-100">
       <NaverMapScript
         retryCount={retryCount}
         onReady={() => setSdkState("ready")}
@@ -260,7 +266,7 @@ export function CourseMap({
               role="status"
               aria-label="코스 지도를 불러오는 중"
             >
-              <Skeleton className="size-full rounded-card" />
+              <Skeleton className="size-full" />
             </div>
           ) : (
             <div role="alert">

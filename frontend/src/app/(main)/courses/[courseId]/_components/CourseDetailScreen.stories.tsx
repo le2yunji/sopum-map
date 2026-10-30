@@ -104,6 +104,28 @@ export const OtherUserCourse: Story = {
   args: { course: baseCourse },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("region", { name: "코스 지도 화면" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("region", { name: "코스 정보" }),
+    ).toBeVisible();
+    await expect(canvas.getByText("성수·서울숲")).toBeVisible();
+    await expect(canvas.getByText("차분하게 걷기 좋은 소품샵 코스예요.")).toBeVisible();
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "코스 정보 닫기" }),
+    );
+    await expect(
+      canvas.queryByRole("region", { name: "코스 정보" }),
+    ).not.toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "코스 공유" })).toBeVisible();
+
+    await userEvent.click(canvas.getByRole("button", { name: "코스 정보" }));
+    await expect(
+      canvas.getByRole("region", { name: "코스 정보" }),
+    ).toBeVisible();
+
     const sheetToggle = canvas.getByRole("button", {
       name: "방문 순서 펼치기",
     });
@@ -118,6 +140,42 @@ export const OtherUserCourse: Story = {
     await expect(canvas.getByRole("button", { name: "코스 좋아요" })).toBeVisible();
     await expect(canvas.getByText("12")).toBeVisible();
     await expect(canvas.queryByRole("button", { name: "코스 더보기" })).not.toBeInTheDocument();
+  },
+};
+
+export const LongContent: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      title:
+        "성수동 골목을 천천히 걸으며 오래 기억하고 싶은 소품을 발견하는 산책 코스",
+      description:
+        "조용한 골목과 작은 가게를 차례로 둘러보는 코스예요. 각 상점에서 마음에 드는 소품을 천천히 살펴보고 서울숲까지 이어서 산책해 보세요. 설명이 길어져도 지도와 방문 순서를 가리지 않아야 합니다.",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("region", { name: "코스 정보" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", {
+        name: "성수동 골목을 천천히 걸으며 오래 기억하고 싶은 소품을 발견하는 산책 코스",
+      }),
+    ).toBeVisible();
+  },
+};
+
+export const MissingMapKey: Story = {
+  args: { course: baseCourse },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("region", { name: "코스 지도 화면" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByText("네이버 지도 설정이 필요해요."),
+    ).toBeVisible();
   },
 };
 
