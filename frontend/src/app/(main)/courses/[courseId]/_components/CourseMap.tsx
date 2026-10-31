@@ -19,6 +19,7 @@ import {
   getCourseRouteKey,
   getWalkingCoursePath,
 } from "./course-route-display";
+import { getCourseMapInteractionOptions } from "./course-map-options";
 
 type Props = Readonly<{
   shops: readonly CourseDetailShop[];
@@ -65,16 +66,7 @@ export function CourseMap({
       center: new naver.maps.LatLng(center.latitude, center.longitude),
       zoom: 14,
       maxZoom: 21,
-      draggable: true,
-      scrollWheel: true,
-      pinchZoom: true,
-      keyboardShortcuts: true,
-      disableDoubleClickZoom: false,
-      zoomControl: true,
-      zoomControlOptions: {
-        style: naver.maps.ZoomControlStyle.SMALL,
-        position: naver.maps.Position.TOP_RIGHT,
-      },
+      ...getCourseMapInteractionOptions(),
       mapDataControl: false,
       mapTypeControl: false,
       scaleControl: false,
