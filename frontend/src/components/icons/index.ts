@@ -2,6 +2,7 @@
 
 export { ChevronLeftIcon } from "./ChevronLeftIcon";
 export { ChevronRightIcon } from "./ChevronRightIcon";
+export { ChevronUpIcon } from "./ChevronUpIcon";
 export { CloseIcon } from "./CloseIcon";
 export { CloseCircleIcon } from "./CloseCircleIcon";
 export { SearchIcon } from "./SearchIcon";

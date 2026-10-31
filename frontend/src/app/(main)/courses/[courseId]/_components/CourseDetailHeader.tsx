@@ -5,7 +5,7 @@ import {
   type CourseDetailData,
 } from "@sopum-map/shared";
 
-import { ChevronLeftIcon, CloseIcon, HeartIcon } from "@/components/icons";
+import { ChevronLeftIcon, ChevronUpIcon, HeartIcon } from "@/components/icons";
 import { getCourseAuthorDisplayName } from "./course-author";
 
 type Props = Readonly<{
@@ -100,11 +100,11 @@ export function CourseDetailHeader({
             </span>
             <button
               type="button"
-              aria-label="코스 정보 닫기"
+              aria-label="코스 정보 접기"
               onClick={onCloseInfo}
               className="grid size-8 shrink-0 place-items-center rounded-full text-black-600 hover:bg-white/70 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
             >
-              <CloseIcon className="size-4" aria-hidden="true" />
+              <ChevronUpIcon className="size-4" aria-hidden="true" />
             </button>
           </div>
 

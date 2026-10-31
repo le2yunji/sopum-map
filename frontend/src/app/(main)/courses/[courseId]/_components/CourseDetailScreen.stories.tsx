@@ -114,7 +114,7 @@ export const OtherUserCourse: Story = {
     await expect(canvas.getByText("차분하게 걷기 좋은 소품샵 코스예요.")).toBeVisible();
 
     await userEvent.click(
-      canvas.getByRole("button", { name: "코스 정보 닫기" }),
+      canvas.getByRole("button", { name: "코스 정보 접기" }),
     );
     await expect(
       canvas.queryByRole("region", { name: "코스 정보" }),
