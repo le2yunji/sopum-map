@@ -209,7 +209,9 @@ export const MyCourse: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("button", { name: "공개 상태 변경" })).toBeVisible();
     await expect(canvas.queryByRole("button", { name: "코스 좋아요" })).not.toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("button", { name: "코스 더보기" }));
+    const moreButton = canvas.getByRole("button", { name: "코스 더보기" });
+    await expect(moreButton.querySelector("svg")).toBeVisible();
+    await userEvent.click(moreButton);
     await expect(canvas.getByRole("button", { name: "코스 수정" })).toBeVisible();
     await expect(canvas.getByRole("button", { name: "코스 삭제" })).toBeVisible();
   },

@@ -29,6 +29,7 @@ export { AddFolderIcon } from "./AddFolderIcon";
 export { CourseIcon } from "./CourseIcon";
 export { HomeIcon } from "./HomeIcon";
 export { MapIcon } from "./MapIcon";
+export { MoreIcon } from "./MoreIcon";
 export { PickIcon } from "./PickIcon";
 export { ProfileIcon } from "./ProfileIcon";
 export { ShareIcon } from "./ShareIcon";

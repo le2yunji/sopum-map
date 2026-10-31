@@ -5,7 +5,12 @@ import {
   type CourseDetailData,
 } from "@sopum-map/shared";
 
-import { ChevronLeftIcon, ChevronUpIcon, HeartIcon } from "@/components/icons";
+import {
+  ChevronLeftIcon,
+  ChevronUpIcon,
+  HeartIcon,
+  MoreIcon,
+} from "@/components/icons";
 import { getCourseAuthorDisplayName } from "./course-author";
 
 type Props = Readonly<{
@@ -83,7 +88,7 @@ export function CourseDetailHeader({
               onClick={onMore}
               className="pointer-events-auto grid size-11 place-items-center rounded-full bg-white/85 shadow-card backdrop-blur-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
             >
-              <span aria-hidden="true" className="text-24 leading-none">•••</span>
+              <MoreIcon className="size-6" aria-hidden="true" />
             </button>
           ) : null}
         </div>
