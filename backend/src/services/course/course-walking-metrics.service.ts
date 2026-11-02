@@ -82,6 +82,9 @@ export async function createCourseShopsWithWalkingMetrics<
   });
 
   const routeMatrix = await getWalkingRouteMatrix(routePoints);
-
+  console.log(
+    "방문 순서가 정해진 상점들로 보행경로 매트릭스 조회:",
+    routeMatrix,
+  );
   return addWalkingMetricsToCourseShops(orderedCourseShops, routeMatrix);
 }

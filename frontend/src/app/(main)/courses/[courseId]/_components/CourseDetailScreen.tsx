@@ -24,7 +24,7 @@ import {
 } from "@/utils/naver-map";
 
 import { CourseDetailHeader } from "./CourseDetailHeader";
-import { CourseMap } from "./CourseMap";
+import { CourseRouteMap } from "./CourseRouteMap";
 import { CourseMoreSheet } from "./CourseMoreSheet";
 import { CourseShopActionSheet } from "./CourseShopActionSheet";
 import { CourseVisibilitySheet } from "./CourseVisibilitySheet";
@@ -41,7 +41,12 @@ type SelectedShop = Readonly<{
 export function CourseDetailScreen({ courseId }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: course, isPending, isError, refetch } = useCourseDetail(courseId);
+  const {
+    data: course,
+    isPending,
+    isError,
+    refetch,
+  } = useCourseDetail(courseId);
   const {
     data: walkingRoute,
     isPending: isWalkingRoutePending,
@@ -62,6 +67,7 @@ export function CourseDetailScreen({ courseId }: Props) {
   const [notice, setNotice] = useState<string | null>(null);
   const isCreated = searchParams.get("created") === "true";
   const isUpdated = searchParams.get("updated") === "true";
+
   const queryNotice = isCreated
     ? "코스가 만들어졌어요."
     : isUpdated
@@ -81,7 +87,10 @@ export function CourseDetailScreen({ courseId }: Props) {
   }, [courseId, isCreated, isUpdated, router]);
 
   const orderedShops = useMemo(
-    () => course ? [...course.shops].sort((first, second) => first.order - second.order) : [],
+    () =>
+      course
+        ? [...course.shops].sort((first, second) => first.order - second.order)
+        : [],
     [course],
   );
 
@@ -126,23 +135,23 @@ export function CourseDetailScreen({ courseId }: Props) {
       previousShop &&
       previousShop.latitude !== null &&
       previousShop.longitude !== null
-      ? createNaverMapWalkRouteBetweenUrl({
-          start: {
-            name: previousShop.name,
-            latitude: previousShop.latitude,
-            longitude: previousShop.longitude,
-          },
-          destination: {
+        ? createNaverMapWalkRouteBetweenUrl({
+            start: {
+              name: previousShop.name,
+              latitude: previousShop.latitude,
+              longitude: previousShop.longitude,
+            },
+            destination: {
+              name: shop.name,
+              latitude: shop.latitude,
+              longitude: shop.longitude,
+            },
+          })
+        : createNaverMapWalkRouteUrl({
             name: shop.name,
             latitude: shop.latitude,
             longitude: shop.longitude,
-          },
-        })
-      : createNaverMapWalkRouteUrl({
-          name: shop.name,
-          latitude: shop.latitude,
-          longitude: shop.longitude,
-        });
+          });
 
     window.location.href = routeUrl;
   };
@@ -158,11 +167,25 @@ export function CourseDetailScreen({ courseId }: Props) {
   };
 
   if (isPending) {
-    return <div role="status" aria-label="코스를 불러오는 중" className="grid h-dvh min-h-[560px] place-items-center bg-green-50">코스 정보를 불러오는 중...</div>;
+    return (
+      <div
+        role="status"
+        aria-label="코스를 불러오는 중"
+        className="grid h-dvh min-h-[560px] place-items-center bg-green-50"
+      >
+        코스 정보를 불러오는 중...
+      </div>
+    );
   }
 
   if (isError || !course) {
-    return <StatePanel title="코스를 불러오지 못했어요" action="다시 시도" onAction={() => void refetch()} />;
+    return (
+      <StatePanel
+        title="코스를 불러오지 못했어요"
+        action="다시 시도"
+        onAction={() => void refetch()}
+      />
+    );
   }
 
   return (
@@ -170,7 +193,7 @@ export function CourseDetailScreen({ courseId }: Props) {
       aria-label="코스 지도 화면"
       className="relative h-dvh min-h-[560px] overflow-hidden bg-green-50"
     >
-      <CourseMap
+      <CourseRouteMap
         shops={orderedShops}
         walkingRoute={walkingRoute}
         isRoutePending={isWalkingRoutePending}
@@ -218,9 +241,7 @@ export function CourseDetailScreen({ courseId }: Props) {
         }
         onWriteLog={(shop) => {
           const returnTo = encodeURIComponent(`/courses/${course.id}`);
-          router.push(
-            `/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`,
-          );
+          router.push(`/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`);
         }}
         onVisitError={() => setNotice("방문 상태를 저장하지 못했어요.")}
       />
@@ -266,7 +287,10 @@ export function CourseDetailScreen({ courseId }: Props) {
         onOpenChange={setDeleteSheetOpen}
         onConfirm={() => void handleDeleteCourse()}
       />
-      <Snackbar open={queryNotice !== null || notice !== null} message={notice ?? queryNotice ?? ""} />
+      <Snackbar
+        open={queryNotice !== null || notice !== null}
+        message={notice ?? queryNotice ?? ""}
+      />
     </section>
   );
 }

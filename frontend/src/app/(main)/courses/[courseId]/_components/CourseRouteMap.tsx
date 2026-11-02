@@ -9,10 +9,7 @@ import type {
 
 import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
-import {
-  type MapSdkState,
-  NaverMapScript,
-} from "@/components/naver-map";
+import { type MapSdkState, NaverMapScript } from "@/components/naver-map";
 
 import {
   getCourseMapCenter,
@@ -28,7 +25,7 @@ type Props = Readonly<{
   isRouteError: boolean;
 }>;
 
-export function CourseMap({
+export function CourseRouteMap({
   shops,
   walkingRoute,
   isRoutePending,
@@ -65,7 +62,7 @@ export function CourseMap({
     mapInstanceRef.current = new naver.maps.Map(mapElementRef.current, {
       center: new naver.maps.LatLng(center.latitude, center.longitude),
       zoom: 14,
-      maxZoom: 21,
+      maxZoom: 20,
       ...getCourseMapInteractionOptions(),
       mapDataControl: false,
       mapTypeControl: false,
@@ -79,8 +76,9 @@ export function CourseMap({
       map: mapInstanceRef.current,
       path: [],
       strokeColor: "#16a34a",
-      strokeWeight: 5,
-      strokeOpacity: 0.9,
+      strokeWeight: 4,
+      strokeOpacity: 0.78,
+      strokeStyle: "solid",
       strokeLineCap: "round",
       strokeLineJoin: "round",
     });
@@ -100,7 +98,9 @@ export function CourseMap({
     const orderedShops = [...shops]
       .sort((a, b) => a.order - b.order)
       .filter(
-        (shop): shop is CourseDetailShop & {
+        (
+          shop,
+        ): shop is CourseDetailShop & {
           latitude: number;
           longitude: number;
         } => shop.latitude !== null && shop.longitude !== null,
@@ -146,21 +146,20 @@ export function CourseMap({
           },
         }),
     );
-
   }, [sdkState, shops]);
 
   /** TMAP 좌표가 바뀔 때만 기존 Polyline의 경로를 교체합니다. */
   useEffect(() => {
+    const map = mapInstanceRef.current;
     const polyline = polylineRef.current;
     if (!polyline || sdkState !== "ready") {
       return;
     }
-
-    const routePositions = getWalkingCoursePath(
-      routeCoordinates ?? [],
-    ).map(
-      ({ latitude, longitude }) =>
-        new naver.maps.LatLng(latitude, longitude),
+    if (!map || !polyline || sdkState !== "ready") {
+      return;
+    }
+    const routePositions = getWalkingCoursePath(routeCoordinates ?? []).map(
+      ({ latitude, longitude }) => new naver.maps.LatLng(latitude, longitude),
     );
     polyline.setPath(routePositions);
   }, [sdkState, routeCoordinates]);
@@ -173,15 +172,11 @@ export function CourseMap({
     }
 
     const routePositions = getWalkingCoursePath(routeCoordinates ?? []).map(
-      ({ latitude, longitude }) =>
-        new naver.maps.LatLng(latitude, longitude),
+      ({ latitude, longitude }) => new naver.maps.LatLng(latitude, longitude),
     );
 
     const routeKey = getCourseRouteKey(shops);
-    if (
-      routePositions.length < 2 ||
-      fittedRouteKeyRef.current === routeKey
-    ) {
+    if (routePositions.length < 2 || fittedRouteKeyRef.current === routeKey) {
       return;
     }
 
@@ -227,11 +222,7 @@ export function CourseMap({
         onError={() => setSdkState("error")}
       />
 
-      <div
-        ref={mapElementRef}
-        className="size-full"
-        aria-label="코스 지도"
-      />
+      <div ref={mapElementRef} className="size-full" aria-label="코스 지도" />
 
       {sdkState === "ready" && (isRoutePending || isRouteError) ? (
         <p

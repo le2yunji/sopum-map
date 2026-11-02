@@ -60,7 +60,7 @@ export function CourseVisitOrderSheet({
         height: `calc(100% - ${EXPANDED_TOP_OFFSET}px)`,
         transform: initialTransform,
       }}
-      className="absolute inset-x-0 bottom-0 z-30 flex flex-col overflow-hidden rounded-t-sheet bg-white shadow-[0_-6px_16px_rgba(0,0,0,0.08)]"
+      className="absolute inset-x-0 bottom-0 z-30 flex flex-col overflow-hidden rounded-t-sheet bg-white/90 shadow-[0_-6px_16px_rgba(0,0,0,0.08)]"
     >
       <button
         type="button"
