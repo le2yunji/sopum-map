@@ -253,27 +253,6 @@ export function CourseDetailScreen({ courseId }: Props) {
         onOpenShopActions={(shop, previousShop) => {
           setSelectedShop({ shop, previousShop });
         }}
-        isVisitPending={(shop) =>
-          (setVisitedMutation.isPending &&
-            setVisitedMutation.variables?.shopId === shop.id) ||
-          (unsetVisitedMutation.isPending &&
-            unsetVisitedMutation.variables?.shopId === shop.id)
-        }
-        onSetVisited={(shop) =>
-          setVisitedMutation
-            .mutateAsync({ courseId: course.id, shopId: shop.id })
-            .then(() => undefined)
-        }
-        onUnsetVisited={(shop) =>
-          unsetVisitedMutation
-            .mutateAsync({ courseId: course.id, shopId: shop.id })
-            .then(() => undefined)
-        }
-        onWriteLog={(shop) => {
-          const returnTo = encodeURIComponent(`/courses/${course.id}`);
-          router.push(`/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`);
-        }}
-        onVisitError={() => setNotice("방문 상태를 저장하지 못했어요.")}
       />
 
       <CourseMoreSheet

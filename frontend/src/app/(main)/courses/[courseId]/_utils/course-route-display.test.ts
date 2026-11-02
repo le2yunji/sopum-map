@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  formatWalkingSegment,
+  formatWalkingSegmentParts,
   getCourseMapCenter,
   getCourseRouteKey,
   getWalkingCoursePath,

@@ -15,11 +15,7 @@ type Props = Readonly<{
 }>;
 
 /** 방문 순서, 상점 정보와 다음 구간 거리를 하나의 타임라인 행으로 표시합니다. */
-export function CourseDetailShopItem({
-  shop,
-  nextShop,
-  onOpenActions,
-}: Props) {
+export function CourseDetailShopItem({ shop, nextShop, onOpenActions }: Props) {
   const walkingSegment =
     typeof nextShop?.walkingDistanceFromPreviousMeters === "number" &&
     typeof nextShop.walkingDurationFromPreviousSeconds === "number"
@@ -123,7 +119,6 @@ export function CourseDetailShopItem({
             aria-hidden="true"
           />
         </button>
-
       </div>
     </li>
   );

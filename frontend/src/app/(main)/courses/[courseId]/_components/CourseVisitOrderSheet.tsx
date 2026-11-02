@@ -18,23 +18,10 @@ type Props = Readonly<{
     shop: CourseDetailShop,
     previousShop: CourseDetailShop | null,
   ) => void;
-  isVisitPending: (shop: CourseDetailShop) => boolean;
-  onSetVisited: (shop: CourseDetailShop) => Promise<void>;
-  onUnsetVisited: (shop: CourseDetailShop) => Promise<void>;
-  onWriteLog: (shop: CourseDetailShop) => void;
-  onVisitError: () => void;
 }>;
 
 /** 지도 위에서 접고 펼칠 수 있는 방문순서 목록을 표시합니다. */
-export function CourseVisitOrderSheet({
-  shops,
-  onOpenShopActions,
-  isVisitPending,
-  onSetVisited,
-  onUnsetVisited,
-  onWriteLog,
-  onVisitError,
-}: Props) {
+export function CourseVisitOrderSheet({ shops, onOpenShopActions }: Props) {
   const [state, setState] = useState<CourseVisitOrderSheetState>("collapsed");
   const isExpanded = state === "expanded";
   const {
@@ -60,7 +47,7 @@ export function CourseVisitOrderSheet({
         height: `calc(100% - ${EXPANDED_TOP_OFFSET}px)`,
         transform: initialTransform,
       }}
-      className="absolute inset-x-0 bottom-0 z-30 flex flex-col overflow-hidden rounded-t-sheet bg-white/90 shadow-[0_-6px_16px_rgba(0,0,0,0.08)]"
+      className="absolute inset-x-0 bottom-0 z-30 flex flex-col overflow-hidden rounded-t-sheet bg-white shadow-[0_-6px_16px_rgba(0,0,0,0.08)]"
     >
       <button
         type="button"
@@ -104,11 +91,6 @@ export function CourseVisitOrderSheet({
               onOpenActions={() => {
                 onOpenShopActions(shop, shops[index - 1] ?? null);
               }}
-              isVisitPending={isVisitPending(shop)}
-              onSetVisited={() => onSetVisited(shop)}
-              onUnsetVisited={() => onUnsetVisited(shop)}
-              onWriteLog={() => onWriteLog(shop)}
-              onVisitError={onVisitError}
             />
           ))}
         </ol>
