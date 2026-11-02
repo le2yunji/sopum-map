@@ -151,6 +151,7 @@ export function CourseEditScreen({ courseId }: Props) {
           ? async (selectedShopIds, startShopId) => {
               const result = await optimizeRouteMutation.mutateAsync({
                 sourceFolderId,
+                courseId,
                 regionGroup: course.regionGroup,
                 shopIds: selectedShopIds,
                 startShopId,

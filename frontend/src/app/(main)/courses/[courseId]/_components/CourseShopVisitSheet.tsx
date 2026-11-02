@@ -33,7 +33,10 @@ export function CourseShopVisitSheet({
         </BottomSheet.Title>
       </BottomSheet.Header>
       <BottomSheet.Body>
-        <p id="course-shop-visit-description" className="text-14 text-black-500">
+        <p
+          id="course-shop-visit-description"
+          className="text-14 text-black-500"
+        >
           방문만 기록하거나, 사진과 태그를 남길 수 있어요.
         </p>
       </BottomSheet.Body>
