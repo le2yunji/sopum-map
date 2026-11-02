@@ -147,8 +147,7 @@ export type LikedCourseListData = CourseCursorPage<LikedCourseListItem>;
  */
 export type GetMyCoursesResponse = ApiSuccessResponse<MyCourseListData>;
 
-export type GetMyLikedCoursesResponse =
-  ApiSuccessResponse<LikedCourseListData>;
+export type GetMyLikedCoursesResponse = ApiSuccessResponse<LikedCourseListData>;
 
 /**
  * GET /api/courses/:courseId 성공 응답

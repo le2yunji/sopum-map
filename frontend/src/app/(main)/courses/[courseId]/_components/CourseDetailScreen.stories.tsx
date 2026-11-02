@@ -5,6 +5,7 @@ import { useState } from "react";
 import { expect, userEvent, within } from "storybook/test";
 
 import { courseKeys } from "@/api/course/course.query";
+import { courseRouteQueryKeys } from "@/api/course-route/course-route.query";
 
 import { CourseDetailScreen } from "./CourseDetailScreen";
 
@@ -71,6 +72,15 @@ function CourseDetailStory({ course }: Readonly<{ course: CourseDetailData }>) {
     });
 
     client.setQueryData(courseKeys.detail(course.id), course);
+    client.setQueryData(courseRouteQueryKeys.walking(course.id), {
+      totalDistanceMeters: 320,
+      totalDurationSeconds: 240,
+      coordinates: [
+        { latitude: 37.544, longitude: 127.037 },
+        { latitude: 37.543, longitude: 127.038 },
+        { latitude: 37.542, longitude: 127.039 },
+      ],
+    });
     return client;
   });
 
@@ -94,11 +104,106 @@ export const OtherUserCourse: Story = {
   args: { course: baseCourse },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("region", { name: "코스 지도 화면" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("region", { name: "코스 정보" }),
+    ).toBeVisible();
+    await expect(canvas.getByText("성수·서울숲")).toBeVisible();
+    await expect(
+      canvas.getByText("차분하게 걷기 좋은 소품샵 코스예요."),
+    ).toBeVisible();
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "코스 정보 접기" }),
+    );
+    await expect(
+      canvas.queryByRole("region", { name: "코스 정보" }),
+    ).not.toBeInTheDocument();
+    await expect(
+      canvas.getByRole("button", { name: "코스 공유" }),
+    ).toBeVisible();
+
+    await userEvent.click(canvas.getByRole("button", { name: "코스 정보" }));
+    await expect(
+      canvas.getByRole("region", { name: "코스 정보" }),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "퍼먼트 메뉴" }),
+    ).not.toBeInTheDocument();
+
+    const sheetToggle = canvas.getByRole("button", {
+      name: "방문 순서 펼치기",
+    });
+
+    await expect(sheetToggle).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(sheetToggle);
+    await expect(
+      canvas.getByRole("button", { name: "방문 순서 접기" }),
+    ).toHaveAttribute("aria-expanded", "true");
     await expect(canvas.getByText("by 빵별일지")).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "코스 공유" })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "코스 좋아요" })).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "코스 공유" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "코스 좋아요" }),
+    ).toBeVisible();
     await expect(canvas.getByText("12")).toBeVisible();
-    await expect(canvas.queryByRole("button", { name: "코스 더보기" })).not.toBeInTheDocument();
+    await expect(
+      canvas.queryByRole("button", { name: "코스 더보기" }),
+    ).not.toBeInTheDocument();
+  },
+};
+
+export const LongContent: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      title:
+        "성수동 골목을 천천히 걸으며 오래 기억하고 싶은 소품을 발견하는 산책 코스",
+      description:
+        "조용한 골목과 작은 가게를 차례로 둘러보는 코스예요. 각 상점에서 마음에 드는 소품을 천천히 살펴보고 서울숲까지 이어서 산책해 보세요. 설명이 길어져도 지도와 방문 순서를 가리지 않아야 합니다.",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("region", { name: "코스 정보" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("heading", {
+        name: "성수동 골목을 천천히 걸으며 오래 기억하고 싶은 소품을 발견하는 산책 코스",
+      }),
+    ).toBeVisible();
+  },
+};
+
+export const MissingMapKey: Story = {
+  args: { course: baseCourse },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole("region", { name: "코스 지도 화면" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByText("네이버 지도 설정이 필요해요."),
+    ).toBeVisible();
+  },
+};
+
+export const EmptyCourse: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      shops: [],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByText("아직 코스에 담긴 상점이 없습니다."),
+    ).toBeVisible();
   },
 };
 
@@ -112,11 +217,21 @@ export const MyCourse: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("button", { name: "공개 상태 변경" })).toBeVisible();
-    await expect(canvas.queryByRole("button", { name: "코스 좋아요" })).not.toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("button", { name: "코스 더보기" }));
-    await expect(canvas.getByRole("button", { name: "코스 수정" })).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "코스 삭제" })).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "공개 상태 변경" }),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByRole("button", { name: "코스 좋아요" }),
+    ).not.toBeInTheDocument();
+    const moreButton = canvas.getByRole("button", { name: "코스 더보기" });
+    await expect(moreButton.querySelector("svg")).toBeVisible();
+    await userEvent.click(moreButton);
+    await expect(
+      canvas.getByRole("button", { name: "코스 수정" }),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "코스 삭제" }),
+    ).toBeVisible();
   },
 };
 
@@ -137,7 +252,9 @@ export const RecommendedCourse: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("by 소품지도")).toBeVisible();
-    await expect(canvas.getByRole("button", { name: "코스 좋아요" })).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "코스 좋아요" }),
+    ).toBeVisible();
   },
 };
 
@@ -146,42 +263,13 @@ export const ShopActions: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      canvas.getByRole("button", { name: "하츠베이커리 성수점 메뉴" }),
+      canvas.getByRole("button", { name: "방문 순서 펼치기" }),
     );
-    const actionSheet = within(canvas.getByRole("dialog"));
-    await expect(actionSheet.getByText("서울 성동구 성수동2가")).toBeVisible();
-    await expect(actionSheet.getByText("엽서를 천천히 둘러보기")).toBeVisible();
-    await expect(
-      actionSheet.getByRole("button", { name: "상점 보기" }),
-    ).toBeVisible();
-    await expect(
-      actionSheet.getByRole("button", { name: "길찾기" }),
-    ).toBeVisible();
-    await userEvent.click(
-      actionSheet.getByRole("button", { name: "방문했어요" }),
-    );
-    await expect(
-      canvas.getByRole("heading", { name: "방문 로그를 작성하시겠어요?" }),
-    ).toBeVisible();
-  },
-};
-
-export const VisitedShopActions: Story = {
-  args: {
-    course: {
-      ...baseCourse,
-      shops: baseCourse.shops.map((shop, index) =>
-        index === 0 ? { ...shop, isVisited: true } : shop,
-      ),
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    await expect(canvas.getByLabelText("퍼먼트 방문 완료")).toBeVisible();
     await userEvent.click(canvas.getByRole("button", { name: "퍼먼트 메뉴" }));
     await expect(
-      canvas.getByRole("button", { name: "방문 완료 취소" }),
+      canvas.getByRole("button", { name: "상점 보기" }),
     ).toBeVisible();
+    await expect(canvas.getByRole("button", { name: "길찾기" })).toBeVisible();
   },
 };
 
@@ -191,8 +279,12 @@ export const PublicToPrivate: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", { name: "공개 상태 변경" }));
-    await expect(canvas.getByRole("heading", { name: "코스를 비공개로 바꿀까요?" })).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "공개 상태 변경" }),
+    );
+    await expect(
+      canvas.getByRole("heading", { name: "코스를 비공개로 바꿀까요?" }),
+    ).toBeVisible();
   },
 };
 
@@ -200,7 +292,10 @@ export const ShareFailure: Story = {
   args: { course: baseCourse },
   beforeEach: () => {
     const shareDescriptor = Object.getOwnPropertyDescriptor(navigator, "share");
-    const clipboardDescriptor = Object.getOwnPropertyDescriptor(navigator, "clipboard");
+    const clipboardDescriptor = Object.getOwnPropertyDescriptor(
+      navigator,
+      "clipboard",
+    );
 
     Object.defineProperty(navigator, "share", {
       configurable: true,
@@ -214,16 +309,20 @@ export const ShareFailure: Story = {
     });
 
     return () => {
-      if (shareDescriptor) Object.defineProperty(navigator, "share", shareDescriptor);
+      if (shareDescriptor)
+        Object.defineProperty(navigator, "share", shareDescriptor);
       else Reflect.deleteProperty(navigator, "share");
 
-      if (clipboardDescriptor) Object.defineProperty(navigator, "clipboard", clipboardDescriptor);
+      if (clipboardDescriptor)
+        Object.defineProperty(navigator, "clipboard", clipboardDescriptor);
       else Reflect.deleteProperty(navigator, "clipboard");
     };
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("button", { name: "코스 공유" }));
-    await expect(canvas.findByText("코스 링크를 공유하지 못했어요.")).resolves.toBeVisible();
+    await expect(
+      canvas.findByText("코스 링크를 공유하지 못했어요."),
+    ).resolves.toBeVisible();
   },
 };

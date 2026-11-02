@@ -11,6 +11,7 @@ import { objectIdSchema } from "./common.validation.js";
 export const optimizeCourseRouteSchema = z.object({
   body: z.object({
     sourceFolderId: objectIdSchema,
+    courseId: objectIdSchema.optional(),
     regionGroup: z.enum(SHOP_REGION_GROUPS),
     shopIds: z
       .array(objectIdSchema)

@@ -2,7 +2,6 @@
  * TMAP Matrix API
  * 상점 간 도보 거리·시간 행렬 생성
  */
-
 type WalkingRoutePoint = Readonly<{
   shopId: string;
   latitude: number;
@@ -34,10 +33,10 @@ type TmapMatrixResponse = Readonly<{
 }>;
 
 const TMAP_MATRIX_URL = "https://apis.openapi.sk.com/tmap/matrix?version=1";
+
 /**
  * TMAP 보행 경로 매트릭스의 거리와 예상 소요 시간을 조회합니다.
  */
-
 export async function getWalkingRouteMatrix(
   points: readonly WalkingRoutePoint[],
 ): Promise<WalkingRouteMatrix> {

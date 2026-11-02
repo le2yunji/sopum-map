@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { SHOP_REGION_GROUP_LABELS, type CourseDetailShop } from "@sopum-map/shared";
+import type { CourseDetailShop } from "@sopum-map/shared";
 
 import {
   useCourseDetail,
@@ -14,6 +14,7 @@ import {
   useSetCourseShopVisited,
   useUnsetCourseShopVisited,
 } from "@/api/course/course.query";
+import { useCourseWalkingRoute } from "@/api/course-route/course-route.query";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -23,12 +24,12 @@ import {
 } from "@/utils/naver-map";
 
 import { CourseDetailHeader } from "./CourseDetailHeader";
-import { CourseDetailShopItem } from "./CourseDetailShopItem";
-import { CourseMap } from "./CourseMap";
+import { CourseRouteMap } from "./CourseRouteMap";
 import { CourseMoreSheet } from "./CourseMoreSheet";
 import { CourseShopActionSheet } from "./CourseShopActionSheet";
 import { CourseShopVisitSheet } from "./CourseShopVisitSheet";
 import { CourseVisibilitySheet } from "./CourseVisibilitySheet";
+import { CourseVisitOrderSheet } from "./CourseVisitOrderSheet";
 import { DeleteCourseSheet } from "./DeleteCourseSheet";
 
 type Props = Readonly<{ courseId: string }>;
@@ -41,7 +42,17 @@ type SelectedShop = Readonly<{
 export function CourseDetailScreen({ courseId }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: course, isPending, isError, refetch } = useCourseDetail(courseId);
+  const {
+    data: course,
+    isPending,
+    isError,
+    refetch,
+  } = useCourseDetail(courseId);
+  const {
+    data: walkingRoute,
+    isPending: isWalkingRoutePending,
+    isError: isWalkingRouteError,
+  } = useCourseWalkingRoute(course?.id);
   const { data: currentUser } = useCurrentUser();
   const deleteCourseMutation = useDeleteCourse();
   const likeMutation = useLikeCourse();
@@ -52,12 +63,14 @@ export function CourseDetailScreen({ courseId }: Props) {
   const [moreSheetOpen, setMoreSheetOpen] = useState(false);
   const [deleteSheetOpen, setDeleteSheetOpen] = useState(false);
   const [visibilitySheetOpen, setVisibilitySheetOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(true);
   const [selectedShop, setSelectedShop] = useState<SelectedShop | null>(null);
   const [visitPromptShop, setVisitPromptShop] =
     useState<CourseDetailShop | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const isCreated = searchParams.get("created") === "true";
   const isUpdated = searchParams.get("updated") === "true";
+
   const queryNotice = isCreated
     ? "코스가 만들어졌어요."
     : isUpdated
@@ -77,7 +90,10 @@ export function CourseDetailScreen({ courseId }: Props) {
   }, [courseId, isCreated, isUpdated, router]);
 
   const orderedShops = useMemo(
-    () => course ? [...course.shops].sort((first, second) => first.order - second.order) : [],
+    () =>
+      course
+        ? [...course.shops].sort((first, second) => first.order - second.order)
+        : [],
     [course],
   );
 
@@ -122,23 +138,23 @@ export function CourseDetailScreen({ courseId }: Props) {
       previousShop &&
       previousShop.latitude !== null &&
       previousShop.longitude !== null
-      ? createNaverMapWalkRouteBetweenUrl({
-          start: {
-            name: previousShop.name,
-            latitude: previousShop.latitude,
-            longitude: previousShop.longitude,
-          },
-          destination: {
+        ? createNaverMapWalkRouteBetweenUrl({
+            start: {
+              name: previousShop.name,
+              latitude: previousShop.latitude,
+              longitude: previousShop.longitude,
+            },
+            destination: {
+              name: shop.name,
+              latitude: shop.latitude,
+              longitude: shop.longitude,
+            },
+          })
+        : createNaverMapWalkRouteUrl({
             name: shop.name,
             latitude: shop.latitude,
             longitude: shop.longitude,
-          },
-        })
-      : createNaverMapWalkRouteUrl({
-          name: shop.name,
-          latitude: shop.latitude,
-          longitude: shop.longitude,
-        });
+          });
 
     window.location.href = routeUrl;
   };
@@ -181,63 +197,84 @@ export function CourseDetailScreen({ courseId }: Props) {
   };
 
   if (isPending) {
-    return <div role="status" aria-label="코스를 불러오는 중" className="px-5 pt-16">코스 정보를 불러오는 중...</div>;
+    return (
+      <div
+        role="status"
+        aria-label="코스를 불러오는 중"
+        className="grid h-dvh min-h-[560px] place-items-center bg-green-50"
+      >
+        코스 정보를 불러오는 중...
+      </div>
+    );
   }
 
   if (isError || !course) {
-    return <StatePanel title="코스를 불러오지 못했어요" action="다시 시도" onAction={() => void refetch()} />;
+    return (
+      <StatePanel
+        title="코스를 불러오지 못했어요"
+        action="다시 시도"
+        onAction={() => void refetch()}
+      />
+    );
   }
 
   return (
-    <section className="min-h-full bg-white pb-14">
-      <div className="px-5 pt-4">
-        <CourseDetailHeader
-          course={course}
-          likePending={likeMutation.isPending || unlikeMutation.isPending}
-          visibilityPending={visibilityMutation.isPending}
-          currentUserNickname={currentUser?.nickname}
-          onBack={() => router.back()}
-          onShare={() => void handleShare()}
-          onMore={() => setMoreSheetOpen(true)}
-          onLikeToggle={() => {
-            const mutation = course.isLiked ? unlikeMutation : likeMutation;
-            mutation.mutate(course.id);
-          }}
-          onVisibilityClick={() => setVisibilitySheetOpen(true)}
-        />
+    <section
+      aria-label="코스 지도 화면"
+      className="relative h-dvh min-h-[560px] overflow-hidden bg-green-50"
+    >
+      <CourseRouteMap
+        shops={orderedShops}
+        walkingRoute={walkingRoute}
+        isRoutePending={isWalkingRoutePending}
+        isRouteError={isWalkingRouteError}
+      />
 
-        <span className="mt-5 inline-flex rounded-full bg-green-50 px-3 py-1.5 text-12 font-semibold text-green-700">
-          {SHOP_REGION_GROUP_LABELS[course.regionGroup]}
-        </span>
-      </div>
+      <CourseDetailHeader
+        course={course}
+        likePending={likeMutation.isPending || unlikeMutation.isPending}
+        visibilityPending={visibilityMutation.isPending}
+        currentUserNickname={currentUser?.nickname}
+        infoOpen={infoOpen}
+        onBack={() => router.back()}
+        onShare={() => void handleShare()}
+        onMore={() => setMoreSheetOpen(true)}
+        onCloseInfo={() => setInfoOpen(false)}
+        onOpenInfo={() => setInfoOpen(true)}
+        onLikeToggle={() => {
+          const mutation = course.isLiked ? unlikeMutation : likeMutation;
+          mutation.mutate(course.id);
+        }}
+        onVisibilityClick={() => setVisibilitySheetOpen(true)}
+      />
 
-      <div className="mt-7">
-        <CourseMap shops={orderedShops} />
-      </div>
-
-      <section className="px-5 pt-8">
-        <div className="flex items-center justify-between">
-          <h2 className="text-16 font-semibold">방문 순서</h2>
-          <span className="text-12 text-black-500">{orderedShops.length}곳</span>
-        </div>
-
-        {orderedShops.length === 0 ? (
-          <p className="mt-4 text-14 text-black-500">아직 코스에 담긴 상점이 없습니다.</p>
-        ) : (
-          <ol className="mt-6">
-            {orderedShops.map((shop, index) => (
-              <CourseDetailShopItem
-                key={shop.id}
-                shop={shop}
-                nextShop={orderedShops[index + 1] ?? null}
-                onOpenActions={() => {
-                  setSelectedShop({ shop, previousShop: orderedShops[index - 1] ?? null });
-                }}
-              />
-            ))}
-          </ol>
-        )}
-      </section>
+      <CourseVisitOrderSheet
+        shops={orderedShops}
+        onOpenShopActions={(shop, previousShop) => {
+          setSelectedShop({ shop, previousShop });
+        }}
+        isVisitPending={(shop) =>
+          (setVisitedMutation.isPending &&
+            setVisitedMutation.variables?.shopId === shop.id) ||
+          (unsetVisitedMutation.isPending &&
+            unsetVisitedMutation.variables?.shopId === shop.id)
+        }
+        onSetVisited={(shop) =>
+          setVisitedMutation
+            .mutateAsync({ courseId: course.id, shopId: shop.id })
+            .then(() => undefined)
+        }
+        onUnsetVisited={(shop) =>
+          unsetVisitedMutation
+            .mutateAsync({ courseId: course.id, shopId: shop.id })
+            .then(() => undefined)
+        }
+        onWriteLog={(shop) => {
+          const returnTo = encodeURIComponent(`/courses/${course.id}`);
+          router.push(`/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`);
+        }}
+        onVisitError={() => setNotice("방문 상태를 저장하지 못했어요.")}
+      />
 
       <CourseMoreSheet
         open={moreSheetOpen}
@@ -314,7 +351,10 @@ export function CourseDetailScreen({ courseId }: Props) {
         onOpenChange={setDeleteSheetOpen}
         onConfirm={() => void handleDeleteCourse()}
       />
-      <Snackbar open={queryNotice !== null || notice !== null} message={notice ?? queryNotice ?? ""} />
+      <Snackbar
+        open={queryNotice !== null || notice !== null}
+        message={notice ?? queryNotice ?? ""}
+      />
     </section>
   );
 }
