@@ -188,8 +188,10 @@ export function VisitLogCreateForm({
       <form onSubmit={(event) => void handleSubmit(event)} noValidate>
         {step === 1 && (
           <div className="space-y-2 px-5 py-5">
-            <h2 className="text-16">언제, 어디에 다녀오셨나요?</h2>
-            <p className="text-16 font-semibold">방문한 소품샵</p>
+            <h2 className="text-16 font-semibold mb-3">
+              언제, 어디에 다녀오셨나요?
+            </h2>
+            <p className="text-14 font-semibold">방문한 소품샵</p>
             <div className="flex items-center gap-4 rounded-card bg-green-100/20 p-4">
               <Image
                 src={shop.mainImageUrl ?? DEFAULT_IMAGES.shop}
