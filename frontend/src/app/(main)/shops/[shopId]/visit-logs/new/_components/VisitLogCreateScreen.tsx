@@ -245,6 +245,7 @@ export function VisitLogCreateForm({
                 사진을 추가하면 더 생생한 로그가 돼요 (선택)
               </p>
               <VisitLogImagePicker
+                scrollerClassName="-mx-5 px-5 scroll-px-5"
                 disabled={isPending}
                 onChange={(nextImages, nextState) => {
                   setImages(nextImages);

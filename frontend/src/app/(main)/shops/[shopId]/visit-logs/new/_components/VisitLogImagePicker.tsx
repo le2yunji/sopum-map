@@ -46,6 +46,7 @@ type Entry = NewEntry | ExistingEntry;
 type Props = Readonly<{
   initialImages?: readonly MyVisitLogImage[];
   disabled?: boolean;
+  scrollerClassName?: string;
   onChange: (
     images: readonly VisitLogImageFormValue[],
     state: Readonly<{ isBusy: boolean; hasError: boolean }>,
@@ -68,6 +69,7 @@ function toFormValues(entries: readonly Entry[]): VisitLogImageFormValue[] {
 export function VisitLogImagePicker({
   initialImages = [],
   disabled = false,
+  scrollerClassName = "",
   onChange,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -261,7 +263,12 @@ export function VisitLogImagePicker({
       />
       <div
         role="group"
-        className="mt-3 flex gap-1 overflow-x-auto overscroll-x-contain pb-2"
+        className={[
+          "mt-3 flex gap-1 overflow-x-auto overscroll-x-contain pb-2 z-100!",
+          scrollerClassName,
+        ]
+          .filter(Boolean)
+          .join(" ")}
         aria-label="방문 로그 사진"
       >
         <div className={IMAGE_TILE_CLASS_NAME}>

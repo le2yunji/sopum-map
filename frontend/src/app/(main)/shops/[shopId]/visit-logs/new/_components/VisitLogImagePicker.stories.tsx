@@ -20,6 +20,7 @@ const meta = {
   ],
   args: {
     initialImages,
+    scrollerClassName: "-mx-5 px-5 scroll-px-5",
     onChange: fn(),
   },
 } satisfies Meta<typeof VisitLogImagePicker>;
@@ -35,9 +36,16 @@ export const HorizontalImageList: Story = {
     const firstImage = canvas.getByAltText("첨부 사진 1");
     const imageTile = firstImage.parentElement;
     const imageGroup = canvas.getByRole("group", { name: "방문 로그 사진" });
+    const picker = imageGroup.parentElement;
+    if (!picker) throw new Error("사진 선택기 컨테이너를 찾을 수 없습니다.");
     const initialButtonRect = addButton.getBoundingClientRect();
+    const imageGroupRect = imageGroup.getBoundingClientRect();
+    const pickerRect = picker.getBoundingClientRect();
 
     await expect(imageTile).not.toBeNull();
+    await expect(imageGroupRect.left).toBe(pickerRect.left - 20);
+    await expect(imageGroupRect.right).toBe(pickerRect.right + 20);
+    await expect(initialButtonRect.left).toBe(pickerRect.left);
     await expect(initialButtonRect.width).toBe(
       imageTile?.getBoundingClientRect().width,
     );
