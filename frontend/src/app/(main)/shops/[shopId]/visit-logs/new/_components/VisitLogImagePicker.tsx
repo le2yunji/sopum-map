@@ -1,6 +1,9 @@
 "use client";
 
-import { VISIT_LOG_IMAGE_MAX_COUNT, type MyVisitLogImage } from "@sopum-map/shared";
+import {
+  VISIT_LOG_IMAGE_MAX_COUNT,
+  type MyVisitLogImage,
+} from "@sopum-map/shared";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
@@ -11,6 +14,8 @@ import {
 import { CameraIcon, CloseIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { processVisitLogImage } from "@/lib/visit-log-image";
+
+const IMAGE_TILE_CLASS_NAME = "size-28 shrink-0";
 
 export type VisitLogImageFormValue =
   | Readonly<{ type: "existing"; key: string }>
@@ -23,6 +28,7 @@ type NewEntry = {
   processedFile?: File;
   previewUrl: string;
   status: "processing" | "uploading" | "uploaded" | "error";
+  progress: number;
   uploadId?: string;
   error?: string;
 };
@@ -58,7 +64,7 @@ function toFormValues(entries: readonly Entry[]): VisitLogImageFormValue[] {
   }, []);
 }
 
-/** 방문 로그 사진의 변환·직접 업로드·미리보기·순서 변경을 관리합니다. */
+/** 방문 로그 사진의 변환·직접 업로드와 가로 미리보기를 관리합니다. */
 export function VisitLogImagePicker({
   initialImages = [],
   disabled = false,
@@ -78,6 +84,10 @@ export function VisitLogImagePicker({
   const entriesRef = useRef<Entry[]>(initialEntries.current);
   const [entries, setEntries] = useState<Entry[]>(initialEntries.current);
   const [selectionError, setSelectionError] = useState("");
+  const failedEntry = entries.find(
+    (entry): entry is NewEntry =>
+      entry.type === "new" && entry.status === "error",
+  );
 
   /** 화면 상태와 부모 폼 값을 한 번에 갱신합니다. */
   const commit = (next: Entry[]) => {
@@ -85,7 +95,8 @@ export function VisitLogImagePicker({
     setEntries(next);
     onChange(toFormValues(next), {
       isBusy: next.some(
-        (entry) => entry.status === "processing" || entry.status === "uploading",
+        (entry) =>
+          entry.status === "processing" || entry.status === "uploading",
       ),
       hasError: next.some((entry) => entry.status === "error"),
     });
@@ -105,7 +116,14 @@ export function VisitLogImagePicker({
       if (!processedFile) {
         commit(
           entriesRef.current.map((entry) =>
-            entry.id === id ? { ...current, status: "processing", error: undefined } : entry,
+            entry.id === id
+              ? {
+                  ...current,
+                  status: "processing",
+                  progress: 0,
+                  error: undefined,
+                }
+              : entry,
           ),
         );
         processedFile = await processVisitLogImage(
@@ -119,7 +137,13 @@ export function VisitLogImagePicker({
       commit(
         entriesRef.current.map((entry) =>
           entry.id === id
-            ? { ...latest, processedFile, status: "uploading", error: undefined }
+            ? {
+                ...latest,
+                processedFile,
+                status: "uploading",
+                progress: 0,
+                error: undefined,
+              }
             : entry,
         ),
       );
@@ -128,14 +152,33 @@ export function VisitLogImagePicker({
         contentType: "image/webp",
         fileSize: processedFile.size,
       });
-      await uploadVisitLogImageToS3(upload, processedFile, controller.signal);
+      await uploadVisitLogImageToS3(
+        upload,
+        processedFile,
+        controller.signal,
+        (progress) => {
+          const uploading = entriesRef.current.find((entry) => entry.id === id);
+          if (!uploading || uploading.type !== "new") return;
+          commit(
+            entriesRef.current.map((entry) =>
+              entry.id === id ? { ...uploading, progress } : entry,
+            ),
+          );
+        },
+      );
 
       const uploaded = entriesRef.current.find((entry) => entry.id === id);
       if (!uploaded || uploaded.type !== "new") return;
       commit(
         entriesRef.current.map((entry) =>
           entry.id === id
-            ? { ...uploaded, processedFile, status: "uploaded", uploadId: upload.uploadId }
+            ? {
+                ...uploaded,
+                processedFile,
+                status: "uploaded",
+                progress: 100,
+                uploadId: upload.uploadId,
+              }
             : entry,
         ),
       );
@@ -149,7 +192,10 @@ export function VisitLogImagePicker({
             ? {
                 ...failed,
                 status: "error",
-                error: error instanceof Error ? error.message : "사진을 처리하지 못했어요.",
+                error:
+                  error instanceof Error
+                    ? error.message
+                    : "사진을 처리하지 못했어요.",
               }
             : entry,
         ),
@@ -160,9 +206,12 @@ export function VisitLogImagePicker({
   /** 선택한 사진을 즉시 미리보기에 넣고 각각 독립적으로 처리합니다. */
   const handleFiles = (files: FileList | null) => {
     if (!files?.length) return;
-    const availableCount = VISIT_LOG_IMAGE_MAX_COUNT - entriesRef.current.length;
+    const availableCount =
+      VISIT_LOG_IMAGE_MAX_COUNT - entriesRef.current.length;
     if (files.length > availableCount) {
-      setSelectionError(`사진은 최대 ${VISIT_LOG_IMAGE_MAX_COUNT}장까지 추가할 수 있어요.`);
+      setSelectionError(
+        `사진은 최대 ${VISIT_LOG_IMAGE_MAX_COUNT}장까지 추가할 수 있어요.`,
+      );
       if (inputRef.current) inputRef.current.value = "";
       return;
     }
@@ -174,6 +223,7 @@ export function VisitLogImagePicker({
       originalFile: file,
       previewUrl: URL.createObjectURL(file),
       status: "processing",
+      progress: 0,
     }));
     commit([...entriesRef.current, ...additions]);
     additions.forEach((entry) => void processAndUpload(entry.id));
@@ -187,15 +237,6 @@ export function VisitLogImagePicker({
     controllersRef.current.delete(id);
     if (target?.type === "new") URL.revokeObjectURL(target.previewUrl);
     commit(entriesRef.current.filter((entry) => entry.id !== id));
-  };
-
-  /** 버튼 조작만으로도 사진 표시 순서를 바꿀 수 있게 합니다. */
-  const moveEntry = (index: number, offset: -1 | 1) => {
-    const nextIndex = index + offset;
-    if (nextIndex < 0 || nextIndex >= entriesRef.current.length) return;
-    const next = [...entriesRef.current];
-    [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
-    commit(next);
   };
 
   useEffect(() => {
@@ -218,60 +259,119 @@ export function VisitLogImagePicker({
         className="sr-only"
         onChange={(event) => handleFiles(event.target.files)}
       />
-      <Button
-        type="button"
-        variant="outline"
-        leftIcon={<CameraIcon />}
-        disabled={disabled || entries.length >= VISIT_LOG_IMAGE_MAX_COUNT}
-        onClick={() => inputRef.current?.click()}
-        className="mt-3"
+      <div
+        role="group"
+        className="mt-3 flex gap-1 overflow-x-auto overscroll-x-contain pb-2"
+        aria-label="방문 로그 사진"
       >
-        사진 추가 ({entries.length}/{VISIT_LOG_IMAGE_MAX_COUNT})
-      </Button>
+        <div className={IMAGE_TILE_CLASS_NAME}>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={disabled || entries.length >= VISIT_LOG_IMAGE_MAX_COUNT}
+            onClick={() => inputRef.current?.click()}
+            className="size-full! min-h-0! flex-col gap-1! border-dashed! border-gray-200! px-2! py-3! [&>span]:flex [&>span]:flex-col [&>span]:items-center [&>span]:gap-1"
+          >
+            <CameraIcon className="size-8! text-gray-500" />
+            <span>사진 추가</span>
+            <span className="text-11 font-normal text-black-500">
+              {entries.length}/{VISIT_LOG_IMAGE_MAX_COUNT}
+            </span>
+          </Button>
+        </div>
 
-      {entries.length > 0 ? (
-        <ol className="mt-4 grid grid-cols-3 gap-2" aria-label="첨부 사진 목록">
-          {entries.map((entry, index) => (
-            <li key={entry.id} className="min-w-0">
-              <div className="relative aspect-square overflow-hidden rounded-card bg-black-100">
-                <Image
-                  unoptimized
-                  fill
-                  src={entry.previewUrl}
-                  alt={`첨부 사진 ${index + 1}`}
-                  className="object-cover"
-                  sizes="140px"
-                />
-                <Button
-                  iconOnly
-                  size="small"
-                  variant="ghost"
-                  aria-label={`첨부 사진 ${index + 1} 삭제`}
-                  disabled={disabled}
-                  onClick={() => removeEntry(entry.id)}
-                  className="absolute right-0 top-0 min-h-9! size-9! bg-white/90!"
-                >
-                  <CloseIcon />
-                </Button>
-              </div>
-              <p className="mt-1 truncate text-11 text-black-500" role="status">
-                {entry.status === "processing" && "사진 변환 중"}
-                {entry.status === "uploading" && "업로드 중"}
-                {entry.status === "uploaded" && "업로드 완료"}
-                {entry.status === "error" && entry.error}
-              </p>
-              <div className="mt-1 flex gap-1">
-                <Button size="small" variant="ghost" disabled={disabled || index === 0} onClick={() => moveEntry(index, -1)} className="min-h-8! flex-1 px-1!">앞으로</Button>
-                <Button size="small" variant="ghost" disabled={disabled || index === entries.length - 1} onClick={() => moveEntry(index, 1)} className="min-h-8! flex-1 px-1!">뒤로</Button>
-              </div>
-              {entry.status === "error" ? (
-                <Button size="small" variant="ghost" disabled={disabled} onClick={() => void processAndUpload(entry.id, Boolean(entry.processedFile))} className="mt-1 min-h-8! w-full">다시 시도</Button>
-              ) : null}
-            </li>
-          ))}
-        </ol>
+        {entries.length > 0 ? (
+          <ol className="contents" aria-label="첨부 사진 목록">
+            {entries.map((entry, index) => (
+              <li key={entry.id} className={IMAGE_TILE_CLASS_NAME}>
+                <div className="relative size-full overflow-hidden rounded-card bg-black-100">
+                  <Image
+                    unoptimized
+                    fill
+                    src={entry.previewUrl}
+                    alt={`첨부 사진 ${index + 1}`}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    className="object-cover"
+                    sizes="112px"
+                  />
+                  <Button
+                    iconOnly
+                    size="small"
+                    variant="ghost"
+                    aria-label={`첨부 사진 ${index + 1} 삭제`}
+                    disabled={disabled}
+                    onClick={() => removeEntry(entry.id)}
+                    className="absolute right-1 top-1 z-20 min-h-8! size-8! bg-white/90!"
+                  >
+                    <CloseIcon />
+                  </Button>
+
+                  {entry.type === "new" &&
+                  (entry.status === "processing" ||
+                    entry.status === "uploading") ? (
+                    <div
+                      role="progressbar"
+                      aria-label={`첨부 사진 ${index + 1} 업로드`}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={
+                        entry.status === "uploading"
+                          ? entry.progress
+                          : undefined
+                      }
+                      className="absolute inset-x-2 bottom-2 z-10 h-1.5 overflow-hidden rounded-full bg-white/70"
+                    >
+                      <span
+                        className={`block h-full rounded-full bg-green-500 transition-[width] ${entry.status === "processing" ? "motion-safe:animate-pulse" : ""}`}
+                        style={{
+                          width:
+                            entry.status === "processing"
+                              ? "35%"
+                              : `${entry.progress}%`,
+                        }}
+                      />
+                    </div>
+                  ) : null}
+
+                  {entry.status === "error" ? (
+                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/60 px-2 text-center text-white">
+                      <span className="text-12 font-semibold">업로드 실패</span>
+                      <Button
+                        size="small"
+                        variant="secondary"
+                        disabled={disabled}
+                        aria-describedby={`${entry.id}-upload-error`}
+                        onClick={() =>
+                          void processAndUpload(
+                            entry.id,
+                            Boolean(entry.processedFile),
+                          )
+                        }
+                        className="min-h-8! px-2!"
+                      >
+                        다시 시도
+                      </Button>
+                      <span id={`${entry.id}-upload-error`} className="sr-only">
+                        {entry.error}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+              </li>
+            ))}
+          </ol>
+        ) : null}
+      </div>
+      {selectionError ? (
+        <p role="alert" className="mt-2 text-12 text-red-600">
+          {selectionError}
+        </p>
       ) : null}
-      {selectionError ? <p role="alert" className="mt-2 text-12 text-red-600">{selectionError}</p> : null}
+      {failedEntry?.error ? (
+        <p role="alert" className="mt-2 text-12 text-red-600">
+          {failedEntry.error}
+        </p>
+      ) : null}
     </div>
   );
 }

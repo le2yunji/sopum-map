@@ -30,6 +30,7 @@ import {
   VisitLogImagePicker,
   type VisitLogImageFormValue,
 } from "./VisitLogImagePicker";
+import { ChevronLeftIcon } from "@/components/icons";
 
 type ShopSummary = Readonly<{
   id: string;
@@ -71,7 +72,10 @@ export function VisitLogCreateForm({
   const [dateError, setDateError] = useState("");
   const [submitError, setSubmitError] = useState("");
   const [images, setImages] = useState<readonly VisitLogImageFormValue[]>([]);
-  const [imageState, setImageState] = useState({ isBusy: false, hasError: false });
+  const [imageState, setImageState] = useState({
+    isBusy: false,
+    hasError: false,
+  });
   const firstTagRef = useRef<HTMLButtonElement>(null);
 
   /** 현재 단계에서 이전 화면으로 이동하고 첫 단계에서는 진입 화면으로 돌아갑니다. */
@@ -176,7 +180,7 @@ export function VisitLogCreateForm({
           onClick={handleBack}
           className="absolute left-3 text-24"
         >
-          ‹
+          <ChevronLeftIcon />
         </Button>
         <h1 className="text-18 font-semibold">방문 로그 작성 · {step}/3</h1>
       </header>
@@ -184,11 +188,12 @@ export function VisitLogCreateForm({
       <form onSubmit={(event) => void handleSubmit(event)} noValidate>
         {step === 1 && (
           <div className="space-y-2 px-5 py-5">
-            <h2 className="text-18 font-semibold">방문한 소품샵과 방문일</h2>
-            <div className="flex items-center gap-4 rounded-card bg-green-100/70 p-4">
+            <h2 className="text-16">언제, 어디에 다녀오셨나요?</h2>
+            <p className="text-16 font-semibold">방문한 소품샵</p>
+            <div className="flex items-center gap-4 rounded-card bg-green-100/20 p-4">
               <Image
                 src={shop.mainImageUrl ?? DEFAULT_IMAGES.shop}
-                alt=""
+                alt={`${shop.name}의 사진`}
                 width={80}
                 height={80}
                 loading="eager"

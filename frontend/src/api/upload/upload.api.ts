@@ -20,6 +20,7 @@ export async function uploadVisitLogImageToS3(
   upload: CreateVisitLogImageUploadData,
   file: File,
   signal?: AbortSignal,
+  onProgress?: (progress: number) => void,
 ): Promise<void> {
   const formData = new FormData();
   Object.entries(upload.fields).forEach(([key, value]) => {
@@ -27,13 +28,44 @@ export async function uploadVisitLogImageToS3(
   });
   formData.append("file", file);
 
-  const response = await fetch(upload.url, {
-    method: "POST",
-    body: formData,
-    signal,
-  });
+  await new Promise<void>((resolve, reject) => {
+    const request = new XMLHttpRequest();
 
-  if (!response.ok) {
-    throw new Error("이미지 업로드에 실패했습니다.");
-  }
+    /** 요청이 끝나면 외부 취소 신호 연결을 정리합니다. */
+    const cleanup = () => signal?.removeEventListener("abort", abortUpload);
+
+    /** 브라우저 취소 신호를 진행 중인 S3 요청에 전달합니다. */
+    const abortUpload = () => request.abort();
+
+    request.upload.addEventListener("progress", (event) => {
+      if (!event.lengthComputable || event.total === 0) return;
+      onProgress?.(Math.round((event.loaded / event.total) * 100));
+    });
+    request.addEventListener("load", () => {
+      cleanup();
+      if (request.status >= 200 && request.status < 300) {
+        onProgress?.(100);
+        resolve();
+        return;
+      }
+      reject(new Error("이미지 업로드에 실패했습니다."));
+    });
+    request.addEventListener("error", () => {
+      cleanup();
+      reject(new Error("이미지 업로드에 실패했습니다."));
+    });
+    request.addEventListener("abort", () => {
+      cleanup();
+      reject(new DOMException("이미지 업로드가 취소되었습니다.", "AbortError"));
+    });
+
+    if (signal?.aborted) {
+      reject(new DOMException("이미지 업로드가 취소되었습니다.", "AbortError"));
+      return;
+    }
+
+    signal?.addEventListener("abort", abortUpload, { once: true });
+    request.open("POST", upload.url);
+    request.send(formData);
+  });
 }
