@@ -1,5 +1,7 @@
 "use client";
 
+import type { Ref } from "react";
+
 import {
   SHOP_REGION_GROUP_LABELS,
   type CourseDetailData,
@@ -27,6 +29,7 @@ type Props = Readonly<{
   infoOpen: boolean;
   onCloseInfo: () => void;
   onOpenInfo: () => void;
+  infoSectionRef: Ref<HTMLElement>;
 }>;
 
 /** 코스의 이동·공유 액션과 작성자별 상태를 한곳에 표시합니다. */
@@ -43,6 +46,7 @@ export function CourseDetailHeader({
   infoOpen,
   onCloseInfo,
   onOpenInfo,
+  infoSectionRef,
 }: Props) {
   /** 이전 API 응답이 캐시에 남아 있어도 상세 화면 전체가 중단되지 않게 합니다. */
   const authorDisplayName = getCourseAuthorDisplayName({
@@ -108,6 +112,7 @@ export function CourseDetailHeader({
 
       {infoOpen ? (
         <section
+          ref={infoSectionRef}
           aria-label="코스 정보"
           className="pointer-events-auto relative mt-3 rounded-card border border-white/70 bg-white/25 p-4 shadow-floating backdrop-blur-md"
         >

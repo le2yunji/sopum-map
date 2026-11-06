@@ -5,15 +5,20 @@ import { useState } from "react";
 import type { CourseDetailShop } from "@sopum-map/shared";
 
 import {
-  EXPANDED_TOP_OFFSET,
   useCourseVisitOrderSheetGesture,
   type CourseVisitOrderSheetState,
 } from "../_hooks/courseVisitOrderSheet";
 
 import { CourseDetailShopItem } from "./CourseDetailShopItem";
+import {
+  COURSE_DETAIL_SHEET_HANDLE_CLASS_NAME,
+  COURSE_DETAIL_SHEET_HORIZONTAL_PADDING_CLASS_NAME,
+  COURSE_DETAIL_SHEET_SURFACE_CLASS_NAME,
+} from "./course-detail-sheet.styles";
 
 type Props = Readonly<{
   shops: readonly CourseDetailShop[];
+  expandedTopOffset: number;
   onOpenShopActions: (
     shop: CourseDetailShop,
     previousShop: CourseDetailShop | null,
@@ -21,7 +26,11 @@ type Props = Readonly<{
 }>;
 
 /** 지도 위에서 접고 펼칠 수 있는 방문순서 목록을 표시합니다. */
-export function CourseVisitOrderSheet({ shops, onOpenShopActions }: Props) {
+export function CourseVisitOrderSheet({
+  shops,
+  expandedTopOffset,
+  onOpenShopActions,
+}: Props) {
   const [state, setState] = useState<CourseVisitOrderSheetState>("collapsed");
   const isExpanded = state === "expanded";
   const {
@@ -36,6 +45,7 @@ export function CourseVisitOrderSheet({ shops, onOpenShopActions }: Props) {
     handleListClickCapture,
   } = useCourseVisitOrderSheetGesture({
     state,
+    expandedTopOffset,
     onStateChange: setState,
   });
 
@@ -44,10 +54,10 @@ export function CourseVisitOrderSheet({ shops, onOpenShopActions }: Props) {
       ref={sheetRef}
       aria-label="코스 방문 순서"
       style={{
-        height: `calc(100% - ${EXPANDED_TOP_OFFSET}px)`,
+        height: `calc(100% - ${expandedTopOffset}px)`,
         transform: initialTransform,
       }}
-      className="absolute inset-x-0 bottom-0 z-30 flex flex-col overflow-hidden rounded-t-sheet bg-white shadow-[0_-6px_16px_rgba(0,0,0,0.08)]"
+      className={`absolute inset-x-0 bottom-0 z-30 flex flex-col overflow-hidden ${COURSE_DETAIL_SHEET_SURFACE_CLASS_NAME}`}
     >
       <button
         type="button"
@@ -58,11 +68,11 @@ export function CourseVisitOrderSheet({ shops, onOpenShopActions }: Props) {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
-        className="block w-full shrink-0 cursor-grab touch-none select-none px-5 pb-3 pt-3 text-left active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-green-700"
+        className={`block w-full shrink-0 cursor-grab touch-none select-none pb-3 pt-3 text-left active:cursor-grabbing focus-visible:outline-2 focus-visible:outline-inset focus-visible:outline-green-700 ${COURSE_DETAIL_SHEET_HORIZONTAL_PADDING_CLASS_NAME}`}
       >
         <span
           aria-hidden="true"
-          className="mx-auto mb-3 block h-1 w-10 rounded-full bg-black-300"
+          className={`mx-auto mb-3 block ${COURSE_DETAIL_SHEET_HANDLE_CLASS_NAME}`}
         />
 
         <span className="flex items-center justify-between">
@@ -81,7 +91,7 @@ export function CourseVisitOrderSheet({ shops, onOpenShopActions }: Props) {
           aria-hidden={!isExpanded}
           inert={!isExpanded}
           onClickCapture={handleListClickCapture}
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-[max(24px,env(safe-area-inset-bottom))]"
+          className={`min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(24px,env(safe-area-inset-bottom))] ${COURSE_DETAIL_SHEET_HORIZONTAL_PADDING_CLASS_NAME}`}
         >
           {shops.map((shop, index) => (
             <CourseDetailShopItem
