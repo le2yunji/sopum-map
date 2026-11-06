@@ -27,6 +27,7 @@ import { CourseDetailHeader } from "./CourseDetailHeader";
 import { CourseRouteMap } from "./CourseRouteMap";
 import { CourseMoreSheet } from "./CourseMoreSheet";
 import { CourseShopActionSheet } from "./CourseShopActionSheet";
+import { CourseShopVisitSheet } from "./CourseShopVisitSheet";
 import { CourseVisibilitySheet } from "./CourseVisibilitySheet";
 import { CourseVisitOrderSheet } from "./CourseVisitOrderSheet";
 import { DeleteCourseSheet } from "./DeleteCourseSheet";
@@ -64,6 +65,8 @@ export function CourseDetailScreen({ courseId }: Props) {
   const [visibilitySheetOpen, setVisibilitySheetOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(true);
   const [selectedShop, setSelectedShop] = useState<SelectedShop | null>(null);
+  const [visitPromptShop, setVisitPromptShop] =
+    useState<CourseDetailShop | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const isCreated = searchParams.get("created") === "true";
   const isUpdated = searchParams.get("updated") === "true";
@@ -166,6 +169,33 @@ export function CourseDetailScreen({ courseId }: Props) {
     }
   };
 
+  /** 방문 상태를 저장한 뒤 선택에 따라 방문 로그 작성 화면으로 이동합니다. */
+  const handleRecordVisit = async (writeLog: boolean) => {
+    if (!visitPromptShop) {
+      return;
+    }
+
+    try {
+      await setVisitedMutation.mutateAsync({
+        courseId,
+        shopId: visitPromptShop.id,
+      });
+      const visitedShopId = visitPromptShop.id;
+      setVisitPromptShop(null);
+
+      if (writeLog) {
+        const returnTo = encodeURIComponent(`/courses/${courseId}`);
+        router.push(
+          `/shops/${visitedShopId}/visit-logs/new?returnTo=${returnTo}`,
+        );
+      } else {
+        setNotice("방문 완료로 표시했어요.");
+      }
+    } catch {
+      setNotice("방문 상태를 저장하지 못했어요.");
+    }
+  };
+
   if (isPending) {
     return (
       <div
@@ -223,27 +253,6 @@ export function CourseDetailScreen({ courseId }: Props) {
         onOpenShopActions={(shop, previousShop) => {
           setSelectedShop({ shop, previousShop });
         }}
-        isVisitPending={(shop) =>
-          (setVisitedMutation.isPending &&
-            setVisitedMutation.variables?.shopId === shop.id) ||
-          (unsetVisitedMutation.isPending &&
-            unsetVisitedMutation.variables?.shopId === shop.id)
-        }
-        onSetVisited={(shop) =>
-          setVisitedMutation
-            .mutateAsync({ courseId: course.id, shopId: shop.id })
-            .then(() => undefined)
-        }
-        onUnsetVisited={(shop) =>
-          unsetVisitedMutation
-            .mutateAsync({ courseId: course.id, shopId: shop.id })
-            .then(() => undefined)
-        }
-        onWriteLog={(shop) => {
-          const returnTo = encodeURIComponent(`/courses/${course.id}`);
-          router.push(`/shops/${shop.id}/visit-logs/new?returnTo=${returnTo}`);
-        }}
-        onVisitError={() => setNotice("방문 상태를 저장하지 못했어요.")}
       />
 
       <CourseMoreSheet
@@ -280,6 +289,40 @@ export function CourseDetailScreen({ courseId }: Props) {
           if (selectedShop) router.push(`/shops/${selectedShop.shop.id}`);
         }}
         onOpenRoute={handleOpenRoute}
+        isVisitPending={
+          setVisitedMutation.isPending || unsetVisitedMutation.isPending
+        }
+        onVisitToggle={() => {
+          if (!selectedShop) {
+            return;
+          }
+
+          if (!selectedShop.shop.isVisited) {
+            setVisitPromptShop(selectedShop.shop);
+            setSelectedShop(null);
+            return;
+          }
+
+          unsetVisitedMutation.mutate(
+            { courseId: course.id, shopId: selectedShop.shop.id },
+            {
+              onSuccess: () => {
+                setSelectedShop(null);
+                setNotice("방문 완료를 취소했어요.");
+              },
+              onError: () => setNotice("방문 상태를 저장하지 못했어요."),
+            },
+          );
+        }}
+      />
+      <CourseShopVisitSheet
+        open={visitPromptShop !== null}
+        isPending={setVisitedMutation.isPending}
+        onOpenChange={(open) => {
+          if (!open) setVisitPromptShop(null);
+        }}
+        onRecordOnly={() => void handleRecordVisit(false)}
+        onWriteLog={() => void handleRecordVisit(true)}
       />
       <DeleteCourseSheet
         open={deleteSheetOpen}

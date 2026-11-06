@@ -15,7 +15,7 @@ import {
   getCourseMapCenter,
   getCourseRouteKey,
   getWalkingCoursePath,
-} from "./course-route-display";
+} from "../_utils/course-route-display";
 import { getCourseMapInteractionOptions } from "./course-map-options";
 
 type Props = Readonly<{

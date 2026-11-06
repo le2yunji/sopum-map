@@ -16,13 +16,45 @@ function createVisitLog(overrides: Record<string, unknown> = {}) {
 }
 
 describe("VisitLog model", () => {
-  it("새 방문 로그에 active 상태와 빈 이미지 키를 기본값으로 적용한다", async () => {
+  it("새 방문 로그에 active 상태와 빈 이미지 목록을 기본값으로 적용한다", async () => {
     const visitLog = createVisitLog();
 
     await visitLog.validate();
 
     expect(visitLog.status).toBe("active");
-    expect(visitLog.imageKeys).toEqual([]);
+    expect(visitLog.images).toEqual([]);
+  });
+
+  it("이미지는 3장까지 허용하고 같은 키의 중복을 거부한다", async () => {
+    await expect(
+      createVisitLog({
+        images: [
+          { key: "visit-logs/user/a.webp" },
+          { key: "visit-logs/user/b.webp" },
+          { key: "visit-logs/user/c.webp" },
+        ],
+      }).validate(),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      createVisitLog({
+        images: [
+          { key: "visit-logs/user/a.webp" },
+          { key: "visit-logs/user/a.webp" },
+        ],
+      }).validate(),
+    ).rejects.toThrow();
+
+    await expect(
+      createVisitLog({
+        images: [
+          { key: "visit-logs/user/a.webp" },
+          { key: "visit-logs/user/b.webp" },
+          { key: "visit-logs/user/c.webp" },
+          { key: "visit-logs/user/d.webp" },
+        ],
+      }).validate(),
+    ).rejects.toThrow();
   });
 
   it.each([

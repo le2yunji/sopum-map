@@ -26,6 +26,11 @@ import { DEFAULT_IMAGES } from "@/constants/image.constants";
 
 import { getTodayDateInputValue, toVisitLogIsoDate } from "./visit-log-date";
 import { VisitLogTagSelector } from "./VisitLogTagSelector";
+import {
+  VisitLogImagePicker,
+  type VisitLogImageFormValue,
+} from "./VisitLogImagePicker";
+import { ChevronLeftIcon } from "@/components/icons";
 
 type ShopSummary = Readonly<{
   id: string;
@@ -66,6 +71,11 @@ export function VisitLogCreateForm({
   const [tagError, setTagError] = useState("");
   const [dateError, setDateError] = useState("");
   const [submitError, setSubmitError] = useState("");
+  const [images, setImages] = useState<readonly VisitLogImageFormValue[]>([]);
+  const [imageState, setImageState] = useState({
+    isBusy: false,
+    hasError: false,
+  });
   const firstTagRef = useRef<HTMLButtonElement>(null);
 
   /** 현재 단계에서 이전 화면으로 이동하고 첫 단계에서는 진입 화면으로 돌아갑니다. */
@@ -136,11 +146,21 @@ export function VisitLogCreateForm({
     }
 
     try {
+      if (imageState.isBusy || imageState.hasError) {
+        setSubmitError(
+          imageState.hasError
+            ? "업로드에 실패한 사진을 다시 시도하거나 삭제해 주세요."
+            : "사진 업로드가 끝날 때까지 기다려 주세요.",
+        );
+        return;
+      }
       await onSubmit({
         visitedAt,
         selectedTagKeys,
         content: content.trim() || null,
-        imageKeys: [],
+        imageUploadIds: images.flatMap((image) =>
+          image.type === "new" ? [image.uploadId] : [],
+        ),
       });
     } catch (error) {
       setSubmitError(getVisitLogSubmitError(error));
@@ -160,7 +180,7 @@ export function VisitLogCreateForm({
           onClick={handleBack}
           className="absolute left-3 text-24"
         >
-          ‹
+          <ChevronLeftIcon />
         </Button>
         <h1 className="text-18 font-semibold">방문 로그 작성 · {step}/3</h1>
       </header>
@@ -168,11 +188,14 @@ export function VisitLogCreateForm({
       <form onSubmit={(event) => void handleSubmit(event)} noValidate>
         {step === 1 && (
           <div className="space-y-2 px-5 py-5">
-            <h2 className="text-18 font-semibold">방문한 소품샵과 방문일</h2>
-            <div className="flex items-center gap-4 rounded-card bg-green-100/70 p-4">
+            <h2 className="text-16 font-semibold mb-3">
+              언제, 어디에 다녀오셨나요?
+            </h2>
+            <p className="text-14 font-semibold">방문한 소품샵</p>
+            <div className="flex items-center gap-4 rounded-card bg-green-100/20 p-4">
               <Image
                 src={shop.mainImageUrl ?? DEFAULT_IMAGES.shop}
-                alt=""
+                alt={`${shop.name}의 사진`}
                 width={80}
                 height={80}
                 loading="eager"
@@ -223,9 +246,15 @@ export function VisitLogCreateForm({
               <p className="mt-1 text-13 text-black-500">
                 사진을 추가하면 더 생생한 로그가 돼요 (선택)
               </p>
-              <Button type="button" variant="outline" disabled className="mt-3">
-                사진 추가 준비 중
-              </Button>
+              <VisitLogImagePicker
+                scrollerClassName="-mx-5 px-5 scroll-px-5"
+                disabled={isPending}
+                onChange={(nextImages, nextState) => {
+                  setImages(nextImages);
+                  setImageState(nextState);
+                  setSubmitError("");
+                }}
+              />
             </div>
             <Textarea
               label="방문 내용 (선택)"
@@ -306,7 +335,7 @@ export function VisitLogCreateForm({
               fullWidth
               size="large"
               isLoading={isPending}
-              disabled={isPending}
+              disabled={isPending || imageState.isBusy || imageState.hasError}
             >
               내 방문 로그에 기록하기
             </Button>

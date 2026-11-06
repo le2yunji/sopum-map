@@ -6,8 +6,10 @@ const modelMocks = vi.hoisted(() => ({
   findOneShop: vi.fn(),
 
   distinctLikedShopIds: vi.fn(),
+  aggregateLikeCounts: vi.fn(),
   existsShopLike: vi.fn(),
 
+  aggregateVisitLogCounts: vi.fn(),
   countVisitLogs: vi.fn(),
 }));
 
@@ -21,12 +23,14 @@ vi.mock("../../models/shop.model.js", () => ({
 vi.mock("../../models/shop-like.model.js", () => ({
   default: {
     distinct: modelMocks.distinctLikedShopIds,
+    aggregate: modelMocks.aggregateLikeCounts,
     exists: modelMocks.existsShopLike,
   },
 }));
 
 vi.mock("../../models/visit-log.model.js", () => ({
   default: {
+    aggregate: modelMocks.aggregateVisitLogCounts,
     countDocuments: modelMocks.countVisitLogs,
   },
 }));
@@ -130,6 +134,8 @@ describe("shop service", () => {
      * 기본적으로 좋아요가 없는 상태로 시작한다.
      */
     modelMocks.distinctLikedShopIds.mockResolvedValue([]);
+    modelMocks.aggregateLikeCounts.mockResolvedValue([]);
+    modelMocks.aggregateVisitLogCounts.mockResolvedValue([]);
     modelMocks.existsShopLike.mockResolvedValue(null);
   });
 
@@ -207,6 +213,7 @@ describe("shop service", () => {
           },
         ],
 
+        likeCount: 0,
         visitLogCount: 0,
         isLiked: false,
 
@@ -227,6 +234,29 @@ describe("shop service", () => {
 
         hasNext: true,
       });
+    });
+
+    it("현재 페이지 상점의 좋아요와 활성 방문 로그 수를 반영한다", async () => {
+      modelMocks.aggregateShops.mockResolvedValue([
+        { items: [shopDocument], count: [{ totalCount: 1 }] },
+      ]);
+      modelMocks.aggregateLikeCounts.mockResolvedValue([
+        { _id: shopId, count: 7 },
+      ]);
+      modelMocks.aggregateVisitLogCounts.mockResolvedValue([
+        { _id: shopId, count: 3 },
+      ]);
+
+      const result = await getShops({ page: 1, limit: 20, sort: "latest" });
+
+      expect(result.items[0]).toMatchObject({
+        likeCount: 7,
+        visitLogCount: 3,
+      });
+      expect(modelMocks.aggregateVisitLogCounts).toHaveBeenCalledWith([
+        { $match: { shopId: { $in: [shopId] }, status: "active" } },
+        { $group: { _id: "$shopId", count: { $sum: 1 } } },
+      ]);
     });
 
     it("로그인 사용자가 좋아요한 Shop이면 isLiked가 true다", async () => {

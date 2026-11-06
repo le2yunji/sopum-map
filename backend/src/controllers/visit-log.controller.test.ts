@@ -38,7 +38,7 @@ const body = {
   visitedAt: "2026-10-13T03:00:00.000Z",
   selectedTagKeys: ["cute"],
   content: null,
-  imageKeys: [],
+  imageUploadIds: [],
 } as const;
 
 /** 생성 컨트롤러 호출에 필요한 Express 객체를 준비합니다. */
@@ -93,7 +93,7 @@ describe("방문 로그 관리 컨트롤러", () => {
   });
 
   it("검증된 값으로 본인 로그를 수정한다", async () => {
-    const updateBody = { ...body, imageKeys: undefined };
+    const updateBody = { ...body, imageUploadIds: undefined };
     const context = createManageContext({ params: { visitLogId }, body: updateBody });
     await updateVisitLogController(context.request, context.response, context.next);
     expect(serviceMocks.updateVisitLog).toHaveBeenCalledWith(userId, visitLogId, updateBody);

@@ -23,6 +23,10 @@ export const toHomeShopCardItem = (shop: ShopListItem) => {
       .slice(0, 3)
       .map((tag) => TAG_DEFINITION_BY_KEY[tag.key].label),
 
+    likeCount: shop.likeCount,
+
+    visitLogCount: shop.visitLogCount,
+
     isLiked: shop.isLiked,
   };
 };

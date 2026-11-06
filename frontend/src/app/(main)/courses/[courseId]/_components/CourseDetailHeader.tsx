@@ -5,13 +5,13 @@ import {
   type CourseDetailData,
 } from "@sopum-map/shared";
 
+import { getCourseAuthorDisplayName } from "../_utils/course-author";
 import {
   ChevronLeftIcon,
   ChevronUpIcon,
   HeartIcon,
   MoreIcon,
 } from "@/components/icons";
-import { getCourseAuthorDisplayName } from "./course-author";
 import { Badge } from "@/components/ui/Badge/Badge";
 
 type Props = Readonly<{

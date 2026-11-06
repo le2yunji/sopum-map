@@ -126,11 +126,11 @@
 | `visitedDate` | string | 중복 검사용 한국 날짜 `YYYY-MM-DD` |
 | `selectedTagKeys` | `TagKey[]` | 활성 태그 1~8개, 중복 금지 |
 | `content` | string/null | 선택, trim, 최대 1,000자 |
-| `imageKeys` | string[] | S3 도입 전 빈 배열, 최대 5개 |
+| `images` | `{ key: string }[]` | Private S3 최종 Object Key, 최대 3개, 중복 금지 |
 | `status` | active/deleted | 기본 active, 소프트 삭제 |
 | timestamps | Date | 생성·수정 시각 |
 
-기존 `imageUrls` 데이터가 있다면 읽기 호환을 유지하고, S3 도입 시 새 저장은 `imageKeys`를 사용한다. API 응답의 `imageUrls`는 CDN 또는 S3 공개 경로를 조합한 표시 URL로 유지한다.
+이미지 URL은 DB에 저장하지 않는다. 공개 목록은 Object Key를 CDN URL로 바꾼 `imageUrls`를 반환하고, 본인 로그는 수정에 필요한 `key`와 표시용 `url`을 함께 반환한다. 현재 DB에 기존 로그가 없다는 전제로 `imageUrls`와 `imageKeys` 필드는 제거한다.
 
 상점별 공개 조회 인덱스는 `shopId + status + visitedAt`, 내 목록은 `userId + status + visitedAt`을 기준으로 한다. 정보량 우선 정렬은 사진·글 존재 여부를 계산하는 aggregation 또는 저장된 정렬 보조값으로 구현하되, 초기에는 aggregation을 우선하여 중복 상태 저장을 피한다.
 
@@ -138,14 +138,14 @@
 
 | Method | Endpoint | 역할 |
 | --- | --- | --- |
-| POST | `/shops/:shopId/visit-logs` | 이미지 없는 로그부터 작성 |
+| POST | `/shops/:shopId/visit-logs` | 이미지 업로드 ID를 포함한 로그 작성 |
 | GET | `/shops/:shopId/visit-logs` | 상점 상세 공개 목록 |
 | GET | `/me/visit-logs` | 내 방문 로그 |
 | PATCH | `/visit-logs/:visitLogId` | 본인 로그 수정 |
 | DELETE | `/visit-logs/:visitLogId` | 본인 로그 소프트 삭제 |
-| POST | `/uploads/visit-log-images/presign` | 후속 S3 업로드 URL 발급 |
+| POST | `/uploads/presign` | 방문 로그 이미지 Presigned POST 발급 |
 
-작성 요청은 `visitedAt`, `selectedTagKeys`, `content`, `imageKeys`를 받는다. 백엔드는 상점 존재 여부, 미래 방문일, 활성 태그, 태그 수와 중복, 이미지 키 소유권을 검증한다.
+작성 요청은 `visitedAt`, `selectedTagKeys`, `content`, `imageUploadIds`를 받는다. 백엔드는 상점 존재 여부, 미래 방문일, 활성 태그, 태그 수와 중복, 업로드 ID 소유권과 S3 객체의 WebP 형식·크기를 검증한다. 수정 요청은 기존 이미지 키와 새 `uploadId`를 구분하며 배열 순서를 표시 순서로 사용한다.
 
 서버는 `visitedAt`에서 한국 날짜 `visitedDate`를 계산한다. 동일 사용자·상점·`visitedDate`의 활성 로그가 있으면 `409 VISIT_LOG_ALREADY_EXISTS`를 반환한다.
 

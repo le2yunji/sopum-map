@@ -9,7 +9,7 @@ describe("mapVisitLogListItem", () => {
         _id: "visit-log-id",
         selectedTagKeys: ["cute", "friendly"],
         content: null,
-        imageUrls: [],
+        images: [],
         visitedAt: new Date("2026-10-13T03:00:00.000Z"),
         createdAt: new Date("2026-10-13T04:00:00.000Z"),
       },
@@ -28,7 +28,7 @@ describe("mapVisitLogListItem", () => {
     const result = mapVisitLogListItem({
       visitLog: {
         _id: "legacy-visit-log-id",
-        imageUrls: [],
+        images: [],
         visitedAt: new Date("2026-10-13T03:00:00.000Z"),
         createdAt: new Date("2026-10-13T04:00:00.000Z"),
       },

@@ -26,7 +26,7 @@ function createValidVisitLogRequest() {
       visitedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
       selectedTagKeys: ["cute"],
       content: "아기자기한 소품이 많았어요.",
-      imageKeys: [],
+      imageUploadIds: [],
     },
   };
 }
@@ -131,13 +131,39 @@ describe("createVisitLogSchema", () => {
     ).toThrow();
   });
 
-  it("S3 도입 전에는 이미지 키가 있는 요청을 거부한다", () => {
+  it("이미지 업로드 ID를 3개까지 허용하고 중복은 거부한다", () => {
+    const uploadIds = [
+      "6a8a68e15e2aa43be6a65490",
+      "6a8a68e15e2aa43be6a65491",
+      "6a8a68e15e2aa43be6a65492",
+    ];
+
     expect(() =>
       createVisitLogSchema.parse({
         ...createValidVisitLogRequest(),
         body: {
           ...createValidVisitLogRequest().body,
-          imageKeys: ["visit-logs/user/image.webp"],
+          imageUploadIds: uploadIds,
+        },
+      }),
+    ).not.toThrow();
+
+    expect(() =>
+      createVisitLogSchema.parse({
+        ...createValidVisitLogRequest(),
+        body: {
+          ...createValidVisitLogRequest().body,
+          imageUploadIds: [...uploadIds, "6a8a68e15e2aa43be6a65493"],
+        },
+      }),
+    ).toThrow();
+
+    expect(() =>
+      createVisitLogSchema.parse({
+        ...createValidVisitLogRequest(),
+        body: {
+          ...createValidVisitLogRequest().body,
+          imageUploadIds: [uploadIds[0], uploadIds[0]],
         },
       }),
     ).toThrow();

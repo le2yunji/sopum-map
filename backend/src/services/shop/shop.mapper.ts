@@ -16,6 +16,7 @@ import { mapShopTags } from "../../mappers/shop-tag.mapper.js";
 
 type MapShopListItemParams = {
   shop: ShopListAggregateItem;
+  likeCount?: number;
   visitLogCount: number;
   isLiked: boolean;
 };
@@ -60,6 +61,7 @@ const mapShopBusinessHours = (
  */
 export const mapShopListItem = ({
   shop,
+  likeCount,
   visitLogCount,
   isLiked,
 }: MapShopListItemParams): ShopListItem => {
@@ -79,7 +81,7 @@ export const mapShopListItem = ({
     longitude,
     mainImageUrl: getMainShopImageUrl(shop.images),
     status: shop.status,
-    likeCount: shop.likeCount,
+    likeCount: likeCount ?? shop.likeCount,
     visitLogCount,
     isLiked,
   };

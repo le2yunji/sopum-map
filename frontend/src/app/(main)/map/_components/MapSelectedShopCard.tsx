@@ -9,6 +9,7 @@ import { PickButton } from "@/components/pick/PickButton";
 import { Button } from "@/components/ui/Button";
 
 import type { MapShop } from "@/components/naver-map";
+import { getMapTagLabel } from "../_mappers/mapTagLabel";
 
 type MapSelectedShopCardProps = Readonly<{
   shop: MapShop;
@@ -92,7 +93,7 @@ export function MapSelectedShopCard({
                     text-10 text-green-900
                   "
                 >
-                  #{tag}
+                  #{getMapTagLabel(tag)}
                 </span>
               ))}
             </span>

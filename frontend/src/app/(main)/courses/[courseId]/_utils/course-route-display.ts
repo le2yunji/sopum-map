@@ -19,18 +19,24 @@ const DEFAULT_COURSE_MAP_CENTER: CoursePathCoordinate = {
   longitude: 127.056,
 };
 
-/** 도보 구간을 사용자가 빠르게 읽을 수 있는 거리와 시간으로 표시합니다. */
-export function formatWalkingSegment({
+/** 연결선에 나눠 표시할 도보 시간과 거리 문구를 만듭니다. */
+export function formatWalkingSegmentParts({
   distanceMeters,
   durationSeconds,
-}: WalkingSegmentSummary): string {
+}: WalkingSegmentSummary): Readonly<{
+  durationLabel: string;
+  distanceLabel: string;
+}> {
   const durationMinutes = Math.ceil(durationSeconds / 60);
   const distance =
     distanceMeters < 1000
       ? `${Math.round(distanceMeters)}m`
       : `${(distanceMeters / 1000).toFixed(1)}km`;
 
-  return `도보 ${durationMinutes}분 · ${distance}`;
+  return {
+    durationLabel: `도보 ${durationMinutes}분`,
+    distanceLabel: distance,
+  };
 }
 
 /** 외부 경로에서 유효한 WGS84 좌표만 지도용 경로로 전달합니다. */
@@ -65,7 +71,9 @@ export function getCourseMapCenter(
   const firstShop = [...shops]
     .sort((first, second) => first.order - second.order)
     .find(
-      (shop): shop is CourseMapCenterShop & {
+      (
+        shop,
+      ): shop is CourseMapCenterShop & {
         latitude: number;
         longitude: number;
       } => shop.latitude !== null && shop.longitude !== null,

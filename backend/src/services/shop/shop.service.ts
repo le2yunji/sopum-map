@@ -13,6 +13,18 @@ import type {
 import ShopLikeModel from "../../models/shop-like.model.js";
 import VisitLogModel from "../../models/visit-log.model.js";
 
+type ShopCountAggregate = Readonly<{
+  _id: { toString(): string };
+  count: number;
+}>;
+
+/** 상점별 집계 결과를 빠르게 조회할 수 있는 Map으로 바꿉니다. */
+function createShopCountMap(
+  results: readonly ShopCountAggregate[],
+): ReadonlyMap<string, number> {
+  return new Map(results.map((result) => [result._id.toString(), result.count]));
+}
+
 export const getShops = async (
   params: GetShopsServiceParams,
 ): Promise<GetShopsServiceResult> => {
@@ -32,14 +44,27 @@ export const getShops = async (
    * 로그인 사용자인 경우
    * 현재 페이지의 Shop 중 좋아요한 Shop ID만 조회
    */
-  const likedShopIds = userId
-    ? await ShopLikeModel.distinct("shopId", {
-        userId,
-        shopId: {
-          $in: rawItems.map((shop) => shop._id),
-        },
-      })
-    : [];
+  const shopIds = rawItems.map((shop) => shop._id);
+  const [likedShopIds, likeCounts, visitLogCounts] = await Promise.all([
+    userId
+      ? ShopLikeModel.distinct("shopId", {
+          userId,
+          shopId: { $in: shopIds },
+        })
+      : [],
+    shopIds.length > 0
+      ? ShopLikeModel.aggregate<ShopCountAggregate>([
+          { $match: { shopId: { $in: shopIds } } },
+          { $group: { _id: "$shopId", count: { $sum: 1 } } },
+        ])
+      : [],
+    shopIds.length > 0
+      ? VisitLogModel.aggregate<ShopCountAggregate>([
+          { $match: { shopId: { $in: shopIds }, status: "active" } },
+          { $group: { _id: "$shopId", count: { $sum: 1 } } },
+        ])
+      : [],
+  ]);
 
   /**
    * 좋아요 여부 확인을 빠르게 하기 위해 Set으로 변환
@@ -47,17 +72,22 @@ export const getShops = async (
   const likedShopIdSet = new Set(
     likedShopIds.map((shopId) => shopId.toString()),
   );
+  const likeCountByShopId = createShopCountMap(likeCounts);
+  const visitLogCountByShopId = createShopCountMap(visitLogCounts);
 
   /**
    *  DB 형태 → API 형태
    */
-  const items = rawItems.map((shop) =>
-    mapShopListItem({
+  const items = rawItems.map((shop) => {
+    const shopId = shop._id.toString();
+
+    return mapShopListItem({
       shop,
-      visitLogCount: 0,
-      isLiked: likedShopIdSet.has(shop._id.toString()),
-    }),
-  );
+      likeCount: likeCountByShopId.get(shopId) ?? 0,
+      visitLogCount: visitLogCountByShopId.get(shopId) ?? 0,
+      isLiked: likedShopIdSet.has(shopId),
+    });
+  });
 
   const totalPages = Math.ceil(totalCount / limit);
 

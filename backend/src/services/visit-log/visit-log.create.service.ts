@@ -9,6 +9,11 @@ import ShopModel from "../../models/shop.model.js";
 import VisitLogModel from "../../models/visit-log.model.js";
 import { toKoreaDateKey } from "../../utils/korea-date.js";
 import { isMongoDuplicateKeyError } from "../../utils/mongo-error.js";
+import {
+  abortVisitLogImages,
+  attachVisitLogImages,
+  prepareVisitLogImages,
+} from "../upload/upload-finalization.service.js";
 import type {
   CreateVisitLogServiceInput,
   CreateVisitLogServiceResult,
@@ -25,17 +30,6 @@ function validateActiveTagKeys(tagKeys: readonly string[]): void {
       status: 400,
       code: "INVALID_VISIT_LOG_TAG",
       message: "선택할 수 없는 방문 태그가 포함되어 있습니다.",
-    });
-  }
-}
-
-/** 이미지 업로드가 준비되기 전에는 이미지 없는 로그만 생성합니다. */
-function validateImageKeys(imageKeys: readonly string[]): void {
-  if (imageKeys.length > 0) {
-    throw createApiError({
-      status: 400,
-      code: "VISIT_LOG_IMAGE_NOT_SUPPORTED",
-      message: "방문 로그 이미지 업로드는 아직 지원하지 않습니다.",
     });
   }
 }
@@ -104,9 +98,7 @@ export async function createVisitLog(
   shopId: string,
   input: CreateVisitLogServiceInput,
 ): Promise<CreateVisitLogServiceResult> {
-  const imageKeys = input.imageKeys ?? [];
-
-  validateImageKeys(imageKeys);
+  const imageUploadIds = input.imageUploadIds ?? [];
   validateActiveTagKeys(input.selectedTagKeys);
 
   const objectUserId = new Types.ObjectId(userId);
@@ -120,6 +112,7 @@ export async function createVisitLog(
   }
 
   const content = input.content?.trim() || null;
+  const preparedImages = await prepareVisitLogImages(userId, imageUploadIds);
   let visitLog;
 
   try {
@@ -130,16 +123,19 @@ export async function createVisitLog(
       visitedDate,
       selectedTagKeys: [...input.selectedTagKeys],
       content,
-      imageKeys: [...imageKeys],
+      images: preparedImages.images.map((image) => ({ key: image.key })),
       status: "active",
     });
   } catch (error) {
+    await abortVisitLogImages(preparedImages, error);
     if (isMongoDuplicateKeyError(error)) {
       throw createDuplicateVisitLogError();
     }
 
     throw error;
   }
+
+  await attachVisitLogImages(preparedImages, visitLog._id);
 
   return { visitLogId: visitLog._id.toString() };
 }

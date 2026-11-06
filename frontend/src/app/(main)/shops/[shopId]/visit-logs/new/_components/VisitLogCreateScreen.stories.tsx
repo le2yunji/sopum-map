@@ -79,7 +79,7 @@ export const CreateVisitLog: Story = {
         visitedAt: "2026-10-13T03:00:00.000Z",
         selectedTagKeys: ["keyrings"],
         content: "다시 가고 싶은 상점이에요.",
-        imageKeys: [],
+        imageUploadIds: [],
       });
     });
   },

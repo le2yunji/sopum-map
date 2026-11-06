@@ -2,6 +2,7 @@ import { Schema, model, type InferSchemaType } from "mongoose";
 import {
   TAG_KEYS,
   VISIT_LOG_CONTENT_MAX_LENGTH,
+  VISIT_LOG_IMAGE_MAX_COUNT,
   VISIT_LOG_STATUSES,
   VISIT_LOG_TAG_MAX_COUNT,
 } from "@sopum-map/shared";
@@ -15,6 +16,22 @@ function hasValidTagCount(tagKeys: string[]): boolean {
 function hasUniqueTags(tagKeys: string[]): boolean {
   return new Set(tagKeys).size === tagKeys.length;
 }
+
+/** 한 방문 로그의 이미지 키가 서로 다른지 확인합니다. */
+function hasUniqueImageKeys(images: Array<{ key: string }>): boolean {
+  return new Set(images.map((image) => image.key)).size === images.length;
+}
+
+const visitLogImageSchema = new Schema(
+  {
+    key: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+  },
+  { _id: false },
+);
 
 const visitLogSchema = new Schema(
   {
@@ -75,16 +92,21 @@ const visitLogSchema = new Schema(
       maxlength: VISIT_LOG_CONTENT_MAX_LENGTH,
     },
 
-    // 방문 기록에 첨부한 이미지
-    imageUrls: {
-      type: [String],
+    // Private S3에 확정된 방문 기록 이미지
+    images: {
+      type: [visitLogImageSchema],
       default: [],
-    },
-
-    // S3 객체 경로는 이미지 업로드 기능에서 사용
-    imageKeys: {
-      type: [String],
-      default: [],
+      validate: [
+        {
+          validator: (images: Array<{ key: string }>) =>
+            images.length <= VISIT_LOG_IMAGE_MAX_COUNT,
+          message: `이미지는 최대 ${VISIT_LOG_IMAGE_MAX_COUNT}장까지 등록할 수 있습니다.`,
+        },
+        {
+          validator: hasUniqueImageKeys,
+          message: "같은 이미지는 중복 등록할 수 없습니다.",
+        },
+      ],
     },
 
     // 삭제된 로그는 공개 조회와 집계에서 제외

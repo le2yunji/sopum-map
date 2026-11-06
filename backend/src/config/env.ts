@@ -39,4 +39,10 @@ export const env = {
   kakaoClientSecret: process.env.KAKAO_CLIENT_SECRET as string,
 
   kakaoRedirectUri: process.env.KAKAO_REDIRECT_URI as string,
+
+  awsRegion: process.env.AWS_REGION || "ap-northeast-2",
+
+  s3BucketName: process.env.S3_BUCKET_NAME || "",
+
+  imageBaseUrl: process.env.IMAGE_BASE_URL || "",
 };

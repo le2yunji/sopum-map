@@ -79,9 +79,12 @@ export function useCreateVisitLog(shopId: string) {
   return useMutation({
     mutationFn: (input: CreateVisitLogRequest) => createVisitLog(shopId, input),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: shopQueryKeys.detail(shopId),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: shopQueryKeys.detail(shopId),
+        }),
+        queryClient.invalidateQueries({ queryKey: shopQueryKeys.lists() }),
+      ]);
     },
   });
 }
