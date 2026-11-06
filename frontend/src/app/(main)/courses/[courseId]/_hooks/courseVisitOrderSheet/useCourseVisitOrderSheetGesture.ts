@@ -12,7 +12,6 @@ import {
 import {
   COLLAPSED_HEIGHT,
   DRAG_START_THRESHOLD,
-  EXPANDED_TOP_OFFSET,
   SNAP_DURATION,
 } from "./courseVisitOrderSheet.constants";
 import { getNextCourseVisitOrderSheetState } from "./courseVisitOrderSheet";
@@ -20,12 +19,14 @@ import type { CourseVisitOrderSheetState } from "./courseVisitOrderSheet.types";
 
 type Options = Readonly<{
   state: CourseVisitOrderSheetState;
+  expandedTopOffset: number;
   onStateChange: (state: CourseVisitOrderSheetState) => void;
 }>;
 
 /** 방문순서 시트의 위치, 드래그, 목록 스크롤과 스냅을 관리합니다. */
 export function useCourseVisitOrderSheetGesture({
   state,
+  expandedTopOffset,
   onStateChange,
 }: Options) {
   const isExpanded = state === "expanded";
@@ -51,8 +52,8 @@ export function useCourseVisitOrderSheetGesture({
       return COLLAPSED_HEIGHT;
     }
 
-    return Math.max(parentHeight - EXPANDED_TOP_OFFSET, COLLAPSED_HEIGHT);
-  }, []);
+    return Math.max(parentHeight - expandedTopOffset, COLLAPSED_HEIGHT);
+  }, [expandedTopOffset]);
 
   /** 접힌 상태가 되기 위해 시트를 아래로 옮길 거리를 계산합니다. */
   const getCollapsedTranslateY = useCallback(

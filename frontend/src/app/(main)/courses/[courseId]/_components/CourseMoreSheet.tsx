@@ -2,6 +2,12 @@
 
 import { BottomSheet } from "@/components/ui/BottomSheet";
 
+import {
+  COURSE_DETAIL_SHEET_HANDLE_CLASS_NAME,
+  COURSE_DETAIL_SHEET_HORIZONTAL_PADDING_CLASS_NAME,
+  COURSE_DETAIL_SHEET_SURFACE_CLASS_NAME,
+} from "./course-detail-sheet.styles";
+
 type Props = Readonly<{
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -21,9 +27,10 @@ export function CourseMoreSheet({
       open={open}
       onOpenChange={onOpenChange}
       ariaLabel="코스 더보기"
+      className={`min-h-[200px] ${COURSE_DETAIL_SHEET_SURFACE_CLASS_NAME} ${COURSE_DETAIL_SHEET_HORIZONTAL_PADDING_CLASS_NAME}`}
     >
-      <BottomSheet.Handle />
-      <BottomSheet.Body className="space-y-1">
+      <BottomSheet.Handle className={COURSE_DETAIL_SHEET_HANDLE_CLASS_NAME} />
+      <BottomSheet.Body className="mt-3! space-y-1">
         <button
           type="button"
           onClick={onEdit}

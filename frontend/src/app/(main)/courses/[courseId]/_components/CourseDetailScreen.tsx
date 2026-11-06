@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import type { CourseDetailShop } from "@sopum-map/shared";
@@ -22,6 +22,8 @@ import {
   createNaverMapWalkRouteBetweenUrl,
   createNaverMapWalkRouteUrl,
 } from "@/utils/naver-map";
+
+import { EXPANDED_TOP_OFFSET } from "../_hooks/courseVisitOrderSheet";
 
 import { CourseDetailHeader } from "./CourseDetailHeader";
 import { CourseRouteMap } from "./CourseRouteMap";
@@ -64,6 +66,10 @@ export function CourseDetailScreen({ courseId }: Props) {
   const [deleteSheetOpen, setDeleteSheetOpen] = useState(false);
   const [visibilitySheetOpen, setVisibilitySheetOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(true);
+  const screenRef = useRef<HTMLElement>(null);
+  const courseInfoRef = useRef<HTMLElement>(null);
+  const [visitOrderExpandedTopOffset, setVisitOrderExpandedTopOffset] =
+    useState(EXPANDED_TOP_OFFSET);
   const [selectedShop, setSelectedShop] = useState<SelectedShop | null>(null);
   const [visitPromptShop, setVisitPromptShop] =
     useState<CourseDetailShop | null>(null);
@@ -76,6 +82,36 @@ export function CourseDetailScreen({ courseId }: Props) {
     : isUpdated
       ? "코스가 수정되었어요."
       : null;
+
+  useLayoutEffect(() => {
+    const screen = screenRef.current;
+    const courseInfo = courseInfoRef.current;
+
+    if (!screen || !courseInfo) {
+      return;
+    }
+
+    /** 코스 정보 카드의 실제 윗선을 방문 순서 시트의 펼침 위치로 동기화합니다. */
+    const updateExpandedTopOffset = () => {
+      const nextOffset =
+        courseInfo.getBoundingClientRect().top -
+        screen.getBoundingClientRect().top;
+
+      if (nextOffset < 0) {
+        return;
+      }
+
+      setVisitOrderExpandedTopOffset((currentOffset) =>
+        Math.abs(currentOffset - nextOffset) < 0.5 ? currentOffset : nextOffset,
+      );
+    };
+
+    updateExpandedTopOffset();
+    const observer = new ResizeObserver(updateExpandedTopOffset);
+    observer.observe(screen);
+    observer.observe(courseInfo);
+    return () => observer.disconnect();
+  }, [course?.id, infoOpen]);
 
   useEffect(() => {
     if (!isCreated && !isUpdated) {
@@ -220,6 +256,7 @@ export function CourseDetailScreen({ courseId }: Props) {
 
   return (
     <section
+      ref={screenRef}
       aria-label="코스 지도 화면"
       className="relative h-dvh min-h-[560px] overflow-hidden bg-green-50"
     >
@@ -236,6 +273,7 @@ export function CourseDetailScreen({ courseId }: Props) {
         visibilityPending={visibilityMutation.isPending}
         currentUserNickname={currentUser?.nickname}
         infoOpen={infoOpen}
+        infoSectionRef={courseInfoRef}
         onBack={() => router.back()}
         onShare={() => void handleShare()}
         onMore={() => setMoreSheetOpen(true)}
@@ -249,6 +287,7 @@ export function CourseDetailScreen({ courseId }: Props) {
       />
 
       <CourseVisitOrderSheet
+        expandedTopOffset={visitOrderExpandedTopOffset}
         shops={orderedShops}
         onOpenShopActions={(shop, previousShop) => {
           setSelectedShop({ shop, previousShop });

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/nextjs-vite";
 import type { CourseDetailData } from "@sopum-map/shared";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { expect, userEvent, within } from "storybook/test";
+import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import { courseKeys } from "@/api/course/course.query";
 import { courseRouteQueryKeys } from "@/api/course-route/course-route.query";
@@ -139,9 +139,18 @@ export const OtherUserCourse: Story = {
 
     await expect(sheetToggle).toHaveAttribute("aria-expanded", "false");
     await userEvent.click(sheetToggle);
-    await expect(
-      canvas.getByRole("button", { name: "방문 순서 접기" }),
-    ).toHaveAttribute("aria-expanded", "true");
+    const courseInfo = canvas.getByRole("region", { name: "코스 정보" });
+    const visitOrderSheet = canvas.getByRole("region", {
+      name: "코스 방문 순서",
+    });
+    await waitFor(() => {
+      expect(
+        Math.abs(
+          visitOrderSheet.getBoundingClientRect().top -
+            courseInfo.getBoundingClientRect().top,
+        ),
+      ).toBeLessThanOrEqual(1);
+    });
     await expect(canvas.getByText("by 빵별일지")).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "코스 공유" }),
@@ -168,14 +177,28 @@ export const LongContent: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(
-      canvas.getByRole("region", { name: "코스 정보" }),
-    ).toBeVisible();
+    const courseInfo = canvas.getByRole("region", { name: "코스 정보" });
+    const courseInfoTop = courseInfo.getBoundingClientRect().top;
+    await expect(courseInfo).toBeVisible();
     await expect(
       canvas.getByRole("heading", {
         name: "성수동 골목을 천천히 걸으며 오래 기억하고 싶은 소품을 발견하는 산책 코스",
       }),
     ).toBeVisible();
+    await userEvent.click(
+      canvas.getByRole("button", { name: "코스 정보 접기" }),
+    );
+    await userEvent.click(
+      canvas.getByRole("button", { name: "방문 순서 펼치기" }),
+    );
+    const visitOrderSheet = canvas.getByRole("region", {
+      name: "코스 방문 순서",
+    });
+    await waitFor(() => {
+      expect(
+        Math.abs(visitOrderSheet.getBoundingClientRect().top - courseInfoTop),
+      ).toBeLessThanOrEqual(1);
+    });
   },
 };
 
@@ -217,6 +240,24 @@ export const MyCourse: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const courseScreen = canvas.getByRole("region", {
+      name: "코스 지도 화면",
+    });
+    const visitOrderSheet = canvas.getByRole("region", {
+      name: "코스 방문 순서",
+    });
+    const visitOrderToggle = canvas.getByRole("button", {
+      name: "방문 순서 펼치기",
+    });
+    const visitOrderHandle = visitOrderToggle.querySelector<HTMLElement>(
+      '[aria-hidden="true"]',
+    );
+    if (!visitOrderHandle) {
+      throw new Error("방문 순서 시트 손잡이를 찾을 수 없습니다.");
+    }
+    const collapsedVisitOrderHeight =
+      courseScreen.getBoundingClientRect().bottom -
+      visitOrderSheet.getBoundingClientRect().top;
     await expect(
       canvas.getByRole("button", { name: "공개 상태 변경" }),
     ).toBeVisible();
@@ -232,6 +273,41 @@ export const MyCourse: Story = {
     await expect(
       canvas.getByRole("button", { name: "코스 삭제" }),
     ).toBeVisible();
+    const moreDialog = canvas.getByRole("dialog", { name: "코스 더보기" });
+    const moreSurface = moreDialog.firstElementChild;
+    const moreHandle = moreDialog.querySelector<HTMLElement>(
+      '[aria-hidden="true"]',
+    );
+    if (!(moreSurface instanceof HTMLElement) || !moreHandle) {
+      throw new Error("코스 더보기 시트 표면을 찾을 수 없습니다.");
+    }
+
+    await waitFor(() => {
+      expect(
+        Math.abs(
+          moreSurface.getBoundingClientRect().height -
+            collapsedVisitOrderHeight,
+        ),
+      ).toBeLessThanOrEqual(1);
+    });
+
+    const visitOrderStyle = getComputedStyle(visitOrderSheet);
+    const moreStyle = getComputedStyle(moreSurface);
+    const visitOrderHandleStyle = getComputedStyle(visitOrderHandle);
+    const moreHandleStyle = getComputedStyle(moreHandle);
+
+    await expect(moreStyle.borderTopLeftRadius).toBe(
+      visitOrderStyle.borderTopLeftRadius,
+    );
+    await expect(moreStyle.boxShadow).toBe(visitOrderStyle.boxShadow);
+    await expect(moreStyle.paddingLeft).toBe(
+      getComputedStyle(visitOrderToggle).paddingLeft,
+    );
+    await expect(moreHandleStyle.width).toBe(visitOrderHandleStyle.width);
+    await expect(moreHandleStyle.height).toBe(visitOrderHandleStyle.height);
+    await expect(moreHandleStyle.backgroundColor).toBe(
+      visitOrderHandleStyle.backgroundColor,
+    );
   },
 };
 
