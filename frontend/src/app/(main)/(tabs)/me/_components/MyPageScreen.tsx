@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useLogout } from "@/hooks/useLogout";
 
-import { MyPageActivityMenu, MyPageSupportMenu } from "./MyPageMenu";
+import { MyPageActivityMenu } from "./MyPageMenu";
 import { MyPageProfileCard } from "./MyPageProfileCard";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 
@@ -86,8 +86,6 @@ export function MyPageScreen({ isEmpty = false, state = "success" }: Props) {
       </Link>
 
       <MyPageActivityMenu isEmpty={isEmpty} />
-
-      <MyPageSupportMenu />
 
       <Button
         fullWidth

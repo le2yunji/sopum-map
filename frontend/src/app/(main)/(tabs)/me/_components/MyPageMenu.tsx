@@ -3,24 +3,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import {
-  ChevronRightIcon,
-  CourseIcon,
-  SettingIcon,
-  StoreIcon,
-  CameraIcon,
-} from "@/components/icons";
+import { ChevronRightIcon, CourseIcon, CameraIcon } from "@/components/icons";
 import { useInfiniteMyVisitLogs } from "@/api/visit-log/visit-log.query";
 
 type ActivityItem = Readonly<{
   label: string;
   count: number;
-  href: string;
-  icon: ReactNode;
-}>;
-
-type MenuLinkProps = Readonly<{
-  label: string;
   href: string;
   icon: ReactNode;
 }>;
@@ -76,39 +64,5 @@ export function MyPageActivityMenu({
         </Link>
       ))}
     </nav>
-  );
-}
-
-/** 제보와 계정 설정을 독립된 카드 링크로 표시합니다. */
-export function MyPageSupportMenu() {
-  return (
-    <nav aria-label="지원 및 계정" className="mt-4 space-y-2">
-      <MyPageMenuLink
-        href="/shops/suggest"
-        label="소품샵 제보하기"
-        icon={<StoreIcon className="size-5" />}
-      />
-      <MyPageMenuLink
-        href="/me/settings"
-        label="계정 설정"
-        icon={<SettingIcon className="size-5" />}
-      />
-    </nav>
-  );
-}
-
-/** 같은 위계의 단일 메뉴를 공통된 크기와 포커스 상태로 제공합니다. */
-function MyPageMenuLink({ href, label, icon }: MenuLinkProps) {
-  return (
-    <Link
-      href={href}
-      className="flex min-h-15 items-center gap-4 rounded-card border border-black-100 px-5 hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-    >
-      <span className="text-green-400" aria-hidden="true">
-        {icon}
-      </span>
-      <span className="flex-1 text-14 font-medium text-black-950">{label}</span>
-      <ChevronRightIcon className="size-4 text-green-200" aria-hidden="true" />
-    </Link>
   );
 }
