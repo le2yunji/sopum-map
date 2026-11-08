@@ -39,6 +39,8 @@ sopum-map/
 - 요청 흐름은 라우터 → 컨트롤러 → 서비스 → 모델 순서로 나눈다.
 - 공통 성공·오류 응답 형식을 사용한다.
 - 상점 조회 API가 구현되어 있으며, 인증과 사용자별 기능 API는 코드를 기준으로 연결 여부를 확인한다.
+- `main`의 백엔드 관련 변경은 GitHub Actions가 S3에 커밋별 릴리스를 만들고 AWS Systems Manager로 단일 EC2의 PM2 `sopum-api`를 자동 배포한다.
+- EC2 배포는 공유 `.env`를 유지하며 `/api/health` 확인이 실패하면 이전 릴리스로 자동 롤백한다. 운영 구조와 권한은 `docs/backend-ec2-deployment.md`를 따른다.
 
 ### 공용 패키지
 

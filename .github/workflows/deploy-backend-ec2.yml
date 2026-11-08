@@ -1,4 +1,4 @@
-name: Deploy Backend Artifact
+name: Deploy Backend to EC2
 
 on:
   push:
@@ -11,6 +11,7 @@ on:
       - "pnpm-workspace.yaml"
       - "package.json"
       - ".github/workflows/deploy-backend-ec2.yml"
+      - ".github/scripts/**"
 
   workflow_dispatch:
 
@@ -19,7 +20,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: deploy-backend-artifact
+  group: deploy-backend-ec2
   cancel-in-progress: false
 
 env:
@@ -29,12 +30,13 @@ env:
   PNPM_VERSION: 10.34.4
   AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
   DEPLOY_BUCKET: ${{ vars.DEPLOY_BUCKET }}
+  EC2_INSTANCE_ID: ${{ vars.EC2_INSTANCE_ID }}
 
 jobs:
   build-and-upload:
-    name: Build and Upload Artifact
+    name: Build and Deploy
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     env:
       MONGODB_URI: mongodb://127.0.0.1:27017/sopum_map_test
@@ -104,18 +106,26 @@ jobs:
         run: |
           : "${AWS_ROLE_ARN:?AWS_ROLE_ARN repository variable is required}"
           : "${DEPLOY_BUCKET:?DEPLOY_BUCKET repository variable is required}"
+          : "${EC2_INSTANCE_ID:?EC2_INSTANCE_ID repository variable is required}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ env.AWS_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-          role-session-name: GitHubActionsSopumMapArtifactUpload
+          role-session-name: GitHubActionsSopumMapBackendDeploy
 
-      - name: Upload deployment artifact to S3
+      - name: Upload deployment files to S3
         run: |
           ARCHIVE="$RUNNER_TEMP/sopum-api-${GITHUB_SHA}.tar.gz"
+          DEPLOY_SCRIPT=".github/scripts/deploy-backend-ec2.sh"
+          DEPLOY_SCRIPT_CHECKSUM="$RUNNER_TEMP/deploy-backend-ec2.sh.sha256"
           S3_PREFIX="s3://${DEPLOY_BUCKET}/releases/${GITHUB_SHA}"
+
+          (
+            cd "$(dirname "$DEPLOY_SCRIPT")"
+            sha256sum "$(basename "$DEPLOY_SCRIPT")" > "$DEPLOY_SCRIPT_CHECKSUM"
+          )
 
           aws s3 cp \
             "$ARCHIVE" \
@@ -125,12 +135,30 @@ jobs:
             "${ARCHIVE}.sha256" \
             "${S3_PREFIX}/sopum-api.tar.gz.sha256"
 
+          aws s3 cp \
+            "$DEPLOY_SCRIPT" \
+            "${S3_PREFIX}/deploy-backend-ec2.sh"
+
+          aws s3 cp \
+            "$DEPLOY_SCRIPT_CHECKSUM" \
+            "${S3_PREFIX}/deploy-backend-ec2.sh.sha256"
+
+      - name: Deploy release with AWS Systems Manager
+        id: deploy
+        run: |
+          bash .github/scripts/deploy-backend-via-ssm.sh \
+            "$DEPLOY_BUCKET" \
+            "$GITHUB_SHA" \
+            "$EC2_INSTANCE_ID"
+
       - name: Write deployment summary
         run: |
           {
-            echo "## Backend artifact uploaded"
+            echo "## Backend deployed to EC2"
             echo
             echo "- Commit: \`${GITHUB_SHA}\`"
             echo "- Region: \`${AWS_REGION}\`"
             echo "- S3: \`s3://${DEPLOY_BUCKET}/releases/${GITHUB_SHA}/\`"
+            echo "- EC2 instance: \`${EC2_INSTANCE_ID}\`"
+            echo "- SSM command: \`${{ steps.deploy.outputs.command_id }}\`"
           } >> "$GITHUB_STEP_SUMMARY"
