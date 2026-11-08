@@ -94,6 +94,7 @@ assert_file_contains() {
 
 # 성공 시 SSM 호출 순서와 원격 명령의 핵심 계약을 확인한다.
 test_successful_deployment() {
+  local bootstrap_command
   local output_file="${test_root}/output.log"
 
   "${SCRIPT_UNDER_TEST}" test-bucket "${VALID_SHA}" "${VALID_INSTANCE_ID}" > "${output_file}"
@@ -107,6 +108,9 @@ test_successful_deployment() {
   assert_file_contains "${AWS_PARAMETERS_FILE}" 'sha256sum -c'
   assert_file_contains "${AWS_CALL_LOG}" "ssm wait command-executed"
   assert_file_contains "${AWS_CALL_LOG}" "ssm get-command-invocation"
+
+  bootstrap_command=$(jq -r '.commands[0]' "${AWS_PARAMETERS_FILE}")
+  /bin/dash -c "${bootstrap_command}"
 
   local send_line
   local wait_line

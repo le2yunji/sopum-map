@@ -45,7 +45,7 @@ build_parameters_json() {
   local script_uri="s3://${DEPLOY_BUCKET}/releases/${RELEASE_SHA}/deploy-backend-ec2.sh"
 
   "${JQ_BIN}" -cn \
-    --arg strict_mode 'set -Eeuo pipefail' \
+    --arg strict_mode 'set -eu' \
     --arg prepare "mkdir -p '${remote_dir}' && trap \"rm -rf '${remote_dir}'\" EXIT" \
     --arg download "aws s3 cp '${script_uri}' '${remote_script}' --region '${AWS_REGION}'" \
     --arg download_checksum "aws s3 cp '${script_uri}.sha256' '${remote_script}.sha256' --region '${AWS_REGION}'" \
