@@ -1,8 +1,9 @@
-import type { UserProfile } from "@sopum-map/shared";
+import type { UpdateMyProfileRequest, UserProfile } from "@sopum-map/shared";
 import { isApiError } from "@sopum-map/shared";
 import { apiClient } from "../client";
 
-export async function getMe(): Promise<UserProfile | null> {
+/** 현재 로그인한 사용자의 프로필을 조회합니다. */
+export async function getMyProfile(): Promise<UserProfile | null> {
   try {
     return await apiClient<UserProfile>("/me");
   } catch (error) {
@@ -11,4 +12,11 @@ export async function getMe(): Promise<UserProfile | null> {
     }
     throw error;
   }
+}
+/** 현재 로그인한 사용자의 프로필을 수정합니다. */
+export function updateMyProfile(input: UpdateMyProfileRequest) {
+  return apiClient<UserProfile>("/me", {
+    method: "PATCH",
+    body: input,
+  });
 }

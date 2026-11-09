@@ -1,42 +1,47 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { ChevronRightIcon, ProfileFlowerIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button/Button";
 import { DEFAULT_PROFILE_IMAGE } from "@/constants/image.constants";
+import { useUpdateMyProfile } from "@/hooks/useUpdateMyProfile";
+import { isApiError } from "@sopum-map/shared";
 
 type MyPageProfileCardProps = Readonly<{
   nickname: string;
   profileImage: string | null;
 }>;
 
-/** 프로필 표시와 로컬 편집 상태를 한 경계에서 관리합니다. */
+/** 프로필 수정 오류를 사용자에게 보여줄 문구로 변환합니다. */
+function getProfileUpdateErrorMessage(error: unknown) {
+  if (isApiError(error) && error.code === "NICKNAME_ALREADY_EXISTS") {
+    return error.message;
+  }
+
+  return "프로필을 저장하지 못했습니다. 다시 시도해주세요.";
+}
+
+/** 프로필 표시와 닉네임 편집 상태를 한 경계에서 관리합니다. */
 export function MyPageProfileCard({
-  nickname: initialNickname,
+  nickname,
   profileImage,
 }: MyPageProfileCardProps) {
-  const [nickname, setNickname] = useState(initialNickname);
-
-  const [draftNickname, setDraftNickname] = useState(initialNickname);
-
-  const [profileImageUrl, setProfileImageUrl] = useState(
-    profileImage ?? DEFAULT_PROFILE_IMAGE,
-  );
-
+  const [draftNickname, setDraftNickname] = useState(nickname);
   const [isEditing, setIsEditing] = useState(false);
-
   const [isSaved, setIsSaved] = useState(false);
 
-  /** 생성한 Blob URL이 더 이상 필요하지 않을 때 해제합니다. */
-  useEffect(() => {
-    return () => {
-      if (profileImageUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(profileImageUrl);
-      }
-    };
-  }, [profileImageUrl]);
+  const updateProfileMutation = useUpdateMyProfile();
+
+  const nextNickname = draftNickname.trim();
+
+  const canSave =
+    nextNickname.length >= 2 &&
+    nextNickname.length <= 12 &&
+    nextNickname !== nickname;
+
+  const profileImageUrl = profileImage ?? DEFAULT_PROFILE_IMAGE;
 
   /** 현재 프로필 값을 편집 폼에 복사해 편집을 시작합니다. */
   const startEditing = () => {
@@ -45,20 +50,33 @@ export function MyPageProfileCard({
     setIsEditing(true);
   };
 
-  /**
-   * 현재는 로컬 상태에만 반영합니다.
-   * 이후 PATCH /me 연결 시 서버 저장으로 교체합니다.
-   */
+  /** 변경된 닉네임을 서버에 저장합니다. */
   const saveProfile = () => {
-    const nextNickname = draftNickname.trim();
-
-    if (!nextNickname) {
+    if (!canSave || updateProfileMutation.isPending) {
       return;
     }
 
-    setNickname(nextNickname);
+    updateProfileMutation.mutate(
+      {
+        nickname: nextNickname,
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+          setIsSaved(true);
+        },
+      },
+    );
+  };
+
+  /** 저장 중이 아니라면 편집을 취소합니다. */
+  const cancelEditing = () => {
+    if (updateProfileMutation.isPending) {
+      return;
+    }
+
+    updateProfileMutation.reset();
     setIsEditing(false);
-    setIsSaved(true);
   };
 
   if (isEditing) {
@@ -80,8 +98,20 @@ export function MyPageProfileCard({
           <input
             id="nickname"
             value={draftNickname}
+            required
+            minLength={2}
             maxLength={12}
-            onChange={(event) => setDraftNickname(event.target.value)}
+            disabled={updateProfileMutation.isPending}
+            aria-invalid={updateProfileMutation.isError || undefined}
+            aria-describedby={
+              updateProfileMutation.isError
+                ? "nickname-update-error"
+                : undefined
+            }
+            onChange={(event) => {
+              setDraftNickname(event.target.value);
+              updateProfileMutation.reset();
+            }}
             className="
               mt-2 min-h-11 w-full
               rounded-control
@@ -90,19 +120,34 @@ export function MyPageProfileCard({
               px-3 outline-none
               focus:ring-2
               focus:ring-brand-accent
+              disabled:cursor-not-allowed
+              disabled:bg-black-100
             "
           />
-
+          {updateProfileMutation.isError ? (
+            <p
+              id="nickname-update-error"
+              role="alert"
+              className="mt-2 text-12 text-red-600"
+            >
+              {getProfileUpdateErrorMessage(updateProfileMutation.error)}
+            </p>
+          ) : null}
           <div className="mt-3 flex gap-2">
             <Button
               type="button"
               variant="outline"
-              onClick={() => setIsEditing(false)}
+              disabled={updateProfileMutation.isPending}
+              onClick={cancelEditing}
             >
               취소
             </Button>
 
-            <Button type="submit" disabled={!draftNickname.trim()}>
+            <Button
+              type="submit"
+              disabled={!canSave}
+              isLoading={updateProfileMutation.isPending}
+            >
               저장
             </Button>
           </div>
