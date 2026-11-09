@@ -1,4 +1,4 @@
-import type { ShopSort } from "@sopum-map/shared";
+import type { ShopMapBounds, ShopSort } from "@sopum-map/shared";
 import type { PipelineStage } from "mongoose";
 
 import type { GetShopsServiceParams } from "./shop.service.types.js";
@@ -90,6 +90,39 @@ export const buildShopMatchFilter = ({
   return match;
 };
 
+/**
+ * 지도 경계를 MongoDB 영역 검색 조건으로 변환한다.
+ */
+export const buildShopBoundsFilter = (
+  bounds: ShopMapBounds,
+): Record<string, unknown> => {
+  const {
+    southWestLat,
+    southWestLng,
+    northEastLat,
+    northEastLng,
+  } = bounds;
+
+  return {
+    location: {
+      $geoWithin: {
+        $geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [southWestLng, southWestLat],
+              [northEastLng, southWestLat],
+              [northEastLng, northEastLat],
+              [southWestLng, northEastLat],
+              [southWestLng, southWestLat],
+            ],
+          ],
+        },
+      },
+    },
+  };
+};
+
 const buildSortStage = (sort: ShopSort): PipelineStage.Sort => {
   /**
    * 거리순
@@ -161,8 +194,15 @@ export const buildShopListPipeline = (
       },
     });
   } else {
+    const boundsFilter = params.bounds
+      ? buildShopBoundsFilter(params.bounds)
+      : {};
+
     pipeline.push({
-      $match: match,
+      $match: {
+        ...match,
+        ...boundsFilter,
+      },
     });
   }
 
