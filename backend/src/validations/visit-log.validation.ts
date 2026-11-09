@@ -34,9 +34,13 @@ function formatKoreanDate(value: Date): string {
 /** 방문 시각이 한국 달력 기준 미래 날짜가 아닌지 확인합니다. */
 const visitedAtSchema = z.iso
   .datetime()
-  .refine((value) => formatKoreanDate(new Date(value)) <= formatKoreanDate(new Date()), {
-    message: "방문일은 미래일 수 없습니다.",
-  });
+  .refine(
+    (value) =>
+      formatKoreanDate(new Date(value)) <= formatKoreanDate(new Date()),
+    {
+      message: "방문일은 미래일 수 없습니다.",
+    },
+  );
 
 export const checkVisitLogAvailabilitySchema = z.object({
   params: z.object({
