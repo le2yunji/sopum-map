@@ -6,5 +6,4 @@ export type UserProfile = Readonly<{
 
 export type UpdateMyProfileRequest = Readonly<{
   nickname?: string;
-  profileImage?: string | null;
 }>;

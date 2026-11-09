@@ -22,8 +22,9 @@ export const NICKNAME_ADJECTIVES = [
 export const NICKNAME_NOUN = "쿼카" as const;
 
 /**
- * User.nickname 최대 길이
+ * User.nickname 최소,최대 길이
  */
+export const NICKNAME_MIN_LENGTH = 2;
 export const NICKNAME_MAX_LENGTH = 12;
 
 /**

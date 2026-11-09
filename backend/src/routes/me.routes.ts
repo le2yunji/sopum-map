@@ -3,6 +3,7 @@ import { Router } from "express";
 import {
   getMeController,
   getMyLikedShopsController,
+  updateMyProfileController,
 } from "../controllers/me.controller.js";
 
 import {
@@ -50,6 +51,7 @@ import {
 
 import { optimizeCourseRouteController } from "../controllers/course-route.controller.js";
 import { optimizeCourseRouteSchema } from "../validations/course-route.validation.js";
+import { updateMyProfileSchema } from "../validations/me.validation.js";
 
 const meRouter = Router();
 
@@ -65,7 +67,12 @@ meRouter.get("/", requireAuth, getMeController);
  *
  * PATCH /api/me
  */
-meRouter.patch("/", requireAuth, updateMyProfileController);
+meRouter.patch(
+  "/",
+  requireAuth,
+  validateRequest(updateMyProfileSchema),
+  updateMyProfileController,
+);
 
 /**
  * 방문 로그 조회
