@@ -13,6 +13,10 @@ import type {
   GetVisitLogsServiceResult,
 } from "./visit-log.service.types.js";
 
+/**
+ * 활성 상점의 방문 로그를 최신순으로 조회하고 작성자와 페이지 정보를 구성합니다.
+ * 삭제되었거나 찾을 수 없는 작성자는 익명 사용자로 표시합니다.
+ */
 export async function getVisitLogs(
   params: GetVisitLogsServiceParams,
 ): Promise<GetVisitLogsServiceResult> {
