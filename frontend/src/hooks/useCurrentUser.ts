@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { getMe } from "@/api/auth/auth.api";
-import { AUTH_QUERY_KEYS } from "@/api/auth/auth.query-keys";
+import { getMe } from "@/api/me/me.api";
+import { AUTH_QUERY_KEYS } from "@/api/me/me.query-keys";
 
 /**
  * 현재 로그인한 사용자 정보를 조회합니다.a

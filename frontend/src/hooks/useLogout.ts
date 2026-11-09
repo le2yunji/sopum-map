@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { logout } from "@/api/auth/auth.api";
-import { AUTH_QUERY_KEYS } from "@/api/auth/auth.query-keys";
+import { AUTH_QUERY_KEYS } from "@/api/me/me.query-keys";
 
 /**
  * 현재 로그인 세션을 종료합니다.

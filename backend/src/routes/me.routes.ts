@@ -1,6 +1,9 @@
 import { Router } from "express";
 
-import { getMyLikedShopsController } from "../controllers/me.controller.js";
+import {
+  getMeController,
+  getMyLikedShopsController,
+} from "../controllers/me.controller.js";
 
 import {
   createPickFolderController,
@@ -46,12 +49,28 @@ import {
 } from "../validations/visit-log.validation.js";
 
 import { optimizeCourseRouteController } from "../controllers/course-route.controller.js";
-
 import { optimizeCourseRouteSchema } from "../validations/course-route.validation.js";
 
 const meRouter = Router();
 
-/** GET /api/me/visit-logs */
+/**
+ * 현재 로그인 사용자
+ *
+ * GET /api/me
+ */
+meRouter.get("/", requireAuth, getMeController);
+
+/**
+ * 내 정보 수정
+ *
+ * PATCH /api/me
+ */
+meRouter.patch("/", requireAuth, updateMyProfileController);
+
+/**
+ * 방문 로그 조회
+ *
+ * GET /api/me/visit-logs */
 meRouter.get(
   "/visit-logs",
   requireAuth,
@@ -59,7 +78,10 @@ meRouter.get(
   getMyVisitLogsController,
 );
 
-/** GET /api/me/visit-logs/:visitLogId */
+/**
+ * 특정 방문 로그 조히
+ *
+ * GET /api/me/visit-logs/:visitLogId */
 meRouter.get(
   "/visit-logs/:visitLogId",
   requireAuth,
