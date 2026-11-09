@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { logout } from "@/api/auth/auth.api";
-import { AUTH_QUERY_KEYS } from "@/api/auth/auth.query-keys";
+import { ME_QUERY_KEYS } from "@/api/me/me.query-keys";
 
 /**
  * 현재 로그인 세션을 종료합니다.
@@ -18,7 +18,7 @@ export function useLogout() {
     mutationFn: logout,
 
     onSuccess: () => {
-      queryClient.setQueryData(AUTH_QUERY_KEYS.me(), null);
+      queryClient.setQueryData(ME_QUERY_KEYS.profile(), null);
     },
   });
 }

@@ -34,14 +34,17 @@ import { CourseVisibilitySheet } from "./CourseVisibilitySheet";
 import { CourseVisitOrderSheet } from "./CourseVisitOrderSheet";
 import { DeleteCourseSheet } from "./DeleteCourseSheet";
 
-type Props = Readonly<{ courseId: string }>;
+type Props = Readonly<{
+  courseId: string;
+  mapClientId?: string | null;
+}>;
 type SelectedShop = Readonly<{
   shop: CourseDetailShop;
   previousShop: CourseDetailShop | null;
 }>;
 
 /** 코스 상세 데이터와 소유권에 맞는 헤더·지도·방문 순서 액션을 연결합니다. */
-export function CourseDetailScreen({ courseId }: Props) {
+export function CourseDetailScreen({ courseId, mapClientId }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const {
@@ -265,6 +268,7 @@ export function CourseDetailScreen({ courseId }: Props) {
         walkingRoute={walkingRoute}
         isRoutePending={isWalkingRoutePending}
         isRouteError={isWalkingRouteError}
+        mapClientId={mapClientId}
       />
 
       <CourseDetailHeader

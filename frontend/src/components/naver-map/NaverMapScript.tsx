@@ -3,6 +3,7 @@
 import Script from "next/script";
 
 type NaverMapScriptProps = Readonly<{
+  clientId?: string | null;
   retryCount: number;
   onReady: () => void;
   onError: () => void;
@@ -10,11 +11,15 @@ type NaverMapScriptProps = Readonly<{
 
 /** 네이버 지도 SDK의 준비와 실패 상태를 화면에 전달합니다. */
 export function NaverMapScript({
+  clientId: clientIdOverride,
   retryCount,
   onReady,
   onError,
 }: NaverMapScriptProps) {
-  const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
+  const clientId =
+    clientIdOverride === undefined
+      ? process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
+      : clientIdOverride;
 
   if (!clientId) {
     return null;

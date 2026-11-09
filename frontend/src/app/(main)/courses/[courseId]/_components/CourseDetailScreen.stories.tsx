@@ -64,8 +64,13 @@ const baseCourse: CourseDetailData = {
   updatedAt: "2026-07-29T00:00:00.000Z",
 };
 
-/** 스토리별 코스 상세 데이터를 실제 Query 캐시에 넣습니다. */
-function CourseDetailStory({ course }: Readonly<{ course: CourseDetailData }>) {
+type CourseDetailStoryProps = Readonly<{
+  course: CourseDetailData;
+  mapClientId?: string | null;
+}>;
+
+/** 스토리별 코스 상세 데이터와 지도 설정을 격리해 제공합니다. */
+function CourseDetailStory({ course, mapClientId }: CourseDetailStoryProps) {
   const [queryClient] = useState(() => {
     const client = new QueryClient({
       defaultOptions: { queries: { retry: false, staleTime: Infinity } },
@@ -86,7 +91,7 @@ function CourseDetailStory({ course }: Readonly<{ course: CourseDetailData }>) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <CourseDetailScreen courseId={course.id} />
+      <CourseDetailScreen courseId={course.id} mapClientId={mapClientId} />
     </QueryClientProvider>
   );
 }
@@ -203,7 +208,7 @@ export const LongContent: Story = {
 };
 
 export const MissingMapKey: Story = {
-  args: { course: baseCourse },
+  args: { course: baseCourse, mapClientId: null },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(

@@ -55,7 +55,7 @@ export function MyPageScreen({ isEmpty = false, state = "success" }: Props) {
   }
 
   /**
-   * /auth/me가 401을 반환하면
+   * /me가 401을 반환하면
    * useCurrentUser()의 user는 null입니다.
    */
   if (!user) {
@@ -73,7 +73,6 @@ export function MyPageScreen({ isEmpty = false, state = "success" }: Props) {
       <h1 className="px-1 text-24 font-semibold text-black-950">마이페이지</h1>
 
       <MyPageProfileCard
-        key={JSON.stringify([user.id, user.nickname, user.profileImage])}
         nickname={user.nickname}
         profileImage={user.profileImage}
       />

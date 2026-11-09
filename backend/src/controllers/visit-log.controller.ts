@@ -76,6 +76,7 @@ export async function createVisitLogController(
   }
 }
 
+/** 활성 상점의 방문 로그를 최신순으로 조회합니다.*/
 export async function getVisitLogsController(
   req: Request,
   res: Response<GetVisitLogsResponse>,

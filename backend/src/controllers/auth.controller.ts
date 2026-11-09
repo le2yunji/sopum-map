@@ -12,7 +12,6 @@ import {
 } from "../services/auth/auth.service.js";
 
 import { AUTH_SESSION_COOKIE_NAME } from "../services/auth/auth.constants.js";
-import UserModel from "../models/user.model.js";
 
 export async function startKakaoLogin(
   req: Request,
@@ -160,36 +159,6 @@ export async function handleKakaoCallback(
   }
 }
 
-/**
- * 현재 로그인한 사용자 정보를 반환합니다.
- */
-export async function getMe(req: Request, res: Response, next: NextFunction) {
-  try {
-    const userId = req.auth!.userId;
-
-    const user = await UserModel.findById(userId);
-
-    if (!user) {
-      res.status(404).json({
-        success: false,
-        message: "사용자를 찾을 수 없습니다.",
-      });
-
-      return;
-    }
-
-    res.json({
-      success: true,
-      data: {
-        id: user._id.toString(),
-        nickname: user.nickname,
-        profileImage: user.profileImage,
-      },
-    });
-  } catch (error) {
-    next(error);
-  }
-}
 /**
  * 현재 로그인 세션을 종료합니다.
  */
