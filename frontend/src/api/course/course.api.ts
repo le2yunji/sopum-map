@@ -38,9 +38,7 @@ export async function getCourseDetail(
 /**
  * 내가 만든 코스 목록을 조회합니다.
  */
-export async function getMyCourses(
-  cursor?: string,
-): Promise<MyCourseListData> {
+export async function getMyCourses(cursor?: string): Promise<MyCourseListData> {
   const searchParams = new URLSearchParams({ limit: "20" });
 
   if (cursor) {
@@ -62,9 +60,7 @@ export async function getMyLikedCourses(
     searchParams.set("cursor", cursor);
   }
 
-  return apiClient<LikedCourseListData>(
-    `/me/liked-courses?${searchParams}`,
-  );
+  return apiClient<LikedCourseListData>(`/me/liked-courses?${searchParams}`);
 }
 
 /**
@@ -79,9 +75,7 @@ export async function likeCourse(courseId: string): Promise<CourseLikeData> {
 /**
  * 코스 좋아요를 해제합니다.
  */
-export async function unlikeCourse(
-  courseId: string,
-): Promise<CourseLikeData> {
+export async function unlikeCourse(courseId: string): Promise<CourseLikeData> {
   return apiClient<CourseLikeData>(`/courses/${courseId}/likes`, {
     method: "DELETE",
   });
