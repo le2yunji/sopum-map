@@ -37,6 +37,81 @@ describe("getShopsQuerySchema", () => {
     });
   });
 
+  it("문자열 지도 경계를 bounds 객체로 변환한다", () => {
+    const result = getShopsQuerySchema.parse({
+      southWestLat: "37.5",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    });
+
+    expect(result).toHaveProperty("bounds", {
+      southWestLat: 37.5,
+      southWestLng: 126.9,
+      northEastLat: 37.6,
+      northEastLng: 127.1,
+    });
+  });
+
+  it.each([
+    {
+      southWestLat: "37.5",
+    },
+    {
+      southWestLat: "37.5",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+    },
+  ])("지도 경계 일부만 전달한 요청 %o을 거부한다", (input) => {
+    const result = getShopsQuerySchema.safeParse(input);
+
+    expect(result.success).toBe(false);
+  });
+
+  it.each([
+    {
+      southWestLat: "-90.1",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    },
+    {
+      southWestLat: "37.5",
+      southWestLng: "-180.1",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    },
+    {
+      southWestLat: "37.7",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    },
+    {
+      southWestLat: "37.5",
+      southWestLng: "127.2",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    },
+  ])("유효하지 않은 지도 경계 요청 %o을 거부한다", (input) => {
+    const result = getShopsQuerySchema.safeParse(input);
+
+    expect(result.success).toBe(false);
+  });
+
+  it("지도 경계와 중심점 조회를 함께 전달한 요청을 거부한다", () => {
+    const result = getShopsQuerySchema.safeParse({
+      southWestLat: "37.5",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+      lat: "37.55",
+      lng: "127",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it("유효한 지역 그룹을 허용한다", () => {
     const result = getShopsQuerySchema.parse({
       regionGroup: "seongsu-seoulforest",
