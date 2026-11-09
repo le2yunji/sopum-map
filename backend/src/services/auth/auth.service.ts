@@ -314,10 +314,10 @@ async function createUserWithRandomNickname() {
       });
     } catch (error) {
       /**
-       * nickname unique 충돌이 아닌 DB 오류는
-       * 재시도하지 않고 그대로 전달합니다.
+       * 닉네임 중복이면 다음 반복에서 새 닉네임을 생성합니다.
+       * 그 밖의 DB 오류는 숨기지 않고 그대로 전달합니다.
        */
-      if (isMongoDuplicateKeyError(error)) {
+      if (!isMongoDuplicateKeyError(error)) {
         throw error;
       }
     }
