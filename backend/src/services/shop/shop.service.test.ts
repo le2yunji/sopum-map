@@ -3,7 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const modelMocks = vi.hoisted(() => ({
   aggregateShops: vi.fn(),
+  findShops: vi.fn(),
   findOneShop: vi.fn(),
+  selectMapShops: vi.fn(),
+  sortMapShops: vi.fn(),
+  limitMapShops: vi.fn(),
+  leanMapShops: vi.fn(),
 
   distinctLikedShopIds: vi.fn(),
   aggregateLikeCounts: vi.fn(),
@@ -16,6 +21,7 @@ const modelMocks = vi.hoisted(() => ({
 vi.mock("../../models/shop.model.js", () => ({
   default: {
     aggregate: modelMocks.aggregateShops,
+    find: modelMocks.findShops,
     findOne: modelMocks.findOneShop,
   },
 }));
@@ -35,11 +41,18 @@ vi.mock("../../models/visit-log.model.js", () => ({
   },
 }));
 
-import { getShopById, getShops } from "./shop.service.js";
+import { getShopById, getShopMap, getShops } from "./shop.service.js";
 
 const shopId = new Types.ObjectId("64b000000000000000000001");
 
 const userId = new Types.ObjectId("64b000000000000000000002").toString();
+
+const mapBounds = {
+  southWestLat: 37.5,
+  southWestLng: 126.9,
+  northEastLat: 37.6,
+  northEastLng: 127.1,
+} as const;
 
 const shopDocument = {
   _id: shopId,
@@ -130,6 +143,20 @@ describe("shop service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
+    modelMocks.findShops.mockReturnValue({
+      select: modelMocks.selectMapShops,
+    });
+    modelMocks.selectMapShops.mockReturnValue({
+      sort: modelMocks.sortMapShops,
+    });
+    modelMocks.sortMapShops.mockReturnValue({
+      limit: modelMocks.limitMapShops,
+    });
+    modelMocks.limitMapShops.mockReturnValue({
+      lean: modelMocks.leanMapShops,
+    });
+    modelMocks.leanMapShops.mockResolvedValue([]);
+
     /**
      * 기본적으로 좋아요가 없는 상태로 시작한다.
      */
@@ -137,6 +164,113 @@ describe("shop service", () => {
     modelMocks.aggregateLikeCounts.mockResolvedValue([]);
     modelMocks.aggregateVisitLogCounts.mockResolvedValue([]);
     modelMocks.existsShopLike.mockResolvedValue(null);
+  });
+
+  describe("getShopMap", () => {
+    it("지도 영역의 상점을 마커 데이터로 변환한다", async () => {
+      modelMocks.leanMapShops.mockResolvedValue([shopDocument]);
+
+      const result = await getShopMap({
+        bounds: mapBounds,
+      });
+
+      expect(result).toEqual({
+        items: [
+          {
+            id: shopId.toString(),
+            name: "초록 서랍",
+            latitude: 37.56,
+            longitude: 126.92,
+            isLiked: false,
+          },
+        ],
+        isTruncated: false,
+      });
+
+      expect(modelMocks.distinctLikedShopIds).not.toHaveBeenCalled();
+    });
+
+    it("영역과 검색 조건으로 최신 마커 501개까지만 조회한다", async () => {
+      await getShopMap({
+        bounds: mapBounds,
+        keyword: "소품",
+        tagKeys: ["cute", "interior"],
+      });
+
+      expect(modelMocks.findShops).toHaveBeenCalledWith({
+        status: "active",
+        "tagStats.key": {
+          $in: ["cute", "interior"],
+        },
+        $or: [{ name: expect.any(RegExp) }, { address: expect.any(RegExp) }],
+        location: {
+          $geoWithin: {
+            $geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [126.9, 37.5],
+                  [127.1, 37.5],
+                  [127.1, 37.6],
+                  [126.9, 37.6],
+                  [126.9, 37.5],
+                ],
+              ],
+            },
+          },
+        },
+      });
+      expect(modelMocks.selectMapShops).toHaveBeenCalledWith({
+        _id: 1,
+        name: 1,
+        location: 1,
+        createdAt: 1,
+      });
+      expect(modelMocks.sortMapShops).toHaveBeenCalledWith({
+        createdAt: -1,
+        _id: -1,
+      });
+      expect(modelMocks.limitMapShops).toHaveBeenCalledWith(501);
+    });
+
+    it("조회 결과가 500개를 넘으면 앞의 500개와 잘림 상태를 반환한다", async () => {
+      const shops = Array.from({ length: 501 }, (_, index) => ({
+        _id: new Types.ObjectId(index.toString(16).padStart(24, "0")),
+        name: `상점 ${index}`,
+        location: {
+          type: "Point" as const,
+          coordinates: [126.9 + index * 0.000001, 37.5],
+        },
+        createdAt: new Date("2026-08-01T00:00:00.000Z"),
+      }));
+      modelMocks.leanMapShops.mockResolvedValue(shops);
+
+      const result = await getShopMap({
+        bounds: mapBounds,
+      });
+
+      expect(result.items).toHaveLength(500);
+      expect(result.items.at(-1)?.id).toBe(shops[499]._id.toString());
+      expect(result.isTruncated).toBe(true);
+    });
+
+    it("로그인 사용자가 좋아요한 상점의 마커를 표시한다", async () => {
+      modelMocks.leanMapShops.mockResolvedValue([shopDocument]);
+      modelMocks.distinctLikedShopIds.mockResolvedValue([shopId]);
+
+      const result = await getShopMap({
+        bounds: mapBounds,
+        userId,
+      });
+
+      expect(result.items[0]?.isLiked).toBe(true);
+      expect(modelMocks.distinctLikedShopIds).toHaveBeenCalledWith("shopId", {
+        userId,
+        shopId: {
+          $in: [shopId],
+        },
+      });
+    });
   });
 
   describe("getShops", () => {
