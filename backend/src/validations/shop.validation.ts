@@ -136,10 +136,7 @@ export const getShopsQuerySchema = z
       });
     }
 
-    if (
-      hasAnyMapBounds &&
-      (hasLat || hasLng || value.radius !== undefined)
-    ) {
+    if (hasAnyMapBounds && (hasLat || hasLng || value.radius !== undefined)) {
       context.addIssue({
         code: "custom",
         path: ["location"],
@@ -172,13 +169,7 @@ export const getShopsQuerySchema = z
     }
   })
   .transform(
-    ({
-      southWestLat,
-      southWestLng,
-      northEastLat,
-      northEastLng,
-      ...query
-    }) => {
+    ({ southWestLat, southWestLng, northEastLat, northEastLng, ...query }) => {
       if (
         southWestLat === undefined ||
         southWestLng === undefined ||
@@ -196,6 +187,58 @@ export const getShopsQuerySchema = z
           northEastLat,
           northEastLng,
         },
+      };
+    },
+  );
+
+const requiredLatitude = optionalLatitude.pipe(z.number());
+const requiredLongitude = optionalLongitude.pipe(z.number());
+
+/**
+ * 지도 마커 조회에 필요한 경계와 필터를 검증합니다.
+ */
+export const getShopMapQuerySchema = z
+  .object({
+    southWestLat: requiredLatitude,
+    southWestLng: requiredLongitude,
+    northEastLat: requiredLatitude,
+    northEastLng: requiredLongitude,
+    keyword: z.string().trim().min(1).max(100).optional(),
+    tagKeys: tagKeysSchema,
+  })
+  .superRefine((value, context) => {
+    if (value.southWestLat >= value.northEastLat) {
+      context.addIssue({
+        code: "custom",
+        path: ["bounds"],
+        message: "남서쪽 위도는 북동쪽 위도보다 작아야 합니다.",
+      });
+    }
+
+    if (value.southWestLng >= value.northEastLng) {
+      context.addIssue({
+        code: "custom",
+        path: ["bounds"],
+        message: "남서쪽 경도는 북동쪽 경도보다 작아야 합니다.",
+      });
+    }
+  })
+  .transform(
+    ({
+      southWestLat,
+      southWestLng,
+      northEastLat,
+      northEastLng,
+      ...filters
+    }) => {
+      return {
+        bounds: {
+          southWestLat,
+          southWestLng,
+          northEastLat,
+          northEastLng,
+        },
+        ...filters,
       };
     },
   );

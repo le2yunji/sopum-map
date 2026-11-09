@@ -2,6 +2,7 @@ import { SHOP_REGION_GROUPS } from "@sopum-map/shared";
 import { describe, expect, it } from "vitest";
 
 import {
+  getShopMapQuerySchema,
   getShopDetailParamsSchema,
   getShopsQuerySchema,
 } from "./shop.validation.js";
@@ -192,6 +193,74 @@ describe("getShopsQuerySchema", () => {
         result.error.issues.some((issue) => issue.path[0] === "regionGroup"),
       ).toBe(true);
     }
+  });
+});
+
+describe("getShopMapQuerySchema", () => {
+  it("문자열 지도 경계와 필터를 서비스 입력으로 변환한다", () => {
+    const result = getShopMapQuerySchema.parse({
+      southWestLat: "37.5",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+      keyword: "  소품  ",
+      tagKeys: ["cute", "interior"],
+    });
+
+    expect(result).toEqual({
+      bounds: {
+        southWestLat: 37.5,
+        southWestLng: 126.9,
+        northEastLat: 37.6,
+        northEastLng: 127.1,
+      },
+      keyword: "소품",
+      tagKeys: ["cute", "interior"],
+    });
+  });
+
+  it.each([
+    {},
+    {
+      southWestLat: "37.5",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+    },
+  ])("필수 지도 경계가 완전하지 않은 요청 %o을 거부한다", (input) => {
+    const result = getShopMapQuerySchema.safeParse(input);
+
+    expect(result.success).toBe(false);
+  });
+
+  it.each([
+    {
+      southWestLat: "-90.1",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    },
+    {
+      southWestLat: "37.5",
+      southWestLng: "-180.1",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    },
+    {
+      southWestLat: "37.7",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    },
+    {
+      southWestLat: "37.5",
+      southWestLng: "127.2",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+    },
+  ])("유효하지 않은 필수 지도 경계 요청 %o을 거부한다", (input) => {
+    const result = getShopMapQuerySchema.safeParse(input);
+
+    expect(result.success).toBe(false);
   });
 });
 
