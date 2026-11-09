@@ -23,6 +23,7 @@ type Props = Readonly<{
   walkingRoute?: CourseWalkingRouteData;
   isRoutePending: boolean;
   isRouteError: boolean;
+  mapClientId?: string | null;
 }>;
 
 export function CourseRouteMap({
@@ -30,8 +31,12 @@ export function CourseRouteMap({
   walkingRoute,
   isRoutePending,
   isRouteError,
+  mapClientId,
 }: Props) {
-  const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
+  const clientId =
+    mapClientId === undefined
+      ? process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID
+      : mapClientId;
   const mapElementRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<naver.maps.Map | null>(null);
   const markersRef = useRef<naver.maps.Marker[]>([]);
@@ -217,6 +222,7 @@ export function CourseRouteMap({
   return (
     <div className="absolute inset-0 bg-black-100">
       <NaverMapScript
+        clientId={clientId}
         retryCount={retryCount}
         onReady={() => setSdkState("ready")}
         onError={() => setSdkState("error")}
