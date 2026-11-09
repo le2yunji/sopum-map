@@ -2,7 +2,10 @@ import type {
   GetShopsQuery,
   ShopListData,
   ShopDetailData,
+  GetShopMapQuery,
+  ShopMapData,
 } from "@sopum-map/shared";
+
 import { mapShopListItem } from "./shop.mapper.js";
 
 /**
@@ -57,3 +60,13 @@ export type GetShopDetailServiceParams = {
  * Shop 상세 Service 반환 타입
  */
 export type GetShopDetailServiceResult = ShopDetailData;
+
+/** 지도 마커 조회 서비스 입력값입니다. */
+export type GetShopMapServiceParams = GetShopMapQuery &
+  Readonly<{
+    /** 로그인 사용자인 경우 좋아요 여부 계산에 사용 */
+    userId?: string;
+  }>;
+
+/** 지도 마커 조회 서비스 반환값입니다. */
+export type GetShopMapServiceResult = ShopMapData;

@@ -59,3 +59,6 @@ export const SHOP_BUSINESS_DAYS = [
   "saturday",
   "sunday",
 ] as const;
+
+/** 지도 한 화면에서 반환할 최대 마커 개수입니다. */
+export const SHOP_MAP_MARKER_LIMIT = 200;

@@ -1,3 +1,4 @@
+import { SHOP_MAP_MARKER_LIMIT } from "@sopum-map/shared";
 import { Types } from "mongoose";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -190,7 +191,7 @@ describe("shop service", () => {
       expect(modelMocks.distinctLikedShopIds).not.toHaveBeenCalled();
     });
 
-    it("영역과 검색 조건으로 최신 마커 501개까지만 조회한다", async () => {
+    it("영역과 검색 조건으로 제한보다 한 개 많은 마커까지만 조회한다", async () => {
       await getShopMap({
         bounds: mapBounds,
         keyword: "소품",
@@ -230,27 +231,34 @@ describe("shop service", () => {
         createdAt: -1,
         _id: -1,
       });
-      expect(modelMocks.limitMapShops).toHaveBeenCalledWith(501);
+      expect(modelMocks.limitMapShops).toHaveBeenCalledWith(
+        SHOP_MAP_MARKER_LIMIT + 1,
+      );
     });
 
-    it("조회 결과가 500개를 넘으면 앞의 500개와 잘림 상태를 반환한다", async () => {
-      const shops = Array.from({ length: 501 }, (_, index) => ({
-        _id: new Types.ObjectId(index.toString(16).padStart(24, "0")),
-        name: `상점 ${index}`,
-        location: {
-          type: "Point" as const,
-          coordinates: [126.9 + index * 0.000001, 37.5],
-        },
-        createdAt: new Date("2026-08-01T00:00:00.000Z"),
-      }));
+    it("조회 결과가 제한을 넘으면 최대 개수와 잘림 상태를 반환한다", async () => {
+      const shops = Array.from(
+        { length: SHOP_MAP_MARKER_LIMIT + 1 },
+        (_, index) => ({
+          _id: new Types.ObjectId(index.toString(16).padStart(24, "0")),
+          name: `상점 ${index}`,
+          location: {
+            type: "Point" as const,
+            coordinates: [126.9 + index * 0.000001, 37.5],
+          },
+          createdAt: new Date("2026-08-01T00:00:00.000Z"),
+        }),
+      );
       modelMocks.leanMapShops.mockResolvedValue(shops);
 
       const result = await getShopMap({
         bounds: mapBounds,
       });
 
-      expect(result.items).toHaveLength(500);
-      expect(result.items.at(-1)?.id).toBe(shops[499]._id.toString());
+      expect(result.items).toHaveLength(SHOP_MAP_MARKER_LIMIT);
+      expect(result.items.at(-1)?.id).toBe(
+        shops[SHOP_MAP_MARKER_LIMIT - 1]._id.toString(),
+      );
       expect(result.isTruncated).toBe(true);
     });
 

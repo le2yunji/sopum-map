@@ -3,6 +3,11 @@ import type { PipelineStage } from "mongoose";
 
 import type { GetShopsServiceParams } from "./shop.service.types.js";
 
+type ShopMatchFilterParams = Pick<
+  GetShopsServiceParams,
+  "category" | "tagKeys" | "keyword" | "regionGroup"
+>;
+
 const escapeRegExp = (value: string): string => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 };
@@ -27,7 +32,7 @@ export const buildShopMatchFilter = ({
   tagKeys,
   keyword,
   regionGroup,
-}: GetShopsServiceParams): Record<string, unknown> => {
+}: ShopMatchFilterParams): Record<string, unknown> => {
   /**
    * 모든 Shop 목록 조회의 기본 조건
    *
@@ -96,12 +101,7 @@ export const buildShopMatchFilter = ({
 export const buildShopBoundsFilter = (
   bounds: ShopMapBounds,
 ): Record<string, unknown> => {
-  const {
-    southWestLat,
-    southWestLng,
-    northEastLat,
-    northEastLng,
-  } = bounds;
+  const { southWestLat, southWestLng, northEastLat, northEastLng } = bounds;
 
   return {
     location: {
