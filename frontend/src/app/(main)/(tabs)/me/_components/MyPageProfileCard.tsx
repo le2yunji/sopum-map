@@ -145,7 +145,7 @@ export function MyPageProfileCard({
 
             <Button
               type="submit"
-              disabled={!canSave}
+              disabled={!canSave || updateProfileMutation.isPending}
               isLoading={updateProfileMutation.isPending}
             >
               저장

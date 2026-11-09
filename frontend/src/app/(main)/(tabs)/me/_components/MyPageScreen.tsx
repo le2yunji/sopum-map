@@ -55,7 +55,7 @@ export function MyPageScreen({ isEmpty = false, state = "success" }: Props) {
   }
 
   /**
-   * /auth/me가 401을 반환하면
+   * /me가 401을 반환하면
    * useCurrentUser()의 user는 null입니다.
    */
   if (!user) {
