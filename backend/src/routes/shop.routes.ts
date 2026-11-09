@@ -8,6 +8,7 @@ import {
 } from "../controllers/shop-like.controller.js";
 import {
   getShopDetailController,
+  getShopMapController,
   getShopsController,
 } from "../controllers/shop.controller.js";
 import {
@@ -27,6 +28,11 @@ export const shopRouter = Router();
  * GET /shops
  */
 shopRouter.get("/", optionalAuth, getShopsController);
+
+/*
+ * GET /shops/map
+ */
+shopRouter.get("/map", optionalAuth, getShopMapController);
 
 /*
  * GET /shops/:shopId
