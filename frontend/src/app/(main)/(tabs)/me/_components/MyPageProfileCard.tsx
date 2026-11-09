@@ -3,11 +3,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 
-import {
-  ChevronRightIcon,
-  PenIcon,
-  ProfileFlowerIcon,
-} from "@/components/icons";
+import { ChevronRightIcon, ProfileFlowerIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button/Button";
 import { DEFAULT_PROFILE_IMAGE } from "@/constants/image.constants";
 
@@ -65,15 +61,6 @@ export function MyPageProfileCard({
     setIsSaved(true);
   };
 
-  /** 선택한 이미지 파일을 브라우저 미리보기로 교체합니다. */
-  const changeProfileImage = (file?: File) => {
-    if (!file) {
-      return;
-    }
-
-    setProfileImageUrl(URL.createObjectURL(file));
-  };
-
   if (isEditing) {
     return (
       <section
@@ -86,32 +73,7 @@ export function MyPageProfileCard({
             saveProfile();
           }}
         >
-          <label
-            htmlFor="profile-image"
-            className="
-              inline-flex min-h-11 cursor-pointer items-center
-              rounded-control
-              border border-stroke-brand
-              bg-surface-primary
-              px-3
-              text-13 font-semibold
-            "
-          >
-            프로필 이미지 변경
-          </label>
-
-          <input
-            id="profile-image"
-            type="file"
-            accept="image/*"
-            className="sr-only"
-            onChange={(event) => changeProfileImage(event.target.files?.[0])}
-          />
-
-          <label
-            htmlFor="nickname"
-            className="mt-3 block text-13 font-semibold"
-          >
+          <label htmlFor="nickname" className=" block text-13 font-semibold">
             닉네임
           </label>
 
@@ -189,17 +151,6 @@ export function MyPageProfileCard({
               className="rounded-full object-cover"
             />
           )}
-
-          <span
-            className="
-              absolute -right-1 -bottom-1
-              grid size-5 place-items-center
-              rounded-full
-              bg-brand text-white
-            "
-          >
-            <PenIcon className="size-3" aria-hidden="true" />
-          </span>
         </span>
 
         <span className="ml-4 min-w-0 flex-1">
