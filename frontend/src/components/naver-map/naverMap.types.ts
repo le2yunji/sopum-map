@@ -1,4 +1,7 @@
-import type { ShopRegionGroup, TagKey } from "@sopum-map/shared";
+import type { ShopMapBounds, ShopRegionGroup, TagKey } from "@sopum-map/shared";
+
+/** 화면에 표시된 지도의 남서·북동 경계입니다. */
+export type MapBounds = ShopMapBounds;
 
 export type MapShop = {
   id: string;
