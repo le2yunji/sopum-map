@@ -8,13 +8,13 @@ import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import {
   type MapBounds,
   type MapSdkState,
-  type MapShop,
+  type MapMarkerShop,
   NaverMapScript,
   getMapMarkerIcon,
 } from "@/components/naver-map";
 
 type NaverMapCanvasProps = Readonly<{
-  shops: MapShop[]; // 지도에 표시할 상점 목록
+  shops: MapMarkerShop[]; // 지도에 표시할 상점 목록
   selectedShopId?: string; // 현재 선택된 상점
   onSelectShop: (shopId: string) => void; // 마커를 클릭했을 때 부모에게 선택된 상점을 알려주는 함수
   onBoundsChange?: (bounds: MapBounds) => void;
@@ -218,7 +218,6 @@ export function NaverMapCanvas({
     if (!map || !selectedShopId) {
       return;
     }
-
     const selectedShop = shops.find((shop) => shop.id === selectedShopId);
 
     if (!selectedShop) {

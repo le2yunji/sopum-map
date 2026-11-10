@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useCallback, useMemo, type ReactNode } from "react";
 import { useMapScreenState } from "../_hooks/useMapScreenState";
 import { toMapShop } from "../_mappers/mapShop.mapper";
-import type { MapShop } from "@/components/naver-map";
 
+import type { MapBounds, MapMarkerShop } from "@/components/naver-map";
+import { useMapViewportSearch } from "../_hooks/useMapViewportSearch";
 import { useInfiniteShops, useShopDetail } from "@/api/shops/shop.query";
 
 import { MapLocationControls } from "./map-canvas/MapLocationControls";
@@ -18,9 +19,10 @@ import { MapTagFilterChips } from "./MapTagFilterChips";
 
 type MapScreenProps = Readonly<{
   mapSlot?: (props: {
-    shops: MapShop[];
+    shops: MapMarkerShop[];
     selectedShopId?: string;
     onSelectShop: (shopId: string) => void;
+    onBoundsChange: (bounds: MapBounds) => void;
   }) => ReactNode;
 }>;
 
@@ -52,6 +54,22 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
     handleShowShopList,
     resetFilters,
   } = useMapScreenState();
+
+  const { draftBounds, initializeBounds, updateDraftBounds } =
+    useMapViewportSearch();
+
+  /** 최초 지도 경계는 검색 영역으로 등록하고 이후 변경은 임시 영역으로 저장합니다. */
+  const handleBoundsChange = useCallback(
+    (bounds: MapBounds) => {
+      if (!draftBounds) {
+        initializeBounds(bounds);
+        return;
+      }
+
+      updateDraftBounds(bounds);
+    },
+    [draftBounds, initializeBounds, updateDraftBounds],
+  );
 
   const {
     data: shopsData,
@@ -118,12 +136,14 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
           shops: visibleShops,
           selectedShopId,
           onSelectShop: selectShop,
+          onBoundsChange: handleBoundsChange,
         })
       ) : (
         <NaverMapCanvas
           shops={visibleShops}
           selectedShopId={selectedShopId}
           onSelectShop={selectShop}
+          onBoundsChange={handleBoundsChange}
         />
       )}
 
