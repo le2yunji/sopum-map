@@ -77,6 +77,14 @@ const MOVED_LIST_ITEM = {
   longitude: 127.105,
 } satisfies ShopListItem;
 
+const FILTER_KEYWORD = "필터";
+
+const FILTERED_LIST_ITEM = {
+  ...INITIAL_LIST_ITEM,
+  id: "filtered-list-shop",
+  name: "필터된 목록 상점",
+} satisfies ShopListItem;
+
 const INITIAL_MARKERS = [
   {
     id: "initial-marker-1",
@@ -100,6 +108,16 @@ const MOVED_MARKERS = [
     name: "새 영역 마커",
     latitude: 37.574,
     longitude: 127.104,
+    isLiked: false,
+  },
+] satisfies ShopMapMarker[];
+
+const FILTERED_MARKERS = [
+  {
+    id: "filtered-marker-1",
+    name: "필터된 지도 마커",
+    latitude: 37.547,
+    longitude: 127.057,
     isLiked: false,
   },
 ] satisfies ShopMapMarker[];
@@ -173,12 +191,14 @@ function MapScreenStory() {
 
 type MapApiMockOptions = Readonly<{
   failMovedMap?: boolean;
+  holdFilteredRequests?: boolean;
   holdMovedRequests?: boolean;
   initialMapTruncated?: boolean;
   listHasNextPage?: boolean;
 }>;
 
 let requestedUrls: string[] = [];
+let releaseFilteredRequests: (() => void) | undefined;
 let releaseMovedRequests: (() => void) | undefined;
 
 /** 요청 입력을 검색 조건을 확인할 수 있는 URL로 바꿉니다. */
@@ -240,16 +260,30 @@ function installMapApiMock(options: MapApiMockOptions = {}) {
         })
       : Promise.resolve();
 
+    let releaseFilteredRequestGate: (() => void) | undefined;
+    const filteredRequestGate = options.holdFilteredRequests
+      ? new Promise<void>((resolve) => {
+          releaseFilteredRequestGate = resolve;
+        })
+      : Promise.resolve();
+
     releaseMovedRequests = releaseRequestGate;
+    releaseFilteredRequests = releaseFilteredRequestGate;
 
     globalThis.fetch = async (input) => {
       const url = toUrl(input);
+      const isFilteredRequest =
+        url.searchParams.get("keyword") === FILTER_KEYWORD;
       const isMovedRequest = hasBounds(url, MOVED_BOUNDS);
 
       requestedUrls.push(url.toString());
 
       if (isMovedRequest) {
         await movedRequestGate;
+      }
+
+      if (isFilteredRequest) {
+        await filteredRequestGate;
       }
 
       if (url.pathname.endsWith("/shops/map")) {
@@ -267,7 +301,11 @@ function installMapApiMock(options: MapApiMockOptions = {}) {
         }
 
         const data: ShopMapData = {
-          items: isMovedRequest ? MOVED_MARKERS : INITIAL_MARKERS,
+          items: isFilteredRequest
+            ? FILTERED_MARKERS
+            : isMovedRequest
+              ? MOVED_MARKERS
+              : INITIAL_MARKERS,
           isTruncated: Boolean(options.initialMapTruncated) && !isMovedRequest,
         };
 
@@ -275,6 +313,13 @@ function installMapApiMock(options: MapApiMockOptions = {}) {
       }
 
       if (url.pathname.endsWith("/shops")) {
+        if (isFilteredRequest) {
+          return Response.json({
+            success: true,
+            data: createListData([FILTERED_LIST_ITEM], 1, false),
+          });
+        }
+
         if (isMovedRequest) {
           return Response.json({
             success: true,
@@ -309,6 +354,8 @@ function installMapApiMock(options: MapApiMockOptions = {}) {
 
     return () => {
       releaseRequestGate?.();
+      releaseFilteredRequestGate?.();
+      releaseFilteredRequests = undefined;
       releaseMovedRequests = undefined;
       globalThis.fetch = originalFetch;
     };
@@ -382,7 +429,9 @@ export const InitialViewportSearch: Story = {
       expect(hasRequested("/shops", INITIAL_BOUNDS)).toBe(true);
     });
 
-    await expect(map.getByLabelText("표시된 마커 수")).toHaveTextContent("2");
+    await waitFor(() => {
+      expect(map.getByLabelText("표시된 마커 수")).toHaveTextContent("2");
+    });
     await expect(map.getByText("기존 영역 마커 하나")).toBeVisible();
     await expect(canvas.getByText(INITIAL_LIST_ITEM.name)).toBeVisible();
   },
@@ -484,7 +533,7 @@ export const TruncatedMarkerGuide: Story = {
     );
 
     await expect(
-      canvas.getByText("상점이 많아요. 지도를 확대해 주세요."),
+      await canvas.findByText("상점이 많아요. 지도를 확대해 주세요."),
     ).toBeVisible();
   },
 };
@@ -509,5 +558,50 @@ export const InfiniteScrollDoesNotChangeMarkers: Story = {
     await expect(await list.findByText(NEXT_LIST_ITEM.name)).toBeVisible();
     await expect(map.getByLabelText("표시된 마커 수")).toHaveTextContent("2");
     await expect(map.queryByText(NEXT_LIST_ITEM.name)).not.toBeInTheDocument();
+  },
+};
+
+export const FilterSearchKeepsPreviousResults: Story = {
+  beforeEach: installMapApiMock({ holdFilteredRequests: true }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const map = within(canvas.getByRole("region", { name: "테스트 지도" }));
+    const list = within(
+      canvas.getByRole("region", { name: "검색된 소품샵" }),
+    );
+
+    await expect(await map.findByText("기존 영역 마커 하나")).toBeVisible();
+    await expect(await list.findByText(INITIAL_LIST_ITEM.name)).toBeVisible();
+
+    await userEvent.click(
+      canvas.getByRole("searchbox", { name: "상점 이름 검색" }),
+    );
+
+    const searchInput = await canvas.findByRole("searchbox", {
+      name: "검색할 상점 입력",
+    });
+
+    await userEvent.type(searchInput, FILTER_KEYWORD);
+
+    await waitFor(() => {
+      expect(
+        requestedUrls.some((requestUrl) => {
+          const url = new URL(requestUrl);
+
+          return (
+            url.pathname.endsWith("/shops/map") &&
+            url.searchParams.get("keyword") === FILTER_KEYWORD
+          );
+        }),
+      ).toBe(true);
+    });
+
+    await expect(map.getByText("기존 영역 마커 하나")).toBeVisible();
+    await expect(list.getByText(INITIAL_LIST_ITEM.name)).toBeVisible();
+
+    releaseFilteredRequests?.();
+
+    await expect(await map.findByText("필터된 지도 마커")).toBeVisible();
+    await expect(await list.findByText(FILTERED_LIST_ITEM.name)).toBeVisible();
   },
 };

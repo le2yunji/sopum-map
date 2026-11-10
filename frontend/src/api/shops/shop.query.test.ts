@@ -4,6 +4,7 @@ const queryMocks = vi.hoisted(() => ({
   infiniteQueryOptions: vi.fn((options: unknown) => options),
   keepPreviousData: vi.fn((previousData: unknown) => previousData),
   queryOptions: vi.fn((options: unknown) => options),
+  skipToken: Symbol("skipToken"),
   useInfiniteQuery: vi.fn(),
   useQuery: vi.fn(),
   getShops: vi.fn(),
@@ -14,6 +15,7 @@ vi.mock("@tanstack/react-query", () => ({
   infiniteQueryOptions: queryMocks.infiniteQueryOptions,
   keepPreviousData: queryMocks.keepPreviousData,
   queryOptions: queryMocks.queryOptions,
+  skipToken: queryMocks.skipToken,
   useInfiniteQuery: queryMocks.useInfiniteQuery,
   useQuery: queryMocks.useQuery,
 }));
@@ -53,6 +55,18 @@ describe("shop query", () => {
     };
 
     expect(shopQueryKeys.map(query)).not.toEqual(shopQueryKeys.list(query));
+  });
+
+  it("지도 경계가 없으면 마커 조회를 실행하지 않는다", () => {
+    useShopMap(undefined);
+
+    expect(queryMocks.useQuery).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: shopQueryKeys.maps(),
+        queryFn: queryMocks.skipToken,
+        enabled: false,
+      }),
+    );
   });
 
   it("지도 경계가 달라지면 마커 query key도 달라진다", () => {

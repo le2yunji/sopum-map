@@ -1,5 +1,7 @@
 import { createApiError, SHOP_MAP_MARKER_LIMIT } from "@sopum-map/shared";
+import ShopLikeModel from "../../models/shop-like.model.js";
 import ShopModel from "../../models/shop.model.js";
+import VisitLogModel from "../../models/visit-log.model.js";
 import {
   buildShopBoundsFilter,
   buildShopListPipeline,
@@ -16,9 +18,6 @@ import type {
   GetShopsServiceResult,
   ShopListAggregateResult,
 } from "./shop.service.types.js";
-
-import ShopLikeModel from "../../models/shop-like.model.js";
-import VisitLogModel from "../../models/visit-log.model.js";
 
 type ShopCountAggregate = Readonly<{
   _id: { toString(): string };

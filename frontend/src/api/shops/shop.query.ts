@@ -4,6 +4,7 @@ import {
   infiniteQueryOptions,
   keepPreviousData,
   queryOptions,
+  skipToken,
   useInfiniteQuery,
   useQuery,
 } from "@tanstack/react-query";
@@ -73,8 +74,13 @@ export function createShopMapQueryOptions(
 }
 
 /** 현재 지도 영역의 상점 마커를 조회합니다. */
-export function useShopMap(query: GetShopMapQuery, enabled = true) {
-  return useQuery(createShopMapQueryOptions(query, enabled));
+export function useShopMap(query: GetShopMapQuery | undefined, enabled = true) {
+  return useQuery({
+    queryKey: query ? shopQueryKeys.map(query) : shopQueryKeys.maps(),
+    queryFn: query ? () => getShopMap(query) : skipToken,
+    enabled: enabled && Boolean(query),
+    placeholderData: keepPreviousData,
+  });
 }
 
 /** 선택된 상점 상세 정보를 조회합니다. */
