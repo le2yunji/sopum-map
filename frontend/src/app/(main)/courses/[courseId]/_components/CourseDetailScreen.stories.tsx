@@ -17,6 +17,7 @@ const baseCourse: CourseDetailData = {
   description: "차분하게 걷기 좋은 소품샵 코스예요.",
   regionGroup: "seongsu-seoulforest",
   isPublic: true,
+  isOfficialPick: false,
   author: {
     id: "author-1",
     displayName: "빵별일지",

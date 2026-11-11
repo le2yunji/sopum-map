@@ -52,6 +52,22 @@ describe("updateCourseVisibility", () => {
     expect(modelMocks.deleteLikes).not.toHaveBeenCalled();
   });
 
+  it("비공개 전환은 isOfficialPick도 false로 바꾼다", async () => {
+    givenCourse({
+      _id: new Types.ObjectId(courseId),
+      userId: new Types.ObjectId(userId),
+      courseType: "user_created",
+    });
+
+    await updateCourseVisibility(userId, courseId, false);
+
+    expect(modelMocks.updateCourse).toHaveBeenCalledWith(
+      expect.any(Object),
+      { $set: { isPublic: false, isOfficialPick: false } },
+      { runValidators: true },
+    );
+  });
+
   it("다른 사용자는 공개 여부를 변경할 수 없습니다", async () => {
     givenCourse({
       _id: new Types.ObjectId(courseId),

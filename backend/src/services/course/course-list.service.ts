@@ -1,9 +1,6 @@
 import { Types } from "mongoose";
 
-import type {
-  LikedCourseListData,
-  MyCourseListData,
-} from "@sopum-map/shared";
+import type { LikedCourseListData, MyCourseListData } from "@sopum-map/shared";
 
 import CourseLikeModel from "../../models/course-like.model.js";
 import CourseModel from "../../models/course.model.js";
@@ -37,23 +34,6 @@ function createCursorFilter(cursor?: string) {
       { createdAt: decoded.createdAt, _id: { $lt: decoded.id } },
     ],
   };
-}
-
-/** 여러 코스의 좋아요 수를 한 번의 집계로 조회합니다. */
-async function getLikeCountByCourseId(courseIds: readonly Types.ObjectId[]) {
-  if (courseIds.length === 0) {
-    return new Map<string, number>();
-  }
-
-  const counts = await CourseLikeModel.aggregate<{
-    _id: Types.ObjectId;
-    count: number;
-  }>([
-    { $match: { courseId: { $in: courseIds } } },
-    { $group: { _id: "$courseId", count: { $sum: 1 } } },
-  ]);
-
-  return new Map(counts.map((item) => [item._id.toString(), item.count]));
 }
 
 /** 여러 코스의 첫 방문 상점 대표 이미지를 한 번에 조회합니다. */
@@ -112,6 +92,7 @@ export async function getMyCourseList(
       description: 1,
       regionGroup: 1,
       isPublic: 1,
+      likeCount: 1,
       shops: 1,
       courseType: 1,
       userId: 1,
@@ -121,16 +102,12 @@ export async function getMyCourseList(
     .lean();
 
   const visibleCourses = courses.slice(0, limit);
-  const courseIds = visibleCourses.map((course) => course._id);
-  const [likeCountByCourseId, mainImageByCourseId] = await Promise.all([
-    getLikeCountByCourseId(courseIds),
-    getMainImageByCourseId(visibleCourses),
-  ]);
 
+  const mainImageByCourseId = await getMainImageByCourseId(visibleCourses);
   return createCourseCursorPage(courses, limit, (course) =>
     mapMyCourseListItem(course, {
       mainImageUrl: mainImageByCourseId.get(course._id.toString()) ?? null,
-      likeCount: likeCountByCourseId.get(course._id.toString()) ?? 0,
+      likeCount: course.likeCount ?? 0,
     }),
   );
 }
@@ -160,6 +137,7 @@ export async function getMyLikedCourseList(
       description: 1,
       regionGroup: 1,
       isPublic: 1,
+      likeCount: 1,
       shops: 1,
       createdAt: 1,
       updatedAt: 1,
@@ -172,13 +150,22 @@ export async function getMyLikedCourseList(
     course.userId ? [course.userId] : [],
   );
 
-  const [users, likeCountByCourseId, mainImageByCourseId] = await Promise.all([
-    UserModel.find({ _id: { $in: userIds } })
-      .select({ _id: 1, nickname: 1, profileImage: 1 })
+  const [users, mainImageByCourseId] = await Promise.all([
+    UserModel.find({
+      _id: {
+        $in: userIds,
+      },
+    })
+      .select({
+        _id: 1,
+        nickname: 1,
+        profileImage: 1,
+      })
       .lean(),
-    getLikeCountByCourseId(courses.map((course) => course._id)),
+
     getMainImageByCourseId(courses),
   ]);
+
   const userById = new Map(users.map((user) => [user._id.toString(), user]));
 
   const mappedLikes = visibleLikes.flatMap((like) => {
@@ -197,7 +184,7 @@ export async function getMyLikedCourseList(
         course,
         likedAt: like.createdAt,
         mainImageUrl: mainImageByCourseId.get(course._id.toString()) ?? null,
-        likeCount: likeCountByCourseId.get(course._id.toString()) ?? 0,
+        likeCount: course.likeCount ?? 0,
         author: createCourseListAuthor(course, authorUser),
       }),
     ];

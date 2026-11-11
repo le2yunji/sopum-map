@@ -25,6 +25,7 @@ const detail: CourseDetailData = {
   description: null,
   regionGroup: "seongsu-seoulforest",
   isPublic: true,
+  isOfficialPick: false,
   author: {
     id: "user-1",
     displayName: "만든 사람",
