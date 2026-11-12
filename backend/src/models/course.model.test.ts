@@ -33,4 +33,37 @@ describe("CourseModel indexes", () => {
     expect(course.likeCount).toBe(0);
     expect(course.isOfficialPick).toBe(false);
   });
+
+  it("공개 코스의 지역과 정렬 조합에 맞는 인덱스를 사용한다", () => {
+    const indexFields = CourseModel.schema.indexes().map(([fields]) => fields);
+
+    expect(indexFields).toEqual(
+      expect.arrayContaining([
+        {
+          isPublic: 1,
+          createdAt: -1,
+          _id: -1,
+        },
+        {
+          isPublic: 1,
+          regionGroup: 1,
+          createdAt: -1,
+          _id: -1,
+        },
+        {
+          isPublic: 1,
+          likeCount: -1,
+          createdAt: -1,
+          _id: -1,
+        },
+        {
+          isPublic: 1,
+          regionGroup: 1,
+          likeCount: -1,
+          createdAt: -1,
+          _id: -1,
+        },
+      ]),
+    );
+  });
 });

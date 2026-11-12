@@ -149,6 +149,38 @@ const courseSchema = new Schema(
   },
 );
 
+// 공개 코스 전체 최신순 조회
+courseSchema.index({
+  isPublic: 1,
+  createdAt: -1,
+  _id: -1,
+});
+
+// 공개 코스 지역별 최신순 조회
+courseSchema.index({
+  isPublic: 1,
+  regionGroup: 1,
+  createdAt: -1,
+  _id: -1,
+});
+
+// 공개 코스 전체 인기순 조회
+courseSchema.index({
+  isPublic: 1,
+  likeCount: -1,
+  createdAt: -1,
+  _id: -1,
+});
+
+// 공개 코스 지역별 인기순 조회
+courseSchema.index({
+  isPublic: 1,
+  regionGroup: 1,
+  likeCount: -1,
+  createdAt: -1,
+  _id: -1,
+});
+
 // 사용자가 만든 코스 목록 조회
 courseSchema.index({
   userId: 1,
@@ -172,6 +204,7 @@ courseSchema.index(
     },
   },
 );
+
 export type CourseSchemaType = InferSchemaType<typeof courseSchema>;
 
 const CourseModel = model("Course", courseSchema);
