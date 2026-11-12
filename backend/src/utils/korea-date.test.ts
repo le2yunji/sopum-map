@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { toKoreaDateKey } from "./korea-date.js";
+import { getKoreaDayWindow, toKoreaDateKey } from "./korea-date.js";
 
 describe("toKoreaDateKey", () => {
   it.each([
@@ -14,5 +14,18 @@ describe("toKoreaDateKey", () => {
     expect(() => toKoreaDateKey(new Date("invalid"))).toThrow(
       "유효한 방문일이 필요합니다.",
     );
+  });
+});
+
+describe("getKoreaDayWindow", () => {
+  it("한국 날짜의 UTC 시작과 14일 뒤 만료 시각을 반환한다", () => {
+    expect(
+      getKoreaDayWindow(new Date("2026-11-11T03:00:00.000Z")),
+    ).toEqual({
+      dateKey: "2026-11-11",
+      startAt: new Date("2026-11-10T15:00:00.000Z"),
+      nextStartAt: new Date("2026-11-11T15:00:00.000Z"),
+      expiresAt: new Date("2026-11-24T15:00:00.000Z"),
+    });
   });
 });
