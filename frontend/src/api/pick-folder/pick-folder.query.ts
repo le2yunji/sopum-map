@@ -66,10 +66,11 @@ export const pickFolderQueryKeys = {
 /**
  * 내 픽 폴더 목록
  */
-export function usePickFolders() {
+export function usePickFolders(enabled = true) {
   return useQuery({
     queryKey: pickFolderQueryKeys.list(),
     queryFn: getPickFolders,
+    enabled,
   });
 }
 

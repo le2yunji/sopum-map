@@ -86,15 +86,22 @@ describe("/api/courses/:courseId/shops/:shopId/visit", () => {
   it.each([
     ["put", true, "setCourseShopVisited"],
     ["delete", false, "unsetCourseShopVisited"],
-  ] as const)("%s 요청으로 방문 상태 %s를 보장한다", async (method, isVisited, serviceName) => {
-    const response = await request(createTestApp())
-      [method](`/api/courses/${courseId}/shops/${shopId}/visit`)
-      .set("Cookie", "auth_session=test-session");
+  ] as const)(
+    "%s 요청으로 방문 상태 %s를 보장한다",
+    async (method, isVisited, serviceName) => {
+      const response = await request(createTestApp())
+        [method](`/api/courses/${courseId}/shops/${shopId}/visit`)
+        .set("Cookie", "auth_session=test-session");
 
-    expect(response.status).toBe(200);
-    expect(response.body).toEqual({ success: true, data: { isVisited } });
-    expect(serviceMocks[serviceName]).toHaveBeenCalledWith(userId, courseId, shopId);
-  });
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ success: true, data: { isVisited } });
+      expect(serviceMocks[serviceName]).toHaveBeenCalledWith(
+        userId,
+        courseId,
+        shopId,
+      );
+    },
+  );
 
   it("미인증 방문 저장 요청을 거부한다", async () => {
     const response = await request(createTestApp()).put(
@@ -186,11 +193,15 @@ describe("GET /api/courses", () => {
     });
   });
 
-  it("미인증 요청은 서비스 호출 전에 401을 반환한다", async () => {
+  it("미인증 사용자에게도 공개 코스 목록을 반환한다", async () => {
     const response = await request(createTestApp()).get("/api/courses");
 
-    expect(response.status).toBe(401);
-    expect(serviceMocks.getPublicCourseList).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      data: { items: [], nextCursor: null, hasNext: false },
+    });
+    expect(serviceMocks.getPublicCourseList).toHaveBeenCalledOnce();
   });
 });
 
@@ -210,12 +221,16 @@ describe("GET /api/courses/home", () => {
     expect(serviceMocks.getHomeCourseRecommendations).toHaveBeenCalledOnce();
   });
 
-  it("미인증 요청은 서비스 호출 전에 401을 반환한다", async () => {
+  it("미인증 사용자에게도 오늘의 홈 추천 코스를 반환한다", async () => {
     const response = await request(createTestApp()).get("/api/courses/home");
 
-    expect(response.status).toBe(401);
-    expect(
-      serviceMocks.getHomeCourseRecommendations,
-    ).not.toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      data: {
+        items: [],
+      },
+    });
+    expect(serviceMocks.getHomeCourseRecommendations).toHaveBeenCalledOnce();
   });
 });
