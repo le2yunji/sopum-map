@@ -9,6 +9,7 @@ const serviceMocks = vi.hoisted(() => ({
   getAuthenticatedUserId: vi.fn(),
   createCourse: vi.fn(),
   getPublicCourseList: vi.fn(),
+  getHomeCourseRecommendations: vi.fn(),
   setCourseShopVisited: vi.fn(),
   unsetCourseShopVisited: vi.fn(),
 }));
@@ -23,6 +24,10 @@ vi.mock("../services/course/course.create.service.js", () => ({
 
 vi.mock("../services/course/public-course-list.service.js", () => ({
   getPublicCourseList: serviceMocks.getPublicCourseList,
+}));
+
+vi.mock("../services/course/course-home.service.js", () => ({
+  getHomeCourseRecommendations: serviceMocks.getHomeCourseRecommendations,
 }));
 
 vi.mock("../services/course/course-shop-visit.service.js", () => ({
@@ -69,6 +74,9 @@ beforeEach(() => {
     items: [],
     nextCursor: null,
     hasNext: false,
+  });
+  serviceMocks.getHomeCourseRecommendations.mockResolvedValue({
+    items: [],
   });
   serviceMocks.setCourseShopVisited.mockResolvedValue({ isVisited: true });
   serviceMocks.unsetCourseShopVisited.mockResolvedValue({ isVisited: false });
@@ -183,5 +191,31 @@ describe("GET /api/courses", () => {
 
     expect(response.status).toBe(401);
     expect(serviceMocks.getPublicCourseList).not.toHaveBeenCalled();
+  });
+});
+
+describe("GET /api/courses/home", () => {
+  it("인증된 사용자에게 오늘의 홈 추천 코스를 반환한다", async () => {
+    const response = await request(createTestApp())
+      .get("/api/courses/home")
+      .set("Cookie", "auth_session=test-session");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      data: {
+        items: [],
+      },
+    });
+    expect(serviceMocks.getHomeCourseRecommendations).toHaveBeenCalledOnce();
+  });
+
+  it("미인증 요청은 서비스 호출 전에 401을 반환한다", async () => {
+    const response = await request(createTestApp()).get("/api/courses/home");
+
+    expect(response.status).toBe(401);
+    expect(
+      serviceMocks.getHomeCourseRecommendations,
+    ).not.toHaveBeenCalled();
   });
 });

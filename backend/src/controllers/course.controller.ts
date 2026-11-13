@@ -29,6 +29,7 @@ import {
   setCourseShopVisited,
   unsetCourseShopVisited,
 } from "../services/course/course-shop-visit.service.js";
+import { getHomeCourseRecommendations } from "../services/course/course-home.service.js";
 
 /**
  * 내 픽 폴더를 기반으로 사용자 코스를 생성합니다.
@@ -66,6 +67,24 @@ export async function getPublicCoursesController(
     >;
 
     const data = await getPublicCourseList(query);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 모든 사용자에게 같은 오늘의 홈 추천 코스를 반환합니다. */
+export async function getHomeCourseRecommendationsController(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const data = await getHomeCourseRecommendations();
 
     res.status(200).json({
       success: true,
