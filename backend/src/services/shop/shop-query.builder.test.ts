@@ -371,7 +371,7 @@ describe("buildShopListPipeline", () => {
     });
   });
 
-  it("인기순은 좋아요 수와 생성일을 차례로 사용한다", () => {
+  it("인기순은 실제 좋아요 수를 집계한 뒤 생성일과 함께 정렬한다", () => {
     const pipeline = buildShopListPipeline({
       ...defaultParams,
       sort: "popular",
@@ -380,6 +380,42 @@ describe("buildShopListPipeline", () => {
     expect(pipeline[1]).toEqual({
       $facet: {
         items: [
+          {
+            $lookup: {
+              from: "likes",
+              let: {
+                shopId: "$_id",
+              },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ["$shopId", "$$shopId"],
+                    },
+                  },
+                },
+                {
+                  $count: "count",
+                },
+              ],
+              as: "likeCountAggregation",
+            },
+          },
+          {
+            $set: {
+              likeCount: {
+                $ifNull: [
+                  {
+                    $arrayElemAt: ["$likeCountAggregation.count", 0],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+          {
+            $unset: "likeCountAggregation",
+          },
           {
             $sort: {
               likeCount: -1,

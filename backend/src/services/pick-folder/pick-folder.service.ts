@@ -23,6 +23,7 @@ import ShopLikeModel from "../../models/shop-like.model.js";
 import ShopModel from "../../models/shop.model.js";
 import CourseModel from "../../models/course.model.js";
 
+import { getShopCountMaps } from "../shop/shop-count.helper.js";
 import { getShopMapByIds } from "../shop/shop-query.helper.js";
 import { mapShopListItem } from "../shop/shop.mapper.js";
 
@@ -806,7 +807,10 @@ export async function getShopsByFolder({
 
   const shopIds = folderItems.map((item) => item.shopId);
 
-  const shopMap = await getShopMapByIds(shopIds);
+  const [shopMap, countMaps] = await Promise.all([
+    getShopMapByIds(shopIds),
+    getShopCountMaps(shopIds),
+  ]);
 
   const items = folderItems
     .map((item) => {
@@ -816,9 +820,12 @@ export async function getShopsByFolder({
         return null;
       }
 
+      const shopId = item.shopId.toString();
+
       return mapShopListItem({
         shop,
-        visitLogCount: 0,
+        likeCount: countMaps.likeCountByShopId.get(shopId) ?? 0,
+        visitLogCount: countMaps.visitLogCountByShopId.get(shopId) ?? 0,
         isLiked: true,
       });
     })

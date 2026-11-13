@@ -1,13 +1,14 @@
 import { Types } from "mongoose";
 
-import ShopLikeModel from "../models/shop-like.model.js";
-import ShopModel from "../models/shop.model.js";
+import ShopLikeModel from "../../models/shop-like.model.js";
+import ShopModel from "../../models/shop.model.js";
 
-import PickFolderModel from "../models/pick-folder.model.js";
-import PickFolderItemModel from "../models/pick-folder-item.model.js";
-import { getShopMapByIds } from "./shop/shop-query.helper.js";
+import PickFolderModel from "../../models/pick-folder.model.js";
+import PickFolderItemModel from "../../models/pick-folder-item.model.js";
+import { getShopCountMaps } from "./shop-count.helper.js";
+import { getShopMapByIds } from "./shop-query.helper.js";
 import { createApiError, LikedShopListData } from "@sopum-map/shared";
-import { mapShopListItem } from "./shop/shop.mapper.js";
+import { mapShopListItem } from "./shop.mapper.js";
 
 /**
  * 상점에 좋아요 추가
@@ -147,7 +148,10 @@ export async function getLikedShops({
 
   const shopIds = likes.map((like) => like.shopId);
 
-  const shopMap = await getShopMapByIds(shopIds);
+  const [shopMap, countMaps] = await Promise.all([
+    getShopMapByIds(shopIds),
+    getShopCountMaps(shopIds),
+  ]);
 
   const items = likes
     .map((like) => {
@@ -160,7 +164,10 @@ export async function getLikedShops({
       return {
         ...mapShopListItem({
           shop,
-          visitLogCount: 0,
+          likeCount:
+            countMaps.likeCountByShopId.get(like.shopId.toString()) ?? 0,
+          visitLogCount:
+            countMaps.visitLogCountByShopId.get(like.shopId.toString()) ?? 0,
           isLiked: true,
         }),
         likedAt: like.createdAt.toISOString(),

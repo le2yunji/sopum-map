@@ -16,7 +16,7 @@ import { mapShopTags } from "../../mappers/shop-tag.mapper.js";
 
 type MapShopListItemParams = {
   shop: ShopListAggregateItem;
-  likeCount?: number;
+  likeCount: number;
   visitLogCount: number;
   isLiked: boolean;
 };
@@ -81,7 +81,7 @@ export const mapShopListItem = ({
     longitude,
     mainImageUrl: getMainShopImageUrl(shop.images),
     status: shop.status,
-    likeCount: likeCount ?? shop.likeCount,
+    likeCount,
     visitLogCount,
     isLiked,
   };
@@ -98,6 +98,7 @@ export const mapShopListItem = ({
 
 type MapShopDetailParams = {
   shop: ShopQueryResult;
+  likeCount: number;
   visitLogCount: number;
   isLiked: boolean;
 };
@@ -107,6 +108,7 @@ type MapShopDetailParams = {
  */
 export const mapShopDetail = ({
   shop,
+  likeCount,
   visitLogCount,
   isLiked,
 }: MapShopDetailParams): ShopDetailData => {
@@ -144,7 +146,7 @@ export const mapShopDetail = ({
 
     sourceType: shop.sourceType,
     status: shop.status,
-    likeCount: shop.likeCount ?? 0,
+    likeCount,
 
     visitLogCount,
     isLiked,
