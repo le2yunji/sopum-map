@@ -272,6 +272,21 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
     Boolean(committedSearchQuery),
   );
 
+  /** 검색 시트에서는 현재 지도 영역과 관계없이 전체 상점을 조회합니다. */
+  const searchListQuery = useMemo(
+    () => ({
+      keyword: debouncedKeyword || undefined,
+      limit: PAGE_SIZE,
+      sort: "latest" as const,
+    }),
+    [debouncedKeyword],
+  );
+
+  const { data: searchShopsData } = useInfiniteShops(
+    searchListQuery,
+    isSearchOpen && Boolean(debouncedKeyword),
+  );
+
   /** 지도 API 응답을 실제 마커 표시 모델로 변환합니다. */
   const markerShops = useMemo(() => {
     const markers = shopMapData?.items ?? [];
@@ -300,6 +315,24 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
   );
 
   const totalCount = shopsData?.pages[0]?.pagination.totalCount ?? 0;
+
+  /** 검색 시트에 표시할 전역 검색 결과를 하나의 배열로 합칩니다. */
+  const searchShops = useMemo(
+    () =>
+      searchShopsData?.pages.flatMap((page) => page.items.map(toMapShop)) ?? [],
+    [searchShopsData],
+  );
+
+  const visibleSearchShops = useMemo(
+    () =>
+      pickedOnly
+        ? searchShops.filter((shop) => shop.isLiked)
+        : searchShops,
+    [pickedOnly, searchShops],
+  );
+
+  const searchTotalCount =
+    searchShopsData?.pages[0]?.pagination.totalCount ?? 0;
 
   /**
    * URL에 shopId가 있으면 목록 데이터와 별개로
@@ -436,8 +469,10 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
       <MapSearchSheet
         open={isSearchOpen}
         keyword={keyword}
-        shops={visibleShops}
-        totalCount={totalCount}
+        shops={visibleSearchShops}
+        totalCount={
+          pickedOnly ? visibleSearchShops.length : searchTotalCount
+        }
         onKeywordChange={handleKeywordChange}
         onSelectShop={handleSelectSearchResult}
         onOpenChange={handleSearchOpenChange}
