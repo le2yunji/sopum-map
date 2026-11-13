@@ -323,6 +323,7 @@ export const RecommendedCourse: Story = {
       ...baseCourse,
       courseType: "recommended",
       sourceFolderId: null,
+      isOfficialPick: true,
       author: {
         id: null,
         displayName: "소품지도",
@@ -337,6 +338,36 @@ export const RecommendedCourse: Story = {
     await expect(
       canvas.getByRole("button", { name: "코스 좋아요" }),
     ).toBeVisible();
+    await expect(canvas.queryByText("소품지도 Pick")).not.toBeInTheDocument();
+  },
+};
+
+export const OfficialPickCourse: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      isOfficialPick: true,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText("소품지도 Pick")).toBeVisible();
+  },
+};
+
+export const PrivateOfficialPickCourse: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      isPublic: false,
+      isOfficialPick: true,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.queryByText("소품지도 Pick")).not.toBeInTheDocument();
   },
 };
 

@@ -1,8 +1,6 @@
-export type CourseListItemProps = {
-  id: string;
-  title: string;
-  description: string;
-  imageUrls: string[];
+import type { PublicCourseListItem } from "@sopum-map/shared";
+
+export type CourseListItemProps = Readonly<{
+  course: PublicCourseListItem;
   imageLoading?: "eager" | "lazy";
-  tags: string[];
-};
+}>;

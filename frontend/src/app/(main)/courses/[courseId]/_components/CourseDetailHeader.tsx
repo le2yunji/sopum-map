@@ -61,6 +61,10 @@ export function CourseDetailHeader({
     month: "numeric",
     day: "numeric",
   }).format(new Date(course.createdAt));
+  const showOfficialPick =
+    course.courseType === "user_created" &&
+    course.isPublic &&
+    course.isOfficialPick;
 
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-[max(12px,env(safe-area-inset-top))]">
@@ -117,7 +121,14 @@ export function CourseDetailHeader({
           className="pointer-events-auto relative mt-3 rounded-card border border-white/70 bg-white/25 p-4 shadow-floating backdrop-blur-md"
         >
           <div className="flex items-center justify-between gap-3">
-            <Badge> {SHOP_REGION_GROUP_LABELS[course.regionGroup]}</Badge>
+            <div className="flex flex-wrap gap-1">
+              {showOfficialPick ? (
+                <Badge variant="pink" size="small">
+                  소품지도 Pick
+                </Badge>
+              ) : null}
+              <Badge>{SHOP_REGION_GROUP_LABELS[course.regionGroup]}</Badge>
+            </div>
             <button
               type="button"
               aria-label="코스 정보 접기"
