@@ -1,7 +1,7 @@
 import { createApiError, SHOP_MAP_MARKER_LIMIT } from "@sopum-map/shared";
 import ShopLikeModel from "../../models/shop-like.model.js";
 import ShopModel from "../../models/shop.model.js";
-import VisitLogModel from "../../models/visit-log.model.js";
+import { getShopCountMaps } from "./shop-count.helper.js";
 import {
   buildShopBoundsFilter,
   buildShopListPipeline,
@@ -18,20 +18,6 @@ import type {
   GetShopsServiceResult,
   ShopListAggregateResult,
 } from "./shop.service.types.js";
-
-type ShopCountAggregate = Readonly<{
-  _id: { toString(): string };
-  count: number;
-}>;
-
-/** 상점별 집계 결과를 빠르게 조회할 수 있는 Map으로 바꿉니다. */
-function createShopCountMap(
-  results: readonly ShopCountAggregate[],
-): ReadonlyMap<string, number> {
-  return new Map(
-    results.map((result) => [result._id.toString(), result.count]),
-  );
-}
 
 /**
  * 현재 지도 영역 안의 상점을 가벼운 마커 데이터로 조회합니다.
@@ -116,25 +102,14 @@ export const getShops = async (
    * 현재 페이지의 Shop 중 좋아요한 Shop ID만 조회
    */
   const shopIds = rawItems.map((shop) => shop._id);
-  const [likedShopIds, likeCounts, visitLogCounts] = await Promise.all([
+  const [likedShopIds, countMaps] = await Promise.all([
     userId
       ? ShopLikeModel.distinct("shopId", {
           userId,
           shopId: { $in: shopIds },
         })
       : [],
-    shopIds.length > 0
-      ? ShopLikeModel.aggregate<ShopCountAggregate>([
-          { $match: { shopId: { $in: shopIds } } },
-          { $group: { _id: "$shopId", count: { $sum: 1 } } },
-        ])
-      : [],
-    shopIds.length > 0
-      ? VisitLogModel.aggregate<ShopCountAggregate>([
-          { $match: { shopId: { $in: shopIds }, status: "active" } },
-          { $group: { _id: "$shopId", count: { $sum: 1 } } },
-        ])
-      : [],
+    getShopCountMaps(shopIds),
   ]);
 
   /**
@@ -143,8 +118,6 @@ export const getShops = async (
   const likedShopIdSet = new Set(
     likedShopIds.map((shopId) => shopId.toString()),
   );
-  const likeCountByShopId = createShopCountMap(likeCounts);
-  const visitLogCountByShopId = createShopCountMap(visitLogCounts);
 
   /**
    *  DB 형태 → API 형태
@@ -154,8 +127,8 @@ export const getShops = async (
 
     return mapShopListItem({
       shop,
-      likeCount: likeCountByShopId.get(shopId) ?? 0,
-      visitLogCount: visitLogCountByShopId.get(shopId) ?? 0,
+      likeCount: countMaps.likeCountByShopId.get(shopId) ?? 0,
+      visitLogCount: countMaps.visitLogCountByShopId.get(shopId) ?? 0,
       isLiked: likedShopIdSet.has(shopId),
     });
   });
@@ -199,26 +172,25 @@ export const getShopById = async (
       message: "상점을 찾을 수 없습니다.",
     });
   }
-  const [isLiked, visitLogCount] = await Promise.all([
+  const [isLiked, countMaps] = await Promise.all([
     userId
       ? ShopLikeModel.exists({
           userId,
           shopId: shop._id,
         }).then(Boolean)
       : Promise.resolve(false),
-
-    VisitLogModel.countDocuments({
-      shopId: shop._id,
-      status: "active",
-    }),
+    getShopCountMaps([shop._id]),
   ]);
+
+  const id = shop._id.toString();
 
   /**
    * DB 형태 → Shop 상세 API 형태
    */
   return mapShopDetail({
     shop,
-    visitLogCount,
+    likeCount: countMaps.likeCountByShopId.get(id) ?? 0,
+    visitLogCount: countMaps.visitLogCountByShopId.get(id) ?? 0,
     isLiked,
   });
 };

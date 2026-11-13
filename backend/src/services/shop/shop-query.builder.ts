@@ -1,6 +1,8 @@
 import type { ShopMapBounds, ShopSort } from "@sopum-map/shared";
 import type { PipelineStage } from "mongoose";
 
+import ShopLikeModel from "../../models/shop-like.model.js";
+
 import type { GetShopsServiceParams } from "./shop.service.types.js";
 
 type ShopMatchFilterParams = Pick<
@@ -169,6 +171,54 @@ const buildSortStage = (sort: ShopSort): PipelineStage.Sort => {
   };
 };
 
+/** 인기순에서만 실제 좋아요 수를 계산해 저장된 카운트를 덮어씁니다. */
+function buildLikeCountStages(
+  sort: ShopSort,
+): PipelineStage.FacetPipelineStage[] {
+  if (sort !== "popular") {
+    return [];
+  }
+
+  return [
+    {
+      $lookup: {
+        from: ShopLikeModel.collection.name,
+        let: {
+          shopId: "$_id",
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$shopId", "$$shopId"],
+              },
+            },
+          },
+          {
+            $count: "count",
+          },
+        ],
+        as: "likeCountAggregation",
+      },
+    },
+    {
+      $set: {
+        likeCount: {
+          $ifNull: [
+            {
+              $arrayElemAt: ["$likeCountAggregation.count", 0],
+            },
+            0,
+          ],
+        },
+      },
+    },
+    {
+      $unset: "likeCountAggregation",
+    },
+  ];
+}
+
 export const buildShopListPipeline = (
   params: GetShopsServiceParams,
 ): PipelineStage[] => {
@@ -217,6 +267,7 @@ export const buildShopListPipeline = (
   pipeline.push({
     $facet: {
       items: [
+        ...buildLikeCountStages(params.sort),
         buildSortStage(params.sort),
         {
           $skip: (params.page - 1) * params.limit,

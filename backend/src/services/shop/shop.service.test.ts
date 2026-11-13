@@ -16,7 +16,6 @@ const modelMocks = vi.hoisted(() => ({
   existsShopLike: vi.fn(),
 
   aggregateVisitLogCounts: vi.fn(),
-  countVisitLogs: vi.fn(),
 }));
 
 vi.mock("../../models/shop.model.js", () => ({
@@ -38,7 +37,6 @@ vi.mock("../../models/shop-like.model.js", () => ({
 vi.mock("../../models/visit-log.model.js", () => ({
   default: {
     aggregate: modelMocks.aggregateVisitLogCounts,
-    countDocuments: modelMocks.countVisitLogs,
   },
 }));
 
@@ -491,15 +489,23 @@ describe("shop service", () => {
   });
 
   describe("getShopById", () => {
-    it("상점의 활성 방문 로그만 집계한다", async () => {
+    it("상점의 실제 좋아요와 활성 방문 로그 수를 집계한다", async () => {
       modelMocks.findOneShop.mockResolvedValue(shopDocument);
-      modelMocks.countVisitLogs.mockResolvedValue(2);
+      modelMocks.aggregateLikeCounts.mockResolvedValue([
+        { _id: shopId, count: 7 },
+      ]);
+      modelMocks.aggregateVisitLogCounts.mockResolvedValue([
+        { _id: shopId, count: 2 },
+      ]);
 
-      await getShopById({ shopId: shopId.toString(), userId });
+      const result = await getShopById({
+        shopId: shopId.toString(),
+        userId,
+      });
 
-      expect(modelMocks.countVisitLogs).toHaveBeenCalledWith({
-        shopId,
-        status: "active",
+      expect(result).toMatchObject({
+        likeCount: 7,
+        visitLogCount: 2,
       });
     });
   });

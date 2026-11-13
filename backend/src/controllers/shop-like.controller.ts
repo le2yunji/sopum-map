@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { likeShop, unlikeShop } from "../services/shop-like.service.js";
+import { likeShop, unlikeShop } from "../services/shop/shop-like.service.js";
 import { shopIdParamsSchema } from "../validations/shop.validation.js";
 
 type ShopLikeParams = {

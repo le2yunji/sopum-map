@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { z } from "zod";
-import { getLikedShops } from "../services/shop-like.service.js";
+import { getLikedShops } from "../services/shop/shop-like.service.js";
 import { likedShopsQuerySchema } from "../validations/shop-like.validation.js";
 import UserModel from "../models/user.model.js";
 import { updateUserProfile } from "../services/user/user.service.js";
