@@ -1,17 +1,23 @@
-import { createApiError } from "@sopum-map/shared";
+import { createApiError, SHOP_MAP_MARKER_LIMIT } from "@sopum-map/shared";
+import ShopLikeModel from "../../models/shop-like.model.js";
 import ShopModel from "../../models/shop.model.js";
-import { buildShopListPipeline } from "./shop-query.builder.js";
+import VisitLogModel from "../../models/visit-log.model.js";
+import {
+  buildShopBoundsFilter,
+  buildShopListPipeline,
+  buildShopMatchFilter,
+} from "./shop-query.builder.js";
 import { mapShopDetail, mapShopListItem } from "./shop.mapper.js";
+
 import type {
+  GetShopDetailServiceParams,
   GetShopDetailServiceResult,
+  GetShopMapServiceParams,
+  GetShopMapServiceResult,
   GetShopsServiceParams,
   GetShopsServiceResult,
-  GetShopDetailServiceParams,
   ShopListAggregateResult,
 } from "./shop.service.types.js";
-
-import ShopLikeModel from "../../models/shop-like.model.js";
-import VisitLogModel from "../../models/visit-log.model.js";
 
 type ShopCountAggregate = Readonly<{
   _id: { toString(): string };
@@ -22,8 +28,73 @@ type ShopCountAggregate = Readonly<{
 function createShopCountMap(
   results: readonly ShopCountAggregate[],
 ): ReadonlyMap<string, number> {
-  return new Map(results.map((result) => [result._id.toString(), result.count]));
+  return new Map(
+    results.map((result) => [result._id.toString(), result.count]),
+  );
 }
+
+/**
+ * 현재 지도 영역 안의 상점을 가벼운 마커 데이터로 조회합니다.
+ */
+export const getShopMap = async (
+  params: GetShopMapServiceParams,
+): Promise<GetShopMapServiceResult> => {
+  const matchFilter = buildShopMatchFilter(params);
+  const boundsFilter = buildShopBoundsFilter(params.bounds);
+
+  const rawShops = await ShopModel.find({
+    ...matchFilter,
+    ...boundsFilter,
+  })
+    .select({
+      _id: 1,
+      name: 1,
+      location: 1,
+      createdAt: 1,
+    })
+    .sort({
+      createdAt: -1,
+      _id: -1,
+    })
+    .limit(SHOP_MAP_MARKER_LIMIT + 1)
+    .lean();
+
+  const isTruncated = rawShops.length > SHOP_MAP_MARKER_LIMIT;
+  const shops = rawShops.slice(0, SHOP_MAP_MARKER_LIMIT);
+  const shopIds = shops.map((shop) => shop._id);
+
+  const likedShopIds =
+    params.userId && shopIds.length > 0
+      ? await ShopLikeModel.distinct("shopId", {
+          userId: params.userId,
+          shopId: {
+            $in: shopIds,
+          },
+        })
+      : [];
+
+  const likedShopIdSet = new Set(
+    likedShopIds.map((shopId) => shopId.toString()),
+  );
+
+  const items = shops.map((shop) => {
+    const [longitude, latitude] = shop.location.coordinates;
+    const id = shop._id.toString();
+
+    return {
+      id,
+      name: shop.name,
+      latitude,
+      longitude,
+      isLiked: likedShopIdSet.has(id),
+    };
+  });
+
+  return {
+    items,
+    isTruncated,
+  };
+};
 
 export const getShops = async (
   params: GetShopsServiceParams,

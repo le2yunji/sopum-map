@@ -97,6 +97,7 @@ export type CourseDetailData = Readonly<{
   regionGroup: ShopRegionGroup;
 
   isPublic: boolean;
+  isOfficialPick: boolean;
 
   author: CourseAuthor;
   isOwner: boolean;

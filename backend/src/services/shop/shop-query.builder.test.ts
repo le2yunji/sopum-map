@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildShopBoundsFilter,
   buildShopListPipeline,
   buildShopMatchFilter,
 } from "./shop-query.builder.js";
@@ -11,6 +12,36 @@ const defaultParams: GetShopsServiceParams = {
   limit: 20,
   sort: "latest",
 };
+
+const mapBounds = {
+  southWestLat: 37.5,
+  southWestLng: 126.9,
+  northEastLat: 37.6,
+  northEastLng: 127.1,
+} as const;
+
+describe("buildShopBoundsFilter", () => {
+  it("지도 경계를 닫힌 GeoJSON 사각형으로 변환한다", () => {
+    expect(buildShopBoundsFilter(mapBounds)).toEqual({
+      location: {
+        $geoWithin: {
+          $geometry: {
+            type: "Polygon",
+            coordinates: [
+              [
+                [126.9, 37.5],
+                [127.1, 37.5],
+                [127.1, 37.6],
+                [126.9, 37.6],
+                [126.9, 37.5],
+              ],
+            ],
+          },
+        },
+      },
+    });
+  });
+});
 
 describe("buildShopMatchFilter", () => {
   it("기본적으로 활성 매장만 조회한다", () => {
@@ -136,6 +167,86 @@ describe("buildShopListPipeline", () => {
         },
       },
     ]);
+  });
+
+  it("지도 경계가 있으면 영역 안의 활성 상점만 조회한다", () => {
+    const pipeline = buildShopListPipeline({
+      ...defaultParams,
+      bounds: mapBounds,
+    });
+
+    expect(pipeline[0]).toEqual({
+      $match: {
+        status: "active",
+        location: {
+          $geoWithin: {
+            $geometry: {
+              type: "Polygon",
+              coordinates: [
+                [
+                  [126.9, 37.5],
+                  [127.1, 37.5],
+                  [127.1, 37.6],
+                  [126.9, 37.6],
+                  [126.9, 37.5],
+                ],
+              ],
+            },
+          },
+        },
+      },
+    });
+  });
+
+  it("지도 영역과 상점 필터를 함께 적용한다", () => {
+    const pipeline = buildShopListPipeline({
+      ...defaultParams,
+      bounds: mapBounds,
+      category: "소품샵",
+      tagKeys: ["cute", "interior"],
+      keyword: "소품",
+    });
+
+    const firstStage = pipeline[0] as {
+      $match: Record<string, unknown>;
+    };
+
+    expect(firstStage.$match).toMatchObject({
+      status: "active",
+      category: "소품샵",
+      "tagStats.key": {
+        $in: ["cute", "interior"],
+      },
+      location: {
+        $geoWithin: {
+          $geometry: {
+            type: "Polygon",
+          },
+        },
+      },
+    });
+
+    expect(firstStage.$match.$or).toEqual([
+      { name: expect.any(RegExp) },
+      { address: expect.any(RegExp) },
+    ]);
+  });
+
+  it("중심점 조회에서는 지도 경계 필터를 함께 적용하지 않는다", () => {
+    const pipeline = buildShopListPipeline({
+      ...defaultParams,
+      bounds: mapBounds,
+      lat: 37.5665,
+      lng: 126.978,
+    });
+
+    const firstStage = pipeline[0] as {
+      $geoNear: {
+        query: Record<string, unknown>;
+      };
+    };
+
+    expect(firstStage.$geoNear.query).not.toHaveProperty("location");
   });
 
   it("좌표가 있으면 $geoNear를 첫 번째 단계로 사용한다", () => {

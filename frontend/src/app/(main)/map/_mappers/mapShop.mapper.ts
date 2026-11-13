@@ -1,10 +1,11 @@
 import type {
   GetShopDetailResponse,
   GetShopsResponse,
+  ShopMapMarker,
 } from "@sopum-map/shared";
 
-import type { MapShop } from "../../../../components/naver-map/naverMap.types";
 import { DEFAULT_IMAGES } from "@/constants/image.constants";
+import type { MapMarkerShop, MapShop } from "@/components/naver-map";
 
 type ShopListItem = GetShopsResponse["data"]["items"][number];
 
@@ -28,5 +29,15 @@ export function toMapShop(shop: MapShopSource): MapShop {
     tags: shop.tags.map((tag) => tag.key),
 
     isLiked: shop.isLiked,
+  };
+}
+
+/** 마커 API 데이터를 지도 SDK에 필요한 표시 모델로 변환합니다. */
+export function toMapMarkerShop(marker: ShopMapMarker): MapMarkerShop {
+  return {
+    id: marker.id,
+    name: marker.name,
+    latitude: marker.latitude,
+    longitude: marker.longitude,
   };
 }

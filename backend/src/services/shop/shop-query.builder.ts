@@ -1,7 +1,12 @@
-import type { ShopSort } from "@sopum-map/shared";
+import type { ShopMapBounds, ShopSort } from "@sopum-map/shared";
 import type { PipelineStage } from "mongoose";
 
 import type { GetShopsServiceParams } from "./shop.service.types.js";
+
+type ShopMatchFilterParams = Pick<
+  GetShopsServiceParams,
+  "category" | "tagKeys" | "keyword" | "regionGroup"
+>;
 
 const escapeRegExp = (value: string): string => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -27,7 +32,7 @@ export const buildShopMatchFilter = ({
   tagKeys,
   keyword,
   regionGroup,
-}: GetShopsServiceParams): Record<string, unknown> => {
+}: ShopMatchFilterParams): Record<string, unknown> => {
   /**
    * 모든 Shop 목록 조회의 기본 조건
    *
@@ -88,6 +93,34 @@ export const buildShopMatchFilter = ({
   }
 
   return match;
+};
+
+/**
+ * 지도 경계를 MongoDB 영역 검색 조건으로 변환한다.
+ */
+export const buildShopBoundsFilter = (
+  bounds: ShopMapBounds,
+): Record<string, unknown> => {
+  const { southWestLat, southWestLng, northEastLat, northEastLng } = bounds;
+
+  return {
+    location: {
+      $geoWithin: {
+        $geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [southWestLng, southWestLat],
+              [northEastLng, southWestLat],
+              [northEastLng, northEastLat],
+              [southWestLng, northEastLat],
+              [southWestLng, southWestLat],
+            ],
+          ],
+        },
+      },
+    },
+  };
 };
 
 const buildSortStage = (sort: ShopSort): PipelineStage.Sort => {
@@ -161,8 +194,15 @@ export const buildShopListPipeline = (
       },
     });
   } else {
+    const boundsFilter = params.bounds
+      ? buildShopBoundsFilter(params.bounds)
+      : {};
+
     pipeline.push({
-      $match: match,
+      $match: {
+        ...match,
+        ...boundsFilter,
+      },
     });
   }
 

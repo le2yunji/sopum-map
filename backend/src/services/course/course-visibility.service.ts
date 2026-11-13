@@ -46,7 +46,14 @@ export async function updateCourseVisibility(
       userId: objectUserId,
       courseType: "user_created",
     },
-    { $set: { isPublic } },
+    {
+      $set: isPublic
+        ? { isPublic: true }
+        : {
+            isPublic: false,
+            isOfficialPick: false,
+          },
+    },
     { runValidators: true },
   );
 

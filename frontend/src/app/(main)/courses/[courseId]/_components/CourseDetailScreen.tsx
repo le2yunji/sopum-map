@@ -8,12 +8,11 @@ import type { CourseDetailShop } from "@sopum-map/shared";
 import {
   useCourseDetail,
   useDeleteCourse,
-  useLikeCourse,
-  useUnlikeCourse,
   useUpdateCourseVisibility,
   useSetCourseShopVisited,
   useUnsetCourseShopVisited,
 } from "@/api/course/course.query";
+
 import { useCourseWalkingRoute } from "@/api/course-route/course-route.query";
 import { Snackbar } from "@/components/ui/Snackbar";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
@@ -60,8 +59,7 @@ export function CourseDetailScreen({ courseId, mapClientId }: Props) {
   } = useCourseWalkingRoute(course?.id);
   const { data: currentUser } = useCurrentUser();
   const deleteCourseMutation = useDeleteCourse();
-  const likeMutation = useLikeCourse();
-  const unlikeMutation = useUnlikeCourse();
+
   const visibilityMutation = useUpdateCourseVisibility();
   const setVisitedMutation = useSetCourseShopVisited();
   const unsetVisitedMutation = useUnsetCourseShopVisited();
@@ -273,7 +271,6 @@ export function CourseDetailScreen({ courseId, mapClientId }: Props) {
 
       <CourseDetailHeader
         course={course}
-        likePending={likeMutation.isPending || unlikeMutation.isPending}
         visibilityPending={visibilityMutation.isPending}
         currentUserNickname={currentUser?.nickname}
         infoOpen={infoOpen}
@@ -283,13 +280,8 @@ export function CourseDetailScreen({ courseId, mapClientId }: Props) {
         onMore={() => setMoreSheetOpen(true)}
         onCloseInfo={() => setInfoOpen(false)}
         onOpenInfo={() => setInfoOpen(true)}
-        onLikeToggle={() => {
-          const mutation = course.isLiked ? unlikeMutation : likeMutation;
-          mutation.mutate(course.id);
-        }}
         onVisibilityClick={() => setVisibilitySheetOpen(true)}
       />
-
       <CourseVisitOrderSheet
         expandedTopOffset={visitOrderExpandedTopOffset}
         shops={orderedShops}

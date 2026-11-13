@@ -1,11 +1,17 @@
 import type { NextFunction, Request, Response } from "express";
 import type {
   GetShopsResponse,
+  GetShopMapResponse,
   GetShopDetailResponse,
 } from "@sopum-map/shared";
-import { getShops, getShopById } from "../services/shop/shop.service.js";
+import {
+  getShops,
+  getShopMap,
+  getShopById,
+} from "../services/shop/shop.service.js";
 import {
   getShopDetailParamsSchema,
+  getShopMapQuerySchema,
   getShopsQuerySchema,
 } from "../validations/shop.validation.js";
 
@@ -51,6 +57,31 @@ export const getShopsController = async (
      * ZodError와 ApiError를
      * errorMiddleware로 전달한다.
      */
+    next(error);
+  }
+};
+
+/**
+ * 현재 지도 영역의 상점 마커를 조회합니다.
+ */
+export const getShopMapController = async (
+  req: Request,
+  res: Response<GetShopMapResponse>,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const query = getShopMapQuerySchema.parse(req.query);
+
+    const data = await getShopMap({
+      ...query,
+      userId: req.auth?.userId,
+    });
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
     next(error);
   }
 };

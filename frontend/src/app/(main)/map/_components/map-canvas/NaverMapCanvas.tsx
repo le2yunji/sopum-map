@@ -6,16 +6,18 @@ import { Button } from "@/components/ui/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 
 import {
+  type MapBounds,
   type MapSdkState,
-  type MapShop,
+  type MapMarkerShop,
   NaverMapScript,
   getMapMarkerIcon,
 } from "@/components/naver-map";
 
 type NaverMapCanvasProps = Readonly<{
-  shops: MapShop[]; // 지도에 표시할 상점 목록
+  shops: MapMarkerShop[]; // 지도에 표시할 상점 목록
   selectedShopId?: string; // 현재 선택된 상점
   onSelectShop: (shopId: string) => void; // 마커를 클릭했을 때 부모에게 선택된 상점을 알려주는 함수
+  onBoundsChange?: (bounds: MapBounds) => void;
   stateOverride?: MapSdkState;
 }>;
 
@@ -31,21 +33,55 @@ const DEFAULT_CENTER = {
 
 const DEFAULT_ZOOM = 14;
 
+/** SDK 경계가 위경도 경계인지 확인합니다. */
+function isLatLngBounds(
+  bounds: naver.maps.Bounds,
+): bounds is naver.maps.LatLngBounds {
+  return "getSW" in bounds && "getNE" in bounds;
+}
+
+/** 네이버 지도 경계를 API에서 사용하는 형태로 변환합니다. */
+function readMapBounds(map: naver.maps.Map): MapBounds | undefined {
+  const bounds = map.getBounds();
+
+  if (!isLatLngBounds(bounds)) {
+    return undefined;
+  }
+
+  const southWest = bounds.getSW();
+  const northEast = bounds.getNE();
+
+  return {
+    southWestLat: southWest.lat(),
+    southWestLng: southWest.lng(),
+    northEastLat: northEast.lat(),
+    northEastLng: northEast.lng(),
+  };
+}
+
 export function NaverMapCanvas({
   shops,
   selectedShopId,
   onSelectShop,
+  onBoundsChange,
   stateOverride,
 }: NaverMapCanvasProps) {
   const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
   const mapElementRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<naver.maps.Map | null>(null);
   const markersRef = useRef(new Map<string, MapMarker>());
+  const ignoreNextIdleRef = useRef(false);
+  const onBoundsChangeRef = useRef(onBoundsChange);
   const [sdkState, setSdkState] = useState<MapSdkState>(
     clientId ? "loading" : "missing-key",
   );
   const [retryCount, setRetryCount] = useState(0);
   const visibleState = stateOverride ?? sdkState;
+
+  /** 최신 경계 변경 콜백을 지도 이벤트에서 사용할 수 있게 유지합니다. */
+  useEffect(() => {
+    onBoundsChangeRef.current = onBoundsChange;
+  }, [onBoundsChange]);
 
   /**
    * NAVER Maps SDK가 로드된 뒤
@@ -83,6 +119,29 @@ export function NaverMapCanvas({
     });
 
     mapRef.current = map;
+
+    const notifyBoundsChange = () => {
+      const bounds = readMapBounds(map);
+
+      if (bounds) {
+        onBoundsChangeRef.current?.(bounds);
+      }
+    };
+
+    notifyBoundsChange();
+
+    const idleListener = naver.maps.Event.addListener(map, "idle", () => {
+      if (ignoreNextIdleRef.current) {
+        ignoreNextIdleRef.current = false;
+        return;
+      }
+
+      notifyBoundsChange();
+    });
+
+    return () => {
+      naver.maps.Event.removeListener(idleListener);
+    };
   }, [sdkState]);
 
   /** 지도 화면을 떠날 때 SDK 객체와 이벤트를 함께 정리합니다. */
@@ -159,7 +218,6 @@ export function NaverMapCanvas({
     if (!map || !selectedShopId) {
       return;
     }
-
     const selectedShop = shops.find((shop) => shop.id === selectedShopId);
 
     if (!selectedShop) {
@@ -171,6 +229,7 @@ export function NaverMapCanvas({
       selectedShop.longitude,
     );
 
+    ignoreNextIdleRef.current = true;
     map.panTo(position);
   }, [selectedShopId, shops]);
 
@@ -200,7 +259,10 @@ export function NaverMapCanvas({
               <Skeleton className="h-64 w-full rounded-card-lg" />
             </div>
           ) : (
-            <div role="alert" className="rounded-card-lg bg-white p-6 shadow-lg">
+            <div
+              role="alert"
+              className="rounded-card-lg bg-white p-6 shadow-lg"
+            >
               <p className="font-semibold">지도를 표시할 수 없어요</p>
               <p className="mt-2 text-14 text-black-500">
                 {visibleState === "missing-key"

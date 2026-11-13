@@ -8,6 +8,7 @@ const serviceMocks = vi.hoisted(() => {
 
   return {
     getShops: vi.fn(),
+    getShopMap: vi.fn(),
     getShopById: vi.fn(),
   };
 });
@@ -74,5 +75,77 @@ describe("shop API", () => {
       },
     });
     expect(serviceMocks.getShops).not.toHaveBeenCalled();
+  });
+
+  it("검증된 지도 경계로 상점 마커를 조회한다", async () => {
+    serviceMocks.getShopMap.mockResolvedValue({
+      items: [
+        {
+          id: "64b000000000000000000001",
+          name: "소품 상점",
+          latitude: 37.55,
+          longitude: 127.05,
+          isLiked: false,
+        },
+      ],
+      isTruncated: false,
+    });
+
+    const response = await request(app).get("/api/shops/map").query({
+      southWestLat: "37.5",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+      northEastLng: "127.1",
+      keyword: "  소품  ",
+      tagKeys: ["cute", "interior"],
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      data: {
+        items: [
+          {
+            id: "64b000000000000000000001",
+            name: "소품 상점",
+            latitude: 37.55,
+            longitude: 127.05,
+            isLiked: false,
+          },
+        ],
+        isTruncated: false,
+      },
+    });
+    expect(serviceMocks.getShopMap).toHaveBeenCalledWith({
+      bounds: {
+        southWestLat: 37.5,
+        southWestLng: 126.9,
+        northEastLat: 37.6,
+        northEastLng: 127.1,
+      },
+      keyword: "소품",
+      tagKeys: ["cute", "interior"],
+      userId: undefined,
+    });
+    expect(serviceMocks.getShopById).not.toHaveBeenCalled();
+  });
+
+  it("지도 경계가 빠진 마커 조회 요청을 서비스 호출 전에 거부한다", async () => {
+    const response = await request(app).get("/api/shops/map").query({
+      southWestLat: "37.5",
+      southWestLng: "126.9",
+      northEastLat: "37.6",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toMatchObject({
+      success: false,
+      error: {
+        code: "VALIDATION_ERROR",
+        message: "요청 데이터 형식이 올바르지 않습니다.",
+      },
+    });
+    expect(serviceMocks.getShopMap).not.toHaveBeenCalled();
+    expect(serviceMocks.getShopById).not.toHaveBeenCalled();
   });
 });

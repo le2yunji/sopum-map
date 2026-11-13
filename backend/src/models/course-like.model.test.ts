@@ -20,4 +20,16 @@ describe("CourseLike model", () => {
       expect.any(Object),
     ]);
   });
+
+  it("홈 추천의 최근 좋아요 기간 집계를 위한 인덱스를 가집니다", () => {
+    const indexes = CourseLikeModel.schema.indexes();
+
+    expect(indexes).toContainEqual([
+      {
+        createdAt: -1,
+        courseId: 1,
+      },
+      expect.any(Object),
+    ]);
+  });
 });

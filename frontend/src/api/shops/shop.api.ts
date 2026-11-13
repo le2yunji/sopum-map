@@ -1,12 +1,27 @@
-import { ShopListData, GetShopsQuery, ShopDetailData } from "@sopum-map/shared";
+import type {
+  GetShopMapQuery,
+  GetShopsQuery,
+  ShopDetailData,
+  ShopListData,
+  ShopMapData,
+} from "@sopum-map/shared";
 import { apiClient } from "../client";
 
-/** 상점 조회 조건을 URL query string으로 변환합니다. */
-export function createShopsSearchParams(query: GetShopsQuery): URLSearchParams {
-  const searchParams = new URLSearchParams();
+type SharedShopSearchQuery = Pick<
+  GetShopsQuery,
+  "bounds" | "keyword" | "tagKeys"
+>;
 
-  if (query.category) {
-    searchParams.set("category", query.category);
+/** 목록과 지도 마커가 공유하는 검색 조건을 추가합니다. */
+function appendSharedShopSearchParams(
+  searchParams: URLSearchParams,
+  query: SharedShopSearchQuery,
+): void {
+  if (query.bounds) {
+    searchParams.set("southWestLat", String(query.bounds.southWestLat));
+    searchParams.set("southWestLng", String(query.bounds.southWestLng));
+    searchParams.set("northEastLat", String(query.bounds.northEastLat));
+    searchParams.set("northEastLng", String(query.bounds.northEastLng));
   }
 
   query.tagKeys?.forEach((tagKey) => {
@@ -15,6 +30,17 @@ export function createShopsSearchParams(query: GetShopsQuery): URLSearchParams {
 
   if (query.keyword) {
     searchParams.set("keyword", query.keyword);
+  }
+}
+
+/** 상점 조회 조건을 URL query string으로 변환합니다. */
+export function createShopsSearchParams(query: GetShopsQuery): URLSearchParams {
+  const searchParams = new URLSearchParams();
+
+  appendSharedShopSearchParams(searchParams, query);
+
+  if (query.category) {
+    searchParams.set("category", query.category);
   }
 
   if (query.regionGroup) {
@@ -48,6 +74,15 @@ export function createShopsSearchParams(query: GetShopsQuery): URLSearchParams {
   return searchParams;
 }
 
+/** 지도 마커 조회 조건을 URL query string으로 변환합니다. */
+function createShopMapSearchParams(query: GetShopMapQuery): URLSearchParams {
+  const searchParams = new URLSearchParams();
+
+  appendSharedShopSearchParams(searchParams, query);
+
+  return searchParams;
+}
+
 /** 상점 목록을 조회합니다. */
 export async function getShops(
   query: GetShopsQuery = {},
@@ -59,6 +94,13 @@ export async function getShops(
   return apiClient<ShopListData>(
     `/shops${queryString ? `?${queryString}` : ""}`,
   );
+}
+
+/** 현재 지도 영역의 상점 마커를 조회합니다. */
+export async function getShopMap(query: GetShopMapQuery): Promise<ShopMapData> {
+  const searchParams = createShopMapSearchParams(query);
+
+  return apiClient<ShopMapData>(`/shops/map?${searchParams.toString()}`);
 }
 
 /** 상점 상세 정보를 조회합니다. */

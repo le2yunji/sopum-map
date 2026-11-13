@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   createCourseSchema,
   getCourseListSchema,
+  getPublicCoursesSchema,
   updateCourseSchema,
   updateCourseVisibilitySchema,
 } from "./course.validation.js";
@@ -105,5 +106,23 @@ describe("getCourseListSchema", () => {
     expect(() =>
       getCourseListSchema.parse({ query: { cursor: "a".repeat(513) } }),
     ).toThrow();
+  });
+});
+
+describe("getPublicCoursesSchema", () => {
+  it("최신순과 목록 크기 기본값을 적용한다", () => {
+    expect(getPublicCoursesSchema.parse({ query: {} }).query).toEqual({
+      sort: "latest",
+      limit: 20,
+    });
+  });
+
+  it.each([
+    { regionGroup: "busan" },
+    { sort: "random" },
+    { cursor: "" },
+    { limit: "21" },
+  ])("잘못된 공개 목록 조건 %o을 거부한다", (query) => {
+    expect(() => getPublicCoursesSchema.parse({ query })).toThrow();
   });
 });

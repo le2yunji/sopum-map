@@ -14,7 +14,16 @@ import type {
 
 export type ShopSort = (typeof SHOP_SORTS)[number];
 
-export type GetShopsQuery = {
+/** 지도 화면에 표시된 직사각형 영역입니다. */
+export type ShopMapBounds = Readonly<{
+  southWestLat: number;
+  southWestLng: number;
+  northEastLat: number;
+  northEastLng: number;
+}>;
+
+export type GetShopsQuery = Readonly<{
+  bounds?: ShopMapBounds;
   category?: ShopCategory;
   tagKeys?: TagKey[];
   keyword?: string;
@@ -25,7 +34,14 @@ export type GetShopsQuery = {
   page?: number;
   limit?: number;
   sort?: ShopSort;
-};
+}>;
+
+/** 현재 지도 영역의 마커 조회 조건입니다. */
+export type GetShopMapQuery = Readonly<{
+  bounds: ShopMapBounds;
+  keyword?: string;
+  tagKeys?: TagKey[];
+}>;
 
 export type ShopTag = Readonly<{
   key: TagKey;
@@ -76,6 +92,21 @@ export type ShopListData = {
   pagination: Pagination;
 };
 
+/** 지도 마커 하나를 표시하는 데 필요한 상점 정보입니다. */
+export type ShopMapMarker = Readonly<{
+  id: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  isLiked: boolean;
+}>;
+
+/** 현재 지도 영역의 상점 마커 조회 결과입니다. */
+export type ShopMapData = Readonly<{
+  items: ShopMapMarker[];
+  isTruncated: boolean; // 일부만 반환됐는지 여부
+}>;
+
 export type ShopBusinessPeriod = Readonly<{
   open: string;
   close: string;
@@ -106,6 +137,11 @@ export type ShopDetailData = ShopBaseData & {
  * GET /api/shops 성공 응답
  */
 export type GetShopsResponse = ApiSuccessResponse<ShopListData>;
+
+/**
+ * GET /api/shops/map 성공 응답
+ */
+export type GetShopMapResponse = ApiSuccessResponse<ShopMapData>;
 
 /**
  * GET /api/shops/:shopId 성공 응답
