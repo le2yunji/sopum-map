@@ -85,6 +85,18 @@ const FILTERED_LIST_ITEM = {
   name: "필터된 목록 상점",
 } satisfies ShopListItem;
 
+const GLOBAL_SEARCH_ITEM = {
+  ...INITIAL_LIST_ITEM,
+  id: "global-search-shop",
+  name: "지도 밖 검색 상점",
+  address: "서울특별시 마포구 동교로 1",
+  region2: "마포구",
+  region3: "연남동",
+  regionGroup: "hongdae-yeonnam",
+  latitude: 37.565,
+  longitude: 126.925,
+} satisfies ShopListItem;
+
 const INITIAL_MARKERS = [
   {
     id: "initial-marker-1",
@@ -314,9 +326,17 @@ function installMapApiMock(options: MapApiMockOptions = {}) {
 
       if (url.pathname.endsWith("/shops")) {
         if (isFilteredRequest) {
+          const isGlobalSearchRequest = !url.searchParams.has("southWestLat");
+
           return Response.json({
             success: true,
-            data: createListData([FILTERED_LIST_ITEM], 1, false),
+            data: createListData(
+              isGlobalSearchRequest
+                ? [GLOBAL_SEARCH_ITEM]
+                : [FILTERED_LIST_ITEM],
+              1,
+              false,
+            ),
           });
         }
 
@@ -603,5 +623,37 @@ export const FilterSearchKeepsPreviousResults: Story = {
 
     await expect(await map.findByText("필터된 지도 마커")).toBeVisible();
     await expect(await list.findByText(FILTERED_LIST_ITEM.name)).toBeVisible();
+  },
+};
+
+export const SearchSheetUsesGlobalKeywordQuery: Story = {
+  beforeEach: installMapApiMock(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole("searchbox", { name: "상점 이름 검색" }),
+    );
+
+    await userEvent.type(
+      await canvas.findByRole("searchbox", { name: "검색할 상점 입력" }),
+      FILTER_KEYWORD,
+    );
+
+    await waitFor(() => {
+      expect(
+        requestedUrls.some((requestUrl) => {
+          const url = new URL(requestUrl);
+
+          return (
+            url.pathname.endsWith("/shops") &&
+            url.searchParams.get("keyword") === FILTER_KEYWORD &&
+            !url.searchParams.has("southWestLat")
+          );
+        }),
+      ).toBe(true);
+    });
+
+    await expect(await canvas.findByText(GLOBAL_SEARCH_ITEM.name)).toBeVisible();
   },
 };
