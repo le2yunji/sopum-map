@@ -4,14 +4,18 @@ import type {
   CourseDetailData,
   CourseLikeData,
   CourseShopVisitData,
+  GetPublicCoursesQuery,
+  HomeCourseRecommendationsData,
   LikedCourseListData,
   MyCourseListData,
+  PublicCourseListData,
   UpdateCourseData,
   UpdateCourseRequest,
   UpdateCourseVisibilityData,
   UpdateCourseVisibilityRequest,
 } from "@sopum-map/shared";
 
+import { DEFAULT_COURSE_LIST_LIMIT } from "@sopum-map/shared";
 import { apiClient } from "../client";
 
 /**
@@ -139,4 +143,29 @@ export async function deleteCourse(courseId: string): Promise<void> {
   return apiClient<void>(`/courses/${courseId}`, {
     method: "DELETE",
   });
+}
+
+/** 공개 코스를 지역과 정렬 조건에 따라 조회합니다. */
+export async function getPublicCourses(
+  query: GetPublicCoursesQuery,
+): Promise<PublicCourseListData> {
+  const searchParams = new URLSearchParams({
+    sort: query.sort ?? "latest",
+    limit: String(query.limit ?? DEFAULT_COURSE_LIST_LIMIT),
+  });
+
+  if (query.regionGroup) {
+    searchParams.set("regionGroup", query.regionGroup);
+  }
+
+  if (query.cursor) {
+    searchParams.set("cursor", query.cursor);
+  }
+
+  return apiClient<PublicCourseListData>(`/courses?${searchParams.toString()}`);
+}
+
+/** 오늘의 홈 추천 코스를 조회합니다. */
+export async function getHomeCourseRecommendations(): Promise<HomeCourseRecommendationsData> {
+  return apiClient<HomeCourseRecommendationsData>("/courses/home");
 }

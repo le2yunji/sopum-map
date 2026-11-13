@@ -7,23 +7,28 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 import type {
   CourseCursorPage,
   CourseDetailData,
   CourseLikeData,
   CreateCourseRequest,
+  GetPublicCoursesQuery,
   LikedCourseListData,
   MyCourseListData,
   UpdateCourseRequest,
 } from "@sopum-map/shared";
+import { DEFAULT_COURSE_LIST_LIMIT } from "@sopum-map/shared";
 
 import {
   createCourse,
   deleteCourse,
   getCourseDetail,
+  getHomeCourseRecommendations,
   getMyLikedCourses,
   getMyCourses,
+  getPublicCourses,
   likeCourse,
   unlikeCourse,
   updateCourse,
@@ -32,6 +37,7 @@ import {
   unsetCourseShopVisited,
 } from "./course.api";
 import { courseRouteQueryKeys } from "../course-route/course-route.query";
+import { toKoreaDateKey } from "@/utils/korea-date";
 
 type CourseInfiniteData<TPage> = InfiniteData<TPage, string | undefined>;
 
@@ -56,6 +62,21 @@ type CourseShopVisitMutationContext = Readonly<{
 
 export const courseKeys = {
   all: ["courses"] as const,
+
+  publicLists: () => [...courseKeys.all, "public", "list"] as const,
+
+  publicList: (query: Omit<GetPublicCoursesQuery, "cursor">) =>
+    [
+      ...courseKeys.publicLists(),
+      {
+        regionGroup: query.regionGroup ?? null,
+        sort: query.sort ?? "latest",
+        limit: query.limit ?? DEFAULT_COURSE_LIST_LIMIT,
+      },
+    ] as const,
+
+  home: (dateKey: string) =>
+    [...courseKeys.all, "home", dateKey] as const,
 
   details: () => [...courseKeys.all, "detail"] as const,
 
@@ -114,7 +135,9 @@ async function createCourseShopVisitMutationContext(
   input: CourseShopVisitMutationInput,
   isVisited: boolean,
 ): Promise<CourseShopVisitMutationContext> {
-  await queryClient.cancelQueries({ queryKey: courseKeys.detail(input.courseId) });
+  await queryClient.cancelQueries({
+    queryKey: courseKeys.detail(input.courseId),
+  });
   const previousDetail = queryClient.getQueryData<CourseDetailData>(
     courseKeys.detail(input.courseId),
   );
@@ -134,7 +157,10 @@ function restoreCourseShopVisitMutationContext(
   context?: CourseShopVisitMutationContext,
 ) {
   if (context?.previousDetail) {
-    queryClient.setQueryData(courseKeys.detail(courseId), context.previousDetail);
+    queryClient.setQueryData(
+      courseKeys.detail(courseId),
+      context.previousDetail,
+    );
   }
 }
 
@@ -148,9 +174,15 @@ export function useSetCourseShopVisited() {
     onMutate: (input) =>
       createCourseShopVisitMutationContext(queryClient, input, true),
     onError: (_, input, context) =>
-      restoreCourseShopVisitMutationContext(queryClient, input.courseId, context),
+      restoreCourseShopVisitMutationContext(
+        queryClient,
+        input.courseId,
+        context,
+      ),
     onSettled: async (_, __, input) => {
-      await queryClient.invalidateQueries({ queryKey: courseKeys.detail(input.courseId) });
+      await queryClient.invalidateQueries({
+        queryKey: courseKeys.detail(input.courseId),
+      });
     },
   });
 }
@@ -165,9 +197,15 @@ export function useUnsetCourseShopVisited() {
     onMutate: (input) =>
       createCourseShopVisitMutationContext(queryClient, input, false),
     onError: (_, input, context) =>
-      restoreCourseShopVisitMutationContext(queryClient, input.courseId, context),
+      restoreCourseShopVisitMutationContext(
+        queryClient,
+        input.courseId,
+        context,
+      ),
     onSettled: async (_, __, input) => {
-      await queryClient.invalidateQueries({ queryKey: courseKeys.detail(input.courseId) });
+      await queryClient.invalidateQueries({
+        queryKey: courseKeys.detail(input.courseId),
+      });
     },
   });
 }
@@ -226,6 +264,49 @@ export function useCourseDetail(courseId: string) {
     queryKey: courseKeys.detail(courseId),
     queryFn: () => getCourseDetail(courseId),
     enabled: Boolean(courseId),
+  });
+}
+
+/** 공개 코스를 지역과 정렬 조건에 따라 무한 목록으로 조회합니다. */
+export function useInfinitePublicCourses(
+  query: Omit<GetPublicCoursesQuery, "cursor">,
+) {
+  return useInfiniteQuery({
+    queryKey: courseKeys.publicList(query),
+    queryFn: ({ pageParam }) =>
+      getPublicCourses({
+        ...query,
+        cursor: pageParam,
+      }),
+    initialPageParam: undefined as string | undefined,
+    getNextPageParam: getNextCourseCursor,
+  });
+}
+
+/** 한국 날짜가 바뀌면 새 캐시에서 오늘의 홈 추천 코스를 조회합니다. */
+export function useHomeCourseRecommendations() {
+  const [dateKey, setDateKey] = useState(() => toKoreaDateKey(new Date()));
+
+  useEffect(() => {
+    /** 다시 화면을 볼 때 한국 날짜가 바뀌었는지 확인합니다. */
+    const updateVisibleDateKey = () => {
+      if (document.visibilityState !== "visible") {
+        return;
+      }
+
+      setDateKey(toKoreaDateKey(new Date()));
+    };
+
+    document.addEventListener("visibilitychange", updateVisibleDateKey);
+
+    return () => {
+      document.removeEventListener("visibilitychange", updateVisibleDateKey);
+    };
+  }, []);
+
+  return useQuery({
+    queryKey: courseKeys.home(dateKey),
+    queryFn: getHomeCourseRecommendations,
   });
 }
 
@@ -330,7 +411,9 @@ export function useLikeCourse() {
     },
     onSettled: async (_, __, courseId) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: courseKeys.detail(courseId) }),
+        queryClient.invalidateQueries({
+          queryKey: courseKeys.detail(courseId),
+        }),
         queryClient.invalidateQueries({ queryKey: courseKeys.likedCourses() }),
       ]);
     },
@@ -379,7 +462,9 @@ export function useUnlikeCourse() {
     },
     onSettled: async (_, __, courseId) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: courseKeys.detail(courseId) }),
+        queryClient.invalidateQueries({
+          queryKey: courseKeys.detail(courseId),
+        }),
         queryClient.invalidateQueries({ queryKey: courseKeys.likedCourses() }),
       ]);
     },
@@ -393,8 +478,13 @@ export function useUpdateCourseVisibility() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ courseId, isPublic }: { courseId: string; isPublic: boolean }) =>
-      updateCourseVisibility(courseId, { isPublic }),
+    mutationFn: ({
+      courseId,
+      isPublic,
+    }: {
+      courseId: string;
+      isPublic: boolean;
+    }) => updateCourseVisibility(courseId, { isPublic }),
     onMutate: async ({ courseId, isPublic }) => {
       await Promise.all([
         queryClient.cancelQueries({ queryKey: courseKeys.detail(courseId) }),
@@ -434,7 +524,9 @@ export function useUpdateCourseVisibility() {
     },
     onSettled: async (_, __, { courseId }) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: courseKeys.detail(courseId) }),
+        queryClient.invalidateQueries({
+          queryKey: courseKeys.detail(courseId),
+        }),
         queryClient.invalidateQueries({ queryKey: courseKeys.myCourses() }),
       ]);
     },
