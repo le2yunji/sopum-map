@@ -16,7 +16,7 @@ import {
   getCourseRouteKey,
   getWalkingCoursePath,
 } from "../_utils/course-route-display";
-import { getCourseMapInteractionOptions } from "./course-map-options";
+import { getCourseMapInteractionOptions } from "../_utils/course-map-options";
 
 type Props = Readonly<{
   shops: readonly CourseDetailShop[];
