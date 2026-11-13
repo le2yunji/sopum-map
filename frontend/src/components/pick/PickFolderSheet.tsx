@@ -17,10 +17,17 @@ type Props = Readonly<{
 }>;
 
 export function PickFolderSheet({ open, shopId, onOpenChange }: Props) {
-  const { data: folderData, isPending: isFolderPending, error: folderError } = usePickFolders();
+  const {
+    data: folderData,
+    isPending: isFolderPending,
+    error: folderError,
+  } = usePickFolders(open);
 
-  const { data: shopFolderData, isPending: isShopFolderPending, error: shopFolderError } =
-    useFolderIdsByShop(shopId, open);
+  const {
+    data: shopFolderData,
+    isPending: isShopFolderPending,
+    error: shopFolderError,
+  } = useFolderIdsByShop(shopId, open);
 
   if (!open) {
     return null;
@@ -50,7 +57,10 @@ export function PickFolderSheet({ open, shopId, onOpenChange }: Props) {
             {getPickFolderErrorMessage(error)}
           </p>
           {isUnauthorized ? (
-            <a href="/login" className="px-3 text-13 font-semibold text-green-700">
+            <a
+              href="/login"
+              className="px-3 text-13 font-semibold text-green-700"
+            >
               로그인 화면으로 이동
             </a>
           ) : null}
