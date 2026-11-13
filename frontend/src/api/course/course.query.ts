@@ -75,8 +75,7 @@ export const courseKeys = {
       },
     ] as const,
 
-  home: (dateKey: string) =>
-    [...courseKeys.all, "home", dateKey] as const,
+  home: (dateKey: string) => [...courseKeys.all, "home", dateKey] as const,
 
   details: () => [...courseKeys.all, "detail"] as const,
 
@@ -409,13 +408,10 @@ export function useLikeCourse() {
     onError: (_, courseId, context) => {
       restoreLikeMutationContext(queryClient, courseId, context);
     },
-    onSettled: async (_, __, courseId) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: courseKeys.detail(courseId),
-        }),
-        queryClient.invalidateQueries({ queryKey: courseKeys.likedCourses() }),
-      ]);
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: courseKeys.likedCourses(),
+      });
     },
   });
 }
@@ -460,13 +456,10 @@ export function useUnlikeCourse() {
     onError: (_, courseId, context) => {
       restoreLikeMutationContext(queryClient, courseId, context);
     },
-    onSettled: async (_, __, courseId) => {
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: courseKeys.detail(courseId),
-        }),
-        queryClient.invalidateQueries({ queryKey: courseKeys.likedCourses() }),
-      ]);
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: courseKeys.likedCourses(),
+      });
     },
   });
 }

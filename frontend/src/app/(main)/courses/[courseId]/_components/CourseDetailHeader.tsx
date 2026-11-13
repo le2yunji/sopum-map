@@ -8,23 +8,17 @@ import {
 } from "@sopum-map/shared";
 
 import { getCourseAuthorDisplayName } from "../_utils/course-author";
-import {
-  ChevronLeftIcon,
-  ChevronUpIcon,
-  HeartIcon,
-  MoreIcon,
-} from "@/components/icons";
+import { ChevronLeftIcon, ChevronUpIcon, MoreIcon } from "@/components/icons";
+import { CourseLikeButton } from "./CourseLikeButton";
 import { Badge } from "@/components/ui/Badge/Badge";
 
 type Props = Readonly<{
   course: CourseDetailData;
-  likePending: boolean;
   visibilityPending: boolean;
   currentUserNickname?: string;
   onBack: () => void;
   onShare: () => void;
   onMore: () => void;
-  onLikeToggle: () => void;
   onVisibilityClick: () => void;
   infoOpen: boolean;
   onCloseInfo: () => void;
@@ -35,13 +29,11 @@ type Props = Readonly<{
 /** 코스의 이동·공유 액션과 작성자별 상태를 한곳에 표시합니다. */
 export function CourseDetailHeader({
   course,
-  likePending,
   visibilityPending,
   currentUserNickname,
   onBack,
   onShare,
   onMore,
-  onLikeToggle,
   onVisibilityClick,
   infoOpen,
   onCloseInfo,
@@ -173,21 +165,12 @@ export function CourseDetailHeader({
                 {course.isPublic ? "공개" : "비공개"}
               </button>
             ) : (
-              <button
-                type="button"
-                aria-label="코스 좋아요"
-                aria-pressed={course.isLiked}
-                disabled={likePending}
-                onClick={onLikeToggle}
-                className="flex min-h-9 items-center gap-1 rounded-full px-2 text-black-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 disabled:opacity-50"
-              >
-                <HeartIcon
-                  filled={course.isLiked}
-                  className="size-6"
-                  aria-hidden="true"
-                />
-                <span>{course.likeCount}</span>
-              </button>
+              <CourseLikeButton
+                key={course.id}
+                courseId={course.id}
+                initialIsLiked={course.isLiked}
+                initialLikeCount={course.likeCount}
+              />
             )}
           </div>
         </section>

@@ -6,6 +6,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import { courseKeys } from "@/api/course/course.query";
 import { courseRouteQueryKeys } from "@/api/course-route/course-route.query";
+import { ME_QUERY_KEYS } from "@/api/me/me.query-keys";
 
 import { CourseDetailScreen } from "./CourseDetailScreen";
 
@@ -65,6 +66,82 @@ const baseCourse: CourseDetailData = {
   updatedAt: "2026-07-29T00:00:00.000Z",
 };
 
+let courseLikeRequestCount = 0;
+let courseDetailRequestCount = 0;
+let storyCourseLikeState = {
+  isLiked: baseCourse.isLiked,
+  likeCount: baseCourse.likeCount,
+};
+
+/** 코스 좋아요 요청만 제어하고 나머지 요청은 기존 fetch에 맡깁니다. */
+function installCourseLikeFetchMock(shouldFail = false) {
+  const originalFetch = globalThis.fetch;
+
+  courseLikeRequestCount = 0;
+  courseDetailRequestCount = 0;
+  storyCourseLikeState = {
+    isLiked: baseCourse.isLiked,
+    likeCount: baseCourse.likeCount,
+  };
+
+  globalThis.fetch = async (input, init) => {
+    const requestUrl = input instanceof Request ? input.url : String(input);
+    const requestMethod =
+      init?.method ?? (input instanceof Request ? input.method : "GET");
+    const coursePath = `/courses/${baseCourse.id}`;
+
+    if (requestUrl.endsWith(`${coursePath}/likes`)) {
+      courseLikeRequestCount += 1;
+
+      if (shouldFail) {
+        return Response.json(
+          {
+            success: false,
+            error: {
+              code: "COURSE_LIKE_FAILED",
+              message: "코스 좋아요를 변경하지 못했습니다.",
+            },
+          },
+          { status: 500 },
+        );
+      }
+
+      const isLiked = requestMethod === "POST";
+
+      storyCourseLikeState = {
+        isLiked,
+        likeCount: isLiked ? 13 : 12,
+      };
+
+      return Response.json({
+        success: true,
+        data: {
+          courseId: baseCourse.id,
+          ...storyCourseLikeState,
+        },
+      });
+    }
+
+    if (requestMethod === "GET" && requestUrl.endsWith(coursePath)) {
+      courseDetailRequestCount += 1;
+
+      return Response.json({
+        success: true,
+        data: {
+          ...baseCourse,
+          ...storyCourseLikeState,
+        },
+      });
+    }
+
+    return originalFetch(input, init);
+  };
+
+  return () => {
+    globalThis.fetch = originalFetch;
+  };
+}
+
 type CourseDetailStoryProps = Readonly<{
   course: CourseDetailData;
   mapClientId?: string | null;
@@ -78,6 +155,7 @@ function CourseDetailStory({ course, mapClientId }: CourseDetailStoryProps) {
     });
 
     client.setQueryData(courseKeys.detail(course.id), course);
+    client.setQueryData(ME_QUERY_KEYS.profile(), null);
     client.setQueryData(courseRouteQueryKeys.walking(course.id), {
       totalDistanceMeters: 320,
       totalDurationSeconds: 240,
@@ -168,6 +246,62 @@ export const OtherUserCourse: Story = {
     await expect(
       canvas.queryByRole("button", { name: "코스 더보기" }),
     ).not.toBeInTheDocument();
+  },
+};
+
+export const DebouncedLikeToggle: Story = {
+  args: { course: baseCourse },
+  beforeEach: () => installCourseLikeFetchMock(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const likeButton = canvas.getByRole("button", { name: "코스 좋아요" });
+
+    await userEvent.click(likeButton);
+    await expect(likeButton).toHaveAttribute("aria-pressed", "true");
+    await expect(within(likeButton).getByText("13")).toBeVisible();
+
+    await userEvent.click(likeButton);
+    await expect(likeButton).toHaveAttribute("aria-pressed", "false");
+    await expect(within(likeButton).getByText("12")).toBeVisible();
+
+    await new Promise((resolve) => window.setTimeout(resolve, 350));
+    await expect(courseLikeRequestCount).toBe(0);
+
+    await userEvent.click(likeButton);
+    await expect(likeButton).toHaveAttribute("aria-pressed", "true");
+    await expect(within(likeButton).getByText("13")).toBeVisible();
+
+    await waitFor(() => {
+      expect(courseLikeRequestCount).toBe(1);
+    });
+
+    await waitFor(() => {
+      expect(likeButton).not.toBeDisabled();
+    });
+    await expect(courseDetailRequestCount).toBe(0);
+  },
+};
+
+export const LikeFailureRollback: Story = {
+  args: { course: baseCourse },
+  beforeEach: () => installCourseLikeFetchMock(true),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const likeButton = canvas.getByRole("button", { name: "코스 좋아요" });
+
+    await userEvent.click(likeButton);
+    await expect(likeButton).toHaveAttribute("aria-pressed", "true");
+    await expect(within(likeButton).getByText("13")).toBeVisible();
+
+    await expect(
+      await canvas.findByText("코스 좋아요를 변경하지 못했습니다."),
+    ).toBeVisible();
+
+    await waitFor(() => {
+      expect(likeButton).toHaveAttribute("aria-pressed", "false");
+      expect(within(likeButton).getByText("12")).toBeVisible();
+      expect(courseLikeRequestCount).toBe(1);
+    });
   },
 };
 
