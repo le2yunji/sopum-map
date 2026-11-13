@@ -7,18 +7,20 @@ const modelMocks = vi.hoisted(() => ({
   findCourseById: vi.fn(),
   updateLike: vi.fn(),
   deleteLike: vi.fn(),
-  countLikes: vi.fn(),
+  updateCourseCount: vi.fn(),
 }));
 
 vi.mock("../../models/course.model.js", () => ({
-  default: { findById: modelMocks.findCourseById },
+  default: {
+    findById: modelMocks.findCourseById,
+    findOneAndUpdate: modelMocks.updateCourseCount,
+  },
 }));
 
 vi.mock("../../models/course-like.model.js", () => ({
   default: {
     updateOne: modelMocks.updateLike,
     deleteOne: modelMocks.deleteLike,
-    countDocuments: modelMocks.countLikes,
   },
 }));
 
@@ -37,9 +39,13 @@ function givenCourse(course: unknown) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  modelMocks.updateLike.mockResolvedValue({ acknowledged: true });
+  modelMocks.updateLike.mockResolvedValue({ acknowledged: true, upsertedCount: 1 });
   modelMocks.deleteLike.mockResolvedValue({ deletedCount: 1 });
-  modelMocks.countLikes.mockResolvedValue(1);
+  modelMocks.updateCourseCount.mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      lean: vi.fn().mockResolvedValue({ likeCount: 1 }),
+    }),
+  });
 });
 
 describe("likeCourse", () => {
@@ -103,6 +109,7 @@ describe("likeCourse", () => {
       userId: otherUserId,
       courseType: "user_created",
       isPublic: true,
+      likeCount: 1,
     });
     modelMocks.updateLike.mockRejectedValue({ code: 11000 });
 
@@ -111,11 +118,34 @@ describe("likeCourse", () => {
       likeCount: 1,
     });
   });
+
+  it("중복 좋아요는 likeCount를 한 번만 증가시킨다", async () => {
+    givenCourse({
+      _id: new Types.ObjectId(courseId),
+      userId: otherUserId,
+      courseType: "user_created",
+      isPublic: true,
+      likeCount: 4,
+    });
+    modelMocks.updateLike.mockResolvedValue({
+      acknowledged: true,
+      upsertedCount: 0,
+    });
+
+    await expect(likeCourse(userId, courseId)).resolves.toMatchObject({
+      likeCount: 4,
+    });
+    expect(modelMocks.updateCourseCount).not.toHaveBeenCalled();
+  });
 });
 
 describe("unlikeCourse", () => {
   it("코스가 비공개가 되어도 기존 좋아요를 해제합니다", async () => {
-    modelMocks.countLikes.mockResolvedValue(0);
+    modelMocks.updateCourseCount.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        lean: vi.fn().mockResolvedValue({ likeCount: 0 }),
+      }),
+    });
 
     await expect(unlikeCourse(userId, courseId)).resolves.toEqual({
       courseId,
@@ -123,5 +153,15 @@ describe("unlikeCourse", () => {
       likeCount: 0,
     });
     expect(modelMocks.deleteLike).toHaveBeenCalledOnce();
+  });
+
+  it("존재하는 좋아요만 likeCount를 감소시키고 0 아래로 내리지 않는다", async () => {
+    modelMocks.deleteLike.mockResolvedValue({ deletedCount: 0 });
+    givenCourse({ likeCount: 0 });
+
+    await expect(unlikeCourse(userId, courseId)).resolves.toMatchObject({
+      likeCount: 0,
+    });
+    expect(modelMocks.updateCourseCount).not.toHaveBeenCalled();
   });
 });

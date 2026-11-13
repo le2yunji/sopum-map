@@ -33,14 +33,14 @@ beforeEach(() => {
   modelMocks.findCourse.mockReturnValue({ lean: vi.fn().mockResolvedValue({
     _id: new Types.ObjectId(courseId), courseType: "user_created", userId: new Types.ObjectId(userId),
     sourceFolderId: null, title: "성수 산책", description: null, regionGroup: "seongsu-seoulforest",
-    isPublic: false, createdAt: new Date("2026-10-01T00:00:00.000Z"), updatedAt: new Date("2026-10-01T00:00:00.000Z"),
+    isPublic: true, isOfficialPick: true, likeCount: 8, createdAt: new Date("2026-10-01T00:00:00.000Z"), updatedAt: new Date("2026-10-01T00:00:00.000Z"),
     shops: [
       { shopId: new Types.ObjectId(firstShopId), order: 1, memo: null },
       { shopId: new Types.ObjectId(secondShopId), order: 2, memo: null },
     ],
   }) });
   modelMocks.findAuthor.mockReturnValue(selectedLean({ _id: new Types.ObjectId(userId), nickname: "작성자" }));
-  modelMocks.countLikes.mockResolvedValue(0);
+  modelMocks.countLikes.mockResolvedValue(99);
   modelMocks.findCurrentLike.mockResolvedValue(null);
   modelMocks.findShops.mockReturnValue(selectedLean([
     { _id: new Types.ObjectId(firstShopId), name: "첫 상점", address: "서울", images: [], regionGroup: "seongsu-seoulforest", location: { type: "Point", coordinates: [127, 37] }, status: "active" },
@@ -50,6 +50,13 @@ beforeEach(() => {
 });
 
 describe("getCourseDetail visit state", () => {
+  it("상세는 저장된 likeCount와 유효한 Pick 상태를 반환한다", async () => {
+    const result = await getCourseDetail(userId, courseId);
+
+    expect(result.likeCount).toBe(8);
+    expect(result.isOfficialPick).toBe(true);
+  });
+
   it("방문 문서를 한 번 조회해 각 상점의 방문 상태를 표시한다", async () => {
     const result = await getCourseDetail(userId, courseId);
 

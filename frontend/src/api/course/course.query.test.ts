@@ -9,6 +9,7 @@ import type {
 import type { InfiniteData } from "@tanstack/react-query";
 
 import {
+  courseKeys,
   getNextCourseCursor,
   removeLikedCourseFromPages,
   updateCourseDetailLike,
@@ -25,6 +26,7 @@ const detail: CourseDetailData = {
   description: null,
   regionGroup: "seongsu-seoulforest",
   isPublic: true,
+  isOfficialPick: false,
   author: {
     id: "user-1",
     displayName: "만든 사람",
@@ -54,6 +56,24 @@ function createInfiniteData<T>(page: T): InfiniteData<T, string | undefined> {
 }
 
 describe("course query cache helpers", () => {
+  it("지역이나 정렬이 달라지면 공개 코스 목록 키도 달라진다", () => {
+    const latestAll = courseKeys.publicList({ sort: "latest" });
+    const popularAll = courseKeys.publicList({ sort: "popular" });
+    const latestMangwon = courseKeys.publicList({
+      regionGroup: "mangwon",
+      sort: "latest",
+    });
+
+    expect(popularAll).not.toEqual(latestAll);
+    expect(latestMangwon).not.toEqual(latestAll);
+  });
+
+  it("한국 날짜가 달라지면 홈 추천 키도 달라진다", () => {
+    expect(courseKeys.home("2026-11-11")).not.toEqual(
+      courseKeys.home("2026-11-12"),
+    );
+  });
+
   it("좋아요 결과를 상세 캐시에 즉시 반영한다", () => {
     expect(updateCourseDetailLike(detail, likeResult)).toMatchObject({
       isLiked: true,

@@ -97,8 +97,28 @@ const courseSchema = new Schema(
       required: true,
     },
 
+    // 목록 정렬과 표시에서 재집계 없이 사용하는 좋아요 수
+    likeCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+      required: true,
+
+      validate: {
+        validator: Number.isInteger,
+        message: "likeCount는 정수여야 합니다.",
+      },
+    },
+
     // 다른 사용자에게 코스를 공개할지 여부
     isPublic: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+
+    // 사용자 공개 코스 중 소품지도가 고른 코스인지 여부
+    isOfficialPick: {
       type: Boolean,
       default: false,
       required: true,
@@ -129,6 +149,38 @@ const courseSchema = new Schema(
   },
 );
 
+// 공개 코스 전체 최신순 조회
+courseSchema.index({
+  isPublic: 1,
+  createdAt: -1,
+  _id: -1,
+});
+
+// 공개 코스 지역별 최신순 조회
+courseSchema.index({
+  isPublic: 1,
+  regionGroup: 1,
+  createdAt: -1,
+  _id: -1,
+});
+
+// 공개 코스 전체 인기순 조회
+courseSchema.index({
+  isPublic: 1,
+  likeCount: -1,
+  createdAt: -1,
+  _id: -1,
+});
+
+// 공개 코스 지역별 인기순 조회
+courseSchema.index({
+  isPublic: 1,
+  regionGroup: 1,
+  likeCount: -1,
+  createdAt: -1,
+  _id: -1,
+});
+
 // 사용자가 만든 코스 목록 조회
 courseSchema.index({
   userId: 1,
@@ -152,6 +204,7 @@ courseSchema.index(
     },
   },
 );
+
 export type CourseSchemaType = InferSchemaType<typeof courseSchema>;
 
 const CourseModel = model("Course", courseSchema);

@@ -6,6 +6,33 @@ import CourseLikeModel from "../../models/course-like.model.js";
 import CourseModel from "../../models/course.model.js";
 import { isMongoDuplicateKeyError } from "../../utils/mongo-error.js";
 
+/** 코스 문서에 저장된 현재 좋아요 수를 조회합니다. */
+async function getStoredLikeCount(courseId: Types.ObjectId): Promise<number> {
+  const course = await CourseModel.findById(courseId)
+    .select({ likeCount: 1 })
+    .lean();
+
+  return course?.likeCount ?? 0;
+}
+
+/** 저장된 좋아요 수를 0 아래로 내리지 않고 원자적으로 변경합니다. */
+async function changeStoredLikeCount(
+  courseId: Types.ObjectId,
+  amount: 1 | -1,
+): Promise<number> {
+  const course = await CourseModel.findOneAndUpdate(
+    amount === -1
+      ? { _id: courseId, likeCount: { $gt: 0 } }
+      : { _id: courseId },
+    { $inc: { likeCount: amount } },
+    { new: true, runValidators: true },
+  )
+    .select({ likeCount: 1 })
+    .lean();
+
+  return course?.likeCount ?? 0;
+}
+
 /** 공개 코스인지와 본인 코스가 아닌지를 검증한 뒤 좋아요를 저장합니다. */
 export async function likeCourse(
   userId: string,
@@ -44,23 +71,41 @@ export async function likeCourse(
     });
   }
 
+  let inserted = false;
+
   try {
-    await CourseLikeModel.updateOne(
-      { userId: objectUserId, courseId: objectCourseId },
-      { $setOnInsert: { userId: objectUserId, courseId: objectCourseId } },
-      { upsert: true },
+    const result = await CourseLikeModel.updateOne(
+      {
+        userId: objectUserId,
+        courseId: objectCourseId,
+      },
+      {
+        $setOnInsert: {
+          userId: objectUserId,
+          courseId: objectCourseId,
+        },
+      },
+      {
+        upsert: true,
+      },
     );
+
+    inserted = result.upsertedCount === 1;
   } catch (error) {
     if (!isMongoDuplicateKeyError(error)) {
       throw error;
     }
   }
 
-  const likeCount = await CourseLikeModel.countDocuments({
-    courseId: objectCourseId,
-  });
+  const likeCount = inserted
+    ? await changeStoredLikeCount(objectCourseId, 1)
+    : await getStoredLikeCount(objectCourseId);
 
-  return { courseId, isLiked: true, likeCount };
+  return {
+    courseId,
+    isLiked: true,
+    likeCount,
+  };
 }
 
 /** 공개 상태와 관계없이 현재 사용자의 코스 좋아요를 제거합니다. */
@@ -71,14 +116,19 @@ export async function unlikeCourse(
   const objectUserId = new Types.ObjectId(userId);
   const objectCourseId = new Types.ObjectId(courseId);
 
-  await CourseLikeModel.deleteOne({
+  const result = await CourseLikeModel.deleteOne({
     userId: objectUserId,
     courseId: objectCourseId,
   });
 
-  const likeCount = await CourseLikeModel.countDocuments({
-    courseId: objectCourseId,
-  });
+  const likeCount =
+    result.deletedCount === 1
+      ? await changeStoredLikeCount(objectCourseId, -1)
+      : await getStoredLikeCount(objectCourseId);
 
-  return { courseId, isLiked: false, likeCount };
+  return {
+    courseId,
+    isLiked: false,
+    likeCount,
+  };
 }

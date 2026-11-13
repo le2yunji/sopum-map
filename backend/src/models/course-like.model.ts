@@ -27,6 +27,12 @@ courseLikeSchema.index({ userId: 1, createdAt: -1, _id: -1 });
 // 코스가 받은 좋아요 수 조회와 코스 삭제 시 정리
 courseLikeSchema.index({ courseId: 1 });
 
+// 홈 추천용 최근 좋아요를 기간과 코스 기준으로 집계
+courseLikeSchema.index({
+  createdAt: -1,
+  courseId: 1,
+});
+
 export type CourseLikeSchemaType = InferSchemaType<typeof courseLikeSchema>;
 
 const CourseLikeModel = model("CourseLike", courseLikeSchema);

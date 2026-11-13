@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from "express";
-
 import { z } from "zod";
 
 import {
@@ -7,6 +6,7 @@ import {
   deleteCourseSchema,
   getCourseDetailSchema,
   getCourseListSchema,
+  getPublicCoursesSchema,
   updateCourseSchema,
   updateCourseVisibilitySchema,
   courseShopVisitSchema,
@@ -17,6 +17,7 @@ import {
   getMyCourseList,
   getMyLikedCourseList,
 } from "../services/course/course-list.service.js";
+import { getPublicCourseList } from "../services/course/public-course-list.service.js";
 import { updateCourse } from "../services/course/course.update.service.js";
 import { deleteCourse } from "../services/course/course.delete.service.js";
 import {
@@ -28,6 +29,7 @@ import {
   setCourseShopVisited,
   unsetCourseShopVisited,
 } from "../services/course/course-shop-visit.service.js";
+import { getHomeCourseRecommendations } from "../services/course/course-home.service.js";
 
 /**
  * 내 픽 폴더를 기반으로 사용자 코스를 생성합니다.
@@ -45,6 +47,46 @@ export async function createCourseController(
     const data = await createCourse(userId, body);
 
     res.status(201).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 공개 코스를 지역과 정렬 조건에 따라 조회합니다. */
+export async function getPublicCoursesController(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const { query } = res.locals.validated as z.infer<
+      typeof getPublicCoursesSchema
+    >;
+
+    const data = await getPublicCourseList(query);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 모든 사용자에게 같은 오늘의 홈 추천 코스를 반환합니다. */
+export async function getHomeCourseRecommendationsController(
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const data = await getHomeCourseRecommendations();
+
+    res.status(200).json({
       success: true,
       data,
     });

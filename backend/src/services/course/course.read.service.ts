@@ -1,9 +1,6 @@
 import { Types } from "mongoose";
 
-import {
-  createApiError,
-  type CourseDetailData,
-} from "@sopum-map/shared";
+import { createApiError, type CourseDetailData } from "@sopum-map/shared";
 import CourseModel from "../../models/course.model.js";
 import CourseLikeModel from "../../models/course-like.model.js";
 import CourseShopVisitModel from "../../models/course-shop-visit.model.js";
@@ -51,13 +48,17 @@ export async function getCourseDetail(
     userId,
   );
 
-  const [author, likeCount, currentUserLike] = await Promise.all([
+  const [author, currentUserLike] = await Promise.all([
     course.userId
       ? UserModel.findById(course.userId)
-          .select({ _id: 1, nickname: 1, profileImage: 1 })
+          .select({
+            _id: 1,
+            nickname: 1,
+            profileImage: 1,
+          })
           .lean()
       : Promise.resolve(null),
-    CourseLikeModel.countDocuments({ courseId: objectCourseId }),
+
     CourseLikeModel.exists({
       courseId: objectCourseId,
       userId: objectUserId,
@@ -72,7 +73,7 @@ export async function getCourseDetail(
     },
     viewerId: userId,
     author,
-    likeCount,
+    likeCount: course.likeCount ?? 0,
     isLiked: currentUserLike !== null,
   });
 
@@ -196,6 +197,11 @@ export async function getCourseDetail(
     regionGroup: course.regionGroup,
 
     isPublic: course.courseType === "recommended" ? true : course.isPublic,
+
+    isOfficialPick:
+      course.courseType === "user_created" &&
+      course.isPublic &&
+      (course.isOfficialPick ?? false),
 
     ...viewerData,
 

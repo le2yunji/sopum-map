@@ -17,4 +17,53 @@ describe("CourseModel indexes", () => {
       },
     ]);
   });
+
+  it("새 코스는 likeCount 0과 isOfficialPick false를 사용한다", () => {
+    const course = new CourseModel({
+      courseType: "user_created",
+      userId: "6a8a68e15e2aa43be6a6549d",
+      title: "성수 산책",
+      regionGroup: "seongsu-seoulforest",
+      shops: [
+        { shopId: "6a8a68e15e2aa43be6a6549e", order: 1 },
+        { shopId: "6a8a68e15e2aa43be6a6549f", order: 2 },
+      ],
+    });
+
+    expect(course.likeCount).toBe(0);
+    expect(course.isOfficialPick).toBe(false);
+  });
+
+  it("공개 코스의 지역과 정렬 조합에 맞는 인덱스를 사용한다", () => {
+    const indexFields = CourseModel.schema.indexes().map(([fields]) => fields);
+
+    expect(indexFields).toEqual(
+      expect.arrayContaining([
+        {
+          isPublic: 1,
+          createdAt: -1,
+          _id: -1,
+        },
+        {
+          isPublic: 1,
+          regionGroup: 1,
+          createdAt: -1,
+          _id: -1,
+        },
+        {
+          isPublic: 1,
+          likeCount: -1,
+          createdAt: -1,
+          _id: -1,
+        },
+        {
+          isPublic: 1,
+          regionGroup: 1,
+          likeCount: -1,
+          createdAt: -1,
+          _id: -1,
+        },
+      ]),
+    );
+  });
 });

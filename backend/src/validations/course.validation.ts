@@ -2,10 +2,15 @@ import { z } from "zod";
 
 import { objectIdSchema } from "./common.validation.js";
 import {
+  DEFAULT_COURSE_LIST_LIMIT,
+  MAX_COURSE_LIST_LIMIT,
   MAX_COURSE_SHOPS,
   MIN_COURSE_SHOPS,
+  PUBLIC_COURSE_SORTS,
   SHOP_REGION_GROUPS,
 } from "@sopum-map/shared";
+
+const MAX_CURSOR_LENGTH = 512;
 
 const courseShopSchema = z.object({
   shopId: objectIdSchema,
@@ -103,7 +108,30 @@ export const updateCourseVisibilitySchema = z.object({
 /** 내 코스와 찜한 코스가 공유하는 커서 목록 요청 */
 export const getCourseListSchema = z.object({
   query: z.object({
-    cursor: z.string().min(1).max(512).optional(),
-    limit: z.coerce.number().int().min(1).max(20).default(20),
+    cursor: z.string().min(1).max(MAX_CURSOR_LENGTH).optional(),
+    limit: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(MAX_COURSE_LIST_LIMIT)
+      .default(DEFAULT_COURSE_LIST_LIMIT),
+  }),
+});
+
+/** 공개 코스 탐색 목록의 지역·정렬·커서 조건을 검증합니다. */
+export const getPublicCoursesSchema = z.object({
+  query: z.object({
+    regionGroup: z.enum(SHOP_REGION_GROUPS).optional(),
+
+    sort: z.enum(PUBLIC_COURSE_SORTS).default("latest"),
+
+    cursor: z.string().min(1).max(MAX_CURSOR_LENGTH).optional(),
+
+    limit: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(MAX_COURSE_LIST_LIMIT)
+      .default(DEFAULT_COURSE_LIST_LIMIT),
   }),
 });

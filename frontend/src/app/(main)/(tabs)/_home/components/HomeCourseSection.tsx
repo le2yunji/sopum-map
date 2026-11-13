@@ -1,66 +1,90 @@
-import type { ComponentProps } from "react";
+"use client";
 
+import Link from "next/link";
 import { CourseListItem } from "@/components/ui/CourseListItem/CourseListItem";
+import { useHomeCourseRecommendations } from "@/api/course/course.query";
 
-type CourseItem = ComponentProps<typeof CourseListItem>;
+import { Button } from "@/components/ui/Button";
+import { HomeCourseSectionSkeleton } from "./HomeSkeleton";
+import { HomeCourseSectionBoundary } from "./HomeCourseSectionBoundary";
 
-const MOCK_COURSES = [
-  {
-    id: "course-1",
-    title: "성수에서 만나는 아기자기 소품샵",
-    description: "서울숲부터 성수 골목까지 천천히 둘러보는 소품샵 코스",
-    imageUrls: [
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-    ],
-    tags: ["성수·서울숲", "아기자기", "산책"],
-  },
-  {
-    id: "course-2",
-    title: "연남동 소품샵 하루 코스",
-    description: "연남동 골목을 걸으며 취향 가득한 소품샵을 발견해보세요",
-    imageUrls: [
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-    ],
-    tags: ["홍대·연남", "소품샵", "데이트"],
-  },
-  {
-    id: "course-3",
-    title: "망원에서 즐기는 소소한 취향 여행",
-    description: "망원시장 근처의 개성 있는 소품샵을 모아봤어요",
-    imageUrls: [
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-      "/images/shops/shop_example.png",
-    ],
-    tags: ["망원", "문구", "구경맛집"],
-  },
-] satisfies CourseItem[];
-export function HomeCourseSection() {
+/** 홈 추천 API의 상태와 코스 목록을 화면에 표시합니다. */
+export function HomeCourseSectionContent() {
+  const { data, isPending, isError, refetch } = useHomeCourseRecommendations();
+
+  const courses = data?.items ?? [];
+
   return (
     <section
       aria-labelledby="home-course-title"
-      className="mt-9 border-t-8 border-b-8 border-black-100/50 px-4 pt-7 pb-4"
+      className="mt-9 border-y-8 border-black-100/50 px-4 pt-7 pb-4"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h2 id="home-course-title" className="text-16 font-semibold">
           추천 산책 코스
         </h2>
 
-        <span className="text-12 text-black-500">더 보기</span>
+        <Link
+          href="/courses"
+          className="shrink-0 rounded-control px-2 py-2 text-12 text-black-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+        >
+          더 보기
+        </Link>
       </div>
 
-      <div className="mt-2 divide-y divide-black-100">
-        {MOCK_COURSES.map((course) => (
-          <CourseListItem key={course.id} {...course} />
-        ))}
-      </div>
+      {isPending ? (
+        <HomeCourseSectionSkeleton />
+      ) : isError ? (
+        <div
+          role="alert"
+          className="mt-2 rounded-card bg-green-50 px-4 py-7 text-center"
+        >
+          <p className="text-14 font-medium text-green-900">
+            추천 코스를 불러오지 못했습니다.
+          </p>
+
+          <Button
+            variant="outline"
+            size="small"
+            className="mt-4"
+            onClick={() => {
+              void refetch();
+            }}
+          >
+            다시 시도
+          </Button>
+        </div>
+      ) : courses.length === 0 ? (
+        <div
+          role="status"
+          className="mt-2 rounded-card bg-green-50 px-4 py-7 text-center"
+        >
+          <p className="text-14 font-medium text-green-900">
+            아직 공개된 산책 코스가 없습니다.
+          </p>
+
+          <p className="mt-1 text-12 text-black-500">
+            새로운 산책 코스를 준비하고 있습니다.
+          </p>
+        </div>
+      ) : (
+        <ul className="divide-y divide-black-100">
+          {courses.map((course) => (
+            <li key={course.id}>
+              <CourseListItem course={course} />
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
+  );
+}
+
+/** 추천 코스 오류를 홈의 다른 영역과 분리해 표시합니다. */
+export function HomeCourseSection() {
+  return (
+    <HomeCourseSectionBoundary>
+      <HomeCourseSectionContent />
+    </HomeCourseSectionBoundary>
   );
 }

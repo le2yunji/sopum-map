@@ -1,5 +1,7 @@
 import type { ApiSuccessResponse } from "../api/api.types";
 import type { ShopRegionGroup } from "../shop/shop.types";
+import type { TagKey } from "../tag/tag.types";
+import type { CourseType, PublicCourseSort } from "./course.constants";
 import type { CourseAuthor, CourseDetailData } from "./course.types";
 
 /**
@@ -74,6 +76,37 @@ export type CourseCursorPage<T> = Readonly<{
   items: readonly T[];
   nextCursor: string | null;
   hasNext: boolean;
+}>;
+
+/** 홈과 공개 코스 목록에서 공통으로 표시하는 코스 데이터 */
+export type PublicCourseListItem = Readonly<{
+  id: string;
+  courseType: CourseType;
+  title: string;
+  description: string | null;
+  regionGroup: ShopRegionGroup;
+  imageUrls: readonly string[];
+  representativeTagKeys: readonly TagKey[];
+  author: CourseAuthor;
+  likeCount: number;
+  isOfficialPick: boolean;
+  createdAt: string;
+}>;
+
+/** GET /api/courses에서 사용하는 공개 코스 목록 조건 */
+export type GetPublicCoursesQuery = Readonly<{
+  regionGroup?: ShopRegionGroup;
+  sort?: PublicCourseSort;
+  cursor?: string;
+  limit?: number;
+}>;
+
+/** 커서 기반 공개 코스 목록 데이터 */
+export type PublicCourseListData = CourseCursorPage<PublicCourseListItem>;
+
+/** 홈에서 같은 날 공통으로 보여 주는 추천 코스 데이터 */
+export type HomeCourseRecommendationsData = Readonly<{
+  items: readonly PublicCourseListItem[];
 }>;
 
 /**

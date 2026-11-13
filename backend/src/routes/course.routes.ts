@@ -4,12 +4,14 @@ import {
   createCourseController,
   deleteCourseController,
   getCourseDetailController,
+  getPublicCoursesController,
   likeCourseController,
   unlikeCourseController,
   updateCourseController,
   updateCourseVisibilityController,
   setCourseShopVisitedController,
   unsetCourseShopVisitedController,
+  getHomeCourseRecommendationsController,
 } from "../controllers/course.controller.js";
 import { getCourseWalkingRouteController } from "../controllers/course-route.controller.js";
 
@@ -21,12 +23,24 @@ import {
   courseLikeSchema,
   deleteCourseSchema,
   getCourseDetailSchema,
+  getPublicCoursesSchema,
   updateCourseSchema,
   updateCourseVisibilitySchema,
   courseShopVisitSchema,
 } from "../validations/course.validation.js";
 
 const courseRouter = Router();
+
+/** 공개 코스 목록을 지역과 정렬 조건에 따라 조회합니다. */
+courseRouter.get(
+  "/",
+  requireAuth,
+  validateRequest(getPublicCoursesSchema),
+  getPublicCoursesController,
+);
+
+/** 오늘의 홈 추천 코스를 조회합니다. */
+courseRouter.get("/home", requireAuth, getHomeCourseRecommendationsController);
 
 /** 코스 상점을 방문 완료 상태로 저장합니다. */
 courseRouter.put(

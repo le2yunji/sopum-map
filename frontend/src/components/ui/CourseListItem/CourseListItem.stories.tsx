@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
+import type { PublicCourseListItem } from "@sopum-map/shared";
 import { expect, within } from "storybook/test";
 
 import { DEFAULT_IMAGES } from "@/constants/image.constants";
@@ -6,75 +7,58 @@ import { DEFAULT_IMAGES } from "@/constants/image.constants";
 import { CourseListItem } from "./CourseListItem";
 
 const createImageUrls = (count: number) => {
-  return Array.from({ length: count }, () => DEFAULT_IMAGES.shop);
+  return Array.from({ length: count }, (_, index) => {
+    return `${DEFAULT_IMAGES.shop}?course-image=${index}`;
+  });
 };
+
+const baseCourse = {
+  id: "course-1",
+  courseType: "user_created",
+  title: "망원동 소품샵 투어",
+  description: "천천히 걷기 좋은 소품샵 코스",
+  regionGroup: "mangwon",
+  imageUrls: createImageUrls(4),
+  representativeTagKeys: ["stationery", "cute"],
+  author: {
+    id: "user-1",
+    displayName: "소품산책가",
+    profileImageUrl: null,
+    isService: false,
+  },
+  likeCount: 28,
+  isOfficialPick: false,
+  createdAt: "2026-11-13T00:00:00.000Z",
+} satisfies PublicCourseListItem;
 
 const meta = {
   title: "Components/UI/CourseListItem",
   component: CourseListItem,
-
-  parameters: {
-    layout: "centered",
-  },
-
   decorators: [
     (Story) => {
       return (
-        <div className="w-[390px] max-w-full bg-white px-4">
+        <div data-testid="course-story" className="w-full bg-white px-4">
           <Story />
         </div>
       );
     },
   ],
-
-  tags: ["autodocs"],
-
-  argTypes: {
-    id: {
-      control: "text",
-      description: "코스 고유 ID",
-    },
-
-    title: {
-      control: "text",
-      description: "코스 이름",
-    },
-
-    description: {
-      control: "text",
-      description: "코스에 포함된 매장 또는 이동 경로 설명",
-    },
-
-    imageUrls: {
-      control: "object",
-      description:
-        "썸네일에 표시할 이미지 목록입니다. 최대 4개까지 표시됩니다.",
-    },
-
-    tags: {
-      control: "object",
-      description:
-        "코스의 특징을 나타내는 태그 목록입니다. 최대 3개까지 표시됩니다.",
-    },
-  },
-
   args: {
-    id: "course-1",
-    title: "망원동 소품샵 투어",
-    description: "모모 소품샵 → 미미네 선물가게 → 키치 소품",
-    imageUrls: createImageUrls(4),
+    course: baseCourse,
     imageLoading: "eager",
-    tags: ["컬러풀", "문구", "소품"],
   },
 } satisfies Meta<typeof CourseListItem>;
 
 export default meta;
-
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const UserCourse: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
+    await expect(canvas.getByText("by 소품산책가")).toBeVisible();
+    await expect(canvas.queryByText("소품지도 Pick")).not.toBeInTheDocument();
+    await expect(canvas.getByLabelText("좋아요 28개")).toBeVisible();
 
     for (const image of canvas.getAllByRole("img")) {
       await expect(image).toHaveAttribute("loading", "eager");
@@ -84,118 +68,150 @@ export const Default: Story = {
 
 export const OneImage: Story = {
   args: {
-    imageUrls: createImageUrls(1),
+    course: {
+      ...baseCourse,
+      imageUrls: createImageUrls(1),
+    },
   },
 };
 
 export const TwoImages: Story = {
   args: {
-    imageUrls: createImageUrls(2),
+    course: {
+      ...baseCourse,
+      imageUrls: createImageUrls(2),
+    },
   },
 };
 
 export const ThreeImages: Story = {
   args: {
-    imageUrls: createImageUrls(3),
+    course: {
+      ...baseCourse,
+      imageUrls: createImageUrls(3),
+    },
   },
 };
 
 export const FourImages: Story = {
   args: {
-    imageUrls: createImageUrls(4),
+    course: {
+      ...baseCourse,
+      imageUrls: createImageUrls(4),
+    },
   },
 };
 
-export const MoreThanFourImages: Story = {
+export const RecommendedCourse: Story = {
   args: {
-    imageUrls: createImageUrls(6),
-  },
-};
-
-export const WithoutImages: Story = {
-  args: {
-    imageUrls: [],
-  },
-};
-
-export const LongTitle: Story = {
-  args: {
-    title: "성수동에서 발견하는 감성 인테리어 소품샵 산책 투어",
-  },
-};
-
-export const LongDescription: Story = {
-  args: {
-    description:
-      "오브젝트 성수 → 포인트오브뷰 → 모나미 스토어 → 대림창고 → 서울숲",
-  },
-};
-
-export const WithoutTags: Story = {
-  args: {
-    tags: [],
-  },
-};
-
-export const ManyTags: Story = {
-  args: {
-    tags: ["미니멀", "인테리어", "문구", "캐릭터", "데이트", "소품"],
-  },
-};
-
-export const InList: Story = {
-  render: () => {
-    const courses = [
-      {
-        id: "course-1",
-        title: "망원동 소품샵 투어",
-        description: "모모 소품샵 → 미미네 선물가게 → 키치 소품",
-        imageUrls: createImageUrls(4),
-        tags: ["컬러풀", "문구", "소품"],
+    course: {
+      ...baseCourse,
+      courseType: "recommended",
+      author: {
+        id: null,
+        displayName: "소품지도",
+        profileImageUrl: null,
+        isService: true,
       },
-      {
-        id: "course-2",
-        title: "성수동 인테리어 소품 투어",
-        description: "오브젝트 성수 → 포인트오브뷰 → 대림창고",
-        imageUrls: createImageUrls(3),
-        tags: ["미니멀", "인테리어", "소품"],
-      },
-      {
-        id: "course-3",
-        title: "서울숲 가챠 투어",
-        description: "가챠가챠 → 모모가챠 → 가챠노리",
-        imageUrls: createImageUrls(2),
-        tags: ["캐릭터", "가챠", "소품"],
-      },
-      {
-        id: "course-4",
-        title: "연남동 문구 투어",
-        description: "포셋 → 오브젝트 연남 → 메이드바이",
-        imageUrls: createImageUrls(1),
-        tags: ["문구", "데이트"],
-      },
-    ];
-
-    return (
-      <ul
-        aria-label="추천 산책 코스"
-        className="w-full divide-y divide-black-100"
-      >
-        {courses.map((course) => {
-          return (
-            <li key={course.id}>
-              <CourseListItem {...course} imageLoading="eager" />
-            </li>
-          );
-        })}
-      </ul>
-    );
+      isOfficialPick: true,
+    },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    for (const image of canvas.getAllByRole("img")) {
-      await expect(image).toHaveAttribute("loading", "eager");
-    }
+    await expect(canvas.getByText("by 소품지도")).toBeVisible();
+    await expect(canvas.queryByText("소품지도 Pick")).not.toBeInTheDocument();
+  },
+};
+
+export const OfficialPickCourse: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      isOfficialPick: true,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText("소품지도 Pick")).toBeVisible();
+  },
+};
+
+export const LimitsImagesAndTags: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      imageUrls: createImageUrls(5),
+      representativeTagKeys: ["stationery", "cute", "vintage"],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getAllByRole("img")).toHaveLength(4);
+    await expect(canvas.getByText("문구")).toBeVisible();
+    await expect(canvas.getByText("아기자기")).toBeVisible();
+    await expect(canvas.queryByText("빈티지")).not.toBeInTheDocument();
+  },
+};
+
+export const WithoutDescription: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      description: null,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText("by 소품산책가")).toBeVisible();
+    await expect(canvas.queryByText("·")).not.toBeInTheDocument();
+  },
+};
+
+export const WithoutImagesAndTags: Story = {
+  args: {
+    course: {
+      ...baseCourse,
+      imageUrls: [],
+      representativeTagKeys: [],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getAllByRole("img")).toHaveLength(1);
+    await expect(canvas.getByText("망원")).toBeVisible();
+  },
+};
+
+export const LongContentAt320: Story = {
+  globals: {
+    viewport: {
+      value: "sopumSmall",
+      isRotated: false,
+    },
+  },
+  args: {
+    course: {
+      ...baseCourse,
+      title:
+        "망원동 골목을 천천히 걸으며 오래 기억하고 싶은 소품을 발견하는 산책 코스",
+      description:
+        "작은 상점을 하나씩 둘러보며 문구와 인테리어 소품을 발견하는 긴 설명입니다.",
+      author: {
+        ...baseCourse.author,
+        displayName: "매우긴닉네임을사용하는소품산책가",
+      },
+      isOfficialPick: true,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const story = canvas.getByTestId("course-story");
+
+    await expect(story.scrollWidth).toBeLessThanOrEqual(story.clientWidth);
   },
 };
