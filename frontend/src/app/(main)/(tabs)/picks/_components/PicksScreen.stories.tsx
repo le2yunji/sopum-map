@@ -175,6 +175,9 @@ export const ChangeFolderFromShopCard: Story = {
     await expect(
       documentBody.getByRole("checkbox", { name: /주말에 갈 곳/ }),
     ).not.toBeChecked();
+    await expect(documentBody.getAllByRole("separator")).toHaveLength(
+      FOLDERS.length - 1,
+    );
   },
 };
 
