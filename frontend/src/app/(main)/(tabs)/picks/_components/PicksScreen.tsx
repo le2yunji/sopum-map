@@ -14,7 +14,7 @@ import { CourseRegionSelectSheet } from "@/app/(main)/courses/_components/Course
 import { SettingIcon } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
-
+import { PickFolderSheet } from "@/components/pick/PickFolderSheet";
 import { CreatePickFolderSheet } from "./folder/CreatePickFolderSheet";
 import { PickFolderActions } from "./folder/PickFolderActions";
 import { PickFolderTabs } from "./folder/PickFolderTabs";
@@ -38,6 +38,8 @@ export function PicksScreen() {
   const [manageFolderOpen, setManageFolderOpen] = useState(false);
 
   const [courseRegionSheetOpen, setCourseRegionSheetOpen] = useState(false);
+
+  const [selectedShopId, setSelectedShopId] = useState<string | null>(null);
 
   const {
     data: folderData,
@@ -66,9 +68,7 @@ export function PicksScreen() {
       ? null
       : (folders.find((folder) => folder.id === activeFolderId) ?? null);
 
-  const courseRegionsQuery = usePickFolderCourseRegions(
-    activeFolder?.id,
-  );
+  const courseRegionsQuery = usePickFolderCourseRegions(activeFolder?.id);
 
   /**
    * 전체 탭에서는 좋아요한 모든 상점을,
@@ -104,7 +104,8 @@ export function PicksScreen() {
   };
 
   if (isFolderError) {
-    const isUnauthorized = isApiError(folderError) && folderError.status === 401;
+    const isUnauthorized =
+      isApiError(folderError) && folderError.status === 401;
 
     return (
       <StatePanel
@@ -149,6 +150,7 @@ export function PicksScreen() {
         isError={activeShopsQuery.isError}
         isFetchingNextPage={activeShopsQuery.isFetchingNextPage}
         hasNextPage={Boolean(activeShopsQuery.hasNextPage)}
+        onChangeFolder={setSelectedShopId}
         onRetry={() => {
           void activeShopsQuery.refetch();
         }}
@@ -163,6 +165,17 @@ export function PicksScreen() {
           void activeShopsQuery.fetchNextPage();
         }}
       />
+      {selectedShopId ? (
+        <PickFolderSheet
+          open
+          shopId={selectedShopId}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedShopId(null);
+            }
+          }}
+        />
+      ) : null}
 
       <PickFolderActions
         activeFolderId={activeFolder?.id ?? null}

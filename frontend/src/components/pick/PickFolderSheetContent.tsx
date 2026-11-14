@@ -48,7 +48,7 @@ export function PickFolderSheetContent({
 
   return (
     <>
-      <BottomSheet.Body>
+      <BottomSheet.Body className="min-h-0 flex-1 overflow-y-auto">
         {folders.length === 0 ? (
           <p className="px-3 py-4 text-14 text-black-500">
             생성된 내 픽 폴더가 없습니다.
@@ -90,7 +90,7 @@ export function PickFolderSheetContent({
         )}
       </BottomSheet.Body>
 
-      <BottomSheet.Footer>
+      <BottomSheet.Footer className="shrink-0 flex-col">
         {updateFolderMutation.error ? (
           <p role="alert" className="mb-2 text-13 text-red-600">
             {getPickFolderErrorMessage(updateFolderMutation.error)}
