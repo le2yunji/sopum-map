@@ -12,6 +12,7 @@ type Props = Readonly<{
   isError: boolean;
   isFetchingNextPage: boolean;
   hasNextPage: boolean;
+  onChangeFolder: (shopId: string) => void;
   onRetry: () => void;
   onLoadMore: () => void;
 }>;
@@ -39,6 +40,7 @@ export function PickShopGrid({
   isError,
   isFetchingNextPage,
   hasNextPage,
+  onChangeFolder,
   onRetry,
   onLoadMore,
 }: Props) {
@@ -85,6 +87,7 @@ export function PickShopGrid({
             key={shop.id}
             shop={shop}
             imageLoading={getPickShopImageLoading(index)}
+            onChangeFolder={onChangeFolder}
           />
         ))}
       </div>

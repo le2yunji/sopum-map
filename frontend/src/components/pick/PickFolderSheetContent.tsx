@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import type { PickFolderListItem } from "@sopum-map/shared";
 
 import { useUpdateFolderIdsByShop } from "@/api/pick-folder/pick-folder.query";
 import { BottomSheet } from "@/components/ui/BottomSheet/BottomSheet";
 import { Button } from "@/components/ui/Button";
 import { getPickFolderErrorMessage } from "@/app/(main)/(tabs)/picks/_components/picks-ui";
+import { CheckIcon } from "../icons";
 
 type Props = Readonly<{
   shopId: string;
@@ -48,49 +49,73 @@ export function PickFolderSheetContent({
 
   return (
     <>
-      <BottomSheet.Body>
+      <BottomSheet.Body className="min-h-0 flex-1 overflow-y-auto">
         {folders.length === 0 ? (
           <p className="px-3 py-4 text-14 text-black-500">
             생성된 내 픽 폴더가 없습니다.
           </p>
         ) : (
-          <fieldset className="space-y-2">
+          <fieldset>
             <legend className="sr-only">폴더 선택</legend>
 
-            {folders.map((folder) => {
+            {folders.map((folder, index) => {
               const isSelected = selectedFolderIds.includes(folder.id);
+              const hasSeparator = index < folders.length - 1;
 
               return (
-                <label
-                  key={folder.id}
-                  className={[
-                    "flex min-h-11 cursor-pointer",
-                    "items-center gap-3 rounded-control px-3",
-                    isSelected ? "bg-green-100" : "hover:bg-black-100",
-                  ].join(" ")}
-                >
-                  <input
-                    type="checkbox"
-                    value={folder.id}
-                    checked={isSelected}
-                    onChange={() => {
-                      handleToggleFolder(folder.id);
-                    }}
-                  />
+                <Fragment key={folder.id}>
+                  <label
+                    className={[
+                      "flex min-h-11 cursor-pointer",
+                      "items-center gap-3 rounded-control px-3",
+                    ].join(" ")}
+                  >
+                    <span className="relative shrink-0">
+                      <input
+                        type="checkbox"
+                        value={folder.id}
+                        checked={isSelected}
+                        onChange={() => {
+                          handleToggleFolder(folder.id);
+                        }}
+                        className="peer sr-only"
+                      />
 
-                  <span className="flex-1 text-14">{folder.title}</span>
+                      <span
+                        aria-hidden="true"
+                        className={[
+                          "grid size-5 place-items-center rounded border",
+                          "transition-colors",
+                          "peer-focus-visible:ring-2",
+                          "peer-focus-visible:ring-green-500",
+                          "peer-focus-visible:ring-offset-2",
+                          isSelected
+                            ? "border-green-500 bg-green-500 text-white"
+                            : "border-black-300 bg-white text-transparent",
+                        ].join(" ")}
+                      >
+                        <CheckIcon className="size-4" />
+                      </span>
+                    </span>
 
-                  <span className="text-12 text-black-500">
-                    {folder.shopCount}
-                  </span>
-                </label>
+                    <span className="flex-1 text-14">{folder.title}</span>
+
+                    <span className="text-12 text-black-500">
+                      {folder.shopCount}
+                    </span>
+                  </label>
+
+                  {hasSeparator ? (
+                    <hr className="mx-3 mt-2 h-px border-0 bg-black-100/50" />
+                  ) : null}
+                </Fragment>
               );
             })}
           </fieldset>
         )}
       </BottomSheet.Body>
 
-      <BottomSheet.Footer>
+      <BottomSheet.Footer className="shrink-0 flex-col">
         {updateFolderMutation.error ? (
           <p role="alert" className="mb-2 text-13 text-red-600">
             {getPickFolderErrorMessage(updateFolderMutation.error)}

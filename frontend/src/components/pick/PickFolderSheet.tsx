@@ -42,6 +42,7 @@ export function PickFolderSheet({ open, shopId, onOpenChange }: Props) {
       open={open}
       onOpenChange={onOpenChange}
       ariaLabelledBy="pick-folder-title"
+      className="flex h-[min(70dvh,35rem)] flex-col overflow-hidden!"
     >
       <BottomSheet.Handle />
 
@@ -52,7 +53,7 @@ export function PickFolderSheet({ open, shopId, onOpenChange }: Props) {
       </BottomSheet.Header>
 
       {error ? (
-        <BottomSheet.Body>
+        <BottomSheet.Body className="min-h-0 flex-1 overflow-y-auto">
           <p role="alert" className="px-3 py-4 text-14 text-red-600">
             {getPickFolderErrorMessage(error)}
           </p>
@@ -66,7 +67,7 @@ export function PickFolderSheet({ open, shopId, onOpenChange }: Props) {
           ) : null}
         </BottomSheet.Body>
       ) : isPending ? (
-        <BottomSheet.Body>
+        <BottomSheet.Body className="min-h-0 flex-1 overflow-y-auto">
           <p className="px-3 py-4 text-14 text-black-500">
             폴더를 불러오는 중입니다.
           </p>
