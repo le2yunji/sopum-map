@@ -1,4 +1,8 @@
-import type { UpdateMyProfileRequest, UserProfile } from "@sopum-map/shared";
+import type {
+  MyActivitySummaryData,
+  UpdateMyProfileRequest,
+  UserProfile,
+} from "@sopum-map/shared";
 import { isApiError } from "@sopum-map/shared";
 import { apiClient } from "../client";
 
@@ -13,6 +17,12 @@ export async function getMyProfile(): Promise<UserProfile | null> {
     throw error;
   }
 }
+
+/** 현재 로그인한 사용자의 활동 집계를 조회합니다. */
+export function getMyActivitySummary(): Promise<MyActivitySummaryData> {
+  return apiClient<MyActivitySummaryData>("/me/activity-summary");
+}
+
 /** 현재 로그인한 사용자의 프로필을 수정합니다. */
 export function updateMyProfile(input: UpdateMyProfileRequest) {
   return apiClient<UserProfile>("/me", {

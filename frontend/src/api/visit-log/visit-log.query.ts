@@ -10,7 +10,7 @@ import type {
   MyVisitLogListData,
   UpdateVisitLogRequest,
 } from "@sopum-map/shared";
-
+import { meQueryKeys } from "../me/me.query-keys";
 import { shopQueryKeys } from "../shops/shop.query";
 import {
   checkVisitLogAvailability,
@@ -27,7 +27,8 @@ export const visitLogKeys = {
   all: ["visit-logs"] as const,
   myLists: () => [...visitLogKeys.all, "me", "list"] as const,
   myDetails: () => [...visitLogKeys.all, "me", "detail"] as const,
-  myDetail: (visitLogId: string) => [...visitLogKeys.myDetails(), visitLogId] as const,
+  myDetail: (visitLogId: string) =>
+    [...visitLogKeys.myDetails(), visitLogId] as const,
 };
 
 /** 비어 있거나 잘못된 응답에서는 추가 페이지 요청을 만들지 않습니다. */
@@ -78,12 +79,24 @@ export function useCreateVisitLog(shopId: string) {
 
   return useMutation({
     mutationFn: (input: CreateVisitLogRequest) => createVisitLog(shopId, input),
+
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: shopQueryKeys.detail(shopId),
         }),
-        queryClient.invalidateQueries({ queryKey: shopQueryKeys.lists() }),
+
+        queryClient.invalidateQueries({
+          queryKey: shopQueryKeys.lists(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: visitLogKeys.myLists(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.activitySummary(),
+        }),
       ]);
     },
   });
@@ -121,11 +134,14 @@ export function useMyVisitLog(visitLogId: string) {
 export function useUpdateVisitLog(visitLogId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: UpdateVisitLogRequest) => updateVisitLog(visitLogId, input),
+    mutationFn: (input: UpdateVisitLogRequest) =>
+      updateVisitLog(visitLogId, input),
     onSuccess: async () => {
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: visitLogKeys.myLists() }),
-        queryClient.invalidateQueries({ queryKey: visitLogKeys.myDetail(visitLogId) }),
+        queryClient.invalidateQueries({
+          queryKey: visitLogKeys.myDetail(visitLogId),
+        }),
         queryClient.invalidateQueries({ queryKey: shopQueryKeys.all }),
       ]);
     },
@@ -142,8 +158,20 @@ export function useDeleteVisitLog() {
         visitLogKeys.myLists(),
         (current) => removeVisitLogFromPages(current, visitLogId),
       );
-      await queryClient.invalidateQueries({ queryKey: visitLogKeys.myLists() });
-      await queryClient.invalidateQueries({ queryKey: shopQueryKeys.all });
+
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: visitLogKeys.myLists(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: shopQueryKeys.all,
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.activitySummary(),
+        }),
+      ]);
     },
   });
 }

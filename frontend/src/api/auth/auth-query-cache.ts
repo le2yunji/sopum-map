@@ -1,7 +1,7 @@
 import type { QueryClient } from "@tanstack/react-query";
 
 import { courseKeys } from "@/api/course/course.query";
-import { ME_QUERY_KEYS } from "@/api/me/me.query-keys";
+import { meQueryKeys } from "@/api/me/me.query-keys";
 import {
   likedShopQueryKeys,
   pickFolderQueryKeys,
@@ -10,7 +10,7 @@ import { shopQueryKeys } from "@/api/shops/shop.query";
 import { visitLogKeys } from "@/api/visit-log/visit-log.query";
 
 const AUTHENTICATED_QUERY_KEYS = [
-  ME_QUERY_KEYS.all,
+  meQueryKeys.all,
   pickFolderQueryKeys.all,
   likedShopQueryKeys.all,
   shopQueryKeys.all,
@@ -27,5 +27,5 @@ export function clearAuthenticatedQueryCache(queryClient: QueryClient) {
     queryClient.removeQueries({ queryKey });
   }
 
-  queryClient.setQueryData(ME_QUERY_KEYS.profile(), null);
+  queryClient.setQueryData(meQueryKeys.profile(), null);
 }

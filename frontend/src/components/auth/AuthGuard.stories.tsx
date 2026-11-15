@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { expect, waitFor, within } from "storybook/test";
 
-import { ME_QUERY_KEYS } from "@/api/me/me.query-keys";
+import { meQueryKeys } from "@/api/me/me.query-keys";
 
 import { AuthGuard } from "./AuthGuard";
 
@@ -31,7 +31,7 @@ function AuthGuardStory({ user }: AuthGuardStoryProps) {
       },
     });
 
-    client.setQueryData(ME_QUERY_KEYS.profile(), user);
+    client.setQueryData(meQueryKeys.profile(), user);
 
     return client;
   });

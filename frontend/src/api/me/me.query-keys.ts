@@ -1,4 +1,5 @@
-export const ME_QUERY_KEYS = {
+export const meQueryKeys = {
   all: ["me"] as const,
-  profile: () => [...ME_QUERY_KEYS.all, "profile"] as const,
+  profile: () => [...meQueryKeys.all, "profile"] as const,
+  activitySummary: () => [...meQueryKeys.all, "activity-summary"] as const,
 };

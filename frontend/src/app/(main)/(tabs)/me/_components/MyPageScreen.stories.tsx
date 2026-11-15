@@ -1,11 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import type { MyVisitLogListData, UserProfile } from "@sopum-map/shared";
+import type { MyActivitySummaryData, UserProfile } from "@sopum-map/shared";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ComponentProps } from "react";
 import { expect, userEvent, within } from "storybook/test";
 
-import { ME_QUERY_KEYS } from "@/api/me/me.query-keys";
-import { visitLogKeys } from "@/api/visit-log/visit-log.query";
+import { meQueryKeys } from "@/api/me/me.query-keys";
 
 import { MyPageScreen } from "./MyPageScreen";
 
@@ -15,28 +14,24 @@ const DEFAULT_USER = {
   profileImage: null,
 } satisfies UserProfile;
 
-const EMPTY_VISIT_LOG_PAGE = {
-  items: [],
-  pagination: {
-    totalCount: 0,
-    page: 1,
-    limit: 10,
-    totalPages: 0,
-    hasNext: false,
-  },
-  summary: {
-    totalCount: 0,
-    uniqueShopCount: 0,
-  },
-} satisfies MyVisitLogListData;
+const DEFAULT_ACTIVITY_SUMMARY = {
+  createdCourseCount: 3,
+  visitLogCount: 4,
+  visitedShopCount: 2,
+} satisfies MyActivitySummaryData;
 
 type MyPageStoryProps = Readonly<{
   args: ComponentProps<typeof MyPageScreen>;
+  activitySummary?: MyActivitySummaryData | null;
   user?: UserProfile | null;
 }>;
 
 /** 실제 인증 Query 흐름을 유지하면서 스토리별 사용자 상태를 제공합니다. */
-function MyPageStory({ args, user = DEFAULT_USER }: MyPageStoryProps) {
+function MyPageStory({
+  args,
+  activitySummary = DEFAULT_ACTIVITY_SUMMARY,
+  user = DEFAULT_USER,
+}: MyPageStoryProps) {
   const [queryClient] = useState(() => {
     const client = new QueryClient({
       defaultOptions: {
@@ -47,11 +42,11 @@ function MyPageStory({ args, user = DEFAULT_USER }: MyPageStoryProps) {
       },
     });
 
-    client.setQueryData(ME_QUERY_KEYS.profile(), user);
-    client.setQueryData(visitLogKeys.myLists(), {
-      pages: [EMPTY_VISIT_LOG_PAGE],
-      pageParams: [1],
-    });
+    client.setQueryData(meQueryKeys.profile(), user);
+
+    if (activitySummary) {
+      client.setQueryData(meQueryKeys.activitySummary(), activitySummary);
+    }
 
     return client;
   });
@@ -84,7 +79,7 @@ export const Success: Story = {
       canvas.getByRole("link", { name: "방문 로그 기록하기" }),
     ).toHaveAttribute("href", "/visit-logs/new");
     await expect(
-      canvas.getByRole("link", { name: "방문 로그 0개 보기" }),
+      canvas.getByRole("link", { name: "방문 로그 4개 보기" }),
     ).toHaveAttribute("href", "/me/visit-logs");
     await expect(
       canvas.getByRole("link", { name: "내 산책 코스 3개 보기" }),
@@ -95,6 +90,47 @@ export const Success: Story = {
     await expect(
       canvas.queryByRole("link", { name: /좋아요한 매장/ }),
     ).not.toBeInTheDocument();
+  },
+};
+
+export const ActivityError: Story = {
+  render: (args) => <MyPageStory args={args} activitySummary={null} />,
+  beforeEach: () => {
+    const originalFetch = globalThis.fetch;
+
+    globalThis.fetch = async (input, init) => {
+      const requestUrl = input instanceof Request ? input.url : String(input);
+
+      if (requestUrl.endsWith("/me/activity-summary")) {
+        return Response.json(
+          {
+            success: false,
+            error: {
+              code: "ACTIVITY_SUMMARY_FAILED",
+              message: "활동 요약을 불러오지 못했습니다.",
+            },
+          },
+          { status: 500 },
+        );
+      }
+
+      return originalFetch(input, init);
+    };
+
+    return () => {
+      globalThis.fetch = originalFetch;
+    };
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await expect(canvas.getByText("소품 수집가")).toBeVisible();
+    await expect(
+      await canvas.findByText("활동 요약을 불러오지 못했습니다."),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "활동 요약 다시 시도" }),
+    ).toBeVisible();
   },
 };
 
