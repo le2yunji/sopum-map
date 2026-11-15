@@ -6,7 +6,7 @@ import { expect, userEvent, waitFor, within } from "storybook/test";
 
 import { courseKeys } from "@/api/course/course.query";
 import { courseRouteQueryKeys } from "@/api/course-route/course-route.query";
-import { ME_QUERY_KEYS } from "@/api/me/me.query-keys";
+import { meQueryKeys } from "@/api/me/me.query-keys";
 
 import { CourseDetailScreen } from "./CourseDetailScreen";
 
@@ -155,7 +155,7 @@ function CourseDetailStory({ course, mapClientId }: CourseDetailStoryProps) {
     });
 
     client.setQueryData(courseKeys.detail(course.id), course);
-    client.setQueryData(ME_QUERY_KEYS.profile(), null);
+    client.setQueryData(meQueryKeys.profile(), null);
     client.setQueryData(courseRouteQueryKeys.walking(course.id), {
       totalDistanceMeters: 320,
       totalDurationSeconds: 240,

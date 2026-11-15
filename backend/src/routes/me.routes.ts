@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import {
   getMeController,
+  getMyActivitySummaryController,
   getMyLikedShopsController,
   updateMyProfileController,
 } from "../controllers/me.controller.js";
@@ -73,6 +74,13 @@ meRouter.patch(
   validateRequest(updateMyProfileSchema),
   updateMyProfileController,
 );
+
+/**
+ * 내 활동 요약
+ *
+ * GET /api/me/activity-summary
+ */
+meRouter.get("/activity-summary", requireAuth, getMyActivitySummaryController);
 
 /**
  * 방문 로그 조회

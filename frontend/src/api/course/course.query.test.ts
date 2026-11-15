@@ -1,4 +1,23 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const queryMocks = vi.hoisted(() => ({
+  cancelQueries: vi.fn(),
+  getQueryData: vi.fn(),
+  invalidateQueries: vi.fn(),
+  removeQueries: vi.fn(),
+  setQueryData: vi.fn(),
+  useInfiniteQuery: vi.fn(),
+  useMutation: vi.fn(),
+  useQuery: vi.fn(),
+  useQueryClient: vi.fn(),
+}));
+
+vi.mock("@tanstack/react-query", () => ({
+  useInfiniteQuery: queryMocks.useInfiniteQuery,
+  useMutation: queryMocks.useMutation,
+  useQuery: queryMocks.useQuery,
+  useQueryClient: queryMocks.useQueryClient,
+}));
 
 import type {
   CourseDetailData,
@@ -8,6 +27,8 @@ import type {
 } from "@sopum-map/shared";
 import type { InfiniteData } from "@tanstack/react-query";
 
+import { meQueryKeys } from "@/api/me/me.query-keys";
+
 import {
   courseKeys,
   getNextCourseCursor,
@@ -16,7 +37,23 @@ import {
   updateCourseDetailVisibility,
   updateCourseShopVisited,
   updateMyCourseVisibilityInPages,
+  useCreateCourse,
+  useDeleteCourse,
+  useSetCourseShopVisited,
+  useUnsetCourseShopVisited,
 } from "./course.query";
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  queryMocks.useMutation.mockImplementation((options) => options);
+  queryMocks.useQueryClient.mockReturnValue({
+    cancelQueries: queryMocks.cancelQueries,
+    getQueryData: queryMocks.getQueryData,
+    invalidateQueries: queryMocks.invalidateQueries,
+    removeQueries: queryMocks.removeQueries,
+    setQueryData: queryMocks.setQueryData,
+  });
+});
 
 const detail: CourseDetailData = {
   id: "course-1",
@@ -106,12 +143,12 @@ describe("course query cache helpers", () => {
       nextCursor: null,
     });
 
-    expect(removeLikedCourseFromPages(data, "course-1")?.pages[0].items).toEqual([
-      expect.objectContaining({ id: "course-2", isPrivate: true }),
-    ]);
-    expect(removeLikedCourseFromPages(data, "course-2")?.pages[0].items).toEqual([
-      expect.objectContaining({ id: "course-1", isPrivate: false }),
-    ]);
+    expect(
+      removeLikedCourseFromPages(data, "course-1")?.pages[0].items,
+    ).toEqual([expect.objectContaining({ id: "course-2", isPrivate: true })]);
+    expect(
+      removeLikedCourseFromPages(data, "course-2")?.pages[0].items,
+    ).toEqual([expect.objectContaining({ id: "course-1", isPrivate: false })]);
   });
 
   it("공개 상태를 상세과 내 코스 목록에 함께 반영한다", () => {
@@ -164,17 +201,35 @@ describe("course query cache helpers", () => {
       ...detail,
       shops: [
         {
-          id: "shop-1", name: "첫 상점", address: "서울", mainImageUrl: null,
-          regionGroup: "seongsu-seoulforest", latitude: 37, longitude: 127,
-          status: "active", isUnavailable: false, isVisited: false, order: 1,
-          memo: null, walkingDistanceFromPreviousMeters: null,
+          id: "shop-1",
+          name: "첫 상점",
+          address: "서울",
+          mainImageUrl: null,
+          regionGroup: "seongsu-seoulforest",
+          latitude: 37,
+          longitude: 127,
+          status: "active",
+          isUnavailable: false,
+          isVisited: false,
+          order: 1,
+          memo: null,
+          walkingDistanceFromPreviousMeters: null,
           walkingDurationFromPreviousSeconds: null,
         },
         {
-          id: "shop-2", name: "둘째 상점", address: "서울", mainImageUrl: null,
-          regionGroup: "seongsu-seoulforest", latitude: 37, longitude: 127,
-          status: "active", isUnavailable: false, isVisited: false, order: 2,
-          memo: null, walkingDistanceFromPreviousMeters: null,
+          id: "shop-2",
+          name: "둘째 상점",
+          address: "서울",
+          mainImageUrl: null,
+          regionGroup: "seongsu-seoulforest",
+          latitude: 37,
+          longitude: 127,
+          status: "active",
+          isUnavailable: false,
+          isVisited: false,
+          order: 2,
+          memo: null,
+          walkingDistanceFromPreviousMeters: null,
           walkingDurationFromPreviousSeconds: null,
         },
       ],
@@ -184,4 +239,54 @@ describe("course query cache helpers", () => {
 
     expect(result?.shops.map((shop) => shop.isVisited)).toEqual([false, true]);
   });
+});
+
+describe("코스 활동 요약 캐시", () => {
+  it("코스 생성 성공 뒤 내 코스와 활동 요약을 갱신한다", async () => {
+    const mutation = useCreateCourse() as unknown as {
+      onSuccess: () => Promise<void>;
+    };
+
+    await mutation.onSuccess();
+
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: courseKeys.myCourses(),
+    });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: meQueryKeys.activitySummary(),
+    });
+  });
+
+  it("코스 삭제 성공 뒤 내 코스와 활동 요약을 갱신한다", async () => {
+    const mutation = useDeleteCourse() as unknown as {
+      onSuccess: (data: unknown, courseId: string) => Promise<void>;
+    };
+
+    await mutation.onSuccess(undefined, "course-1");
+
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: courseKeys.myCourses(),
+    });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: meQueryKeys.activitySummary(),
+    });
+  });
+
+  it.each([
+    ["방문 설정", useSetCourseShopVisited],
+    ["방문 해제", useUnsetCourseShopVisited],
+  ])(
+    "코스 상점 %s 성공 뒤 활동 요약을 갱신한다",
+    async (_, useMutationHook) => {
+      const mutation = useMutationHook() as unknown as {
+        onSuccess: () => Promise<void>;
+      };
+
+      await mutation.onSuccess();
+
+      expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: meQueryKeys.activitySummary(),
+      });
+    },
+  );
 });

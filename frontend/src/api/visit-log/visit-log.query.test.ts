@@ -32,6 +32,7 @@ vi.mock("./visit-log.api", () => ({
 }));
 
 import { shopQueryKeys } from "../shops/shop.query";
+import { meQueryKeys } from "../me/me.query-keys";
 import {
   getNextVisitLogPage,
   removeVisitLogFromPages,
@@ -59,8 +60,28 @@ describe("내 방문 로그 query", () => {
     const lastItem = { id: "log-2" };
     const data = {
       pages: [
-        { items: [firstItem], pagination: { totalCount: 2, page: 1, limit: 1, totalPages: 2, hasNext: true }, summary: { totalCount: 2, uniqueShopCount: 2 } },
-        { items: [lastItem], pagination: { totalCount: 2, page: 2, limit: 1, totalPages: 2, hasNext: false }, summary: { totalCount: 2, uniqueShopCount: 2 } },
+        {
+          items: [firstItem],
+          pagination: {
+            totalCount: 2,
+            page: 1,
+            limit: 1,
+            totalPages: 2,
+            hasNext: true,
+          },
+          summary: { totalCount: 2, uniqueShopCount: 2 },
+        },
+        {
+          items: [lastItem],
+          pagination: {
+            totalCount: 2,
+            page: 2,
+            limit: 1,
+            totalPages: 2,
+            hasNext: false,
+          },
+          summary: { totalCount: 2, uniqueShopCount: 2 },
+        },
       ],
       pageParams: [1, 2],
     };
@@ -69,7 +90,11 @@ describe("내 방문 로그 query", () => {
 
     expect(result?.pages).toHaveLength(1);
     expect(result?.pageParams).toEqual([1]);
-    expect(result?.pages[0]?.pagination).toMatchObject({ totalCount: 1, totalPages: 1, hasNext: false });
+    expect(result?.pages[0]?.pagination).toMatchObject({
+      totalCount: 1,
+      totalPages: 1,
+      hasNext: false,
+    });
   });
   it("응답이 비어 있으면 다음 페이지 요청을 만들지 않는다", () => {
     expect(getNextVisitLogPage(undefined)).toBeUndefined();
@@ -77,11 +102,18 @@ describe("내 방문 로그 query", () => {
   it("다음 페이지 번호로 내 목록을 이어서 조회한다", async () => {
     const query = useInfiniteMyVisitLogs() as unknown as {
       queryFn: (context: { pageParam: number }) => Promise<unknown>;
-      getNextPageParam: (page: { pagination: { hasNext: boolean; page: number } }) => number | undefined;
+      getNextPageParam: (page: {
+        pagination: { hasNext: boolean; page: number };
+      }) => number | undefined;
     };
     await query.queryFn({ pageParam: 2 });
-    expect(queryMocks.getMyVisitLogs).toHaveBeenCalledWith({ page: 2, limit: 10 });
-    expect(query.getNextPageParam({ pagination: { hasNext: true, page: 2 } })).toBe(3);
+    expect(queryMocks.getMyVisitLogs).toHaveBeenCalledWith({
+      page: 2,
+      limit: 10,
+    });
+    expect(
+      query.getNextPageParam({ pagination: { hasNext: true, page: 2 } }),
+    ).toBe(3);
   });
 
   it("삭제 성공 후 내 목록과 상점 캐시를 갱신한다", async () => {
@@ -93,8 +125,15 @@ describe("내 방문 로그 query", () => {
       visitLogKeys.myLists(),
       expect.any(Function),
     );
-    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({ queryKey: visitLogKeys.myLists() });
-    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({ queryKey: shopQueryKeys.all });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: visitLogKeys.myLists(),
+    });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: shopQueryKeys.all,
+    });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: meQueryKeys.activitySummary(),
+    });
   });
 });
 
@@ -130,6 +169,9 @@ describe("useCreateVisitLog", () => {
     });
     expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
       queryKey: shopQueryKeys.lists(),
+    });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: meQueryKeys.activitySummary(),
     });
   });
 });

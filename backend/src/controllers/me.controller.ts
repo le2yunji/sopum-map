@@ -4,6 +4,7 @@ import { getLikedShops } from "../services/shop/shop-like.service.js";
 import { likedShopsQuerySchema } from "../validations/shop-like.validation.js";
 import UserModel from "../models/user.model.js";
 import { updateUserProfile } from "../services/user/user.service.js";
+import { getMyActivitySummary } from "../services/user/user-activity.service.js";
 import { updateMyProfileSchema } from "../validations/me.validation.js";
 
 /**
@@ -89,6 +90,26 @@ export async function getMyLikedShopsController(
     res.json({
       success: true,
       data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 현재 로그인한 사용자의 활동 집계를 반환합니다. */
+export async function getMyActivitySummaryController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+
+    const data = await getMyActivitySummary(userId);
+
+    res.status(200).json({
+      success: true,
+      data,
     });
   } catch (error) {
     next(error);

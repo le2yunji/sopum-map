@@ -38,6 +38,7 @@ import {
 } from "./course.api";
 import { courseRouteQueryKeys } from "../course-route/course-route.query";
 import { toKoreaDateKey } from "@/utils/korea-date";
+import { meQueryKeys } from "../me/me.query-keys";
 
 type CourseInfiniteData<TPage> = InfiniteData<TPage, string | undefined>;
 
@@ -170,14 +171,23 @@ export function useSetCourseShopVisited() {
   return useMutation({
     mutationFn: ({ courseId, shopId }: CourseShopVisitMutationInput) =>
       setCourseShopVisited(courseId, shopId),
+
     onMutate: (input) =>
       createCourseShopVisitMutationContext(queryClient, input, true),
+
     onError: (_, input, context) =>
       restoreCourseShopVisitMutationContext(
         queryClient,
         input.courseId,
         context,
       ),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: meQueryKeys.activitySummary(),
+      });
+    },
+
     onSettled: async (_, __, input) => {
       await queryClient.invalidateQueries({
         queryKey: courseKeys.detail(input.courseId),
@@ -193,14 +203,23 @@ export function useUnsetCourseShopVisited() {
   return useMutation({
     mutationFn: ({ courseId, shopId }: CourseShopVisitMutationInput) =>
       unsetCourseShopVisited(courseId, shopId),
+
     onMutate: (input) =>
       createCourseShopVisitMutationContext(queryClient, input, false),
+
     onError: (_, input, context) =>
       restoreCourseShopVisitMutationContext(
         queryClient,
         input.courseId,
         context,
       ),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: meQueryKeys.activitySummary(),
+      });
+    },
+
     onSettled: async (_, __, input) => {
       await queryClient.invalidateQueries({
         queryKey: courseKeys.detail(input.courseId),
@@ -208,7 +227,6 @@ export function useUnsetCourseShopVisited() {
     },
   });
 }
-
 /** 찜한 코스를 모든 무한 목록 페이지에서 제거합니다. */
 export function removeLikedCourseFromPages(
   data: CourseInfiniteData<LikedCourseListData> | undefined,
@@ -526,9 +544,7 @@ export function useUpdateCourseVisibility() {
   });
 }
 
-/**
- * 코스 생성
- */
+/** 코스 생성 뒤 내 코스 목록과 활동 집계를 새로고침합니다. */
 export function useCreateCourse() {
   const queryClient = useQueryClient();
 
@@ -536,9 +552,15 @@ export function useCreateCourse() {
     mutationFn: (input: CreateCourseRequest) => createCourse(input),
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: courseKeys.myCourses(),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: courseKeys.myCourses(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.activitySummary(),
+        }),
+      ]);
     },
   });
 }
@@ -576,9 +598,7 @@ export function useUpdateCourse() {
   });
 }
 
-/**
- * 코스 삭제
- */
+/** 코스 삭제 뒤 관련 캐시를 제거하고 활동 집계를 새로고침합니다. */
 export function useDeleteCourse() {
   const queryClient = useQueryClient();
 
@@ -589,13 +609,20 @@ export function useDeleteCourse() {
       queryClient.removeQueries({
         queryKey: courseKeys.detail(courseId),
       });
+
       queryClient.removeQueries({
         queryKey: courseRouteQueryKeys.walking(courseId),
       });
 
-      await queryClient.invalidateQueries({
-        queryKey: courseKeys.myCourses(),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: courseKeys.myCourses(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.activitySummary(),
+        }),
+      ]);
     },
   });
 }

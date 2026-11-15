@@ -2,7 +2,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { describe, expect, it } from "vitest";
 
 import { courseKeys } from "@/api/course/course.query";
-import { ME_QUERY_KEYS } from "@/api/me/me.query-keys";
+import { meQueryKeys } from "@/api/me/me.query-keys";
 import {
   likedShopQueryKeys,
   pickFolderQueryKeys,
@@ -18,7 +18,12 @@ describe("clearAuthenticatedQueryCache", () => {
     const publicCourseKey = courseKeys.publicList({ sort: "latest" });
     const homeCourseKey = courseKeys.home("2026-11-13");
 
-    queryClient.setQueryData(ME_QUERY_KEYS.profile(), { id: "user-1" });
+    queryClient.setQueryData(meQueryKeys.profile(), { id: "user-1" });
+    queryClient.setQueryData(meQueryKeys.activitySummary(), {
+      createdCourseCount: 2,
+      visitLogCount: 4,
+      visitedShopCount: 3,
+    });
     queryClient.setQueryData(pickFolderQueryKeys.list(), ["folder-1"]);
     queryClient.setQueryData(likedShopQueryKeys.list(), ["shop-1"]);
     queryClient.setQueryData(shopQueryKeys.detail("shop-1"), {
@@ -40,8 +45,13 @@ describe("clearAuthenticatedQueryCache", () => {
 
     clearAuthenticatedQueryCache(queryClient);
 
-    expect(queryClient.getQueryData(ME_QUERY_KEYS.profile())).toBeNull();
-    expect(queryClient.getQueryData(pickFolderQueryKeys.list())).toBeUndefined();
+    expect(queryClient.getQueryData(meQueryKeys.profile())).toBeNull();
+    expect(
+      queryClient.getQueryData(meQueryKeys.activitySummary()),
+    ).toBeUndefined();
+    expect(
+      queryClient.getQueryData(pickFolderQueryKeys.list()),
+    ).toBeUndefined();
     expect(queryClient.getQueryData(likedShopQueryKeys.list())).toBeUndefined();
     expect(
       queryClient.getQueryData(shopQueryKeys.detail("shop-1")),
@@ -58,8 +68,6 @@ describe("clearAuthenticatedQueryCache", () => {
     expect(queryClient.getQueryData(publicCourseKey)).toEqual([
       "public-course-1",
     ]);
-    expect(queryClient.getQueryData(homeCourseKey)).toEqual([
-      "home-course-1",
-    ]);
+    expect(queryClient.getQueryData(homeCourseKey)).toEqual(["home-course-1"]);
   });
 });
