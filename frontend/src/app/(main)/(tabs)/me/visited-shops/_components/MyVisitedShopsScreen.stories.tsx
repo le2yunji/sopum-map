@@ -199,8 +199,13 @@ export const Loading: Story = {
     };
   },
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
     await expect(
-      within(canvasElement).getByText("방문한 상점을 불러오는 중..."),
+      canvas.getByText("방문한 상점을 불러오는 중..."),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "이전 화면으로 돌아가기" }),
     ).toBeVisible();
   },
 };
@@ -226,10 +231,13 @@ export const Error: Story = {
     };
   },
   play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
     await expect(
-      await within(canvasElement).findByText(
-        "방문한 상점을 불러오지 못했어요",
-      ),
+      await canvas.findByText("방문한 상점을 불러오지 못했어요"),
+    ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "이전 화면으로 돌아가기" }),
     ).toBeVisible();
   },
 };
