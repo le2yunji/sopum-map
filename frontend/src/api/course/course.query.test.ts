@@ -287,6 +287,9 @@ describe("코스 활동 요약 캐시", () => {
       expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
         queryKey: meQueryKeys.activitySummary(),
       });
+      expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: meQueryKeys.visitedShops(),
+      });
     },
   );
 });

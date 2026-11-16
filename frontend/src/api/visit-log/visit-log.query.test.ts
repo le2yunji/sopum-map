@@ -39,6 +39,7 @@ import {
   visitLogKeys,
   useDeleteVisitLog,
   useInfiniteMyVisitLogs,
+  useUpdateVisitLog,
 } from "./visit-log.query";
 import { useCreateVisitLog } from "./visit-log.query";
 import { useCheckVisitLogAvailability } from "./visit-log.query";
@@ -134,6 +135,9 @@ describe("내 방문 로그 query", () => {
     expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
       queryKey: meQueryKeys.activitySummary(),
     });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: meQueryKeys.visitedShops(),
+    });
   });
 });
 
@@ -172,6 +176,23 @@ describe("useCreateVisitLog", () => {
     });
     expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
       queryKey: meQueryKeys.activitySummary(),
+    });
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: meQueryKeys.visitedShops(),
+    });
+  });
+});
+
+describe("useUpdateVisitLog", () => {
+  it("방문일 수정 뒤 방문 상점의 최신순 목록을 갱신한다", async () => {
+    const mutation = useUpdateVisitLog("log-1") as unknown as {
+      onSuccess: () => Promise<void>;
+    };
+
+    await mutation.onSuccess();
+
+    expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
+      queryKey: meQueryKeys.visitedShops(),
     });
   });
 });

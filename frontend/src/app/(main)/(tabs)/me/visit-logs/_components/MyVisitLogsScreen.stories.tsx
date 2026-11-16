@@ -94,7 +94,9 @@ export const Default: Story = {
       canvas.getByRole("heading", { name: "내 방문 로그" }),
     ).toBeVisible();
     await expect(canvas.getByLabelText("쌓인 로그 5개")).toBeVisible();
-    await expect(canvas.getByLabelText("방문한 상점 2개")).toBeVisible();
+    await expect(
+      canvas.getByRole("link", { name: "방문한 상점 2개 보기" }),
+    ).toHaveAttribute("href", "/me/visited-shops");
     await expect(canvas.getByText("모모 소품샵")).toBeVisible();
     await expect(canvas.getByText("키링")).toBeVisible();
     await userEvent.click(

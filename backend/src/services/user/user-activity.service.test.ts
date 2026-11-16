@@ -7,6 +7,7 @@ const modelMocks = vi.hoisted(() => ({
   countVisitLogs: vi.fn(),
   findVisitLogShopIds: vi.fn(),
   findCourseVisitShopIds: vi.fn(),
+  countActiveVisitedShops: vi.fn(),
 }));
 
 vi.mock("../../models/course.model.js", () => ({
@@ -24,6 +25,10 @@ vi.mock("../../models/course-shop-visit.model.js", () => ({
   default: { distinct: modelMocks.findCourseVisitShopIds },
 }));
 
+vi.mock("../../models/shop.model.js", () => ({
+  default: { countDocuments: modelMocks.countActiveVisitedShops },
+}));
+
 const userId = "6a8a68e15e2aa43be6a6549d";
 
 beforeEach(() => {
@@ -32,6 +37,7 @@ beforeEach(() => {
   modelMocks.countVisitLogs.mockResolvedValue(0);
   modelMocks.findVisitLogShopIds.mockResolvedValue([]);
   modelMocks.findCourseVisitShopIds.mockResolvedValue([]);
+  modelMocks.countActiveVisitedShops.mockResolvedValue(0);
 });
 
 describe("getMyActivitySummary", () => {
@@ -59,6 +65,7 @@ describe("getMyActivitySummary", () => {
       lastShopId,
       lastShopId,
     ]);
+    modelMocks.countActiveVisitedShops.mockResolvedValue(3);
 
     await expect(getMyActivitySummary(userId)).resolves.toEqual({
       createdCourseCount: 2,
@@ -81,6 +88,10 @@ describe("getMyActivitySummary", () => {
     });
     expect(modelMocks.findCourseVisitShopIds).toHaveBeenCalledWith("shopId", {
       userId: objectUserId,
+    });
+    expect(modelMocks.countActiveVisitedShops).toHaveBeenCalledWith({
+      _id: { $in: [firstShopId, sharedShopId, lastShopId] },
+      status: "active",
     });
   });
 });

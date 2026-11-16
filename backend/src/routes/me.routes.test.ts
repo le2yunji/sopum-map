@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   getAuthenticatedUserId: vi.fn(),
   getMyActivitySummary: vi.fn(),
+  getMyVisitedShops: vi.fn(),
 }));
 
 vi.mock("../services/auth/auth.service.js", () => ({
@@ -14,6 +15,10 @@ vi.mock("../services/auth/auth.service.js", () => ({
 
 vi.mock("../services/user/user-activity.service.js", () => ({
   getMyActivitySummary: mocks.getMyActivitySummary,
+}));
+
+vi.mock("../services/user/user-visited-shop.service.js", () => ({
+  getMyVisitedShops: mocks.getMyVisitedShops,
 }));
 
 import { errorMiddleware } from "../middlewares/error.middleware.js";
@@ -38,6 +43,62 @@ beforeEach(() => {
     createdCourseCount: 2,
     visitLogCount: 4,
     visitedShopCount: 3,
+  });
+  mocks.getMyVisitedShops.mockResolvedValue({
+    items: [],
+    pagination: {
+      totalCount: 0,
+      page: 2,
+      limit: 5,
+      totalPages: 0,
+      hasNext: false,
+    },
+  });
+});
+
+describe("GET /api/me/visited-shops", () => {
+  it("인증된 사용자의 방문 상점을 페이지로 반환한다", async () => {
+    const response = await request(createTestApp())
+      .get("/api/me/visited-shops?page=2&limit=5")
+      .set("Cookie", "auth_session=test-session");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      data: {
+        items: [],
+        pagination: {
+          totalCount: 0,
+          page: 2,
+          limit: 5,
+          totalPages: 0,
+          hasNext: false,
+        },
+      },
+    });
+    expect(mocks.getMyVisitedShops).toHaveBeenCalledWith({
+      userId,
+      page: 2,
+      limit: 5,
+    });
+  });
+
+  it("비로그인 사용자의 요청을 거부한다", async () => {
+    const response = await request(createTestApp()).get(
+      "/api/me/visited-shops",
+    );
+
+    expect(response.status).toBe(401);
+    expect(mocks.getMyVisitedShops).not.toHaveBeenCalled();
+  });
+
+  it("범위를 벗어난 페이지 요청을 거부한다", async () => {
+    const response = await request(createTestApp())
+      .get("/api/me/visited-shops?limit=51")
+      .set("Cookie", "auth_session=test-session");
+
+    expect(response.status).toBe(400);
+    expect(mocks.getMyVisitedShops).not.toHaveBeenCalled();
   });
 });
 
