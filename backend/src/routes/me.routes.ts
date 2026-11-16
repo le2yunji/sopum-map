@@ -4,6 +4,7 @@ import {
   getMeController,
   getMyActivitySummaryController,
   getMyLikedShopsController,
+  getMyVisitedShopsController,
   updateMyProfileController,
 } from "../controllers/me.controller.js";
 
@@ -52,7 +53,10 @@ import {
 
 import { optimizeCourseRouteController } from "../controllers/course-route.controller.js";
 import { optimizeCourseRouteSchema } from "../validations/course-route.validation.js";
-import { updateMyProfileSchema } from "../validations/me.validation.js";
+import {
+  getMyVisitedShopsSchema,
+  updateMyProfileSchema,
+} from "../validations/me.validation.js";
 
 const meRouter = Router();
 
@@ -81,6 +85,18 @@ meRouter.patch(
  * GET /api/me/activity-summary
  */
 meRouter.get("/activity-summary", requireAuth, getMyActivitySummaryController);
+
+/**
+ * 내가 방문한 상점 목록
+ *
+ * GET /api/me/visited-shops
+ */
+meRouter.get(
+  "/visited-shops",
+  requireAuth,
+  validateRequest(getMyVisitedShopsSchema),
+  getMyVisitedShopsController,
+);
 
 /**
  * 방문 로그 조회

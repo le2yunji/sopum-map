@@ -183,9 +183,15 @@ export function useSetCourseShopVisited() {
       ),
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: meQueryKeys.activitySummary(),
-      });
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.activitySummary(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.visitedShops(),
+        }),
+      ]);
     },
 
     onSettled: async (_, __, input) => {
@@ -215,11 +221,16 @@ export function useUnsetCourseShopVisited() {
       ),
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: meQueryKeys.activitySummary(),
-      });
-    },
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.activitySummary(),
+        }),
 
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.visitedShops(),
+        }),
+      ]);
+    },
     onSettled: async (_, __, input) => {
       await queryClient.invalidateQueries({
         queryKey: courseKeys.detail(input.courseId),

@@ -5,7 +5,11 @@ import { likedShopsQuerySchema } from "../validations/shop-like.validation.js";
 import UserModel from "../models/user.model.js";
 import { updateUserProfile } from "../services/user/user.service.js";
 import { getMyActivitySummary } from "../services/user/user-activity.service.js";
-import { updateMyProfileSchema } from "../validations/me.validation.js";
+import {
+  getMyVisitedShopsSchema,
+  updateMyProfileSchema,
+} from "../validations/me.validation.js";
+import { getMyVisitedShops } from "../services/user/user-visited-shop.service.js";
 
 /**
  * 현재 로그인한 사용자 정보를 반환합니다.
@@ -106,6 +110,34 @@ export async function getMyActivitySummaryController(
     const userId = req.auth!.userId;
 
     const data = await getMyActivitySummary(userId);
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
+
+/** 현재 로그인한 사용자의 방문 상점 목록을 반환합니다. */
+export async function getMyVisitedShopsController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const userId = req.auth!.userId;
+
+    const { query } = res.locals.validated as z.infer<
+      typeof getMyVisitedShopsSchema
+    >;
+
+    const data = await getMyVisitedShops({
+      userId,
+      page: query.page,
+      limit: query.limit,
+    });
 
     res.status(200).json({
       success: true,

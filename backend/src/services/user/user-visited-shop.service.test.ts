@@ -36,7 +36,10 @@ vi.mock("../shop/shop.mapper.js", () => ({
   mapShopListItem: mapperMocks.mapShopListItem,
 }));
 
-import { getMyVisitedShops } from "./user-visited-shop.service.js";
+import {
+  countMyVisitedShops,
+  getMyVisitedShops,
+} from "./user-visited-shop.service.js";
 
 const userId = "6a8a68e15e2aa43be6a6549d";
 
@@ -79,6 +82,7 @@ describe("getMyVisitedShops", () => {
   it("두 방문 기록을 합치고 중복 상점의 최근 방문 시각으로 페이지를 만듭니다", async () => {
     const shopId = new Types.ObjectId(mappedShop.id);
     const lastVisitedAt = new Date("2026-11-15T03:00:00.000Z");
+    const lastVisitLogAt = new Date("2026-11-07T03:00:00.000Z");
 
     modelMocks.aggregateVisits.mockResolvedValue([
       {
@@ -86,6 +90,7 @@ describe("getMyVisitedShops", () => {
           {
             _id: shopId,
             lastVisitedAt,
+            lastVisitLogAt,
             shop: { _id: shopId },
           },
         ],
@@ -105,6 +110,7 @@ describe("getMyVisitedShops", () => {
         {
           ...mappedShop,
           lastVisitedAt: "2026-11-15T03:00:00.000Z",
+          lastVisitLogAt: "2026-11-07T03:00:00.000Z",
         },
       ],
       pagination: {
@@ -137,11 +143,27 @@ describe("getMyVisitedShops", () => {
     expect(pipeline).toEqual(
       expect.arrayContaining([
         { $match: { userId: objectUserId, status: "active" } },
+        {
+          $project: {
+            _id: 0,
+            shopId: 1,
+            lastVisitedAt: "$visitedAt",
+            lastVisitLogAt: "$visitedAt",
+          },
+        },
         expect.objectContaining({
           $unionWith: expect.objectContaining({
             coll: "courseshopvisits",
             pipeline: expect.arrayContaining([
               { $match: { userId: objectUserId } },
+              {
+                $project: {
+                  _id: 0,
+                  shopId: 1,
+                  lastVisitedAt: "$createdAt",
+                  lastVisitLogAt: { $literal: null },
+                },
+              },
             ]),
           }),
         }),
@@ -149,6 +171,7 @@ describe("getMyVisitedShops", () => {
           $group: {
             _id: "$shopId",
             lastVisitedAt: { $max: "$lastVisitedAt" },
+            lastVisitLogAt: { $max: "$lastVisitLogAt" },
           },
         },
         { $match: { "shop.status": "active" } },
@@ -161,5 +184,39 @@ describe("getMyVisitedShops", () => {
         },
       ]),
     );
+  });
+});
+
+describe("countMyVisitedShops", () => {
+  it("목록과 같은 기준으로 활성 방문 상점 수를 계산합니다", async () => {
+    modelMocks.aggregateVisits.mockResolvedValue([{ count: 3 }]);
+
+    await expect(countMyVisitedShops(userId)).resolves.toBe(3);
+
+    const pipeline = modelMocks.aggregateVisits.mock.calls[0]?.[0];
+    const objectUserId = new Types.ObjectId(userId);
+
+    expect(pipeline).toEqual(
+      expect.arrayContaining([
+        { $match: { userId: objectUserId, status: "active" } },
+        expect.objectContaining({
+          $unionWith: expect.objectContaining({
+            coll: "courseshopvisits",
+            pipeline: expect.arrayContaining([
+              { $match: { userId: objectUserId } },
+            ]),
+          }),
+        }),
+        {
+          $group: {
+            _id: "$shopId",
+            lastVisitedAt: { $max: "$lastVisitedAt" },
+            lastVisitLogAt: { $max: "$lastVisitLogAt" },
+          },
+        },
+        { $match: { "shop.status": "active" } },
+      ]),
+    );
+    expect(pipeline.at(-1)).toEqual({ $count: "count" });
   });
 });

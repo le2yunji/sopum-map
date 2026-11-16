@@ -10,6 +10,10 @@ const modelMocks = vi.hoisted(() => ({
   countActiveVisitedShops: vi.fn(),
 }));
 
+const serviceMocks = vi.hoisted(() => ({
+  countMyVisitedShops: vi.fn(),
+}));
+
 vi.mock("../../models/course.model.js", () => ({
   default: { countDocuments: modelMocks.countCourses },
 }));
@@ -29,6 +33,10 @@ vi.mock("../../models/shop.model.js", () => ({
   default: { countDocuments: modelMocks.countActiveVisitedShops },
 }));
 
+vi.mock("./user-visited-shop.service.js", () => ({
+  countMyVisitedShops: serviceMocks.countMyVisitedShops,
+}));
+
 const userId = "6a8a68e15e2aa43be6a6549d";
 
 beforeEach(() => {
@@ -38,6 +46,7 @@ beforeEach(() => {
   modelMocks.findVisitLogShopIds.mockResolvedValue([]);
   modelMocks.findCourseVisitShopIds.mockResolvedValue([]);
   modelMocks.countActiveVisitedShops.mockResolvedValue(0);
+  serviceMocks.countMyVisitedShops.mockResolvedValue(0);
 });
 
 describe("getMyActivitySummary", () => {
@@ -49,23 +58,10 @@ describe("getMyActivitySummary", () => {
     });
   });
 
-  it("활성 로그와 코스 방문 완료 상점의 합집합을 한 번씩 센다", async () => {
-    const firstShopId = new Types.ObjectId();
-    const sharedShopId = new Types.ObjectId();
-    const lastShopId = new Types.ObjectId();
-
+  it("방문 상점 서비스가 계산한 중복 없는 상점 수를 반환한다", async () => {
     modelMocks.countCourses.mockResolvedValue(2);
     modelMocks.countVisitLogs.mockResolvedValue(3);
-    modelMocks.findVisitLogShopIds.mockResolvedValue([
-      firstShopId,
-      sharedShopId,
-    ]);
-    modelMocks.findCourseVisitShopIds.mockResolvedValue([
-      sharedShopId,
-      lastShopId,
-      lastShopId,
-    ]);
-    modelMocks.countActiveVisitedShops.mockResolvedValue(3);
+    serviceMocks.countMyVisitedShops.mockResolvedValue(3);
 
     await expect(getMyActivitySummary(userId)).resolves.toEqual({
       createdCourseCount: 2,
@@ -82,16 +78,6 @@ describe("getMyActivitySummary", () => {
       userId: objectUserId,
       status: "active",
     });
-    expect(modelMocks.findVisitLogShopIds).toHaveBeenCalledWith("shopId", {
-      userId: objectUserId,
-      status: "active",
-    });
-    expect(modelMocks.findCourseVisitShopIds).toHaveBeenCalledWith("shopId", {
-      userId: objectUserId,
-    });
-    expect(modelMocks.countActiveVisitedShops).toHaveBeenCalledWith({
-      _id: { $in: [firstShopId, sharedShopId, lastShopId] },
-      status: "active",
-    });
+    expect(serviceMocks.countMyVisitedShops).toHaveBeenCalledWith(userId);
   });
 });

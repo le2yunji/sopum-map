@@ -9,13 +9,21 @@ import { expect, within } from "storybook/test";
 
 import { meQueryKeys } from "@/api/me/me.query-keys";
 
+import TabsLayout from "../../../layout";
 import { MyVisitedShopsScreen } from "./MyVisitedShopsScreen";
 
 const VISITED_SHOP = {
   id: "shop-1",
   name: "모모 소품샵",
   category: "소품샵",
-  tags: [],
+  tags: [
+    {
+      key: "keyrings",
+      count: 3,
+      label: "키링",
+      group: "product",
+    },
+  ],
   address: "서울 성동구 연무장길 1",
   mainImageUrl: null,
   region1: "서울",
@@ -29,12 +37,30 @@ const VISITED_SHOP = {
   visitLogCount: 3,
   isLiked: true,
   lastVisitedAt: "2026-11-15T03:00:00.000Z",
+  lastVisitLogAt: "2026-11-07T03:00:00.000Z",
+} satisfies VisitedShopListItem;
+
+const OLDER_VISITED_SHOP = {
+  ...VISITED_SHOP,
+  id: "shop-2",
+  name: "연남 문구점",
+  regionGroup: "hongdae-yeonnam",
+  tags: [
+    {
+      key: "stickers",
+      count: 2,
+      label: "스티커",
+      group: "product",
+    },
+  ],
+  lastVisitedAt: "2026-11-10T03:00:00.000Z",
+  lastVisitLogAt: null,
 } satisfies VisitedShopListItem;
 
 const VISITED_SHOPS_PAGE = {
-  items: [VISITED_SHOP],
+  items: [VISITED_SHOP, OLDER_VISITED_SHOP],
   pagination: {
-    totalCount: 1,
+    totalCount: 2,
     page: 1,
     limit: 10,
     totalPages: 1,
@@ -76,9 +102,11 @@ function MyVisitedShopsStory({ mode }: Readonly<{ mode: StoryMode }>) {
   });
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <MyVisitedShopsScreen />
-    </QueryClientProvider>
+    <TabsLayout>
+      <QueryClientProvider client={queryClient}>
+        <MyVisitedShopsScreen />
+      </QueryClientProvider>
+    </TabsLayout>
   );
 }
 
@@ -100,11 +128,54 @@ export const Default: Story = {
       canvas.getByRole("heading", { name: "방문한 상점" }),
     ).toBeVisible();
     await expect(
+      canvas.getByRole("button", { name: "이전 화면으로 돌아가기" }),
+    ).toBeVisible();
+    await expect(
       canvas.getByRole("link", { name: "모모 소품샵 상세 보기" }),
     ).toHaveAttribute("href", "/shops/shop-1");
     await expect(
       canvas.getByText("마지막 방문 2026년 11월 15일"),
     ).toBeVisible();
+    await expect(canvas.getByText("성수·서울숲")).toBeVisible();
+    await expect(
+      canvas.getByText("2026년 11월 7일 방문로그 작성"),
+    ).toBeVisible();
+    await expect(
+      canvas.getByText("2026년 11월 10일 코스에서 방문 완료"),
+    ).toBeVisible();
+    await expect(
+      canvas.getByLabelText("모모 소품샵 방문로그 작성됨"),
+    ).toBeVisible();
+    await expect(
+      canvas.queryByLabelText("연남 문구점 방문로그 작성됨"),
+    ).not.toBeInTheDocument();
+    await expect(canvas.queryByText("#키링")).not.toBeInTheDocument();
+
+    const shopLinks = canvas.getAllByRole("link", {
+      name: /상세 보기/,
+    });
+
+    await expect(shopLinks[0]).toHaveAccessibleName(
+      "모모 소품샵 상세 보기",
+    );
+    await expect(shopLinks[1]).toHaveAccessibleName(
+      "연남 문구점 상세 보기",
+    );
+
+    const header = canvas
+      .getByRole("heading", { name: "방문한 상점" })
+      .closest("header");
+
+    await expect(header).not.toBeNull();
+    await expect(shopLinks[0].getBoundingClientRect().top).toBeGreaterThanOrEqual(
+      header?.getBoundingClientRect().bottom ?? 0,
+    );
+
+    const documentElement = canvasElement.ownerDocument.documentElement;
+
+    await expect(documentElement.scrollHeight).toBeLessThanOrEqual(
+      documentElement.clientHeight,
+    );
   },
 };
 

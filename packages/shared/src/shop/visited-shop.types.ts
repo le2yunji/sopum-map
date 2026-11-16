@@ -7,10 +7,11 @@ export type GetMyVisitedShopsQuery = Readonly<{
   limit?: number;
 }>;
 
-/** 방문 상점 하나와 사용자의 마지막 방문 시각입니다. */
+/** 방문 상점 하나와 사용자의 방문 정보입니다. */
 export type VisitedShopListItem = Readonly<
   ShopListItem & {
     lastVisitedAt: string;
+    lastVisitLogAt: string | null;
   }
 >;
 
