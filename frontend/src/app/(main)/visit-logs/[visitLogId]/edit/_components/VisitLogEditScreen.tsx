@@ -3,7 +3,7 @@
 import { VISIT_LOG_CONTENT_MAX_LENGTH, type MyVisitLogListItem, type TagKey } from "@sopum-map/shared";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 
 import { useMyVisitLog, useUpdateVisitLog } from "@/api/visit-log/visit-log.query";
 import { VisitLogTagSelector } from "@/app/(main)/shops/[shopId]/visit-logs/new/_components/VisitLogTagSelector";
@@ -45,7 +45,7 @@ function VisitLogEditForm({ visitLog }: Readonly<{ visitLog: MyVisitLogListItem 
   const [imageState, setImageState] = useState({ isBusy: false, hasError: false });
 
   /** 태그 필수값을 확인한 뒤 수정 API를 호출합니다. */
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (selectedTagKeys.length === 0) {
       setTagError("태그를 1개 이상 선택해 주세요.");
