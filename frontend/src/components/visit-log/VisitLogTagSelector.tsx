@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  VISIT_LOG_TAG_MAX_COUNT,
-  type TagKey,
-} from "@sopum-map/shared";
+import { VISIT_LOG_TAG_MAX_COUNT, type TagKey } from "@sopum-map/shared";
 import type { Ref } from "react";
 
 import { TagQuestionList } from "@/components/tag/TagQuestionList";
@@ -44,7 +41,10 @@ export function VisitLogTagSelector({
     >
       <div className="flex items-end justify-between gap-3">
         <div>
-          <h2 id="visit-log-tags-title" className="text-16 font-semibold text-black-950">
+          <h2
+            id="visit-log-tags-title"
+            className="text-16 font-semibold text-black-950"
+          >
             이 상점은 어땠나요?
           </h2>
           <p className="mt-1 text-13 text-black-500">
@@ -60,13 +60,19 @@ export function VisitLogTagSelector({
         <TagQuestionList
           selectedTagKeys={selectedTagKeys}
           onToggleTag={toggleTag}
-          isTagDisabled={(tagKey) => !selectedTagKeys.includes(tagKey) && hasReachedLimit}
+          isTagDisabled={(tagKey) =>
+            !selectedTagKeys.includes(tagKey) && hasReachedLimit
+          }
           firstTagRef={firstTagRef}
         />
       </div>
 
       {errorMessage && (
-        <p id="visit-log-tags-error" role="alert" className="text-13 text-red-500">
+        <p
+          id="visit-log-tags-error"
+          role="alert"
+          className="text-13 text-red-500"
+        >
           {errorMessage}
         </p>
       )}

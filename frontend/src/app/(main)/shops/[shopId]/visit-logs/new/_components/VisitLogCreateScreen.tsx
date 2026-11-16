@@ -17,20 +17,22 @@ import {
   useCheckVisitLogAvailability,
   useCreateVisitLog,
 } from "@/api/visit-log/visit-log.query";
+import { ChevronLeftIcon } from "@/components/icons";
+import {
+  VisitLogImagePicker,
+  VisitLogTagSelector,
+  type VisitLogImageFormValue,
+} from "@/components/visit-log";
 import { Button } from "@/components/ui/Button";
 import { DatePickerSheet } from "@/components/ui/DatePickerSheet";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 import { Textarea } from "@/components/ui/Textarea/Textarea";
 import { DEFAULT_IMAGES } from "@/constants/image.constants";
-
-import { getTodayDateInputValue, toVisitLogIsoDate } from "./visit-log-date";
-import { VisitLogTagSelector } from "./VisitLogTagSelector";
 import {
-  VisitLogImagePicker,
-  type VisitLogImageFormValue,
-} from "./VisitLogImagePicker";
-import { ChevronLeftIcon } from "@/components/icons";
+  getTodayDateInputValue,
+  toVisitLogIsoDate,
+} from "@/lib/visit-log-date";
 
 type ShopSummary = Readonly<{
   id: string;

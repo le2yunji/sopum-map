@@ -6,7 +6,7 @@ import { expect, userEvent, within } from "storybook/test";
 import { VisitLogTagSelector } from "./VisitLogTagSelector";
 
 const meta = {
-  title: "Pages/VisitLogTagSelector",
+  title: "Components/VisitLog/VisitLogTagSelector",
   component: VisitLogTagSelector,
   parameters: { layout: "padded" },
   args: {
