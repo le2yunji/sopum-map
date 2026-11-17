@@ -1,31 +1,21 @@
 "use client";
 
-import type { MyVisitLogListItem } from "@sopum-map/shared";
 import Link from "next/link";
-import { useState } from "react";
 
-import {
-  useDeleteVisitLog,
-  useInfiniteMyVisitLogs,
-} from "@/api/visit-log/visit-log.query";
+import { useInfiniteMyVisitLogs } from "@/api/visit-log/visit-log.query";
+import { AddIcon } from "@/components/icons";
 import { BackButton } from "@/components/navigation/BackButton";
-import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Button } from "@/components/ui/Button/Button";
-import { Snackbar } from "@/components/ui/Snackbar";
+import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { StatePanel } from "@/components/ui/StatePanel/StatePanel";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 import { useMyActivitySummary } from "@/hooks/useMyActivitySummary";
-import { MyVisitLogCard } from "./MyVisitLogCard";
-import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 
-/** 내 방문 로그의 목록·페이지 추가 조회·삭제 확인을 한 흐름으로 관리합니다. */
+import { MyVisitLogGridItem } from "./MyVisitLogGridItem";
+
+/** 내 방문 로그를 최근 기록부터 사진 피드로 이어서 보여줍니다. */
 export function MyVisitLogsScreen() {
   const query = useInfiniteMyVisitLogs();
-  const deleteMutation = useDeleteVisitLog();
-  const [deleteTarget, setDeleteTarget] = useState<MyVisitLogListItem | null>(
-    null,
-  );
-  const [notice, setNotice] = useState<string | null>(null);
   const items = query.data?.pages.flatMap((page) => page.items) ?? [];
 
   const { loadMoreRef } = useInfiniteScroll({
@@ -34,27 +24,11 @@ export function MyVisitLogsScreen() {
     isLoading: query.isFetchingNextPage,
   });
 
-  /** 확인된 로그만 삭제하고 서버 목록을 다시 불러옵니다. */
-  const handleDelete = () => {
-    if (!deleteTarget) return;
-    deleteMutation.mutate(deleteTarget.id, {
-      onSuccess: () => {
-        setDeleteTarget(null);
-        setNotice("방문 로그를 삭제했어요.");
-      },
-    });
-  };
+  if (query.isPending) {
+    return <MyVisitLogsLoading />;
+  }
 
-  if (query.isPending)
-    return (
-      <div
-        role="status"
-        className="min-h-dvh px-5 pt-16 text-center text-14 text-black-500"
-      >
-        방문 로그를 불러오는 중...
-      </div>
-    );
-  if (query.isError)
+  if (query.isError) {
     return (
       <StatePanel
         title="방문 로그를 불러오지 못했어요"
@@ -62,46 +36,46 @@ export function MyVisitLogsScreen() {
         onAction={() => void query.refetch()}
       />
     );
+  }
 
   return (
-    <main className="min-h-dvh bg-black-100/40 px-5 pb-28 pt-10">
-      <header className="flex items-center gap-2">
+    <main className="min-h-dvh bg-white pb-28 pt-10">
+      <header className="flex items-center gap-2 px-5">
         <BackButton ariaLabel="이전 화면으로 돌아가기" className="-ml-2" />
 
         <div className="min-w-0 flex-1">
-          <p className="text-12 text-green-700">나의 기록</p>
-
-          <div className="mt-1 flex items-center justify-between gap-3">
-            <h1 className="text-24 font-semibold">내 방문 로그</h1>
-
-            <Link
-              href="/visit-logs/new"
-              className="inline-flex min-h-11 items-center rounded-control bg-green-500 px-4 text-13 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
-            >
-              새 기록
-            </Link>
-          </div>
+          <p className="text-12 font-medium text-green-800">나의 기록</p>
+          <h1 className="mt-0.5 truncate text-24 font-semibold">
+            내 방문 로그
+          </h1>
         </div>
+
+        <Link
+          href="/visit-logs/new"
+          aria-label="새 방문 로그 작성"
+          className="inline-flex size-11 shrink-0 items-center justify-center gap-1 rounded-full bg-green-100 text-13 font-semibold text-green-900 transition-colors hover:bg-green-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700 min-[390px]:w-auto min-[390px]:rounded-control min-[390px]:px-3"
+        >
+          <AddIcon className="size-5 text-green-800" aria-hidden="true" />
+          <span className="hidden min-[390px]:inline">새 기록</span>
+        </Link>
       </header>
 
-      <MyVisitLogActivitySummary />
+      <div className="px-5">
+        <MyVisitLogActivitySummary />
+      </div>
 
       {items.length === 0 ? (
-        <div className="mt-12">
-          <StatePanel
-            title="아직 방문 로그가 없어요"
-            description="다녀온 소품샵을 나만의 기록으로 남겨보세요."
-            action="첫 로그 기록하기"
-            actionHref="/visit-logs/new"
-          />
-        </div>
+        <MyVisitLogsEmpty />
       ) : (
-        <section aria-label="내 방문 로그 목록" className="mt-5 space-y-3">
-          {items.map((item) => (
-            <MyVisitLogCard
+        <section
+          aria-label="내 방문 로그 목록"
+          className="mt-4 grid grid-cols-3 gap-0.5 bg-black-100"
+        >
+          {items.map((item, index) => (
+            <MyVisitLogGridItem
               key={item.id}
               visitLog={item}
-              onDelete={setDeleteTarget}
+              imageLoading={index < 6 ? "eager" : "lazy"}
             />
           ))}
         </section>
@@ -114,46 +88,55 @@ export function MyVisitLogsScreen() {
           방문 로그를 더 불러오는 중...
         </p>
       ) : null}
-      <BottomSheet
-        open={deleteTarget !== null}
-        onOpenChange={(open) => !open && setDeleteTarget(null)}
-        ariaLabelledBy="delete-visit-log-title"
-      >
-        <BottomSheet.Handle />
-        <BottomSheet.Header>
-          <BottomSheet.Title id="delete-visit-log-title">
-            방문 로그를 삭제할까요?
-          </BottomSheet.Title>
-        </BottomSheet.Header>
-        <BottomSheet.Body>
-          <p className="text-14 text-black-500">
-            삭제한 로그는 목록과 상점 상세에서 보이지 않아요.
-          </p>
-        </BottomSheet.Body>
-        <BottomSheet.Footer className="gap-2">
-          <Button
-            fullWidth
-            variant="outline"
-            disabled={deleteMutation.isPending}
-            onClick={() => setDeleteTarget(null)}
-          >
-            취소
-          </Button>
-          <Button
-            fullWidth
-            isLoading={deleteMutation.isPending}
-            onClick={handleDelete}
-          >
-            삭제
-          </Button>
-        </BottomSheet.Footer>
-        {deleteMutation.isError ? (
-          <p role="alert" className="mt-3 text-12 text-red-500">
-            삭제하지 못했어요. 다시 시도해 주세요.
-          </p>
-        ) : null}
-      </BottomSheet>
-      <Snackbar open={notice !== null} message={notice ?? ""} />
+    </main>
+  );
+}
+
+/** 기록이 없을 때 다음 행동을 안내하되 페이지 안에 중복 main 영역을 만들지 않습니다. */
+function MyVisitLogsEmpty() {
+  return (
+    <section className="grid min-h-[55dvh] place-items-center px-6 text-center">
+      <div>
+        <p className="text-16 text-black-700">아직 방문 로그가 없어요</p>
+        <p className="mt-2 text-14 text-black-700">
+          다녀온 소품샵을 나만의 기록으로 남겨보세요.
+        </p>
+        <Link
+          href="/visit-logs/new"
+          className="mt-5 inline-flex min-h-11 items-center rounded-control bg-green-100 px-5 text-14 font-semibold text-green-900 transition-colors hover:bg-green-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+        >
+          첫 로그 기록하기
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/** 최종 격자와 같은 크기의 뼈대를 보여 화면 흔들림을 줄입니다. */
+function MyVisitLogsLoading() {
+  return (
+    <main
+      role="status"
+      aria-label="방문 로그를 불러오는 중"
+      className="min-h-dvh bg-white pb-28 pt-10"
+    >
+      <div className="px-5">
+        <Skeleton announce={false} className="h-11 w-48 rounded-control" />
+        <Skeleton
+          announce={false}
+          className="mt-4 h-16 rounded-card"
+        />
+      </div>
+
+      <div className="mt-4 grid grid-cols-3 gap-0.5 bg-black-100">
+        {Array.from({ length: 9 }, (_, index) => (
+          <Skeleton
+            key={index}
+            announce={false}
+            className="aspect-square rounded-none bg-black-100"
+          />
+        ))}
+      </div>
     </main>
   );
 }
@@ -166,7 +149,7 @@ function MyVisitLogActivitySummary() {
     return (
       <Skeleton
         label="방문 활동 요약을 불러오는 중"
-        className="mt-5 h-24 rounded-card"
+        className="mt-4 h-16 rounded-card"
       />
     );
   }
@@ -175,9 +158,9 @@ function MyVisitLogActivitySummary() {
     return (
       <section
         aria-label="방문 로그 요약"
-        className="mt-5 rounded-card bg-green-50 p-4 text-center"
+        className="mt-4 rounded-card bg-green-50 px-3 py-2.5 text-center"
       >
-        <p className="text-13 text-black-500">
+        <p className="text-13 text-black-800">
           방문 활동 요약을 불러오지 못했습니다.
         </p>
 
@@ -199,19 +182,21 @@ function MyVisitLogActivitySummary() {
   return (
     <section
       aria-label="방문 로그 요약"
-      className="mt-5 grid grid-cols-2 gap-2 rounded-card bg-green-50 p-4 text-center"
+      className="mt-4 grid min-h-16 grid-cols-2 divide-x divide-green-100 rounded-card bg-green-50 px-2 py-2 text-center"
     >
-      <div aria-label={`쌓인 로그 ${visitLogCount}개`}>
-        <p className="text-20 font-semibold text-green-700">{visitLogCount}</p>
-
-        <p className="mt-1 text-12 text-black-500">쌓인 로그</p>
+      <div
+        aria-label={`쌓인 로그 ${visitLogCount}개`}
+        className="flex items-center justify-center gap-1.5 px-2"
+      >
+        <p className="text-18 font-semibold text-green-700">{visitLogCount}</p>
+        <p className="text-12 font-medium text-black-700">쌓인 로그</p>
       </div>
 
       <Link
         href="/me/visited-shops"
         aria-label={`방문한 상점 ${visitedShopCount}개 보기`}
         className="
-            rounded-control
+            flex items-center justify-center gap-1.5 rounded-control px-2
             transition-colors
             hover:bg-green-100
             focus-visible:outline-2
@@ -219,11 +204,10 @@ function MyVisitLogActivitySummary() {
             focus-visible:outline-green-700
           "
       >
-        <p className="text-20 font-semibold text-green-700">
+        <p className="text-18 font-semibold text-green-700">
           {visitedShopCount}
         </p>
-
-        <p className="mt-1 text-12 text-black-500">방문한 상점</p>
+        <p className="text-12 font-medium text-black-700">방문한 상점</p>
       </Link>
     </section>
   );
