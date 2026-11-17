@@ -3,8 +3,9 @@ import { SHOP_REGION_GROUP_LABELS } from "@sopum-map/shared";
 import Image from "next/image";
 import Link from "next/link";
 
-import { PenIcon } from "@/components/icons";
 import { Badge } from "@/components/ui/Badge/Badge";
+
+import { VisitLogStatusMark } from "./VisitLogStatusMark";
 
 const DEFAULT_SHOP_IMAGE = "/images/profiles/shop_default.webp";
 
@@ -32,12 +33,15 @@ export function MyVisitedShopCard({
   const activityLabel = shop.lastVisitLogAt
     ? "방문로그 작성"
     : "코스에서 방문 완료";
+  const visitLogStatusLabel = shop.lastVisitLogAt
+    ? "방문로그 작성 완료"
+    : "방문로그 미작성";
 
   return (
     <article>
       <Link
         href={`/shops/${shop.id}`}
-        aria-label={`${shop.name} 상세 보기`}
+        aria-label={`${shop.name} 상세 보기, ${visitLogStatusLabel}`}
         className="
           flex min-h-28 items-center gap-3
           rounded-control py-4
@@ -88,16 +92,7 @@ export function MyVisitedShopCard({
           </span>
         </span>
 
-        {shop.lastVisitLogAt ? (
-          <Badge
-            aria-label={`${shop.name} 방문로그 작성됨`}
-            variant="softGreen"
-            size={null}
-            className="size-7 p-0 text-green-700"
-          >
-            <PenIcon className="size-3.5" aria-hidden="true" />
-          </Badge>
-        ) : null}
+        <VisitLogStatusMark isComplete={shop.lastVisitLogAt !== null} />
       </Link>
     </article>
   );
