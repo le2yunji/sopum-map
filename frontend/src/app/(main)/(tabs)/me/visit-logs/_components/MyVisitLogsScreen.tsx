@@ -8,6 +8,7 @@ import {
   useDeleteVisitLog,
   useInfiniteMyVisitLogs,
 } from "@/api/visit-log/visit-log.query";
+import { BackButton } from "@/components/navigation/BackButton";
 import { BottomSheet } from "@/components/ui/BottomSheet";
 import { Button } from "@/components/ui/Button/Button";
 import { Snackbar } from "@/components/ui/Snackbar";
@@ -64,16 +65,22 @@ export function MyVisitLogsScreen() {
 
   return (
     <main className="min-h-dvh bg-black-100/40 px-5 pb-28 pt-10">
-      <header>
-        <p className="text-12 text-green-700">나의 기록</p>
-        <div className="mt-1 flex items-center justify-between gap-3">
-          <h1 className="text-24 font-semibold">내 방문 로그</h1>
-          <Link
-            href="/visit-logs/new"
-            className="inline-flex min-h-11 items-center rounded-control bg-green-500 px-4 text-13 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
-          >
-            새 기록
-          </Link>
+      <header className="flex items-center gap-2">
+        <BackButton ariaLabel="이전 화면으로 돌아가기" className="-ml-2" />
+
+        <div className="min-w-0 flex-1">
+          <p className="text-12 text-green-700">나의 기록</p>
+
+          <div className="mt-1 flex items-center justify-between gap-3">
+            <h1 className="text-24 font-semibold">내 방문 로그</h1>
+
+            <Link
+              href="/visit-logs/new"
+              className="inline-flex min-h-11 items-center rounded-control bg-green-500 px-4 text-13 font-semibold text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-700"
+            >
+              새 기록
+            </Link>
+          </div>
         </div>
       </header>
 
