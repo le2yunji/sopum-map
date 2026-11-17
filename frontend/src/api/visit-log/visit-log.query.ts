@@ -97,6 +97,10 @@ export function useCreateVisitLog(shopId: string) {
         queryClient.invalidateQueries({
           queryKey: meQueryKeys.activitySummary(),
         }),
+
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.visitedShops(),
+        }),
       ]);
     },
   });
@@ -143,6 +147,9 @@ export function useUpdateVisitLog(visitLogId: string) {
           queryKey: visitLogKeys.myDetail(visitLogId),
         }),
         queryClient.invalidateQueries({ queryKey: shopQueryKeys.all }),
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.visitedShops(),
+        }),
       ]);
     },
   });
@@ -170,6 +177,10 @@ export function useDeleteVisitLog() {
 
         queryClient.invalidateQueries({
           queryKey: meQueryKeys.activitySummary(),
+        }),
+
+        queryClient.invalidateQueries({
+          queryKey: meQueryKeys.visitedShops(),
         }),
       ]);
     },

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { updateMyProfileSchema } from "./me.validation.js";
+import {
+  getMyVisitedShopsQuerySchema,
+  updateMyProfileSchema,
+} from "./me.validation.js";
 
 describe("updateMyProfileSchema", () => {
   it("닉네임의 앞뒤 공백을 제거합니다", () => {
@@ -23,4 +26,29 @@ describe("updateMyProfileSchema", () => {
   it("수정할 값이 없는 요청을 거부합니다", () => {
     expect(() => updateMyProfileSchema.parse({ body: {} })).toThrow();
   });
+});
+
+describe("getMyVisitedShopsQuerySchema", () => {
+  it("페이지와 개수의 기본값을 적용합니다", () => {
+    expect(getMyVisitedShopsQuerySchema.parse({})).toEqual({
+      page: 1,
+      limit: 10,
+    });
+  });
+
+  it("문자열 페이지 값을 숫자로 변환합니다", () => {
+    expect(
+      getMyVisitedShopsQuerySchema.parse({ page: "2", limit: "20" }),
+    ).toEqual({
+      page: 2,
+      limit: 20,
+    });
+  });
+
+  it.each([{ page: "0" }, { limit: "0" }, { limit: "51" }])(
+    "범위를 벗어난 페이지 요청 $input을 거부합니다",
+    (input) => {
+      expect(() => getMyVisitedShopsQuerySchema.parse(input)).toThrow();
+    },
+  );
 });

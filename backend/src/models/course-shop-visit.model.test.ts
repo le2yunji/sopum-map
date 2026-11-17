@@ -19,4 +19,11 @@ describe("CourseShopVisit model", () => {
 
     await expect(visit.validate()).rejects.toThrow();
   });
+
+  it("사용자의 최근 방문 상점을 조회하는 인덱스를 가진다", () => {
+    expect(CourseShopVisitModel.schema.indexes()).toContainEqual([
+      { userId: 1, createdAt: -1, shopId: -1 },
+      expect.any(Object),
+    ]);
+  });
 });

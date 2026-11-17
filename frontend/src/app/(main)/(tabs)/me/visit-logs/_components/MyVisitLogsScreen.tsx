@@ -200,13 +200,24 @@ function MyVisitLogActivitySummary() {
         <p className="mt-1 text-12 text-black-500">쌓인 로그</p>
       </div>
 
-      <div aria-label={`방문한 상점 ${visitedShopCount}개`}>
+      <Link
+        href="/me/visited-shops"
+        aria-label={`방문한 상점 ${visitedShopCount}개 보기`}
+        className="
+            rounded-control
+            transition-colors
+            hover:bg-green-100
+            focus-visible:outline-2
+            focus-visible:outline-offset-2
+            focus-visible:outline-green-700
+          "
+      >
         <p className="text-20 font-semibold text-green-700">
           {visitedShopCount}
         </p>
 
         <p className="mt-1 text-12 text-black-500">방문한 상점</p>
-      </div>
+      </Link>
     </section>
   );
 }

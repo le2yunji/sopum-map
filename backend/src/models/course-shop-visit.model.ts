@@ -14,6 +14,13 @@ courseShopVisitSchema.index(
   { unique: true },
 );
 
+// 사용자의 방문 상점을 최근 체크 순으로 조회
+courseShopVisitSchema.index({
+  userId: 1,
+  createdAt: -1,
+  shopId: -1,
+});
+
 export type CourseShopVisitSchemaType = InferSchemaType<
   typeof courseShopVisitSchema
 >;

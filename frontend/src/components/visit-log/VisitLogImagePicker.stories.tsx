@@ -9,7 +9,7 @@ const initialImages = Array.from({ length: 3 }, (_, index) => ({
 }));
 
 const meta = {
-  title: "Pages/VisitLogImagePicker",
+  title: "Components/VisitLog/VisitLogImagePicker",
   component: VisitLogImagePicker,
   decorators: [
     (Story) => (
