@@ -3,7 +3,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { CameraIcon, ChevronRightIcon, CourseIcon } from "@/components/icons";
+import {
+  CameraIcon,
+  ChevronRightIcon,
+  CourseIcon,
+  StoreIcon,
+} from "@/components/icons";
 import { Button } from "@/components/ui/Button/Button";
 import { Skeleton } from "@/components/ui/Skeleton/Skeleton";
 import { useMyActivitySummary } from "@/hooks/useMyActivitySummary";
@@ -17,6 +22,7 @@ type ActivityItem = Readonly<{
 
 type ActivityMenuListProps = Readonly<{
   visitLogCount: number;
+  visitedShopCount: number;
   createdCourseCount: number;
 }>;
 
@@ -27,7 +33,13 @@ export function MyPageActivityMenu({
   const activitySummaryQuery = useMyActivitySummary(!isEmpty);
 
   if (isEmpty) {
-    return <ActivityMenuList visitLogCount={0} createdCourseCount={0} />;
+    return (
+      <ActivityMenuList
+        visitLogCount={0}
+        visitedShopCount={0}
+        createdCourseCount={0}
+      />
+    );
   }
 
   if (activitySummaryQuery.isPending) {
@@ -65,6 +77,7 @@ export function MyPageActivityMenu({
   return (
     <ActivityMenuList
       visitLogCount={activitySummaryQuery.data.visitLogCount}
+      visitedShopCount={activitySummaryQuery.data.visitedShopCount}
       createdCourseCount={activitySummaryQuery.data.createdCourseCount}
     />
   );
@@ -73,6 +86,7 @@ export function MyPageActivityMenu({
 /** 집계된 활동 수를 각각의 활동 페이지 링크로 표시합니다. */
 function ActivityMenuList({
   visitLogCount,
+  visitedShopCount,
   createdCourseCount,
 }: ActivityMenuListProps) {
   const items: readonly ActivityItem[] = [
@@ -81,6 +95,12 @@ function ActivityMenuList({
       count: visitLogCount,
       href: "/me/visit-logs",
       icon: <CameraIcon className="size-5" />,
+    },
+    {
+      label: "방문한 상점",
+      count: visitedShopCount,
+      href: "/me/visited-shops",
+      icon: <StoreIcon className="size-5" />,
     },
     {
       label: "내 산책 코스",

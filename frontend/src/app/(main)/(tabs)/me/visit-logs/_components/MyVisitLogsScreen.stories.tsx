@@ -93,6 +93,9 @@ export const Default: Story = {
     await expect(
       canvas.getByRole("heading", { name: "내 방문 로그" }),
     ).toBeVisible();
+    await expect(
+      canvas.getByRole("button", { name: "이전 화면으로 돌아가기" }),
+    ).toBeVisible();
     await expect(canvas.getByLabelText("쌓인 로그 5개")).toBeVisible();
     await expect(
       canvas.getByRole("link", { name: "방문한 상점 2개 보기" }),

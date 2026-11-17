@@ -82,10 +82,7 @@ export function MyVisitedShopsScreen() {
         "
       >
         <div className="flex items-center gap-2">
-          <BackButton
-            ariaLabel="이전 화면으로 돌아가기"
-            className="-ml-2"
-          />
+          <BackButton ariaLabel="이전 화면으로 돌아가기" className="-ml-2" />
 
           <div className="min-w-0">
             <p className="text-12 text-green-700">나의 기록</p>

@@ -131,7 +131,9 @@ export const Default: Story = {
       canvas.getByRole("button", { name: "이전 화면으로 돌아가기" }),
     ).toBeVisible();
     await expect(
-      canvas.getByRole("link", { name: "모모 소품샵 상세 보기" }),
+      canvas.getByRole("link", {
+        name: "모모 소품샵 상세 보기, 방문로그 작성 완료",
+      }),
     ).toHaveAttribute("href", "/shops/shop-1");
     await expect(
       canvas.getByText("마지막 방문 2026년 11월 15일"),
@@ -141,25 +143,22 @@ export const Default: Story = {
       canvas.getByText("2026년 11월 7일 방문로그 작성"),
     ).toBeVisible();
     await expect(
-      canvas.getByText("2026년 11월 10일 코스에서 방문 완료"),
+      canvas.getByText("방문 로그 미작성"),
     ).toBeVisible();
     await expect(
-      canvas.getByLabelText("모모 소품샵 방문로그 작성됨"),
-    ).toBeVisible();
-    await expect(
-      canvas.queryByLabelText("연남 문구점 방문로그 작성됨"),
+      canvas.queryByText("2026년 11월 10일 코스에서 방문 완료"),
     ).not.toBeInTheDocument();
     await expect(canvas.queryByText("#키링")).not.toBeInTheDocument();
 
     const shopLinks = canvas.getAllByRole("link", {
-      name: /상세 보기/,
+      name: /상세 보기, 방문 ?로그 (작성 완료|미작성)/,
     });
 
     await expect(shopLinks[0]).toHaveAccessibleName(
-      "모모 소품샵 상세 보기",
+      "모모 소품샵 상세 보기, 방문로그 작성 완료",
     );
     await expect(shopLinks[1]).toHaveAccessibleName(
-      "연남 문구점 상세 보기",
+      "연남 문구점 상세 보기, 방문 로그 미작성",
     );
 
     const header = canvas
