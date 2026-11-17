@@ -29,13 +29,12 @@ export function MyVisitedShopCard({
   shop,
   imageLoading = "lazy",
 }: MyVisitedShopCardProps) {
-  const activityDate = shop.lastVisitLogAt ?? shop.lastVisitedAt;
-  const activityLabel = shop.lastVisitLogAt
-    ? "방문로그 작성"
-    : "코스에서 방문 완료";
+  const visitLogDescription = shop.lastVisitLogAt
+    ? `${formatLastVisitedAt(shop.lastVisitLogAt)} 방문로그 작성`
+    : "방문 로그 미작성";
   const visitLogStatusLabel = shop.lastVisitLogAt
     ? "방문로그 작성 완료"
-    : "방문로그 미작성";
+    : "방문 로그 미작성";
 
   return (
     <article>
@@ -84,7 +83,7 @@ export function MyVisitedShopCard({
             </Badge>
           </span>
           <span className="mt-1.5 block text-12 font-medium text-fg-secondary">
-            {formatLastVisitedAt(activityDate)} {activityLabel}
+            {visitLogDescription}
           </span>
 
           <span className="mt-2 block text-12 text-fg-tertiary">

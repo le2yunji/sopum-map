@@ -143,19 +143,22 @@ export const Default: Story = {
       canvas.getByText("2026년 11월 7일 방문로그 작성"),
     ).toBeVisible();
     await expect(
-      canvas.getByText("2026년 11월 10일 코스에서 방문 완료"),
+      canvas.getByText("방문 로그 미작성"),
     ).toBeVisible();
+    await expect(
+      canvas.queryByText("2026년 11월 10일 코스에서 방문 완료"),
+    ).not.toBeInTheDocument();
     await expect(canvas.queryByText("#키링")).not.toBeInTheDocument();
 
     const shopLinks = canvas.getAllByRole("link", {
-      name: /상세 보기, 방문로그 (작성 완료|미작성)/,
+      name: /상세 보기, 방문 ?로그 (작성 완료|미작성)/,
     });
 
     await expect(shopLinks[0]).toHaveAccessibleName(
       "모모 소품샵 상세 보기, 방문로그 작성 완료",
     );
     await expect(shopLinks[1]).toHaveAccessibleName(
-      "연남 문구점 상세 보기, 방문로그 미작성",
+      "연남 문구점 상세 보기, 방문 로그 미작성",
     );
 
     const header = canvas

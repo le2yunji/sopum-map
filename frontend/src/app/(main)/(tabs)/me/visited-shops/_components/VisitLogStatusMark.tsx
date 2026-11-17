@@ -14,12 +14,12 @@ export function VisitLogStatusMark({ isComplete }: VisitLogStatusMarkProps) {
       {isComplete ? (
         <VisitLogFlowerIcon
           aria-hidden="true"
-          className="size-5 text-pink-300"
+          className="size-6 text-pink-300"
         />
       ) : (
         <span
           aria-hidden="true"
-          className="size-5 rounded-full border-2 border-pink-300/35 bg-white"
+          className="size-5 rounded-full border border-black-300 bg-white"
         />
       )}
     </span>
