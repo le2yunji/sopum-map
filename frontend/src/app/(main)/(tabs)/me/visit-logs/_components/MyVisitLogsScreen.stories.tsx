@@ -130,7 +130,7 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(
-      canvas.getByRole("heading", { name: "내 방문 로그" }),
+      canvas.getByRole("heading", { name: "내 방문 기록" }),
     ).toBeVisible();
     await expect(
       canvas.getByRole("button", { name: "이전 화면으로 돌아가기" }),
@@ -139,10 +139,10 @@ export const Default: Story = {
       name: "새 방문 로그 작성",
     });
     await expect(createLink).toHaveAttribute("href", "/visit-logs/new");
-    await expect(createLink).toHaveClass("bg-green-100");
-    await expect(canvas.getByLabelText("쌓인 로그 5개")).toBeVisible();
+    await expect(createLink).not.toHaveClass("bg-green-100");
+    await expect(canvas.getByLabelText("모은 순간 5개")).toBeVisible();
     await expect(
-      canvas.getByRole("link", { name: "방문한 상점 2개 보기" }),
+      canvas.getByRole("link", { name: "방문한 상점 2곳 보기" }),
     ).toHaveAttribute("href", "/me/visited-shops");
     const photoLogLink = canvas.getByRole("link", {
       name: "모모 소품샵, 2026년 10월 14일 방문 로그 보기",
@@ -183,13 +183,11 @@ export const SmallMobile: Story = {
   globals: { viewport: { value: "sopumSmall", isRotated: false } },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const createLink = canvas.getByRole("link", {
-      name: "새 방문 로그 작성",
-    });
+    const heading = canvas.getByRole("heading", { name: "내 방문 기록" });
     const viewport = canvasElement.getBoundingClientRect();
-    const createLinkRect = createLink.getBoundingClientRect();
+    const headingRect = heading.getBoundingClientRect();
 
-    await expect(createLinkRect.right).toBeLessThanOrEqual(viewport.right);
+    await expect(headingRect.right).toBeLessThanOrEqual(viewport.right);
   },
 };
 export const LargeMobile: Story = {
