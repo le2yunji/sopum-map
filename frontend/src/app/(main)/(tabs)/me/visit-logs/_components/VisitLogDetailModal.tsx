@@ -23,7 +23,7 @@ type Props = Readonly<{
   isDeleting?: boolean;
 }>;
 
-/** 상세 콘텐츠와 상태 화면에 같은 전체 높이 모달 틀을 제공합니다. */
+/** 상세 콘텐츠와 상태 화면에 같은 작은 카드형 모달 틀을 제공합니다. */
 export function VisitLogDetailModalShell({
   open,
   onOpenChange,
@@ -49,12 +49,12 @@ export function VisitLogDetailModalShell({
       onCancel={handleCancel}
       onKeyDown={handleKeyDown}
       onClick={handleBackdropClick}
-      className={`fixed inset-x-0 bottom-0 top-4 m-0 h-[calc(100dvh-1rem)] max-h-none w-screen min-w-[100vw] max-w-none overflow-hidden rounded-card-lg rounded-b-none border border-b-0 border-white/40 bg-transparent p-0 shadow-floating backdrop:bg-black/45 min-[361px]:inset-0 min-[361px]:m-auto min-[361px]:h-[calc(100dvh-1.5rem)] min-[361px]:max-h-[840px] min-[361px]:w-[calc(100%-1.5rem)] min-[361px]:min-w-0 min-[361px]:max-w-[456px] min-[361px]:rounded-b-card-lg min-[361px]:border-b ${
+      className={`fixed inset-0 m-auto aspect-[3/4] h-auto max-h-[75dvh] w-[calc(100vw-2rem)] min-w-0 max-w-[420px] overflow-hidden rounded-card-lg border border-white/40 bg-transparent p-0 shadow-floating backdrop:bg-black/45 ${
         isVisible ? "opacity-100" : "opacity-0"
       } transition-opacity duration-200 motion-reduce:transition-none`}
     >
       <div
-        className={`flex h-full flex-col overflow-hidden rounded-card-lg rounded-b-none bg-white min-[361px]:rounded-b-card-lg ${
+        className={`flex h-full flex-col overflow-hidden rounded-card-lg bg-white ${
           isVisible
             ? "translate-y-0 scale-100"
             : "translate-y-2 scale-[0.98]"
@@ -88,7 +88,7 @@ export function VisitLogDetailModalShell({
   );
 }
 
-/** 방문 로그 상세를 현재 피드 위에 전체 높이 모달로 표시합니다. */
+/** 방문 로그 상세를 현재 피드 위에 작은 카드형 모달로 표시합니다. */
 export function VisitLogDetailModal({
   open,
   visitLog,
@@ -102,6 +102,7 @@ export function VisitLogDetailModal({
         visitLog={visitLog}
         onDelete={onDelete}
         isDeleting={isDeleting}
+        photoAspect="landscape"
       />
     </VisitLogDetailModalShell>
   );

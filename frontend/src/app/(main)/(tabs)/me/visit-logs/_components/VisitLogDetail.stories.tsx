@@ -112,6 +112,11 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     await expect(
+      canvas.getByRole("img", { name: "모모 소품샵 방문 사진 1" })
+        .parentElement,
+    ).toHaveClass("aspect-square");
+
+    await expect(
       canvas.getByRole("heading", { name: "모모 소품샵" }),
     ).toBeVisible();
     await expect(canvas.getByText("2026년 10월 14일")).toBeVisible();
@@ -119,12 +124,25 @@ export const Default: Story = {
     await expect(
       canvas.getByRole("link", { name: "방문 로그 수정" }),
     ).toHaveAttribute("href", "/visit-logs/log-1/edit");
+    const editActionBounds = canvas
+      .getByRole("link", { name: "방문 로그 수정" })
+      .getBoundingClientRect();
+    const deleteActionBounds = canvas
+      .getByRole("button", { name: "방문 로그 삭제" })
+      .getBoundingClientRect();
+
+    await expect(editActionBounds.top).toBe(deleteActionBounds.top);
+    await expect(editActionBounds.height).toBe(deleteActionBounds.height);
 
     await userEvent.click(
       canvas.getByRole("button", { name: "방문 로그 삭제" }),
     );
     await expect(canvas.getByText("삭제 요청됨")).toBeVisible();
   },
+};
+
+export const ModalPreview: Story = {
+  render: () => <ModalStory />,
 };
 
 export const Modal: Story = {
@@ -139,8 +157,28 @@ export const Modal: Story = {
       canvas.getByRole("dialog", { name: "방문 로그 상세" }),
     ).toHaveClass("rounded-card-lg");
     await expect(
+      canvas.getByRole("dialog", { name: "방문 로그 상세" }),
+    ).toHaveClass("aspect-[3/4]", "max-w-[420px]");
+    await expect(
+      canvas.getByRole("img", { name: "모모 소품샵 방문 사진 1" })
+        .parentElement,
+    ).toHaveClass("aspect-[4/3]");
+    await expect(
       canvas.getByRole("heading", { name: "방문 로그", level: 1 }),
     ).toHaveFocus();
+    const editActionBounds = canvas
+      .getByRole("link", { name: "방문 로그 수정" })
+      .getBoundingClientRect();
+    const deleteActionBounds = canvas
+      .getByRole("button", { name: "방문 로그 삭제" })
+      .getBoundingClientRect();
+
+    await expect(editActionBounds.top).toBe(deleteActionBounds.top);
+    await expect(editActionBounds.height).toBe(deleteActionBounds.height);
+    await expect(document.body.style.overscrollBehavior).toBe("none");
+    await expect(document.documentElement.style.overscrollBehavior).toBe(
+      "none",
+    );
     await userEvent.click(
       canvas.getByRole("button", { name: "방문 로그 삭제" }),
     );
@@ -150,6 +188,16 @@ export const Modal: Story = {
     const deleteDialog = canvas.getByRole("dialog", {
       name: "방문 로그를 삭제할까요?",
     });
+    const deleteDialogBounds = deleteDialog.getBoundingClientRect();
+    const cancelButton = canvas.getByRole("button", { name: "취소" });
+    const confirmButton = canvas.getByRole("button", { name: "삭제" });
+
+    await expect(
+      cancelButton.getBoundingClientRect().left,
+    ).toBeGreaterThanOrEqual(deleteDialogBounds.left);
+    await expect(
+      confirmButton.getBoundingClientRect().right,
+    ).toBeLessThanOrEqual(deleteDialogBounds.right);
     await userEvent.click(canvas.getByRole("button", { name: "취소" }));
     await waitFor(() => expect(deleteDialog).not.toHaveAttribute("open"));
     await userEvent.click(
@@ -158,6 +206,10 @@ export const Modal: Story = {
     await expect(canvas.getByRole("status")).toHaveTextContent(
       "모달 닫기 요청됨",
     );
+    await waitFor(() =>
+      expect(document.body.style.overscrollBehavior).toBe(""),
+    );
+    await expect(document.documentElement.style.overscrollBehavior).toBe("");
   },
 };
 
@@ -212,7 +264,7 @@ export const SmallMobileModal: Story = {
     });
 
     await expect(Math.round(dialog.getBoundingClientRect().width)).toBe(
-      window.innerWidth,
+      window.innerWidth - 32,
     );
   },
 };

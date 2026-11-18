@@ -27,7 +27,12 @@ export function VisitLogDetailStateView({
         aria-label="방문 로그 상세를 불러오는 중"
         className="bg-white pb-8"
       >
-        <Skeleton announce={false} className="aspect-square rounded-none" />
+        <Skeleton
+          announce={false}
+          className={`${
+            mode === "modal" ? "aspect-[4/3]" : "aspect-square"
+          } rounded-none`}
+        />
         <div className="space-y-3 px-5 pt-5">
           <Skeleton announce={false} className="h-4 w-28 rounded-control" />
           <Skeleton announce={false} className="h-8 w-48 rounded-control" />

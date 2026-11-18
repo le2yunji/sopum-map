@@ -93,7 +93,7 @@ export function VisitLogDetailView({
             </p>
           ) : null}
         </BottomSheet.Body>
-        <BottomSheet.Footer className="gap-2">
+        <BottomSheet.Footer className="grid grid-cols-2 gap-2">
           <Button
             fullWidth
             variant="outline"

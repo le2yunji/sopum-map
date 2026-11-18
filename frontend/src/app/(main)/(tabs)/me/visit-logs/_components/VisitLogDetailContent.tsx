@@ -18,6 +18,7 @@ type Props = Readonly<{
   visitLog: MyVisitLogListItem;
   onDelete: () => void;
   isDeleting?: boolean;
+  photoAspect?: "square" | "landscape";
 }>;
 
 /** 방문 사진과 기록 내용을 모달과 단독 페이지에서 함께 쓰는 상세 본문으로 표시합니다. */
@@ -25,6 +26,7 @@ export function VisitLogDetailContent({
   visitLog,
   onDelete,
   isDeleting = false,
+  photoAspect = "square",
 }: Props) {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const hasVisitPhotos = visitLog.images.length > 0;
@@ -36,6 +38,8 @@ export function VisitLogDetailContent({
           url: DEFAULT_IMAGES.visitLog,
         },
       ];
+  const photoAspectClassName =
+    photoAspect === "landscape" ? "aspect-[4/3]" : "aspect-square";
 
   /** 가로 스크롤이 멈춘 사진을 현재 사진으로 표시합니다. */
   const handlePhotoScroll = (event: UIEvent<HTMLDivElement>) => {
@@ -64,7 +68,7 @@ export function VisitLogDetailContent({
           {photos.map((photo, index) => (
             <figure
               key={photo.key}
-              className="relative aspect-square w-full shrink-0 snap-center"
+              className={`relative w-full shrink-0 snap-center ${photoAspectClassName}`}
             >
               <Image
                 fill
@@ -150,7 +154,7 @@ export function VisitLogDetailContent({
           <p className="mt-5 text-13 text-black-600">남긴 메모가 없습니다.</p>
         )}
 
-        <div className="mt-7 space-y-2 border-t border-black-100 pt-5">
+        <div className="mt-7 grid grid-cols-2 gap-2 border-t border-black-100 pt-5">
           <Link
             href={`/visit-logs/${visitLog.id}/edit`}
             aria-label="방문 로그 수정"
@@ -165,8 +169,8 @@ export function VisitLogDetailContent({
             isLoading={isDeleting}
             onClick={onDelete}
             fullWidth
-            size="small"
-            className="text-12 font-medium text-black-700"
+            size="medium"
+            className="font-medium text-black-700"
           >
             삭제
           </Button>

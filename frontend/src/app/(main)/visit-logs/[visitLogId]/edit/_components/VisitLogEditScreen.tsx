@@ -182,7 +182,7 @@ function VisitLogEditForm({
             업로드에 실패한 사진을 다시 시도하거나 삭제해 주세요.
           </p>
         ) : null}
-        <div className="flex gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <Button
             fullWidth
             variant="outline"
