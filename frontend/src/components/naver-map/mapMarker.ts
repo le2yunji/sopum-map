@@ -19,3 +19,27 @@ export function getMapMarkerIcon(isSelected: boolean): naver.maps.HtmlIcon {
     anchor: { x: anchor, y: anchor },
   };
 }
+
+/** 상점 마커와 구분되는 현재 위치 마커 아이콘을 만듭니다. */
+export function getCurrentLocationMarkerIcon(): naver.maps.HtmlIcon {
+  return {
+    content: `
+      <span
+        aria-hidden="true"
+        style="
+          display:block;
+          width:18px;
+          height:18px;
+          border:3px solid white;
+          border-radius:999px;
+          background:#2563eb;
+          box-shadow:0 2px 8px rgba(0,0,0,.28);
+        "
+      ></span>
+    `,
+    anchor: {
+      x: 9,
+      y: 9,
+    },
+  };
+}

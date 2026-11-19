@@ -11,10 +11,11 @@ import {
   useState,
   type ComponentProps,
 } from "react";
-import { expect, userEvent, waitFor, within } from "storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "storybook/test";
 
 import type { MapBounds } from "@/components/naver-map";
 
+import { MAP_REGIONS } from "../_constants/map.constants";
 import { MapScreen } from "./MapScreen";
 
 const INITIAL_BOUNDS = {
@@ -30,6 +31,27 @@ const MOVED_BOUNDS = {
   northEastLat: 37.59,
   northEastLng: 127.13,
 } satisfies MapBounds;
+
+const CURRENT_LOCATION = {
+  latitude: 37.557,
+  longitude: 126.924,
+  accuracy: 12,
+} as const;
+
+/** 테스트에서 지도 중심 주변의 가상 화면 경계를 만듭니다. */
+function createBoundsAround(
+  center: Readonly<{
+    latitude: number;
+    longitude: number;
+  }>,
+): MapBounds {
+  return {
+    southWestLat: Number((center.latitude - 0.01).toFixed(5)),
+    southWestLng: Number((center.longitude - 0.01).toFixed(5)),
+    northEastLat: Number((center.latitude + 0.01).toFixed(5)),
+    northEastLng: Number((center.longitude + 0.01).toFixed(5)),
+  };
+}
 
 type ShopListItem = ShopListData["items"][number];
 
@@ -146,8 +168,14 @@ type ViewportMapSlotProps = CurrentMapSlotProps &
   }>;
 
 /** 실제 지도 SDK 없이 경계 변경과 표시된 마커를 관찰합니다. */
-function ViewportMapSlot({ shops, onBoundsChange }: ViewportMapSlotProps) {
+function ViewportMapSlot({
+  shops,
+  viewportCommand,
+  userLocation,
+  onBoundsChange,
+}: ViewportMapSlotProps) {
   const didInitialize = useRef(false);
+  const handledRequestIdRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     if (didInitialize.current || !onBoundsChange) {
@@ -158,9 +186,37 @@ function ViewportMapSlot({ shops, onBoundsChange }: ViewportMapSlotProps) {
     onBoundsChange(INITIAL_BOUNDS);
   }, [onBoundsChange]);
 
+  /** 새 이동 명령을 실제 지도의 idle 이벤트처럼 경계 변경으로 바꿉니다. */
+  useEffect(() => {
+    if (
+      !viewportCommand ||
+      !onBoundsChange ||
+      handledRequestIdRef.current === viewportCommand.requestId
+    ) {
+      return;
+    }
+
+    handledRequestIdRef.current = viewportCommand.requestId;
+    onBoundsChange(createBoundsAround(viewportCommand.target.center));
+  }, [onBoundsChange, viewportCommand]);
+
   return (
     <section aria-label="테스트 지도" className="absolute inset-0 bg-green-50">
       <output aria-label="표시된 마커 수">{shops.length}</output>
+
+      {viewportCommand ? (
+        <output aria-label="지도 이동 대상">
+          {viewportCommand.target.center.latitude},
+          {viewportCommand.target.center.longitude},
+          {viewportCommand.target.zoom}
+        </output>
+      ) : null}
+
+      {userLocation ? (
+        <output aria-label="현재 위치 마커">
+          {userLocation.latitude},{userLocation.longitude}
+        </output>
+      ) : null}
 
       <ul aria-label="표시된 지도 마커">
         {shops.map((shop) => (
@@ -173,6 +229,82 @@ function ViewportMapSlot({ shops, onBoundsChange }: ViewportMapSlotProps) {
       </button>
     </section>
   );
+}
+
+type GeolocationMockMode = "success" | "pending" | "permission-denied";
+
+let getCurrentPositionMock: ReturnType<typeof fn> | undefined;
+
+/** 현재 위치 성공·대기·권한 거부를 브라우저 경계에서 재현합니다. */
+function installGeolocationMock(mode: GeolocationMockMode) {
+  const originalDescriptor = Object.getOwnPropertyDescriptor(
+    navigator,
+    "geolocation",
+  );
+
+  getCurrentPositionMock = fn(
+    (success: PositionCallback, error?: PositionErrorCallback) => {
+      if (mode === "pending") {
+        return;
+      }
+
+      if (mode === "permission-denied") {
+        error?.({
+          code: 1,
+          message: "permission denied",
+          PERMISSION_DENIED: 1,
+          POSITION_UNAVAILABLE: 2,
+          TIMEOUT: 3,
+        });
+        return;
+      }
+
+      success({
+        coords: {
+          latitude: CURRENT_LOCATION.latitude,
+          longitude: CURRENT_LOCATION.longitude,
+          accuracy: CURRENT_LOCATION.accuracy,
+          altitude: null,
+          altitudeAccuracy: null,
+          heading: null,
+          speed: null,
+          toJSON: () => ({
+            latitude: CURRENT_LOCATION.latitude,
+            longitude: CURRENT_LOCATION.longitude,
+            accuracy: CURRENT_LOCATION.accuracy,
+          }),
+        },
+        timestamp: Date.now(),
+        toJSON: () => ({
+          coords: {
+            latitude: CURRENT_LOCATION.latitude,
+            longitude: CURRENT_LOCATION.longitude,
+            accuracy: CURRENT_LOCATION.accuracy,
+          },
+        }),
+      });
+    },
+  );
+
+  Object.defineProperty(navigator, "geolocation", {
+    configurable: true,
+    value: {
+      clearWatch: fn(),
+      getCurrentPosition: getCurrentPositionMock,
+      watchPosition: fn(() => 1),
+    } satisfies Geolocation,
+  });
+
+  return () => {
+    getCurrentPositionMock = undefined;
+
+    if (originalDescriptor) {
+      Object.defineProperty(navigator, "geolocation", originalDescriptor);
+      return;
+    }
+
+    Reflect.deleteProperty(navigator, "geolocation");
+  };
 }
 
 /** MapScreen의 지도 슬롯을 테스트용 지도 컴포넌트로 교체합니다. */
@@ -485,6 +617,154 @@ export const MoveRequiresConfirmation: Story = {
 
     await expect(map.getByText("새 영역 마커")).toBeVisible();
     await expect(canvas.getByText(MOVED_LIST_ITEM.name)).toBeVisible();
+  },
+};
+
+export const RegionMoveRequiresConfirmation: Story = {
+  beforeEach: installMapApiMock(),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const map = within(canvas.getByRole("region", { name: "테스트 지도" }));
+    const mangwon = MAP_REGIONS.find(({ value }) => value === "mangwon");
+
+    if (!mangwon) {
+      throw new Error("망원 지역 설정을 찾을 수 없습니다.");
+    }
+
+    await waitFor(() =>
+      expect(hasRequested("/shops/map", INITIAL_BOUNDS)).toBe(true),
+    );
+
+    await userEvent.click(canvas.getByRole("button", { name: "지역 선택" }));
+
+    const regionSheet = within(
+      await canvas.findByRole("dialog", { name: "지역 이동" }),
+    );
+
+    await userEvent.click(
+      regionSheet.getByRole("button", { name: mangwon.label }),
+    );
+
+    const movedBounds = createBoundsAround(mangwon.viewport.center);
+
+    await expect(map.getByLabelText("지도 이동 대상")).toHaveTextContent(
+      `${mangwon.viewport.center.latitude},${mangwon.viewport.center.longitude}`,
+    );
+
+    const searchButton = await canvas.findByRole("button", {
+      name: "이 지역에서 재검색",
+    });
+
+    await expect(hasRequested("/shops/map", movedBounds)).toBe(false);
+    await expect(hasRequested("/shops", movedBounds)).toBe(false);
+
+    await userEvent.click(searchButton);
+
+    await waitFor(() => {
+      expect(hasRequested("/shops/map", movedBounds)).toBe(true);
+      expect(hasRequested("/shops", movedBounds)).toBe(true);
+    });
+  },
+};
+
+export const CurrentLocationRequiresConfirmation: Story = {
+  beforeEach: () => {
+    const restoreMapApiMock = installMapApiMock()();
+    const restoreGeolocationMock = installGeolocationMock("success");
+
+    return () => {
+      restoreGeolocationMock();
+      restoreMapApiMock();
+    };
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const map = within(canvas.getByRole("region", { name: "테스트 지도" }));
+
+    await waitFor(() =>
+      expect(hasRequested("/shops/map", INITIAL_BOUNDS)).toBe(true),
+    );
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "현재 위치로 이동" }),
+    );
+
+    if (!getCurrentPositionMock) {
+      throw new Error("현재 위치 테스트 대역이 설치되지 않았습니다.");
+    }
+
+    await expect(getCurrentPositionMock).toHaveBeenCalledTimes(1);
+    await expect(map.getByLabelText("현재 위치 마커")).toHaveTextContent(
+      `${CURRENT_LOCATION.latitude},${CURRENT_LOCATION.longitude}`,
+    );
+
+    const movedBounds = createBoundsAround(CURRENT_LOCATION);
+    const searchButton = await canvas.findByRole("button", {
+      name: "이 지역에서 재검색",
+    });
+
+    await expect(hasRequested("/shops/map", movedBounds)).toBe(false);
+    await userEvent.click(searchButton);
+
+    await waitFor(() => {
+      expect(hasRequested("/shops/map", movedBounds)).toBe(true);
+      expect(hasRequested("/shops", movedBounds)).toBe(true);
+    });
+  },
+};
+
+export const CurrentLocationPreventsDuplicateRequest: Story = {
+  beforeEach: () => {
+    const restoreMapApiMock = installMapApiMock()();
+    const restoreGeolocationMock = installGeolocationMock("pending");
+
+    return () => {
+      restoreGeolocationMock();
+      restoreMapApiMock();
+    };
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const currentLocationButton = canvas.getByRole("button", {
+      name: "현재 위치로 이동",
+    });
+
+    await userEvent.dblClick(currentLocationButton);
+
+    if (!getCurrentPositionMock) {
+      throw new Error("현재 위치 테스트 대역이 설치되지 않았습니다.");
+    }
+
+    await expect(getCurrentPositionMock).toHaveBeenCalledTimes(1);
+    await expect(
+      canvas.getByRole("button", { name: "현재 위치 확인 중" }),
+    ).toBeDisabled();
+  },
+};
+
+export const CurrentLocationPermissionDenied: Story = {
+  beforeEach: () => {
+    const restoreMapApiMock = installMapApiMock()();
+    const restoreGeolocationMock = installGeolocationMock("permission-denied");
+
+    return () => {
+      restoreGeolocationMock();
+      restoreMapApiMock();
+    };
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await userEvent.click(
+      canvas.getByRole("button", { name: "현재 위치로 이동" }),
+    );
+
+    await expect(await canvas.findByRole("alert")).toHaveTextContent(
+      "현재 위치 권한이 거부되었습니다.",
+    );
+    await expect(
+      canvas.getByRole("button", { name: "현재 위치로 이동" }),
+    ).toBeEnabled();
   },
 };
 

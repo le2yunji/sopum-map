@@ -10,14 +10,23 @@ import {
   type MapSdkState,
   type MapMarkerShop,
   NaverMapScript,
+  getCurrentLocationMarkerIcon,
   getMapMarkerIcon,
 } from "@/components/naver-map";
+
+import { DEFAULT_MAP_VIEWPORT } from "../../_constants/map.constants";
+import type {
+  MapUserLocation,
+  MapViewportCommand,
+} from "../../_types/map.types";
 
 type NaverMapCanvasProps = Readonly<{
   shops: MapMarkerShop[]; // 지도에 표시할 상점 목록
   selectedShopId?: string; // 현재 선택된 상점
   onSelectShop: (shopId: string) => void; // 마커를 클릭했을 때 부모에게 선택된 상점을 알려주는 함수
   onBoundsChange?: (bounds: MapBounds) => void;
+  viewportCommand?: MapViewportCommand;
+  userLocation?: MapUserLocation;
   stateOverride?: MapSdkState;
 }>;
 
@@ -25,13 +34,6 @@ type MapMarker = Readonly<{
   marker: naver.maps.Marker;
   listener: naver.maps.MapEventListener;
 }>;
-
-const DEFAULT_CENTER = {
-  latitude: 37.5445,
-  longitude: 127.056,
-};
-
-const DEFAULT_ZOOM = 14;
 
 /** SDK 경계가 위경도 경계인지 확인합니다. */
 function isLatLngBounds(
@@ -64,6 +66,8 @@ export function NaverMapCanvas({
   selectedShopId,
   onSelectShop,
   onBoundsChange,
+  viewportCommand,
+  userLocation,
   stateOverride,
 }: NaverMapCanvasProps) {
   const clientId = process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID;
@@ -77,6 +81,8 @@ export function NaverMapCanvas({
   );
   const [retryCount, setRetryCount] = useState(0);
   const visibleState = stateOverride ?? sdkState;
+
+  const userLocationMarkerRef = useRef<naver.maps.Marker | null>(null);
 
   /** 최신 경계 변경 콜백을 지도 이벤트에서 사용할 수 있게 유지합니다. */
   useEffect(() => {
@@ -106,10 +112,10 @@ export function NaverMapCanvas({
 
     const map = new naver.maps.Map(mapElementRef.current, {
       center: new naver.maps.LatLng(
-        DEFAULT_CENTER.latitude,
-        DEFAULT_CENTER.longitude,
+        DEFAULT_MAP_VIEWPORT.center.latitude,
+        DEFAULT_MAP_VIEWPORT.center.longitude,
       ),
-      zoom: DEFAULT_ZOOM,
+      zoom: DEFAULT_MAP_VIEWPORT.zoom,
       mapDataControl: false,
       mapTypeControl: false,
       scaleControl: false,
@@ -152,6 +158,8 @@ export function NaverMapCanvas({
         marker.setMap(null);
       });
       markersRef.current.clear();
+      userLocationMarkerRef.current?.setMap(null);
+      userLocationMarkerRef.current = null;
       mapRef.current?.destroy();
       mapRef.current = null;
     },
@@ -232,6 +240,57 @@ export function NaverMapCanvas({
     ignoreNextIdleRef.current = true;
     map.panTo(position);
   }, [selectedShopId, shops]);
+
+  /**
+   * 지역이나 현재 위치 이동은 새 화면 경계를 검색 후보로 사용해야 하므로
+   * idle 이벤트를 막지 않고 지도 중심과 확대 수준을 함께 바꿉니다.
+   */
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map || sdkState !== "ready" || !viewportCommand) {
+      return;
+    }
+
+    const { center, zoom } = viewportCommand.target;
+    const position = new naver.maps.LatLng(center.latitude, center.longitude);
+
+    ignoreNextIdleRef.current = false;
+    map.morph(position, zoom);
+  }, [sdkState, viewportCommand]);
+
+  /** 확인된 현재 위치를 상점 마커와 다른 모양으로 표시합니다. */
+  useEffect(() => {
+    const map = mapRef.current;
+
+    if (!map || sdkState !== "ready") {
+      return;
+    }
+
+    if (!userLocation) {
+      userLocationMarkerRef.current?.setMap(null);
+      userLocationMarkerRef.current = null;
+      return;
+    }
+
+    const position = new naver.maps.LatLng(
+      userLocation.latitude,
+      userLocation.longitude,
+    );
+
+    if (userLocationMarkerRef.current) {
+      userLocationMarkerRef.current.setPosition(position);
+      return;
+    }
+
+    userLocationMarkerRef.current = new naver.maps.Marker({
+      map,
+      position,
+      title: "현재 위치",
+      zIndex: 1_000,
+      icon: getCurrentLocationMarkerIcon(),
+    });
+  }, [sdkState, userLocation]);
 
   /** 실패한 지도 SDK를 새 요청으로 다시 불러옵니다. */
   const retry = () => {
