@@ -72,5 +72,19 @@ export const FailedSaveKeepsInputs: Story = {
   },
 };
 
-export const SmallMobile: Story = { globals: { viewport: { value: "sopumSmall", isRotated: false } } };
+export const SmallMobile: Story = {
+  globals: { viewport: { value: "sopumSmall", isRotated: false } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const cancelButton = canvas.getByRole("button", { name: "취소" });
+    const submitButton = canvas.getByRole("button", { name: "수정 완료" });
+
+    await expect(
+      cancelButton.getBoundingClientRect().left,
+    ).toBeGreaterThanOrEqual(0);
+    await expect(submitButton.getBoundingClientRect().right).toBeLessThanOrEqual(
+      window.innerWidth,
+    );
+  },
+};
 export const LargeMobile: Story = { globals: { viewport: { value: "sopumLarge", isRotated: false } } };

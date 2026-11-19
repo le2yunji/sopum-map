@@ -6,6 +6,7 @@ const queryMocks = vi.hoisted(() => ({
   useQuery: vi.fn(),
   useQueryClient: vi.fn(),
   invalidateQueries: vi.fn(),
+  removeQueries: vi.fn(),
   setQueryData: vi.fn(),
   createVisitLog: vi.fn(),
   checkVisitLogAvailability: vi.fn(),
@@ -48,6 +49,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   queryMocks.useQueryClient.mockReturnValue({
     invalidateQueries: queryMocks.invalidateQueries,
+    removeQueries: queryMocks.removeQueries,
     setQueryData: queryMocks.setQueryData,
   });
   queryMocks.useMutation.mockImplementation((options) => options);
@@ -126,6 +128,10 @@ describe("내 방문 로그 query", () => {
       visitLogKeys.myLists(),
       expect.any(Function),
     );
+    expect(queryMocks.removeQueries).toHaveBeenCalledWith({
+      queryKey: visitLogKeys.myDetail("log-1"),
+      exact: true,
+    });
     expect(queryMocks.invalidateQueries).toHaveBeenCalledWith({
       queryKey: visitLogKeys.myLists(),
     });

@@ -14,10 +14,12 @@ const DIALOG_TRANSITION_DURATION = 250;
 
 type PageOverflowState = Readonly<{
   bodyOverflow: string;
+  bodyOverscrollBehavior: string;
   bodyPosition: string;
   bodyTop: string;
   bodyWidth: string;
   documentElementOverflow: string;
+  documentElementOverscrollBehavior: string;
   scrollX: number;
   scrollY: number;
 }>;
@@ -30,10 +32,13 @@ function lockPageScroll() {
   if (pageScrollLockCount === 0) {
     pageOverflowState = {
       bodyOverflow: document.body.style.overflow,
+      bodyOverscrollBehavior: document.body.style.overscrollBehavior,
       bodyPosition: document.body.style.position,
       bodyTop: document.body.style.top,
       bodyWidth: document.body.style.width,
       documentElementOverflow: document.documentElement.style.overflow,
+      documentElementOverscrollBehavior:
+        document.documentElement.style.overscrollBehavior,
       scrollX: window.scrollX,
       scrollY: window.scrollY,
     };
@@ -41,10 +46,12 @@ function lockPageScroll() {
 
   pageScrollLockCount += 1;
   document.body.style.overflow = "hidden";
+  document.body.style.overscrollBehavior = "none";
   document.body.style.position = "fixed";
   document.body.style.top = `-${pageOverflowState?.scrollY ?? 0}px`;
   document.body.style.width = "100%";
   document.documentElement.style.overflow = "hidden";
+  document.documentElement.style.overscrollBehavior = "none";
 }
 
 /** 마지막 overlay가 닫힐 때만 원래 스크롤 상태를 복원합니다. */
@@ -62,11 +69,15 @@ function unlockPageScroll() {
   const previousState = pageOverflowState;
 
   document.body.style.overflow = previousState.bodyOverflow;
+  document.body.style.overscrollBehavior =
+    previousState.bodyOverscrollBehavior;
   document.body.style.position = previousState.bodyPosition;
   document.body.style.top = previousState.bodyTop;
   document.body.style.width = previousState.bodyWidth;
   document.documentElement.style.overflow =
     previousState.documentElementOverflow;
+  document.documentElement.style.overscrollBehavior =
+    previousState.documentElementOverscrollBehavior;
   pageOverflowState = null;
   window.scrollTo(previousState.scrollX, previousState.scrollY);
 }

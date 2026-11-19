@@ -3,6 +3,7 @@
 export const DEFAULT_IMAGES = {
   shop: "/images/profiles/shop_default.webp",
   profile: "/images/profiles/user_default.webp",
+  visitLog: "/images/visit-logs/visit-log-default.webp",
   shop_ex: "/images/profiles/example.png",
 } as const;
 

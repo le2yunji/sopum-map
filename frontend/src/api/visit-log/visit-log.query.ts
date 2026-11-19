@@ -165,7 +165,10 @@ export function useDeleteVisitLog() {
         visitLogKeys.myLists(),
         (current) => removeVisitLogFromPages(current, visitLogId),
       );
-
+      queryClient.removeQueries({
+        queryKey: visitLogKeys.myDetail(visitLogId),
+        exact: true,
+      });
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: visitLogKeys.myLists(),
