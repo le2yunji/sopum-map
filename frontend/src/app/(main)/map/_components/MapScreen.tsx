@@ -23,6 +23,19 @@ import {
   useShopMap,
 } from "@/api/shops/shop.query";
 
+import {
+  CURRENT_LOCATION_ZOOM,
+  MAP_REGIONS,
+  type MapRegion,
+} from "../_constants/map.constants";
+import { useCurrentMapLocation } from "../_hooks/useCurrentMapLocation";
+import type {
+  MapUserLocation,
+  MapViewport,
+  MapViewportCommand,
+} from "../_types/map.types";
+
+import { MapRegionSheet } from "./MapRegionSheet";
 import { MapLocationControls } from "./map-canvas/MapLocationControls";
 import { NaverMapCanvas } from "./map-canvas/NaverMapCanvas";
 import { MapFilterSheet } from "./MapFilterSheet";
@@ -37,6 +50,8 @@ type MapScreenProps = Readonly<{
   mapSlot?: (props: {
     shops: MapMarkerShop[];
     selectedShopId?: string;
+    viewportCommand?: MapViewportCommand;
+    userLocation?: MapUserLocation;
     onSelectShop: (shopId: string) => void;
     onBoundsChange: (bounds: MapBounds) => void;
   }) => ReactNode;
@@ -49,10 +64,7 @@ function createSearchFilterKey(
   keyword: string | undefined,
   tagKeys: readonly string[] | undefined,
 ): string {
-  return JSON.stringify([
-    keyword ?? "",
-    [...(tagKeys ?? [])].sort(),
-  ]);
+  return JSON.stringify([keyword ?? "", [...(tagKeys ?? [])].sort()]);
 }
 
 /** 지도, 검색, 필터와 상점 탐색 화면을 조합합니다. */
@@ -87,6 +99,18 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
   const [committedSearchQuery, setCommittedSearchQuery] =
     useState<GetShopMapQuery>();
   const lastAttemptedFilterKeyRef = useRef<string | null>(null);
+  const [regionSheetOpen, setRegionSheetOpen] = useState(false);
+  const [viewportCommand, setViewportCommand] = useState<MapViewportCommand>();
+
+  const viewportRequestIdRef = useRef(0);
+
+  const {
+    location: userLocation,
+    errorMessage: locationErrorMessage,
+    isLocating,
+    requestCurrentLocation,
+    dismissLocationError,
+  } = useCurrentMapLocation();
 
   const {
     draftBounds,
@@ -104,9 +128,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
   const createSearchQueries = useCallback(
     (bounds: MapBounds) => {
       const tagKeys =
-        selectedTagKeys.length > 0
-          ? [...selectedTagKeys].sort()
-          : undefined;
+        selectedTagKeys.length > 0 ? [...selectedTagKeys].sort() : undefined;
 
       const sharedQuery = {
         bounds,
@@ -180,11 +202,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
   }, [searchArea, startSearch]);
 
   const currentFilterKey = useMemo(
-    () =>
-      createSearchFilterKey(
-        debouncedKeyword || undefined,
-        selectedTagKeys,
-      ),
+    () => createSearchFilterKey(debouncedKeyword || undefined, selectedTagKeys),
     [debouncedKeyword, selectedTagKeys],
   );
 
@@ -325,9 +343,7 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
 
   const visibleSearchShops = useMemo(
     () =>
-      pickedOnly
-        ? searchShops.filter((shop) => shop.isLiked)
-        : searchShops,
+      pickedOnly ? searchShops.filter((shop) => shop.isLiked) : searchShops,
     [pickedOnly, searchShops],
   );
 
@@ -346,6 +362,42 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
   );
 
   const isSelectedShopCardOpen = selectedShop != null;
+
+  /** 같은 목적지를 다시 선택해도 실행되는 새 지도 이동 명령을 만듭니다. */
+  const moveMapToViewport = useCallback((target: MapViewport) => {
+    viewportRequestIdRef.current += 1;
+
+    setViewportCommand({
+      requestId: viewportRequestIdRef.current,
+      target,
+    });
+  }, []);
+
+  /** 선택한 지원 지역으로 지도를 이동하고 선택 시트를 닫습니다. */
+  const handleSelectRegion = useCallback(
+    (regionValue: MapRegion) => {
+      const region = MAP_REGIONS.find(({ value }) => value === regionValue);
+
+      if (!region) {
+        return;
+      }
+
+      setRegionSheetOpen(false);
+      moveMapToViewport(region.viewport);
+    },
+    [moveMapToViewport],
+  );
+  /** 새 현재 위치가 확인될 때마다 해당 위치로 지도를 이동합니다. */
+  useEffect(() => {
+    if (!userLocation) {
+      return;
+    }
+
+    moveMapToViewport({
+      center: userLocation,
+      zoom: CURRENT_LOCATION_ZOOM,
+    });
+  }, [moveMapToViewport, userLocation]);
 
   return (
     <section
@@ -366,6 +418,8 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
         mapSlot({
           shops: markerShops,
           selectedShopId,
+          viewportCommand,
+          userLocation,
           onSelectShop: selectShop,
           onBoundsChange: handleBoundsChange,
         })
@@ -373,6 +427,8 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
         <NaverMapCanvas
           shops={markerShops}
           selectedShopId={selectedShopId}
+          viewportCommand={viewportCommand}
+          userLocation={userLocation}
           onSelectShop={selectShop}
           onBoundsChange={handleBoundsChange}
         />
@@ -430,11 +486,41 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
           onShowPicked={handleShowPicked}
           onOpenTags={handleOpenFilter}
         />
+        {locationErrorMessage ? (
+          <div
+            role="alert"
+            className="
+              flex items-center justify-between gap-3
+              rounded-control bg-white px-4 py-3
+              text-13 text-black-800 shadow-md
+            "
+          >
+            <p>{locationErrorMessage}</p>
+
+            <button
+              type="button"
+              className="
+                min-h-11 shrink-0 px-2 font-semibold text-green-800
+                focus-visible:outline-2
+                focus-visible:outline-offset-2
+                focus-visible:outline-green-700
+              "
+              onClick={dismissLocationError}
+            >
+              닫기
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <MapLocationControls
         visible={shopListSheetState === "collapsed"}
         className={isSelectedShopCardOpen ? "bottom-[160px]" : "bottom-[206px]"}
+        isLocating={isLocating}
+        onOpenRegionSheet={() => {
+          setRegionSheetOpen(true);
+        }}
+        onMoveToCurrentLocation={requestCurrentLocation}
       />
 
       <MapShopListSheet
@@ -470,12 +556,16 @@ export function MapScreen({ mapSlot }: MapScreenProps) {
         open={isSearchOpen}
         keyword={keyword}
         shops={visibleSearchShops}
-        totalCount={
-          pickedOnly ? visibleSearchShops.length : searchTotalCount
-        }
+        totalCount={pickedOnly ? visibleSearchShops.length : searchTotalCount}
         onKeywordChange={handleKeywordChange}
         onSelectShop={handleSelectSearchResult}
         onOpenChange={handleSearchOpenChange}
+      />
+
+      <MapRegionSheet
+        open={regionSheetOpen}
+        onOpenChange={setRegionSheetOpen}
+        onSelectRegion={handleSelectRegion}
       />
 
       {isLoading ? (

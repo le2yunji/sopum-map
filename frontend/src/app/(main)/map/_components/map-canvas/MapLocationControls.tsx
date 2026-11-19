@@ -6,14 +6,17 @@ import { Button } from "@/components/ui/Button/Button";
 type MapLocationControlsProps = Readonly<{
   visible?: boolean;
   className?: string;
-  onSearchCurrentArea?: () => void;
+  isLocating?: boolean;
+  onOpenRegionSheet?: () => void;
   onMoveToCurrentLocation?: () => void;
 }>;
 
+/** 지역 선택과 현재 위치 이동 동작을 지도 화면으로 전달합니다. */
 export function MapLocationControls({
   visible = true,
   className,
-  onSearchCurrentArea,
+  isLocating = false,
+  onOpenRegionSheet,
   onMoveToCurrentLocation,
 }: MapLocationControlsProps) {
   if (!visible) {
@@ -29,8 +32,8 @@ export function MapLocationControls({
         variant="ghost"
         size="medium"
         iconOnly
-        aria-label="선택한 지역에서 검색"
-        onClick={onSearchCurrentArea}
+        aria-label="지역 선택"
+        onClick={onOpenRegionSheet}
         className="rounded-full bg-white shadow-md"
       >
         <LocationIcon className="size-5" />
@@ -41,12 +44,19 @@ export function MapLocationControls({
         variant="ghost"
         size="medium"
         iconOnly
-        aria-label="현재 위치로 이동"
+        isLoading={isLocating}
+        aria-label={isLocating ? "현재 위치 확인 중" : "현재 위치로 이동"}
         onClick={onMoveToCurrentLocation}
         className="rounded-full bg-white shadow-md"
       >
         <CurrentLocationIcon className="size-5" />
       </Button>
+
+      {isLocating ? (
+        <span role="status" className="sr-only">
+          현재 위치를 확인하는 중입니다.
+        </span>
+      ) : null}
     </div>
   );
 }
